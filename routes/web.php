@@ -53,7 +53,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/master/unit/update/{id}', array('uses' => 'Master\UnitController@update', 'as' => 'master.unit.update'));
     Route::delete('/master/unit/delete/{id}', array('uses' => 'Master\UnitController@destroy', 'as' => 'master.unit.destroy'));
 
-
+    // LOKASI
+    Route::get('/master/lokasi', array('uses' => 'Master\LokasiController@index', 'as' => 'master.lokasi'));
+    Route::get('/master/lokasi/get', array('uses' => 'Master\LokasiController@getList', 'as' => 'master.lokasi.get'));
+    Route::get('/master/lokasi/create', array('uses' => 'Master\LokasiController@create', 'as' => 'master.lokasi.create'));
+    Route::post('/master/lokasi', array('uses' => 'Master\LokasiController@store', 'as' => 'master.lokasi.store'));
+    Route::get('/master/lokasi/edit/{id}', array('uses' => 'Master\LokasiController@edit', 'as' => 'master.lokasi.edit'));
+    Route::put('/master/lokasi/update/{id}', array('uses' => 'Master\LokasiController@update', 'as' => 'master.lokasi.update'));
+    Route::delete('/master/lokasi/delete/{id}', array('uses' => 'Master\LokasiController@destroy', 'as' => 'master.lokasi.destroy')); 
     // ------------------------------- TRANSACTION -------------------------------- //
 
     // ------------------------------- REPORT -------------------------------- //
