@@ -1,0 +1,341 @@
+@charset "UTF-8";
+/*!
+ * Vali Admin
+ * Author: Pratik Borsadiya
+ * ================================*/
+/* latin-ext */
+@font-face {
+  font-family: 'Niconne';
+  font-style: normal;
+  font-weight: 400;
+  src: local("Niconne"), local("Niconne-Regular"), url("../fonts/niconne/7y6M8DdcKDIbmnqOPLrL_1KPGs1ZzpMvnHX-7fPOuAc.woff2.woff2") format("woff2");
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* latin */
+@font-face {
+  font-family: 'Niconne';
+  font-style: normal;
+  font-weight: 400;
+  src: local("Niconne"), local("Niconne-Regular"), url("../fonts/niconne/h93Klz8V5_6KNFvbXz0TaQLUuEpTyoUstqEm5AMlJo4.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+}
+
+@font-face {
+  font-family: 'latoblack';
+  src: url("../fonts/lato/lato-black-webfont.woff2") format("woff2"), url("../fonts/lato/lato-black-webfont.woff") format("woff"), url("../fonts/lato/lato-black-webfont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'latobold';
+  src: url("../fonts/lato/lato-bold-webfont.woff2") format("woff2"), url("../fonts/lato/lato-bold-webfont.woff") format("woff"), url("../fonts/lato/lato-bold-webfont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'latoheavy';
+  src: url("../fonts/lato/lato-heavy-webfont.woff2") format("woff2"), url("../fonts/lato/lato-heavy-webfont.woff") format("woff"), url("../fonts/lato/lato-heavy-webfont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'latomedium';
+  src: url("../fonts/lato/lato-medium-webfont.woff2") format("woff2"), url("../fonts/lato/lato-medium-webfont.woff") format("woff"), url("../fonts/lato/lato-medium-webfont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'latoregular';
+  src: url("../fonts/lato/lato-regular-webfont.woff2") format("woff2"), url("../fonts/lato/lato-regular-webfont.woff") format("woff"), url("../fonts/lato/lato-regular-webfont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'latosemibold';
+  src: url("../fonts/lato/lato-semibold-webfont.woff2") format("woff2"), url("../fonts/lato/lato-semibold-webfont.woff") format("woff"), url("../fonts/lato/lato-semibold-webfont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.latoLight {
+  font-family: 'latoregular', 宋体, SimSun, 华文细黑, STXihei, sans-serif;
+  font-weight: 300;
+}
+
+.latoRegular {
+  font-family: 'latoregular', 宋体, SimSun, 华文细黑, STXihei, sans-serif;
+  font-weight: 400;
+}
+
+.latoMedium {
+  font-family: 'latomedium', 宋体, SimSun, 华文细黑, STXihei, sans-serif;
+}
+
+.latoSemiBold {
+  font-family: 'latosemibold', 宋体, SimSun, 华文细黑, STXihei, sans-serif;
+}
+
+.latoBold {
+  font-family: 'latobold', 宋体, SimSun, 华文细黑, STXihei, sans-serif;
+}
+
+.latoBlack {
+  font-family: 'latoblack', 宋体, SimSun, 华文细黑, STXihei, sans-serif;
+}
+
+.latoHeavy {
+  font-family: 'latoheavy', 宋体, SimSun, 华文细黑, STXihei, sans-serif;
+}
+
+.georgia {
+  font-family: georgia, times, 宋体, SimSun, 华文细黑, STXihei, serif;
+  letter-spacing: normal;
+}
+
+.material-half-bg {
+  height: 100vh;
+  background-color: #e7e7e7;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+.material-half-bg .cover {
+  background-color: #038C11;
+  height: 50vh;
+}
+
+.login-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.login-content a {
+    color: #3c8dbc;
+    text-decoration: none;
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.login-content .logo {
+  margin-bottom: 40px;
+  font-family: 'georgia';
+  color: #fff;
+}
+
+.login-content .logo a {
+    color: #fff;
+}
+
+.login-content .logo h1 {
+  font-size: 40px;
+  font-weight: 400;
+}
+
+.login-content .login-box {
+  position: relative;
+  min-width: 350px;
+  min-height: 390px;
+  background-color: #fff;
+  box-shadow: 0px 29px 147.5px 102.5px rgba(0, 0, 0, 0.05), 0px 29px 95px 0px rgba(0, 0, 0, 0.16);
+  perspective: 800px;
+  transition: all 0.5s ease-in-out;
+}
+
+.login-content .login-box .login-head {
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.login-content .login-box label {
+  color: #666;
+}
+
+.login-content .login-box .utility {
+  display: flex;
+  padding: 1px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.login-content .login-box .btn-container {
+  margin-bottom: 0;
+}
+
+.login-content .login-box .login-form, .login-content .login-box .forget-form {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5px 40px 40px 40px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: all 0.5s ease-in-out;
+  background-color: #F5F6F5;
+}
+
+.login-content .login-box .forget-form {
+  opacity: 0;
+  transform: rotateY(180deg);
+}
+
+.login-content .login-box.flipped {
+  min-height: 300px;
+}
+
+.login-content .login-box.flipped .login-form {
+  opacity: 0;
+  transform: rotateY(-180deg);
+}
+
+.login-content .login-box.flipped .forget-form {
+  opacity: 1;
+  transform: rotateY(0deg);
+}
+
+.login-footer {
+  margin-top : 5px;
+}
+
+@media (max-width: 351px) {
+  .login-content .login-box {
+    min-width: 100%;
+  }
+  .login-content .login-box .login-form, .login-content .login-box .forget-form {
+    width: 100%;
+  }
+}
+
+.semibold-text {
+  font-weight: 600 !important;
+}
+
+.mt-20 {
+    margin-top: 20px!important;
+}
+
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+/* Custom Checkbox and Radio Buttons */
+.animated-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.animated-checkbox input[type="checkbox"] + .label-text {
+  cursor: pointer !important;
+  user-select: none;
+}
+
+.animated-checkbox input[type="checkbox"] + .label-text:before {
+  content: "\f096";
+  font-family: "FontAwesome";
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  width: 1em;
+  display: inline-block;
+  margin-right: 2px;
+  vertical-align: -2px;
+}
+
+.animated-checkbox input[type="checkbox"]:checked + .label-text:before {
+  content: "\f14a";
+  color: #3c8dbc;
+  animation: tick 180ms ease-in;
+}
+
+.animated-checkbox input[type="checkbox"]:disabled + .label-text {
+  cursor: not-allowed !important;
+}
+
+.animated-checkbox input[type="checkbox"]:disabled + .label-text:before {
+  content: "\f0c8";
+  color: #ccc;
+}
+
+/**********************************************************/
+/******************** SCROLL TO TOP ***********************/
+/**********************************************************/
+
+        .goTop {
+            display: none;
+            cursor: pointer;
+            position: fixed;
+            z-index: 99;
+            bottom: 50px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: url("/img/gotop.png") no-repeat;
+            opacity: 0.1;
+        }
+
+        .goTop:hover {
+            opacity: 1;
+        }
+
+        .select2 {
+            width: 100% !important;
+        }
+
+        .has-error .select2-container--default .select2-selection--single, .has-error .select2-selection .select2-selection--single {
+            border-color : #dd4b39;
+        }
+
+        .has-success .select2-container--default .select2-selection--single, .has-success .select2-selection .select2-selection--single {
+            border-color : #00a65a;
+        }
+
+.select2-results__option[aria-selected="true"] {
+    display: none;
+}
+
+        .hidden {
+            display: none;
+        }
+
+        .sidebar-menu li>a {
+            position: relative;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+    ul.action {
+        list-style-type: none; 
+        margin-left: -2.5em;
+    }
+
+    ul.action li {
+        text-align: center;
+    }
+
+    ul.action a {
+        text-align: left;
+        text-decoration: none;
+        margin-bottom: 2px;
+        margin-right: 2px;
+        display: block;
+    }

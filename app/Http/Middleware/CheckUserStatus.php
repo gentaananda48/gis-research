@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Auth;
+
+class CheckUserStatus
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle($request, Closure $next)
+    {
+        if ($request->user()->status != "active") {
+            Auth::logout();
+            return redirect()->to('/')->with('warning', 'Your session has expired because your account is deactivated.');
+        }
+
+        return $next($request);
+    }
+}

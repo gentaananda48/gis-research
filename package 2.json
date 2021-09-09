@@ -1,0 +1,18 @@
+{
+  "name": "vali-admin",
+  "description": "An admin theme built with Bootstrap, sass and PugJs",
+  "author": "Pratik Borsadiya",
+  "devDependencies": {
+    "autoprefixer": "^7.1.0",
+    "grunt": "^1.0.1",
+    "grunt-contrib-cssmin": "^2.2.1",
+    "grunt-contrib-pug": "^1.0.0",
+    "grunt-contrib-uglify": "^3.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-postcss": "^0.8.0",
+    "grunt-sass": "^2.0.0"
+  },
+  "dependencies": {
+    "sweetalert": "^2.0.8"
+  }
+}
