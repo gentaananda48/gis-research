@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Http\Controllers\Master;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Model\Aktivitas;
+use App\Center\GridCenter;
+use App\Transformer\AktivitasTransformer;
+
+class AktivitasController extends Controller {
+    public function index() {
+        return view('master.aktivitas.index');
+    }
+
+    public function getList(){
+        $query = Aktivitas::select();
+        $data = new GridCenter($query, $_GET);
+        echo json_encode($data->render(new AktivitasTransformer()));
+        exit;
+    }
+
+    public function create() {
+        return view('master.aktivitas.create', []);
+    }
+
+    public function store(Request $request) {
+        $post = $request->all();
+        $validated_fields = ['kode' => 'required', 'nama' => 'required'];
+        $valid = Validator::make($post,$validated_fields);
+        if($valid->fails()) {
+            return redirect()->back()->withInput($request->input())->withErrors($valid->errors());
+        }
+        $isUsed = Aktivitas::where('kode', '=', $request->kode)->first();
+        if ($isUsed !== null) {
+            return redirect()->back()->withInput($request->input())->withErrors($request->kode . " already exist!");
+        }
+        try {
+            $aktivitas= new Aktivitas;   
+            $aktivitas->kode 	= $request->input('kode'); 
+            $aktivitas->nama 	= $request->input('nama'); 
+            $aktivitas->save();
+        } catch(Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+
+        return redirect('master/aktivitas')->with('message', 'Saved successfully');
+    }
+
+    public function edit($id) {
+        $data = Aktivitas::find($id);
+        return view('master.aktivitas.edit', ['data' => $data]);
+    }
+
+    public function update(Request $request, $id) {
+        $post = $request->all();
+        $validated_fields = ['kode' => 'required', 'nama' => 'required'];
+        $valid = Validator::make($post,$validated_fields);
+        if($valid->fails()) {
+            return redirect()->back()->withInput($request->input())->withErrors($valid->errors());
+        }
+        $isUsed = Aktivitas::where('kode', '=', $request->kode)->where('id', '<>', $id)->first();
+        if ($isUsed !== null) {
+            return redirect()->back()->withInput($request->input())->withErrors($request->kode . " already exist!");
+        }
+        try {
+            $aktivitas= Aktivitas::find($id);   
+            $aktivitas->kode 	= $request->input('kode'); 
+            $aktivitas->nama 	= $request->input('nama'); 
+            $aktivitas->save();
+
+        } catch(Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+        return redirect('master/aktivitas')->with('message', 'Saved successfully');
+    }
+
+    public function destroy($id) {
+        try {
+            $aktivitas= Aktivitas::find($id);
+            $aktivitas->delete();
+            return redirect('master/aktivitas')->with('message', 'Deleted successfully');
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+    }
+}

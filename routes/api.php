@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group([
-	'middleware' => 'api',
+    'middleware' => ['check_app_version', 'api'],
     'namespace' => 'API',
     'prefix' => 'auth'
 ], function ($router) {
@@ -27,4 +27,54 @@ Route::group([
     Route::post('refresh', 'AuthController@refresh');
     Route::post('me', 'AuthController@me');
     Route::post('changePassword', 'AuthController@changePassword');
+    Route::get('permission', 'AuthController@permission');
+});
+
+// USER
+Route::group([
+	'middleware' => ['check_app_version', 'api'],
+    'namespace' => 'API',
+    'prefix' => 'user'
+], function ($router) {
+    Route::get('list', 'UserController@list');
+});
+
+// UNIT
+Route::group([
+	'middleware' => ['check_app_version', 'api'],
+    'namespace' => 'API',
+    'prefix' => 'unit'
+], function ($router) {
+    Route::get('list', 'UnitController@list');
+});
+
+// LOKASI
+Route::group([
+	'middleware' => ['check_app_version', 'api'],
+    'namespace' => 'API',
+    'prefix' => 'lokasi'
+], function ($router) {
+    Route::get('list', 'LokasiController@list');
+});
+
+// Aktivitas
+Route::group([
+	'middleware' => ['check_app_version', 'api'],
+    'namespace' => 'API',
+    'prefix' => 'aktivitas'
+], function ($router) {
+    Route::get('list', 'AktivitasController@list');
+});
+
+//SURAT JALAN
+Route::group([
+    'middleware' 	=> ['check_app_version', 'api'],
+    'namespace' 	=> 'API',
+    'prefix' 		=> 'rencana_kerja'
+], function ($router) {
+    Route::get('list', 'RencanaKerjaController@list');
+    Route::get('get_master_data', 'RencanaKerjaController@get_master_data');
+    Route::get('detail', 'RencanaKerjaController@detail');
+    Route::post('create', 'RencanaKerjaController@create');
+    Route::post('update', 'RencanaKerjaController@update');
 });

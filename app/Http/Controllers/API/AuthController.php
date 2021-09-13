@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Model\User;
+use App\Model\Permission;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -182,6 +183,24 @@ class AuthController extends Controller
         'status'    => false, 
         'message'   => 'Password Changed Successfully', 
         'data'      => null
+      ]);
+    }
+
+    public function permission()
+    {
+      $user = $this->guard()->user();
+      $permission = Permission::join('role_permission AS rp', 'rp.permission_id', '=', 'permissions.id')
+        ->where('rp.role_id', $user->role_id)
+        ->where('permissions.group_id', 5)
+        ->get(['permissions.code']);
+      $list_permission = [];
+      foreach($permission as $v){
+        $list_permission[] = $v->code;
+      }
+      return response()->json([
+        'status' => true, 
+        'message' => '', 
+        'data' => $list_permission
       ]);
     }
 

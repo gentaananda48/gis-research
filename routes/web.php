@@ -61,7 +61,21 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/lokasi/edit/{id}', array('uses' => 'Master\LokasiController@edit', 'as' => 'master.lokasi.edit'));
     Route::put('/master/lokasi/update/{id}', array('uses' => 'Master\LokasiController@update', 'as' => 'master.lokasi.update'));
     Route::delete('/master/lokasi/delete/{id}', array('uses' => 'Master\LokasiController@destroy', 'as' => 'master.lokasi.destroy')); 
+
+    // UNIT
+    Route::get('/master/aktivitas', array('uses' => 'Master\AktivitasController@index', 'as' => 'master.aktivitas'));
+    Route::get('/master/aktivitas/get', array('uses' => 'Master\AktivitasController@getList', 'as' => 'master.aktivitas.get'));
+    Route::get('/master/aktivitas/create', array('uses' => 'Master\AktivitasController@create', 'as' => 'master.aktivitas.create'));
+    Route::post('/master/aktivitas', array('uses' => 'Master\AktivitasController@store', 'as' => 'master.aktivitas.store'));
+    Route::get('/master/aktivitas/edit/{id}', array('uses' => 'Master\AktivitasController@edit', 'as' => 'master.aktivitas.edit'));
+    Route::put('/master/aktivitas/update/{id}', array('uses' => 'Master\AktivitasController@update', 'as' => 'master.aktivitas.update'));
+    Route::delete('/master/aktivitas/delete/{id}', array('uses' => 'Master\AktivitasController@destroy', 'as' => 'master.aktivitas.destroy'));
+    
     // ------------------------------- TRANSACTION -------------------------------- //
+    // RENCANA KERJA
+    Route::get('/transaction/rencana_kerja', array('uses' => 'Transaction\RencanaKerjaController@index', 'as' => 'transaction.rencana_kerja'));
+    Route::get('/transaction/rencana_kerja/get', array('uses' => 'Transaction\RencanaKerjaController@getList', 'as' => 'transaction.rencana_kerja.get'));
+    Route::get('/transaction/rencana_kerja/show/{id}', array('uses' => 'Transaction\RencanaKerjaController@show', 'as' => 'transaction.rencana_kerja.show'));
 
     // ------------------------------- REPORT -------------------------------- //
 

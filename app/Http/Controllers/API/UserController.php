@@ -5,30 +5,25 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-use App\Model\Unit;
+use App\Model\User;
 
-class UnitController extends Controller {
+class UserController extends Controller {
     public function __construct() {
         $this->middleware('auth:api', []);
     }
 
     public function list(Request $request){
-        $list = Unit::get();
+        $query = User::select();
+        if(!empty($request->role_code)){
+        	$query->join('roles', 'roles.id', '=', 'users.role_id')
+        		->where('roles.code', $request->role_code);
+        }
+        $list = $query->orderBy('username')->get();
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 
             'data'      => $list
         ]);
-    }
-
-    public function sync_down(Request $request){
-        $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
-    	$list = Unit::where('updated_at', '>', $updated_at)->get();
-        return response()->json([
-            'status'    => true, 
-            'message'   => 'success', 
-            'data'      => $list
-          ]);
     }
 
     public function guard(){

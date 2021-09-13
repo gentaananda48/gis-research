@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use App\Model\SystemConfiguration;
+
+class CheckAppVersion
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle($request, Closure $next)
+    {
+        $sysconf = SystemConfiguration::where('CODE', 'APP-VERSION')->first(['value']);
+        $app_version = $request->header('APP-VERSION', '');
+        if($app_version!=$sysconf->value){
+            return response()->json([
+                'status'    => false, 
+                'message'   => 'Silahkan Install Versi Terbaru !!', 
+                'data'      => null
+            ]);
+        }
+        return $next($request);
+    }
+}
