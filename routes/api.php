@@ -73,6 +73,8 @@ Route::group([
     'prefix' 		=> 'rencana_kerja'
 ], function ($router) {
     Route::get('list', 'RencanaKerjaController@list');
+    Route::get('list2', 'RencanaKerjaController@list2');
+    Route::get('list3', 'RencanaKerjaController@list3');
     Route::get('get_master_data', 'RencanaKerjaController@get_master_data');
     Route::get('detail', 'RencanaKerjaController@detail');
     Route::post('create', 'RencanaKerjaController@create');
