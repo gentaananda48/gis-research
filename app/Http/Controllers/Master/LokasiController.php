@@ -39,9 +39,11 @@ class LokasiController extends Controller {
         }
         try {
             $lokasi= new Lokasi;   
-            $lokasi->kode 	 = $request->input('kode'); 
-            $lokasi->status  = $request->input('status'); 
-            $lokasi->lsbruto = $request->input('lsbruto'); 
+            $lokasi->kode       = $request->input('kode'); 
+            $lokasi->nama       = $request->input('nama'); 
+            $lokasi->lsbruto    = $request->input('lsbruto'); 
+            $lokasi->lsnetto    = $request->input('lsnetto');
+            $lokasi->status     = $request->input('status');  
             $lokasi->save();
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
@@ -77,9 +79,11 @@ class LokasiController extends Controller {
         }
         try {
             $lokasi= Lokasi::find($id);;   
-            $lokasi->kode 	= $request->input('kode'); 
-            $lokasi->status = $request->input('status'); 
-            $lokasi->lsbruto = $request->input('lsbruto'); 
+            $lokasi->kode       = $request->input('kode'); 
+            $lokasi->nama       = $request->input('nama'); 
+            $lokasi->lsbruto    = $request->input('lsbruto'); 
+            $lokasi->lsnetto    = $request->input('lsnetto');
+            $lokasi->status     = $request->input('status'); 
             $lokasi->save();
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());

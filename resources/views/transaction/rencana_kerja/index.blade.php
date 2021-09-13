@@ -33,9 +33,11 @@
                             <th data-column-id="tgl" data-width="20%">Tanggal</th>
                             <th data-column-id="shift_nama">Shift</th>
                             <th data-column-id="lokasi_kode">Lokasi</th>
-                            <th data-column-id="lokasi_lsbruto">Luas</th>
+                            <th data-column-id="lokasi_lsbruto">Luas Bruto</th>
+                            <th data-column-id="lokasi_lsnetto">Luas Netto</th>
                             <th data-column-id="aktivitas_nama">Aktivitas</th>
                             <th data-column-id="operator_nama">Operator</th>
+                            <th data-column-id="driver_nama">Driver</th>
                             <th data-column-id="kasie_nama">Kasie</th>
                             <th data-column-id="status_nama">Status</th>
                         </tr>

@@ -19,15 +19,23 @@
 					<div class="box-body">
 						<div class="form-group">
 							<label for="kode">Kode</label>
-							{{ Form::text('kode', null, array('placeholder' => 'Kode', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required', 'autocomplete'=>'off')) }}
+							{{ Form::text('kode', Input::old('kode'), array('placeholder' => 'Kode', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required', 'autocomplete'=>'off')) }}
 						</div>
 						<div class="form-group">
-							<label for="status">Status</label>
-							{{ Form::text('status', null, array('placeholder' => 'Status', 'class' => 'form-control')) }}
+							<label for="nama">Nama</label>
+							{{ Form::text('nama', Input::old('nama'), array('placeholder' => 'Nama', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required', 'autocomplete'=>'off')) }}
 						</div>
 						<div class="form-group">
 							<label for="bruto">Luas Bruto</label>
 							{{ Form::text('lsbruto', Input::old('lsbruto'), array('placeholder' => 'Luas Bruto', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
+						</div>
+						<div class="form-group">
+							<label for="lsnetto">Luas Netto</label>
+							{{ Form::text('lsnetto', Input::old('lsnetto'), array('placeholder' => 'Luas Netto', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
+						</div>
+						<div class="form-group">
+							<label for="status">Status</label>
+							{{ Form::text('status', null, array('placeholder' => 'Status', 'class' => 'form-control')) }}
 						</div>
 					<div class="box-footer">
 						{{ Form::submit('Save', array('class' => 'btn btn-success'))}}

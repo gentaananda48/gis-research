@@ -22,12 +22,20 @@
 							{{ Form::text('kode', $data->kode, array('placeholder' => 'Kode', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required', 'autocomplete'=>'off')) }}
 						</div>
 						<div class="form-group">
-							<label for="status">Status</label>
-							{{ Form::text('status', $data->status, array('placeholder' => 'Status', 'class' => 'form-control')) }}
+							<label for="nama">Nama</label>
+							{{ Form::text('nama', $data->nama, array('placeholder' => 'Nama', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required', 'autocomplete'=>'off')) }}
 						</div>
 						<div class="form-group">
 							<label for="lsbruto">Luas Bruto</label>
 							{{ Form::text('lsbruto', $data->lsbruto, array('placeholder' => 'Luas Bruto', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
+						</div>
+						<div class="form-group">
+							<label for="lsnetto">Luas Netto</label>
+							{{ Form::text('lsnetto', $data->lsnetto, array('placeholder' => 'Luas Netto', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
+						</div>
+						<div class="form-group">
+							<label for="status">Status</label>
+							{{ Form::text('status', $data->status, array('placeholder' => 'Status', 'class' => 'form-control')) }}
 						</div>
 					</div>
 					<div class="box-footer">

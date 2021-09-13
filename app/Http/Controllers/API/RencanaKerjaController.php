@@ -21,12 +21,13 @@ class RencanaKerjaController extends Controller {
     }
 
     public function list(Request $request){
-        $list =RencanaKerja::select(['rencana_kerja.*', 's.nama AS shift_nama', 'l.kode AS lokasi_kode', 'l.nama AS lokasi_nama', 'a.kode AS aktivitas_kode', 'a.nama AS aktivitas_nama', 'u.kode AS unit_kode', 'u.nama AS unit_nama', 'o.name AS operator_nama', 'k.name AS kasie_nama', 's2.nama AS status_nama', 's2.color AS status_color'])
+        $list =RencanaKerja::select(['rencana_kerja.*', 's.nama AS shift_nama', 'l.kode AS lokasi_kode', 'l.nama AS lokasi_nama', 'a.kode AS aktivitas_kode', 'a.nama AS aktivitas_nama', 'u.kode AS unit_kode', 'u.nama AS unit_nama', 'o.name AS operator_nama', 'd.name AS driver_nama', 'k.name AS kasie_nama', 's2.nama AS status_nama', 's2.color AS status_color'])
             ->leftJoin('shift AS s', 's.id', '=', 'rencana_kerja.shift_id')
             ->leftJoin('lokasi AS l', 'l.id', '=', 'rencana_kerja.lokasi_id')
             ->leftJoin('aktivitas AS a', 'a.id', '=', 'rencana_kerja.aktivitas_id')
             ->leftJoin('unit as u', 'u.id', '=', 'rencana_kerja.unit_id')
             ->leftJoin('users AS o', 'o.id', '=', 'rencana_kerja.operator_id')
+            ->leftJoin('users AS d', 'd.id', '=', 'rencana_kerja.driver_id')
             ->leftJoin('users AS k', 'k.id', '=', 'rencana_kerja.kasie_id')
             ->leftJoin('status AS s2', 's2.id', '=', 'rencana_kerja.status_id')
             ->orderBy('tgl', 'DESC')
@@ -39,12 +40,13 @@ class RencanaKerjaController extends Controller {
     }
 
     public function detail(Request $request){
-    	$rk = RencanaKerja::select(['rencana_kerja.*', 's.nama AS shift_nama', 'l.kode AS lokasi_kode', 'l.nama AS lokasi_nama', 'a.kode AS aktivitas_kode', 'a.nama AS aktivitas_nama', 'u.kode AS unit_kode', 'u.nama AS unit_nama', 'o.name AS operator_nama', 'k.name AS kasie_nama', 's2.nama AS status_nama', 's2.color AS status_color'])
+    	$rk = RencanaKerja::select(['rencana_kerja.*', 's.nama AS shift_nama', 'l.kode AS lokasi_kode', 'l.nama AS lokasi_nama', 'a.kode AS aktivitas_kode', 'a.nama AS aktivitas_nama', 'u.kode AS unit_kode', 'u.nama AS unit_nama', 'o.name AS operator_nama', 'd.name AS driver_nama', 'k.name AS kasie_nama', 's2.nama AS status_nama', 's2.color AS status_color'])
             ->leftJoin('shift AS s', 's.id', '=', 'rencana_kerja.shift_id')
             ->leftJoin('lokasi AS l', 'l.id', '=', 'rencana_kerja.lokasi_id')
             ->leftJoin('aktivitas AS a', 'a.id', '=', 'rencana_kerja.aktivitas_id')
             ->leftJoin('unit as u', 'u.id', '=', 'rencana_kerja.unit_id')
             ->leftJoin('users AS o', 'o.id', '=', 'rencana_kerja.operator_id')
+            ->leftJoin('users AS d', 'd.id', '=', 'rencana_kerja.driver_id')
             ->leftJoin('users AS k', 'k.id', '=', 'rencana_kerja.kasie_id')
             ->leftJoin('status AS s2', 's2.id', '=', 'rencana_kerja.status_id')
             ->where('rencana_kerja.id', $request->id)
@@ -59,16 +61,18 @@ class RencanaKerjaController extends Controller {
 
 	public function get_master_data(Request $request){
 		$list_shift 	= Shift::get(['id', 'nama']);
-		$list_lokasi 	= Lokasi::get(['id', 'kode', 'nama', 'lsbruto']);
+		$list_lokasi 	= Lokasi::get(['id', 'kode', 'nama', 'lsbruto', 'lsnetto']);
 		$list_aktivitas = Aktivitas::get(['id', 'kode', 'nama']);
 		$list_unit 		= Unit::get(['id', 'kode', 'nama']);
-		$list_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')->where('r.code', 'MBL002')->get(['users.id', 'users.name AS nama']);
+		$list_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')->where('r.code', 'MBL_SPRAY_OPERATOR')->get(['users.id', 'users.name AS nama']);
+		$list_driver 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')->where('r.code', 'MBL_SPRAY_DRIVER')->get(['users.id', 'users.name AS nama']);
 		$data = [
 			'list_shift'		=> $list_shift,
 			'list_lokasi'		=> $list_lokasi,
 			'list_aktivitas'	=> $list_aktivitas,
 			'list_unit'			=> $list_unit,
-			'list_operator' 	=> $list_operator
+			'list_operator' 	=> $list_operator,
+			'list_driver' 		=> $list_driver
 		];
 		return response()->json([
         	'status' 	=> true, 
@@ -87,9 +91,11 @@ class RencanaKerjaController extends Controller {
 	      	$rk->shift_id 		= $request->shift_id;
 	      	$rk->lokasi_id 		= $request->lokasi_id;
 	      	$rk->lokasi_lsbruto = $request->lokasi_lsbruto;
+	      	$rk->lokasi_lsnetto = $request->lokasi_lsnetto;
 	      	$rk->aktivitas_id  	= $request->aktivitas_id;
 	      	$rk->unit_id  		= $request->unit_id;
 	      	$rk->operator_id 	= $request->operator_id;
+	      	$rk->driver_id 		= $request->driver_id;
 	      	$rk->kasie_id  		= $user->id;
 	      	$rk->status_id 		= 1;
 	      	$rk->save();
@@ -130,9 +136,11 @@ class RencanaKerjaController extends Controller {
 	      	$rk->shift_id 		= $request->shift_id;
 	      	$rk->lokasi_id 		= $request->lokasi_id;
 	      	$rk->lokasi_lsbruto = $request->lokasi_lsbruto;
+	      	$rk->lokasi_lsnetto = $request->lokasi_lsnetto;
 	      	$rk->aktivitas_id  	= $request->aktivitas_id;
 	      	$rk->unit_id  		= $request->unit_id;
 	      	$rk->operator_id 	= $request->operator_id;
+	      	$rk->driver_id 		= $request->driver_id;
 	      	$rk->kasie_id  		= $user->id;
 	      	$rk->status_id 		= $request->status_id;
 	      	$rk->save();

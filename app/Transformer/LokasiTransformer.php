@@ -8,8 +8,10 @@ class LokasiTransformer extends TransformerAbstract {
         return [
             'id'            => $model->id,
             'kode'         => $model->kode,
-            'status'       => $model->status,
+            'nama'         => $model->nama,
             'lsbruto'       => number_format($model->lsbruto,2),
+            'lsnetto'       => number_format($model->lsnetto,2),
+            'status'       => $model->status,
             'created_at'    => $model->created_at->format('Y-m-d H:i:s'),
             'created_by'    => $model->created_by,
             'updated_at'    => $model->updated_at->format('Y-m-d H:i:s'),

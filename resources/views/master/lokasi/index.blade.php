@@ -32,8 +32,10 @@
                         <tr>
                             <th data-column-id="id" data-order="asc" data-type="numeric" data-identifier="true" data-visible="false">ID</th>
                             <th data-column-id="kode" data-width="20%">Kode</th>
-                            <th data-column-id="status">Status</th>
+                            <th data-column-id="nama">Kode</th>
                             <th data-column-id="lsbruto">Luas Bruto</th>
+                            <th data-column-id="lsnetto">Luas Netto</th>
+                            <th data-column-id="status">Status</th>
                         </tr>
                     </thead>
                 </table>
