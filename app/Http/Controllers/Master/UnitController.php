@@ -8,9 +8,51 @@ use Illuminate\Support\Facades\Validator;
 use App\Model\Unit;
 use App\Center\GridCenter;
 use App\Transformer\UnitTransformer;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class UnitController extends Controller {
+    protected $base_url = 'https://api.lacak.io';
+    protected $hash = '375f851d60cb30450125d5414c6b76c7';
+
     public function index() {
+        try {
+            $list_unit = Unit::get();
+            $list_lacak_id = [];
+            foreach($list_unit AS $v){
+                $list_lacak_id[] = $v->lacak_id;
+            }
+            $trackers = '['.join(',',$list_lacak_id).']';
+            $client = new Client();
+            $res = $client->request('POST', $this->base_url.'/tracker/get_states', [
+                'form_params' => [
+                    'hash'      => $this->hash,
+                    'trackers'  => $trackers
+                ]
+            ]);
+            $body = json_decode($res->getBody());
+            foreach($body->states AS $k=>$v) {
+                $unit = Unit::where('lacak_id', $k)->first();
+                if($unit!=null){
+                    $unit->gps_updated = $v->gps->updated;
+                    $unit->gps_signal_level = $v->gps->signal_level;
+                    $unit->gps_location_lat = $v->gps->location->lat;
+                    $unit->gps_location_lng = $v->gps->location->lng;
+                    $unit->gps_heading = $v->gps->heading;
+                    $unit->gps_speed = $v->gps->speed;
+                    $unit->gps_alt = $v->gps->alt;
+                    $unit->movement_status = $v->movement_status;
+                    $unit->save();
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'status'    => false, 
+                'message'   => $e->getMessage(), 
+                'data'      => null
+            ]);
+        }
         return view('master.unit.index');
     }
 

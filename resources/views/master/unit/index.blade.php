@@ -33,6 +33,8 @@
                             <th data-column-id="id" data-order="asc" data-type="numeric" data-identifier="true" data-visible="false">ID</th>
                             <th data-column-id="kode" data-width="20%">Kode</th>
                             <th data-column-id="nama">Nama</th>
+                            <th data-column-id="lacak_id">ID (Lacak)</th>
+                            <th data-column-id="movement_status">Movement Status</th>
                         </tr>
                     </thead>
                 </table>

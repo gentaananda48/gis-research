@@ -25,6 +25,10 @@
 							<label for="nama">Nama</label>
 							{{ Form::text('nama', null, array('placeholder' => 'Nama', 'class' => 'form-control')) }}
 						</div>
+						<div class="form-group">
+							<label for="lacak_id">ID (Lacak)</label>
+							{{ Form::number('lacak_id', null, array('placeholder' => 'ID (Lacak)', 'class' => 'form-control')) }}
+						</div>
 					<div class="box-footer">
 						{{ Form::submit('Save', array('class' => 'btn btn-success'))}}
 						<a href="{{ url('/master/unit') }}" class="btn btn-warning"> Back </a>

@@ -25,6 +25,10 @@
 							<label for="nama">Nama</label>
 							{{ Form::text('nama', $data->nama, array('placeholder' => 'Nama', 'class' => 'form-control')) }}
 						</div>
+						<div class="form-group">
+							<label for="lacak_id">ID (Lacak)</label>
+							{{ Form::number('lacak_id', $data->lacak_id, array('placeholder' => 'ID (Lacak)', 'class' => 'form-control')) }}
+						</div>
 					</div>
 					<div class="box-footer">
 						{{ Form::submit('Update', array('class' => 'btn btn-success'))}}

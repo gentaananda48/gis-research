@@ -46,6 +46,7 @@ Route::group([
     'prefix' => 'unit'
 ], function ($router) {
     Route::get('list', 'UnitController@list');
+    Route::get('detail', 'UnitController@detail');
 });
 
 // LOKASI
