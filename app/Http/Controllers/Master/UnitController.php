@@ -91,11 +91,15 @@ class UnitController extends Controller {
                 ]
             ]);
             $body = json_decode($res->getBody());
-            foreach($body->list AS $v) {
-                if($v->label==$unit->kode){
-                    $unit->lacak_id = $v->id;
-                    $unit->save();
+            if(count($body->list)>0){
+                foreach($body->list AS $v) {
+                    if($v->label==$unit->kode){
+                        $unit->lacak_id = $v->id;
+                        $unit->save();
+                    }
                 }
+            } else {
+                return redirect()->back()->withErrors($unit->kode." not found in Lacak System");
             }
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
