@@ -82,7 +82,21 @@ class UnitController extends Controller {
             $unit= new Unit;   
             $unit->kode 	= $request->input('kode'); 
             $unit->nama 	= $request->input('nama'); 
-            $unit->save();
+
+            $client = new Client();
+            $res = $client->request('POST', $this->base_url.'/tracker/list', [
+                'form_params' => [
+                    'hash'      => $this->hash,
+                    'labels'    => '["'.$unit->kode.'"]'
+                ]
+            ]);
+            $body = json_decode($res->getBody());
+            foreach($body->list AS $v) {
+                if($v->label==$unit->kode){
+                    $unit->lacak_id = $v->id;
+                    $unit->save();
+                }
+            }
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
