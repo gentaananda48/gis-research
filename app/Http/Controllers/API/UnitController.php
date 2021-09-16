@@ -65,6 +65,13 @@ class UnitController extends Controller {
 
     public function detail(Request $request){
         $unit = Unit::find($request->id);
+        if($unit==null){
+            return response()->json([
+                'status'    => false, 
+                'message'   => 'Unit not found', 
+                'data'      => null
+            ]);
+        }
         try {
             $client = new Client();
             $res = $client->request('POST', $this->base_url.'/tracker/get_state', [
