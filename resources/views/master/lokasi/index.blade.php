@@ -36,27 +36,13 @@
                             <th data-column-id="lsbruto">Luas Bruto</th>
                             <th data-column-id="lsnetto">Luas Netto</th>
                             <th data-column-id="status">Status</th>
+                            <th data-column-id="commands" data-width="15%" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                         </tr>
                     </thead>
                 </table>
             </div>
         </div>
     </section>
-
-<div id="contextMenu" class="dropdown clearfix">
-    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
-        <li>
-            <a tabindex="-1" class="btn-edit" href="javascript:void(0)"><i class="fa fa-edit" aria-hidden="true"></i> Edit</a>
-        </li>
-        <li>
-            <a tabindex="-1" class="btn-delete" href="javascript:void(0)"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a>
-        </li>
-        <li class="divider"></li>
-        <li>
-            <a tabindex="-1" class="btn-refresh" href="javascript:void(0)"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</a>
-        </li>
-    </ul>
-</div>
 @stop
 
 @section("script")

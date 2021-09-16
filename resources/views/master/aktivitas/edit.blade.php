@@ -15,7 +15,7 @@
 					<div class="box-header with-border">
 						<h3 class="box-title">Fill the forms</h3>
 					</div>
-					{!! Form::open(['method' => 'PUT', 'route'=>['master.unit.update', $data->id], 'class' => 'validated-form']) !!}
+					{!! Form::open(['method' => 'PUT', 'route'=>['master.aktivitas.update', $data->id], 'class' => 'validated-form']) !!}
 					<div class="box-body">
 						<div class="form-group">
 							<label for="kode">Kode</label>
@@ -28,7 +28,7 @@
 					</div>
 					<div class="box-footer">
 						{{ Form::submit('Update', array('class' => 'btn btn-success'))}}
-						<a href="{{ url('/master/unit') }}" class="btn btn-warning"> Back </a>
+						<a href="{{ url('/master/aktivitas') }}" class="btn btn-warning"> Back </a>
 					</div>
 					{{ csrf_field() }}
 					{{ Form::close() }}
