@@ -68,7 +68,7 @@ class UnitController extends Controller {
         if($unit==null){
             return response()->json([
                 'status'    => false, 
-                'message'   => 'Unit not found', 
+                'message'   => 'Unit ID: '.$request->id.' not found', 
                 'data'      => null
             ]);
         }
