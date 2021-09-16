@@ -40,6 +40,7 @@ class RencanaKerjaController extends Controller {
     }
 
     public function list2(Request $request){
+    	$list_status = explode(',', $request->status);
         $list =RencanaKerja::select(['rencana_kerja.*', 's.nama AS shift_nama', 'l.kode AS lokasi_kode', 'l.nama AS lokasi_nama', 'a.kode AS aktivitas_kode', 'a.nama AS aktivitas_nama', 'u.kode AS unit_kode', 'u.nama AS unit_nama', 'o.name AS operator_nama', 'd.name AS driver_nama', 'k.name AS kasie_nama', 's2.nama AS status_nama', 's2.color AS status_color'])
             ->leftJoin('shift AS s', 's.id', '=', 'rencana_kerja.shift_id')
             ->leftJoin('lokasi AS l', 'l.id', '=', 'rencana_kerja.lokasi_id')
@@ -50,6 +51,7 @@ class RencanaKerjaController extends Controller {
             ->leftJoin('users AS k', 'k.id', '=', 'rencana_kerja.kasie_id')
             ->leftJoin('status AS s2', 's2.id', '=', 'rencana_kerja.status_id')
             ->where('rencana_kerja.tgl', $request->tgl)
+            ->whereIn('rencana_kerja.status_id', $list_status)
             ->orderBy('rencana_kerja.unit_id', 'ASC')
             ->orderBy('s2.urutan', 'DESC')
             ->get();
