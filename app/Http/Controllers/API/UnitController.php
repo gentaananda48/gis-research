@@ -32,6 +32,27 @@ class UnitController extends Controller {
 
     public function detail(Request $request){
         $unit = Unit::find($request->id);
+        try {
+            $client = new Client();
+            $res = $client->request('POST', $this->base_url.'/tracker/get_state', [
+                'form_params' => [
+                    'hash'          => $this->hash,
+                    'tracker_id'    => $unit->lacak_id
+                ]
+            ]);
+            $body = json_decode($res->getBody());
+            $unit->gps_updated = $body->state->gps->updated;
+            $unit->gps_signal_level = $body->state->gps->signal_level;
+            $unit->gps_location_lat = $body->state->gps->location->lat;
+            $unit->gps_location_lng = $body->state->gps->location->lng;
+            $unit->gps_heading = $body->state->gps->heading;
+            $unit->gps_speed = $body->state->gps->speed;
+            $unit->gps_alt = $body->state->gps->alt;
+            $unit->movement_status = $body->state->movement_status;
+            $unit->save();
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+        }
         return response()->json([
             'status'    => true, 
             'message'   => '', 

@@ -34,6 +34,14 @@
                             <th data-column-id="kode" data-width="20%">Kode</th>
                             <th data-column-id="nama">Nama</th>
                             <th data-column-id="movement_status">Movement Status</th>
+                            <th data-column-id="lacak_id">ID (Lacak)</th>
+                            <th data-column-id="gps_updated">GPS Updated</th>
+                            <th data-column-id="gps_signal_level">Signal Level</th>
+                            <th data-column-id="gps_location_lat">Latitude</th>
+                            <th data-column-id="gps_location_lng">Longitude</th>
+                            <th data-column-id="gps_speed">Speed</th>
+                            <th data-column-id="gps_heading">Heading</th>
+                            <th data-column-id="gps_alt">Altitude</th>
                         </tr>
                     </thead>
                 </table>
