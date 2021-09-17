@@ -37,32 +37,40 @@
                         <th data-column-id="role_name">Role</th>
                         <th data-column-id="employee_id" data-header-css-class="nowrap">Employee ID</th>
                         <th data-column-id="status" data-formatter="status">Status</th>
+                        <th data-column-id="commands" data-width="15%" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                     </tr>
                 </thead>
             </table>
         </div>
     </div>
 </section>
-
-<div id="contextMenu" class="dropdown clearfix">
-    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
-        <li>
-            <a tabindex="-1" class="btn-edit" href="javascript:void(0)"><i class="fa fa-edit" aria-hidden="true"></i> Edit</a>
-        </li>
-        <li>
-            <a tabindex="-1" class="btn-activate" href="javascript:void(0)"><i class="fa fa-check" aria-hidden="true"></i> Activate</a>
-        </li>
-        <li>
-            <a tabindex="-1" class="btn-delete" href="javascript:void(0)"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a>
-        </li>
-        <li class="divider"></li>
-        <li>
-            <a tabindex="-1" class="btn-refresh" href="javascript:void(0)"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</a>
-        </li>
-    </ul>
-</div>
 @stop
 
 @section("script")
-{!! Html::script('/js/admin/user.js') !!}
+<!-- {!! Html::script('/js/admin/user.js') !!} -->
+<script>
+	$("#grid-data").bootgrid({
+    css: {
+        iconColumns: "fa fa-list",
+        iconRefresh: "fa fa-refresh"
+    },
+    ajax: !0,
+    ajaxSettings: {
+        method: "GET",
+        cache: !1
+    },
+    rowCount: [100],
+    url: BASE_URL + "/admin/user/get" + window.location.search,
+    formatters: {
+        commands: function(a, t) {
+            var e = '<a href="/admin/user/edit/' + t.id + '" class ="btn btn-xs btn-info">' + 'Edit' + ' <i class="fa fa-edit" aria-hidden="true"></i></a>';
+            return e += ' <a class="btn btn-xs btn-danger btn-delete" role="button" data-id="' + t.id + '">' + 'Delete' + ' <i class="fa fa-trash"></i></a>';
+        }
+    }
+    }).on("loaded.rs.jquery.bootgrid", function(a) {
+        $(".btn-delete").on("click", function() {
+            deleteData(BASE_URL + "/admin/user/delete/" + $(this).data("id"), this);
+        });
+    });
+</script>
 @stop
