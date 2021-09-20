@@ -62,7 +62,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/master/lokasi/update/{id}', array('uses' => 'Master\LokasiController@update', 'as' => 'master.lokasi.update'));
     Route::delete('/master/lokasi/delete/{id}', array('uses' => 'Master\LokasiController@destroy', 'as' => 'master.lokasi.destroy')); 
 
-    // UNIT
+    // AKTIVITAS
     Route::get('/master/aktivitas', array('uses' => 'Master\AktivitasController@index', 'as' => 'master.aktivitas'));
     Route::get('/master/aktivitas/get', array('uses' => 'Master\AktivitasController@getList', 'as' => 'master.aktivitas.get'));
     Route::get('/master/aktivitas/create', array('uses' => 'Master\AktivitasController@create', 'as' => 'master.aktivitas.create'));
@@ -70,6 +70,24 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/aktivitas/edit/{id}', array('uses' => 'Master\AktivitasController@edit', 'as' => 'master.aktivitas.edit'));
     Route::put('/master/aktivitas/update/{id}', array('uses' => 'Master\AktivitasController@update', 'as' => 'master.aktivitas.update'));
     Route::delete('/master/aktivitas/delete/{id}', array('uses' => 'Master\AktivitasController@destroy', 'as' => 'master.aktivitas.destroy'));
+    
+    // ALASAN PENDING
+    Route::get('/master/alasan_pending', array('uses' => 'Master\AlasanPendingController@index', 'as' => 'master.alasan_pending'));
+    Route::get('/master/alasan_pending/get', array('uses' => 'Master\AlasanPendingController@getList', 'as' => 'master.alasan_pending.get'));
+    Route::get('/master/alasan_pending/create', array('uses' => 'Master\AlasanPendingController@create', 'as' => 'master.alasan_pending.create'));
+    Route::post('/master/alasan_pending', array('uses' => 'Master\AlasanPendingController@store', 'as' => 'master.alasan_pending.store'));
+    Route::get('/master/alasan_pending/edit/{id}', array('uses' => 'Master\AlasanPendingController@edit', 'as' => 'master.alasan_pending.edit'));
+    Route::put('/master/alasan_pending/update/{id}', array('uses' => 'Master\AlasanPendingController@update', 'as' => 'master.alasan_pending.update'));
+    Route::delete('/master/alasan_pending/delete/{id}', array('uses' => 'Master\AlasanPendingController@destroy', 'as' => 'master.alasan_pending.destroy'));
+
+    // TINDAK LANJUT PENDING
+    Route::get('/master/tindak_lanjut_pending', array('uses' => 'Master\TindakLanjutPendingController@index', 'as' => 'master.tindak_lanjut_pending'));
+    Route::get('/master/tindak_lanjut_pending/get', array('uses' => 'Master\TindakLanjutPendingController@getList', 'as' => 'master.tindak_lanjut_pending.get'));
+    Route::get('/master/tindak_lanjut_pending/create', array('uses' => 'Master\TindakLanjutPendingController@create', 'as' => 'master.tindak_lanjut_pending.create'));
+    Route::post('/master/tindak_lanjut_pending', array('uses' => 'Master\TindakLanjutPendingController@store', 'as' => 'master.tindak_lanjut_pending.store'));
+    Route::get('/master/tindak_lanjut_pending/edit/{id}', array('uses' => 'Master\TindakLanjutPendingController@edit', 'as' => 'master.tindak_lanjut_pending.edit'));
+    Route::put('/master/tindak_lanjut_pending/update/{id}', array('uses' => 'Master\TindakLanjutPendingController@update', 'as' => 'master.tindak_lanjut_pending.update'));
+    Route::delete('/master/tindak_lanjut_pending/delete/{id}', array('uses' => 'Master\TindakLanjutPendingController@destroy', 'as' => 'master.tindak_lanjut_pending.destroy'));
     
     // ------------------------------- TRANSACTION -------------------------------- //
     // RENCANA KERJA

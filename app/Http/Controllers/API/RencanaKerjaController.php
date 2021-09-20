@@ -224,6 +224,120 @@ class RencanaKerjaController extends Controller {
 	    }
 	}
 
+	// Start Spraying
+  	public function start_spraying(Request $request){
+	    $user = $this->guard()->user();
+	    DB::beginTransaction();
+	    try {
+	      	$rk = RencanaKerja::find($request->id);
+	      	$status_id_lama 	= $rk->status_id;
+	      	$rk->status_id 		= 2;
+	      	$rk->started_at 	= date('Y-m-d H:i:s');
+	      	$rk->save();
+
+	      	$rkl = new RencanaKerjaLog;
+	      	$rkl->rk_id 			= $rk->id;
+	      	$rkl->jam 				= date('Y-m-d H:i:s');
+	      	$rkl->user_id 			= $user->id;
+	      	$rkl->status_id 		= $rk->status_id;
+	      	$rkl->event 			= 'Start Spraying';
+	      	$rkl->catatan 			= '';
+	      	$rkl->status_id_lama 	= $status_id_lama;
+	      	$rkl->save();
+
+	      	DB::commit();
+	      	return response()->json([
+	        	'status' 	=> true, 
+	        	'message' 	=> 'Submitted successfully', 
+	        	'data' 		=> null
+	      	]);
+	    } catch(Exception $e){
+	      	DB::rollback(); 
+	      	return response()->json([
+	        	'status' 	=> false, 
+	        	'message' 	=> $e->getMessage(), 
+	        	'data' 		=> null
+	      	]);
+	    }
+	}
+
+	// Pending Spraying
+  	public function pending_spraying(Request $request){
+	    $user = $this->guard()->user();
+	    DB::beginTransaction();
+	    try {
+	      	$rk = RencanaKerja::find($request->id);
+	      	$status_id_lama 				= $rk->status_id;
+	      	$rk->status_id 					= 3;
+	      	$rk->pending_at 				= date('Y-m-d H:i:s');
+	      	$rk->pending_alasan_id 			= $request->alasan_pending_id;
+	      	$rk->pending_tindak_lanjut_id 	= $request->tindak_lanjut_pending_id;
+	      	$rk->pending_catatan 			= $request->catatan;
+	      	$rk->save();
+
+	      	$rkl = new RencanaKerjaLog;
+	      	$rkl->rk_id 			= $rk->id;
+	      	$rkl->jam 				= date('Y-m-d H:i:s');
+	      	$rkl->user_id 			= $user->id;
+	      	$rkl->status_id 		= $rk->status_id;
+	      	$rkl->event 			= 'Pending Spraying';
+	      	$rkl->catatan 			= $request->catatan;
+	      	$rkl->status_id_lama 	= $status_id_lama;
+	      	$rkl->save();
+
+	      	DB::commit();
+	      	return response()->json([
+	        	'status' 	=> true, 
+	        	'message' 	=> 'Submitted successfully', 
+	        	'data' 		=> null
+	      	]);
+	    } catch(Exception $e){
+	      	DB::rollback(); 
+	      	return response()->json([
+	        	'status' 	=> false, 
+	        	'message' 	=> $e->getMessage(), 
+	        	'data' 		=> null
+	      	]);
+	    }
+	}
+
+	// Finish Spraying
+  	public function finish_spraying(Request $request){
+	    $user = $this->guard()->user();
+	    DB::beginTransaction();
+	    try {
+	      	$rk = RencanaKerja::find($request->id);
+	      	$status_id_lama 	= $rk->status_id;
+	      	$rk->status_id 		= 4;
+	      	$rk->finished_at 	= date('Y-m-d H:i:s');
+	      	$rk->save();
+
+	      	$rkl = new RencanaKerjaLog;
+	      	$rkl->rk_id 			= $rk->id;
+	      	$rkl->jam 				= date('Y-m-d H:i:s');
+	      	$rkl->user_id 			= $user->id;
+	      	$rkl->status_id 		= $rk->status_id;
+	      	$rkl->event 			= 'Finish Spraying';
+	      	$rkl->catatan 			= '';
+	      	$rkl->status_id_lama 	= $status_id_lama;
+	      	$rkl->save();
+
+	      	DB::commit();
+	      	return response()->json([
+	        	'status' 	=> true, 
+	        	'message' 	=> 'Submitted successfully', 
+	        	'data' 		=> null
+	      	]);
+	    } catch(Exception $e){
+	      	DB::rollback(); 
+	      	return response()->json([
+	        	'status' 	=> false, 
+	        	'message' 	=> $e->getMessage(), 
+	        	'data' 		=> null
+	      	]);
+	    }
+	}
+
     public function guard(){
         return Auth::guard('api');
     }

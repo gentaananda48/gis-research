@@ -67,7 +67,25 @@ Route::group([
     Route::get('list', 'AktivitasController@list');
 });
 
-//SURAT JALAN
+// Alasan Pending
+Route::group([
+    'middleware' => ['check_app_version', 'api'],
+    'namespace' => 'API',
+    'prefix' => 'alasan_pending'
+], function ($router) {
+    Route::get('list', 'AlasanPendingController@list');
+});
+
+// Tindak Lanjut Pending
+Route::group([
+    'middleware' => ['check_app_version', 'api'],
+    'namespace' => 'API',
+    'prefix' => 'tindak_lanjut_pending'
+], function ($router) {
+    Route::get('list', 'TindakLanjutPendingController@list');
+});
+
+// RENCANA KERJA
 Route::group([
     'middleware' 	=> ['check_app_version', 'api'],
     'namespace' 	=> 'API',
@@ -80,4 +98,17 @@ Route::group([
     Route::get('detail', 'RencanaKerjaController@detail');
     Route::post('create', 'RencanaKerjaController@create');
     Route::post('update', 'RencanaKerjaController@update');
+    Route::post('start', 'RencanaKerjaController@start_spraying');
+    Route::post('pending', 'RencanaKerjaController@pending_spraying');
+    Route::post('finish', 'RencanaKerjaController@finish_spraying');
+});
+
+//KOORDINAT LOKASI
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+    'prefix'        => 'tracker'
+], function ($router) {
+    Route::get('list', 'TrackerController@list');
+    Route::post('create', 'TrackerController@create');
 });
