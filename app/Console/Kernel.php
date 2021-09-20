@@ -64,6 +64,33 @@ class Kernel extends ConsoleKernel
                     $tracker->movement_status   = $v->movement_status;
                     $tracker->save();
                 }
+                foreach($list_unit AS $v){
+                    $client = new Client();
+                    $res = $client->request('POST', $base_url.'/tracker/get_readings', [
+                        'form_params' => [
+                            'hash'          => $hash,
+                            'tracker_id'    => $v->lacak_id
+                        ]
+                    ]);
+                    $body = json_decode($res->getBody());
+                    foreach($body->inputs AS $v2) {
+                        if($v2->name=='analog_1') {
+                            $water_pressure_kanan = $v2->value;
+                        } else if($v2->name=='analog_2') {
+                            $water_pressure_kiri = $v2->value;
+                        }
+                    }
+                    $tracker = Tracker::where('tracker_id', $v->lacak_id)->where('updated', $body->update_time)->first();
+                    if($tracker==null){
+                        $tracker = new Tracker;
+                        $tracker->tracker_id    = $v->lacak_id;
+                        $tracker->updated       = $body->update_time;
+                    }
+                    $tracker->nozzle_kanan = $water_pressure_kanan;
+                    $tracker->nozzle_kiri = $water_pressure_kiri;
+                    $tracker->save();
+                }
+
             } catch (\Exception $e) {
                 Log::error($e->getMessage());
             }
