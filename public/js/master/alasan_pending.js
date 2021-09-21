@@ -12,33 +12,14 @@ $("#grid-data").bootgrid({
     rowCount: [20],
     url: BASE_URL + "/master/alasan_pending/get" + window.location.search,
     navigation: 2,
+    formatters: {
+        commands: function(a, t) {
+            var e = '<a href="/master/alasan_pending/edit/' + t.id + '" class ="btn btn-xs btn-info"> <i class="fa fa-edit" aria-hidden="true"></i></a>';
+            return e += ' <a class="btn btn-xs btn-danger btn-delete" role="button" data-id="' + t.id + '">' + ' <i class="fa fa-trash"></i></a>';
+        }
+    }
 }).on("loaded.rs.jquery.bootgrid", function(e) {
-    $(this).on("contextmenu", "tbody tr", function(e) {
-        $('table tbody tr').removeClass('info');
-        $(this).addClass('info');
-
-        var id = $(this).attr('data-row-id');
-        $contextMenu.css({
-            display: "block",
-            left: e.pageX,
-            top: e.pageY
-        });
-        $contextMenu.find('.btn-edit').on('click', function(){
-            location.href = BASE_URL + "/master/alasan_pending/edit/" + id;
-        });
-        $contextMenu.find('.btn-delete').on('click', function(){
-            deleteData(BASE_URL + "/master/alasan_pending/delete/" + id,this);
-        });
-        $contextMenu.find('.btn-refresh').on('click', function(){
-            location.reload();
-        });
-        return false;
+    $(".btn-delete").on("click", function() {
+        deleteData(BASE_URL + "/master/alasan_pending/delete/" + $(this).data("id"), this);
     });
-    $("html").on("click", function() {
-         $contextMenu.hide();
-    });
-}).on("click.rs.jquery.bootgrid", function (e, columns, row){
-    $(this).find("tbody tr").removeClass('info');
-    $(this).find("tbody tr[data-row-id="+ row.id +"]").addClass('info');
-    $contextMenu.hide();
 });

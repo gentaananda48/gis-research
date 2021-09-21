@@ -2,10 +2,6 @@
 
 @section("style")
     <style>
-        #contextMenu {
-            position: absolute;
-            display: none;
-        }
         .nowrap {
             white-space: nowrap;
         }

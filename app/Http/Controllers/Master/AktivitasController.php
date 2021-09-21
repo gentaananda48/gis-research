@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Model\Aktivitas;
+use App\Model\AktivitasParameter;
+use App\Model\Parameter;
 use App\Center\GridCenter;
 use App\Transformer\AktivitasTransformer;
 
@@ -85,4 +87,29 @@ class AktivitasController extends Controller {
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
+
+    public function parameter($id) {
+        $data = Aktivitas::find($id);
+        $list_parameter = AktivitasParameter::leftJoin('parameter', 'parameter.id', '=', 'aktivitas_parameter.parameter_id')
+            ->where('aktivitas_id', $id)
+            ->get(['aktivitas_parameter.*', 'parameter.nama AS parameter_nama']);
+        return view('master.aktivitas.parameter', ['data' => $data, 'list_parameter' => $list_parameter]);
+    }
+
+    public function parameter_update(Request $request, $id) {
+        try {
+            foreach($request->id as $id){
+                $ap = AktivitasParameter::find($id);
+                $ap->standard   = $request->standard[$id];
+                $ap->minimal    = $request->minimal[$id];
+                $ap->maximal    = $request->maximal[$id];
+                $ap->bobot      = $request->bobot[$id];
+                $ap->save();
+            }
+        } catch(Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+        return redirect('master/aktivitas')->with('message', 'Saved successfully');
+    }
+    
 }

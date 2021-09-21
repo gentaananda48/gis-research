@@ -33,10 +33,10 @@
                             <th data-column-id="id" data-order="asc" data-type="numeric" data-identifier="true" data-visible="false">ID</th>
                             <th data-column-id="kode" data-width="20%">Kode</th>
                             <th data-column-id="nama">Nama</th>
-                            <th data-column-id="movement_status">Movement Status</th>
-                            <th data-column-id="lacak_id">ID (Lacak)</th>
-                            <th data-column-id="gps_updated">GPS Updated</th>
-                            <th data-column-id="gps_signal_level">Signal Level</th>
+                            <th data-column-id="movement_status" data-header-css-class="nowrap">Movement Status</th>
+                            <th data-column-id="lacak_id" data-header-css-class="nowrap">ID (Lacak)</th>
+                            <th data-column-id="gps_updated" data-header-css-class="nowrap">GPS Updated</th>
+                            <th data-column-id="gps_signal_level" data-header-css-class="nowrap">Signal Level</th>
                             <th data-column-id="gps_location_lat">Latitude</th>
                             <th data-column-id="gps_location_lng">Longitude</th>
                             <th data-column-id="gps_speed">Speed</th>

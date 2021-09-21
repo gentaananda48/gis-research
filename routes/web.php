@@ -13,7 +13,7 @@
 
 Auth::routes();
 
-Route::get('/test/{uid}', 'HomeController@test');
+Route::get('/test', 'HomeController@test');
 Route::group(['middleware' => ['auth']], function () {
 
     // ------------------------------- ADMIN -------------------------------- //
@@ -70,6 +70,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/aktivitas/edit/{id}', array('uses' => 'Master\AktivitasController@edit', 'as' => 'master.aktivitas.edit'));
     Route::put('/master/aktivitas/update/{id}', array('uses' => 'Master\AktivitasController@update', 'as' => 'master.aktivitas.update'));
     Route::delete('/master/aktivitas/delete/{id}', array('uses' => 'Master\AktivitasController@destroy', 'as' => 'master.aktivitas.destroy'));
+    Route::get('/master/aktivitas/parameter/{id}', array('uses' => 'Master\AktivitasController@parameter', 'as' => 'master.aktivitas.parameter'));
+    Route::put('/master/aktivitas/parameter_update/{id}', array('uses' => 'Master\AktivitasController@parameter_update', 'as' => 'master.aktivitas.parameter_update'));
     
     // ALASAN PENDING
     Route::get('/master/alasan_pending', array('uses' => 'Master\AlasanPendingController@index', 'as' => 'master.alasan_pending'));
