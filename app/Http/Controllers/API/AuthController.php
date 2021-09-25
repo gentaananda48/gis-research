@@ -35,8 +35,18 @@ class AuthController extends Controller
         if ($token = $this->guard()->attempt($credentials)) {
           $user = $this->guard()->user();
 
+          $user_profile = [
+            'id'        => $user->id,
+            'username'  => $user->username,
+            'name'      => $user->name,
+            'email'     => $user->email,
+            'phone'     => $user->phone,
+            'role_id'     => $user->role_id ,
+            'employee_id' => $user->employee_id,
+            'status'      => $user->status
+          ];
           $data = [
-            'user_info'     => $user,
+            'user_info'     => $user_profile,
             'token'  => [
               'access_token'  => $token,
               'token_type'    => 'bearer',
