@@ -101,14 +101,14 @@ Route::group([
     Route::post('start', 'RencanaKerjaController@start_spraying');
     Route::post('pending', 'RencanaKerjaController@pending_spraying');
     Route::post('finish', 'RencanaKerjaController@finish_spraying');
+    Route::get('summary', 'RencanaKerjaController@summary');
 });
 
-//KOORDINAT LOKASI
+// LACAK
 Route::group([
     'middleware'    => 'api',
     'namespace'     => 'API',
-    'prefix'        => 'tracker'
+    'prefix'        => 'lacak'
 ], function ($router) {
-    Route::get('list', 'TrackerController@list');
-    Route::post('create', 'TrackerController@create');
+    Route::post('create', 'LacakController@create');
 });
