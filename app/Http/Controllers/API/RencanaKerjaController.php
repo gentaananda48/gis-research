@@ -359,7 +359,13 @@ class RencanaKerjaController extends Controller {
             $nozzle_kanan   = $v->ain_1 != null ? $v->ain_1 : 0;
             $nozzle_kiri    = $v->ain_2 != null ? $v->ain_2 : 0;
             $width          = ($nozzle_kanan > 12.63 ? 18 : 0) + ($nozzle_kiri > 12.63 ? 18 : 0);
-            if(!empty($lokasi) && $v->position_speed>=5 && $width > 18) {
+            $lebar_kanan    = ($nozzle_kanan > 12.63 ? 18 : 0);
+            $lebar_kiri     = ($nozzle_kiri > 12.63 ? 18 : 0);
+            $width          = ($nozzle_kanan > 12.63 ? 18 : 0) + ($nozzle_kiri > 12.63 ? 18 : 0);
+            $jarak_tempuh   = ($k==0) ? 0 : round(abs($v->vehicle_mileage - $list[$k-1]->vehicle_mileage),3);
+            $jarak_spray_kanan     = ($k==0) ? 0 : ($list[$k-1]->ain_1 > 12.63 ? $jarak_tempuh : 0);
+            $jarak_spray_kiri     = ($k==0) ? 0 : ($list[$k-1]->ain_2 > 12.63 ? $jarak_tempuh : 0);
+            if(!empty($lokasi) && $v->position_speed>=5 && $width >= 18) {
                 $is_started = true;
                 $obj = (object) [
                     'timestamp'                 => $v->timestamp,
@@ -369,10 +375,14 @@ class RencanaKerjaController extends Controller {
                     'vehicle_mileage'           => $v->vehicle_mileage,
                     'nozzle_kanan'              => $nozzle_kanan,
                     'nozzle_kiri'               => $nozzle_kiri,
-                    'width'                     => $width
+                    'width'                     => $width,
+                    'jarak_spray_kanan'         => $jarak_spray_kanan,
+                    'jarak_spray_kiri'          => $jarak_spray_kiri,
                 ];
                 if(array_key_exists($ritase, $list_movement)){
                     $list_movement[$ritase]['list_gps'][] = $obj;
+                    $list_movement[$ritase]['jarak_spray_kanan'] += $jarak_spray_kanan;
+                    $list_movement[$ritase]['jarak_spray_kiri'] += $jarak_spray_kiri;
                 } else {
                     $list_movement[$ritase] = [
                         'list_gps'          => [$obj],
@@ -380,7 +390,9 @@ class RencanaKerjaController extends Controller {
                         'jam_mulai'         => 0,
                         'jam_selesai'       => 0,
                         'waktu_tempuh'      => 0,
-                        'kecepatan'         => 0
+                        'kecepatan'         => 0,
+                        'jarak_spray_kanan' => $jarak_spray_kanan,
+                        'jarak_spray_kiri'  => $jarak_spray_kiri
                     ];
                 }
                 $waktu_berhenti = 0;
@@ -395,6 +407,8 @@ class RencanaKerjaController extends Controller {
         $jarak_tempuh_total   = 0;
         $waktu_tempuh_total   = 0;
         $kecepatan_total      = 0;
+        $jarak_spray_kanan_total   = 0;
+        $jarak_spray_kiri_total   = 0;
         foreach($list_movement as $k=>$v){
             $list_gps = $v['list_gps'];
             if(count($list_gps)>0){
@@ -413,6 +427,9 @@ class RencanaKerjaController extends Controller {
                 $jarak_tempuh_total += $jarak_tempuh;
                 $waktu_tempuh_total += $waktu_tempuh;
             }
+            $stop_time = $k > 1 ? $list_movement[$k]['jam_mulai'] - $list_movement[$k-1]['jam_selesai'] : 0;
+            $jarak_spray_kanan_total += $v['jarak_spray_kanan']; 
+            $jarak_spray_kiri_total += $v['jarak_spray_kiri']; 
         }
         $jam_mulai          = count($list_movement) > 0 ? $list_movement[1]['jam_mulai'] : 0;
         $jam_selesai        = count($list_movement) > 1 ? $list_movement[count($list_movement)]['jam_selesai'] : $jam_mulai;
@@ -429,23 +446,11 @@ class RencanaKerjaController extends Controller {
             $status_kecepatan = 'BAIK';
         }
         $bobot_kecepatan = $bobot_kecepatan / 100 * 30;  
-        $ap = AktivitasParameter::where('aktivitas_id', $rk->aktivitas_id)->where('parameter_id', 1)->first();
-        $parameter = Parameter::find($parameter_id);
         $this->saveRKS($rk->id, 1, $kecepatan_total, $bobot_kecepatan, $status_kecepatan);
 
-        $golden_time = 0; 
-        $status_golden_time = '';
-        if(date('H', $jam_mulai) >= '16' || date('H', $jam_mulai) <= '11'){
-            $golden_time = 100;
-            $status_golden_time = 'BAIK';
-        } else {
-            $golden_time = 50;
-            $status_golden_time = 'BURUK';
-        }
-        $luas_lahan = $rk->lokasi_lsbruto;
-        $bobot_golden_time = $golden_time / 100 * 15; 
-        $luas_spray_total = $jarak_tempuh_total * 1000 * 36 / 10000; // Ha
-        $overlapping = round(1 - ($luas_lahan / $luas_spray_total),2);
+        $luas_spray_total = ($jarak_spray_kanan_total * 1000 * 18 + $jarak_spray_kiri_total * 1000 * 18)/10000;
+        $luas_lahan = $rk->lokasi_lsnetto;
+        $overlapping = round(($luas_spray_total / $luas_lahan) - 1,2);
         $bobot_overlapping = 0;
         $status_overlapping = '';
         if($overlapping <= 0.55){
@@ -464,6 +469,8 @@ class RencanaKerjaController extends Controller {
             $bobot_overlapping = 50;
             $status_overlapping = 'BURUK';
         }
+        $this->saveRKS($rk->id, 2, $overlapping, $bobot_overlapping, $status_overlapping);
+
         $ketepatan_dosis = 100  - ($overlapping / $luas_spray_total * 100);
         $bobot_ketepatan_dosis = 0;
         $status_ketepatan_dosis = '';
@@ -480,21 +487,46 @@ class RencanaKerjaController extends Controller {
             $bobot_ketepatan_dosis = 50;
             $status_ketepatan_dosis = 'BURUK';
         }
+
+        $this->saveRKS($rk->id, 4, $ketepatan_dosis, $bobot_ketepatan_dosis, $status_ketepatan_dosis);
+
+        $golden_time = 0; 
+        $status_golden_time = '';
+        if(date('H', $jam_mulai) >= '16' || date('H', $jam_mulai) <= '11'){
+            $golden_time = 100;
+            $status_golden_time = 'BAIK';
+        } else {
+            $golden_time = 50;
+            $status_golden_time = 'BURUK';
+        }
+        $bobot_golden_time = $golden_time / 100 * 15; 
+        $this->saveRKS($rk->id, 5, $golden_time, $bobot_golden_time, $status_golden_time);
+
         $area_not_spray = $luas_lahan - $luas_spray_total;
         $bobot_area_not_spray = 5;
         $status_area_not_spray = '';
+        $this->saveRKS($rk->id, 7, $area_not_spray, $bobot_area_not_spray, $status_area_not_spray);
+
         $wing_level = 1.3;
         $bobot_wing_level = 20;
         $status_wing_level = 'BAIK';
+        $this->saveRKS($rk->id, 6, $wing_level, $bobot_wing_level, $status_wing_level);
+        
         $waktu_tunggu_ritase = 0;
         $bobot_waktu_tunggu_ritase = 0;
         $status_waktu_tunggu_ritase = '';
+        $this->saveRKS($rk->id, 8, $waktu_tunggu_ritase, $bobot_waktu_tunggu_ritase, $status_waktu_tunggu_ritase);
+        
         $waktu_transport = 0;
         $bobot_waktu_transport = 0;
         $status_waktu_transport = '';
+        $this->saveRKS($rk->id, 9, $waktu_transport, $bobot_waktu_transport, $status_waktu_transport);
+
         $waktu_spray_per_ritase = 0;
         $bobot_waktu_spray_per_ritase = 0;
         $status_waktu_spray_per_ritase = '';
+        $this->saveRKS($rk->id, 3, $waktu_spray_per_ritase, $bobot_waktu_spray_per_ritase, $status_waktu_spray_per_ritase);
+
         $total_bobot = $bobot_kecepatan + $bobot_overlapping + $bobot_ketepatan_dosis + $bobot_golden_time + $bobot_area_not_spray + $bobot_wing_level + $bobot_waktu_spray_per_ritase;
         $status = '';
         if($total_bobot>=91){
@@ -528,16 +560,7 @@ class RencanaKerjaController extends Controller {
             'status_waktu_spray_per_ritase'	=> $status_waktu_spray_per_ritase,
             'status'						=> $status
         ];
-
-        $this->saveRKS($rk->id, 2, $overlapping, $bobot_overlapping, $status_overlapping);
-        $this->saveRKS($rk->id, 3, $waktu_spray_per_ritase, $bobot_waktu_spray_per_ritase, $status_waktu_spray_per_ritase);
-        $this->saveRKS($rk->id, 4, $ketepatan_dosis, $bobot_ketepatan_dosis, $status_ketepatan_dosis);
-        $this->saveRKS($rk->id, 5, $golden_time, $bobot_golden_time, $status_golden_time);
-        $this->saveRKS($rk->id, 6, $wing_level, $bobot_wing_level, $status_wing_level);
-        $this->saveRKS($rk->id, 7, $area_not_spray, $bobot_area_not_spray, $status_area_not_spray);
-        $this->saveRKS($rk->id, 8, $waktu_tunggu_ritase, $bobot_waktu_tunggu_ritase, $status_waktu_tunggu_ritase);
-        $this->saveRKS($rk->id, 9, $waktu_transport, $bobot_waktu_transport, $status_waktu_transport);
-
+        
         // // Jarak tempuh: Dihitung mulai spray sd stop spray ( m)
         // //Luas aplikasi spray total: (Jarak tempuh x 1000) x (36/10.000)
         // // Area overlapping: 1 - ( luas peta lok/ luas aplikasi spray total)
@@ -577,7 +600,7 @@ class RencanaKerjaController extends Controller {
 	    try {
 	      	$rk = RencanaKerja::find($request->id);
 	      	$status_id_lama 	= $rk->status_id;
-	      	$rk->status_id 		= 4;
+	      	$rk->status_id 		= 2;
 	      	$status 	 		= Status::find($rk->status_id);
 	      	$rk->status_nama 	= $status->nama;
 	      	$rk->status_urutan  = $status->urutan;
@@ -593,6 +616,50 @@ class RencanaKerjaController extends Controller {
 	      	$rkl->status_id 		= $rk->status_id;
 	      	$rkl->status_nama 		= $rk->status_nama;
 	      	$rkl->event 			= 'Finish Spraying';
+	      	$rkl->catatan 			= '';
+	      	$rkl->status_id_lama 	= $status_id_lama;
+	      	$rkl->status_nama_lama 	= $status_nama_lama;
+	      	$rkl->save();
+
+	      	DB::commit();
+	      	return response()->json([
+	        	'status' 	=> true, 
+	        	'message' 	=> 'Submitted successfully', 
+	        	'data' 		=> null
+	      	]);
+	    } catch(Exception $e){
+	      	DB::rollback(); 
+	      	return response()->json([
+	        	'status' 	=> false, 
+	        	'message' 	=> $e->getMessage(), 
+	        	'data' 		=> null
+	      	]);
+	    }
+	}
+
+	// Report Spraying
+  	public function report_spraying(Request $request){
+	    $user = $this->guard()->user();
+	    DB::beginTransaction();
+	    try {
+	      	$rk = RencanaKerja::find($request->id);
+	      	$status_id_lama 	= $rk->status_id;
+	      	$rk->status_id 		= 4;
+	      	$status 	 		= Status::find($rk->status_id);
+	      	$rk->status_nama 	= $status->nama;
+	      	$rk->status_urutan  = $status->urutan;
+	      	$rk->status_color  	= $status->color;
+	      	$rk->jam_laporan 	= date('Y-m-d H:i:s');
+	      	$rk->save();
+
+	      	$rkl = new RencanaKerjaLog;
+	      	$rkl->rk_id 			= $rk->id;
+	      	$rkl->jam 				= date('Y-m-d H:i:s');
+	      	$rkl->user_id 			= $user->id;
+	      	$rkl->user_nama 	 	= $user->name;
+	      	$rkl->status_id 		= $rk->status_id;
+	      	$rkl->status_nama 		= $rk->status_nama;
+	      	$rkl->event 			= 'Report Spraying';
 	      	$rkl->catatan 			= '';
 	      	$rkl->status_id_lama 	= $status_id_lama;
 	      	$rkl->status_nama_lama 	= $status_nama_lama;
