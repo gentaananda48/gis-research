@@ -85,7 +85,7 @@ class RencanaKerjaController extends Controller {
 
 	public function get_master_data(Request $request){
 		$list_shift 	= Shift::orderBy('id', 'ASC')->get(['id', 'nama']);
-		$list_lokasi 	= Lokasi::whereIn('kode', ['096J'])->orderBy('kode', 'ASC')->get(['id', 'kode', 'nama', 'lsbruto', 'lsnetto']);
+		$list_lokasi 	= Lokasi::orderBy('kode', 'ASC')->get(['id', 'kode', 'nama', 'lsbruto', 'lsnetto']);
 		$list_aktivitas = Aktivitas::orderBy('kode', 'ASC')->get(['id', 'kode', 'nama']);
 		$list_unit 		= Unit::orderBy('label', 'ASC')->get(['id', 'label']);
 		$list_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
@@ -429,6 +429,7 @@ class RencanaKerjaController extends Controller {
             $status_kecepatan = 'BAIK';
         }
         $bobot_kecepatan = $bobot_kecepatan / 100 * 30;  
+        $ap = AktivitasParameter::where('aktivitas_id', $rk->aktivitas_id)->where('parameter_id', 1)->first();
         $parameter = Parameter::find($parameter_id);
         $this->saveRKS($rk->id, 1, $kecepatan_total, $bobot_kecepatan, $status_kecepatan);
 
