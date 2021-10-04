@@ -9,6 +9,8 @@ class LokasiTransformer extends TransformerAbstract {
             'id'            => $model->id,
             'kode'         => $model->kode,
             'nama'         => $model->nama,
+            'grup'         => $model->grup,
+            'wilayah'         => $model->wilayah,
             'lsbruto'       => number_format($model->lsbruto,2),
             'lsnetto'       => number_format($model->lsnetto,2),
             'status'       => $model->status,

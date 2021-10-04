@@ -32,7 +32,9 @@
                         <tr>
                             <th data-column-id="id" data-order="asc" data-type="numeric" data-identifier="true" data-visible="false">ID</th>
                             <th data-column-id="kode" data-width="20%">Kode</th>
-                            <th data-column-id="nama">Kode</th>
+                            <th data-column-id="nama">Nama</th>
+                            <th data-column-id="grup">PG</th>
+                            <th data-column-id="wilayah">Wilayah</th>
                             <th data-column-id="lsbruto" data-header-css-class="nowrap">Luas Bruto</th>
                             <th data-column-id="lsnetto" data-header-css-class="nowrap">Luas Netto</th>
                             <th data-column-id="status">Status</th>

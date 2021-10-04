@@ -14,6 +14,7 @@
 Auth::routes();
 
 Route::get('/test', 'HomeController@test');
+Route::get('/check_geofence', 'HomeController@check_geofence');
 Route::group(['middleware' => ['auth']], function () {
 
     // ------------------------------- ADMIN -------------------------------- //
@@ -47,11 +48,7 @@ Route::group(['middleware' => ['auth']], function () {
     // UNIT
     Route::get('/master/unit', array('uses' => 'Master\UnitController@index', 'as' => 'master.unit'));
     Route::get('/master/unit/get', array('uses' => 'Master\UnitController@getList', 'as' => 'master.unit.get'));
-    Route::get('/master/unit/create', array('uses' => 'Master\UnitController@create', 'as' => 'master.unit.create'));
-    Route::post('/master/unit', array('uses' => 'Master\UnitController@store', 'as' => 'master.unit.store'));
-    Route::get('/master/unit/edit/{id}', array('uses' => 'Master\UnitController@edit', 'as' => 'master.unit.edit'));
-    Route::put('/master/unit/update/{id}', array('uses' => 'Master\UnitController@update', 'as' => 'master.unit.update'));
-    Route::delete('/master/unit/delete/{id}', array('uses' => 'Master\UnitController@destroy', 'as' => 'master.unit.destroy'));
+    Route::get('/master/unit/sync', array('uses' => 'Master\UnitController@sync', 'as' => 'master.unit.sync'));
 
     // LOKASI
     Route::get('/master/lokasi', array('uses' => 'Master\LokasiController@index', 'as' => 'master.lokasi'));
