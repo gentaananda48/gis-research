@@ -256,6 +256,7 @@ class RencanaKerjaController extends Controller {
 	    try {
 	      	$rk = RencanaKerja::find($request->id);
 	      	$status_id_lama 	= $rk->status_id;
+	      	$status_nama_lama 	= $rk->status_nama;
 	      	$rk->status_id 		= 2;
 	      	$status 	 		= Status::find($rk->status_id);
 	      	$rk->status_nama 	= $status->nama;
@@ -300,6 +301,7 @@ class RencanaKerjaController extends Controller {
 	    try {
 	      	$rk = RencanaKerja::find($request->id);
 	      	$status_id_lama 				= $rk->status_id;
+	      	$status_nama_lama 	= $rk->status_nama;
 	      	$rk->status_id 					= 3;
 	      	$status 	 					= Status::find($rk->status_id);
 	      	$rk->status_nama 				= $status->nama;
@@ -560,7 +562,7 @@ class RencanaKerjaController extends Controller {
             'status_waktu_spray_per_ritase'	=> $status_waktu_spray_per_ritase,
             'status'						=> $status
         ];
-        
+
         // // Jarak tempuh: Dihitung mulai spray sd stop spray ( m)
         // //Luas aplikasi spray total: (Jarak tempuh x 1000) x (36/10.000)
         // // Area overlapping: 1 - ( luas peta lok/ luas aplikasi spray total)
@@ -600,6 +602,7 @@ class RencanaKerjaController extends Controller {
 	    try {
 	      	$rk = RencanaKerja::find($request->id);
 	      	$status_id_lama 	= $rk->status_id;
+	      	$status_nama_lama 	= $rk->status_nama;
 	      	$rk->status_id 		= 2;
 	      	$status 	 		= Status::find($rk->status_id);
 	      	$rk->status_nama 	= $status->nama;
