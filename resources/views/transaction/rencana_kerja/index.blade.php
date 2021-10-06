@@ -36,7 +36,7 @@
                             <th data-column-id="lokasi_lsbruto">Luas Bruto</th>
                             <th data-column-id="lokasi_lsnetto">Luas Netto</th>
                             <th data-column-id="aktivitas_nama">Aktivitas</th>
-                            <th data-column-id="unit_nama">Unit</th>
+                            <th data-column-id="unit_label">Unit</th>
                             <th data-column-id="operator_nama">Operator</th>
                             <th data-column-id="driver_nama">Driver</th>
                             <th data-column-id="kasie_nama">Kasie</th>
