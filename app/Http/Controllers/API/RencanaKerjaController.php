@@ -83,6 +83,17 @@ class RencanaKerjaController extends Controller {
     	]);
 	} 
 
+	public function monitor(Request $request){
+    	$rk = RencanaKerja::find($request->id);
+    	$ap = AktivitasParameter::where('aktivitas_id', $rk->aktivitas_id)->where('parameter_id', 1)->first();
+    	$rk->standard_kecepatan = $ap->standard;
+		return response()->json([
+      		'status' 	=> true, 
+      		'message' 	=> '', 
+      		'data' 		=> $rk
+    	]);
+	} 
+
 	public function unit(Request $request){
 		$rk = RencanaKerja::find($request->id);
         $unit = Unit::find($rk->unit_id);

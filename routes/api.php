@@ -100,6 +100,7 @@ Route::group([
     Route::post('create', 'RencanaKerjaController@create');
     Route::post('update', 'RencanaKerjaController@update');
     Route::post('start', 'RencanaKerjaController@start_spraying');
+    Route::get('monitor', 'RencanaKerjaController@monitor');
     Route::post('pending', 'RencanaKerjaController@pending_spraying');
     Route::post('finish', 'RencanaKerjaController@finish_spraying');
     Route::get('summary', 'RencanaKerjaController@summary');
