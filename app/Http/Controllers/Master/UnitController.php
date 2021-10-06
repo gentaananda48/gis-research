@@ -31,7 +31,8 @@ class UnitController extends Controller {
             $client = new Client();
             $res = $client->request('POST', $this->base_url.'/tracker/list', [
                 'form_params' => [
-                    'hash'      => $this->hash
+                    'hash'      => $this->hash,
+                    'labels'    => '["BSC"]'
                 ]
             ]);
             $body = json_decode($res->getBody());
