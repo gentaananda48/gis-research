@@ -114,3 +114,15 @@ Route::group([
 ], function ($router) {
     Route::post('create', 'LacakController@create');
 });
+
+// LAPORAN MASALAH
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+    'prefix'        => 'laporan_masalah'
+], function ($router) {
+    Route::get('list', 'LaporanMasalahController@list');
+    Route::post('create', 'LaporanMasalahController@create');
+    Route::post('update', 'LaporanMasalahController@update');
+});
+
