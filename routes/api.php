@@ -126,3 +126,15 @@ Route::group([
     Route::post('update', 'LaporanMasalahController@update');
 });
 
+// PEMELIHARAAN
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+    'prefix'        => 'pemeliharaan'
+], function ($router) {
+    Route::get('list', 'PemeliharaanController@list');
+    Route::post('create', 'PemeliharaanController@create');
+    Route::post('start_maintenance', 'PemeliharaanController@start_maintenance');
+    Route::post('finish_maintenance', 'PemeliharaanController@finish_maintenance');
+
+});
