@@ -88,6 +88,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/master/tindak_lanjut_pending/update/{id}', array('uses' => 'Master\TindakLanjutPendingController@update', 'as' => 'master.tindak_lanjut_pending.update'));
     Route::delete('/master/tindak_lanjut_pending/delete/{id}', array('uses' => 'Master\TindakLanjutPendingController@destroy', 'as' => 'master.tindak_lanjut_pending.destroy'));
     
+    // BAHAN
+    Route::get('/master/bahan', array('uses' => 'Master\BahanController@index', 'as' => 'master.bahan'));
+    Route::get('/master/bahan/get', array('uses' => 'Master\BahanController@getList', 'as' => 'master.bahan.get'));
+    Route::get('/master/bahan/create', array('uses' => 'Master\BahanController@create', 'as' => 'master.bahan.create'));
+    Route::post('/master/bahan', array('uses' => 'Master\BahanController@store', 'as' => 'master.bahan.store'));
+    Route::get('/master/bahan/edit/{id}', array('uses' => 'Master\BahanController@edit', 'as' => 'master.bahan.edit'));
+    Route::put('/master/bahan/update/{id}', array('uses' => 'Master\BahanController@update', 'as' => 'master.bahan.update'));
+    Route::delete('/master/bahan/delete/{id}', array('uses' => 'Master\BahanController@destroy', 'as' => 'master.bahan.destroy')); 
+    
     // ------------------------------- TRANSACTION -------------------------------- //
     // RENCANA KERJA
     Route::get('/transaction/rencana_kerja', array('uses' => 'Transaction\RencanaKerjaController@index', 'as' => 'transaction.rencana_kerja'));

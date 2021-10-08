@@ -138,3 +138,17 @@ Route::group([
     Route::post('finish_maintenance', 'PemeliharaanController@finish_maintenance');
 
 });
+
+// ORDER MATERIAL
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+    'prefix'        => 'order_material'
+], function ($router) {
+    Route::get('list', 'OrderMaterialController@list');
+    Route::post('create', 'OrderMaterialController@create');
+    Route::post('start_order_material', 'OrderMaterialController@start_order_material');
+    Route::post('cancel_order_material', 'OrderMaterialController@cancel_order_material');
+    Route::post('finish_order_material', 'OrderMaterialController@finish_order_material');
+
+});
