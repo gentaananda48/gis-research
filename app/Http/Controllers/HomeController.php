@@ -13,6 +13,7 @@ use App\Model\KoordinatLokasi;
 use App\Model\KoordinatLokasiTemp;
 use App\Model\Lacak;
 use App\Model\RencanaKerja;
+use App\Model\ReportParameter;
 
 class HomeController extends Controller
 {
@@ -73,22 +74,12 @@ class HomeController extends Controller
     public function test(){
         set_time_limit(0);
         // get Rencana Kerja
-        $rk = RencanaKerja::select(['rencana_kerja.*', 's.nama AS shift_nama', 'l.kode AS lokasi_kode', 'l.nama AS lokasi_nama', 'a.kode AS aktivitas_kode', 'a.nama AS aktivitas_nama', 'u.label AS unit_label', 'u.source_device_id AS unit_source_device_id',  'o.name AS operator_nama', 'd.name AS driver_nama', 'k.name AS kasie_nama', 's2.nama AS status_nama', 's2.color AS status_color'])
-            ->leftJoin('shift AS s', 's.id', '=', 'rencana_kerja.shift_id')
-            ->leftJoin('lokasi AS l', 'l.id', '=', 'rencana_kerja.lokasi_id')
-            ->leftJoin('aktivitas AS a', 'a.id', '=', 'rencana_kerja.aktivitas_id')
-            ->leftJoin('unit as u', 'u.id', '=', 'rencana_kerja.unit_id')
-            ->leftJoin('users AS o', 'o.id', '=', 'rencana_kerja.operator_id')
-            ->leftJoin('users AS d', 'd.id', '=', 'rencana_kerja.driver_id')
-            ->leftJoin('users AS k', 'k.id', '=', 'rencana_kerja.kasie_id')
-            ->leftJoin('status AS s2', 's2.id', '=', 'rencana_kerja.status_id')
-            ->where('rencana_kerja.id', 3)
-            ->first();
-
+        $rk = RencanaKerja::find(1);
+        echo $rk->lokasi_nama.$rk->unit_label.$rk->aktivitas_nama.$rk->nozzle_nama.$rk->volume.' '.$rk->unit_source_device_id."<br/>";
 
         $geofenceHelper = new GeofenceHelper;
         $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
-        $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->started_at))->where('timestamp', '<=', strtotime($rk->finished_at))->orderBy('timestamp', 'ASC')->get();
+        $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
         $is_started = false;
         $waktu_berhenti = 0;
         $ritase = 1;
@@ -105,7 +96,8 @@ class HomeController extends Controller
             $jarak_tempuh   = ($k==0) ? 0 : round(abs($v->vehicle_mileage - $list[$k-1]->vehicle_mileage),3);
             $jarak_spray_kanan     = ($k==0) ? 0 : ($list[$k-1]->ain_1 > 12.63 ? $jarak_tempuh : 0);
             $jarak_spray_kiri     = ($k==0) ? 0 : ($list[$k-1]->ain_2 > 12.63 ? $jarak_tempuh : 0);
-            if(!empty($lokasi) && $v->position_speed>=5 && $width >= 18) {
+            // echo date('Y-m-d H:i:s.Z', $v->timestamp).$lokasi."<br/>";
+            if(!empty($lokasi) && $width >= 18) {
                 $is_started = true;
                 $obj = (object) [
                     'timestamp'                 => $v->timestamp,
@@ -174,11 +166,87 @@ class HomeController extends Controller
             $stop_time = $k > 1 ? $list_movement[$k]['jam_mulai'] - $list_movement[$k-1]['jam_selesai'] : 0;
             $jarak_spray_kanan_total += $v['jarak_spray_kanan']; 
             $jarak_spray_kiri_total += $v['jarak_spray_kiri']; 
-            echo "STOP : ".round($stop_time/60,2)." Menit<br/>";
-            echo "DISTANCE : ".$jarak_tempuh." KM<br/>";
-            echo "DURATION :".round($waktu_tempuh/60,2)." Menit<br/>";
-            echo "AVERAGE SPEED : ".$kecepatan." KM/Jam<br/>";
+            echo "<hr/>";
+            echo "Waktu Tunggu : ".round($stop_time/60,2)." Menit<br/>";
+            echo "Jarak Spray : ".$jarak_tempuh." KM<br/>";
+            echo "Waktu Spray :".round($waktu_tempuh/60,2)." Menit<br/>";
+            echo "Kecepatan Operasi : ".$kecepatan." KM/Jam. ";
+            $list_rp = ReportParameter::where('tipe', 'Kecepatan Operasi')
+                ->where('kriteria_1', $rk->aktivitas_nama)
+                ->where('kriteria_2', $rk->nozzle_nama)
+                ->where('kriteria_3', $rk->volume)
+                ->orderBy('range_1', 'ASC')
+                ->get();
+            $nilai_bobot_kecepatan = 0;
+            foreach($list_rp AS $rp){
+                if(doubleval($rp->range_1) <= $kecepatan && $kecepatan <= doubleval($rp->range_2)){
+                    $nilai_bobot_kecepatan = $rp->point*30;
+                }
+            }
+            echo "BOBOT : ".$nilai_bobot_kecepatan."<br/>";
+            $luas_spray_total = ($v['jarak_spray_kanan'] * 1000 * 18 + $v['jarak_spray_kiri'] * 1000 * 18)/10000;
+            echo "Luas Spray : ".$luas_spray_total." Ha <br/>";
+            $luas_standard_spray = 8000 / $rk->volume - 0.012 * (8000 / $rk->volume);
+            echo "Luas Standard Spray : ".$luas_standard_spray." Ha <br/>";
+            $overlapping = ($luas_spray_total / $luas_standard_spray - 1)* 100;
+            echo "Overlapping : ".$overlapping." %. ";
+            $list_rp = ReportParameter::where('tipe', 'Overlapping')
+                ->where('kriteria_1', $rk->aktivitas_nama)
+                ->where('kriteria_2', $rk->nozzle_nama)
+                ->orderBy('range_1', 'ASC')
+                ->get();
+            $nilai_bobot_overlapping = 0;
+            foreach($list_rp AS $rp){
+                if(doubleval($rp->range_1) <= $overlapping && $overlapping <= doubleval($rp->range_2)){
+                    $nilai_bobot_overlapping = $rp->point*20;
+                }
+            }
+            echo "BOBOT : ".$nilai_bobot_overlapping."<br/>";
+            echo "Waktu Spray per Ritase :".round($waktu_tempuh/60,2)." Menit. ";
+            $list_rp = ReportParameter::where('tipe', 'Waktu Spray')
+                ->where('kriteria_1', $rk->aktivitas_nama)
+                ->where('kriteria_2', $rk->nozzle_nama)
+                ->orderBy('range_1', 'ASC')
+                ->get();
+            $nilai_bobot_waktu_spray = 0;
+            foreach($list_rp AS $rp){
+                if(doubleval($rp->range_1) <= $waktu_tempuh && $waktu_tempuh <= doubleval($rp->range_2)){
+                    $nilai_bobot_waktu_spray = $rp->point*10;
+                }
+            }
+            echo "BOBOT : ".$nilai_bobot_waktu_spray."<br/>";
+            $ketepatan_dosis = 100 - $overlapping;
+            echo "Ketepatan Dosis :".$ketepatan_dosis.". ";
+            $list_rp = ReportParameter::where('tipe', 'Ketepatan Dosis')
+                ->where('kriteria_1', $rk->aktivitas_nama)
+                ->where('kriteria_2', $rk->nozzle_nama)
+                ->orderBy('range_1', 'ASC')
+                ->get();
+            $nilai_bobot_ketepatan_dosis = 0;
+            foreach($list_rp AS $rp){
+                if(doubleval($rp->range_1) <= $ketepatan_dosis && $ketepatan_dosis <= doubleval($rp->range_2)){
+                    $nilai_bobot_ketepatan_dosis = $rp->point*10;
+                }
+            }
+            echo "BOBOT : ".$nilai_bobot_ketepatan_dosis."<br/>";
+
+            $golden_time = date('H:i', $list_movement[$k]['jam_mulai']);
+            echo "Golden Time :".$golden_time.". ";
+            $list_rp = ReportParameter::where('tipe', 'Golden Time')
+                ->where('kriteria_1', $rk->aktivitas_nama)
+                ->where('kriteria_2', $rk->nozzle_nama)
+                ->orderBy('range_1', 'ASC')
+                ->get();
+            $nilai_bobot_golden_time = 0;
+            foreach($list_rp AS $rp){
+                if($rp->range_1 >= $golden_time){
+                    $nilai_bobot_golden_time = $rp->point*15;
+                }
+            }
+            echo "BOBOT : ".$nilai_bobot_golden_time."<br/>";
+            echo "<hr/>";
         } 
+        exit;
         $jam_mulai          = count($list_movement) > 0 ? $list_movement[1]['jam_mulai'] : 0;
         $jam_selesai        = count($list_movement) > 1 ? $list_movement[count($list_movement)]['jam_selesai'] : $jam_mulai;
         $kecepatan_total    = round($jarak_tempuh_total / ($waktu_tempuh_total/3600),2); 

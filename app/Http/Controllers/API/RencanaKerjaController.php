@@ -24,6 +24,8 @@ use App\Model\Lacak;
 use App\Model\TindakLanjutPending;
 use App\Model\AlasanPending;
 use App\Model\Parameter;
+use App\Model\Nozzle;
+use App\Model\VolumeAir;
 
 class RencanaKerjaController extends Controller {
     public function __construct() {
@@ -141,13 +143,17 @@ class RencanaKerjaController extends Controller {
 			->where('r.code', 'MBL_SPRAY_DRIVER')
 			->orderBy('users.name', 'ASC')
 			->get(['users.id', 'users.name AS nama']);
+		$list_volume_air = VolumeAir::orderBy('volume', 'ASC')->get(['id', 'volume']);
+		$list_nozzle 	 = Nozzle::orderBy('nama', 'ASC')->get(['id', 'nama']);
 		$data = [
 			'list_shift'		=> $list_shift,
 			'list_lokasi'		=> $list_lokasi,
 			'list_aktivitas'	=> $list_aktivitas,
 			'list_unit'			=> $list_unit,
 			'list_operator' 	=> $list_operator,
-			'list_driver' 		=> $list_driver
+			'list_driver' 		=> $list_driver,
+			'list_volume_air' 	=> $list_volume_air,
+			'list_nozzle'		=> $list_nozzle
 		];
 		return response()->json([
         	'status' 	=> true, 
@@ -180,6 +186,10 @@ class RencanaKerjaController extends Controller {
 	      	$unit 		 				= Unit::find($request->unit_id);
 	      	$rk->unit_label				= $unit->label;
 	      	$rk->unit_source_device_id 	= $unit->source_device_id;
+	      	$rk->nozzle_id  				= $request->unit_id;
+	      	$nozzle 		 		 	= Nozzle::find($request->nozzle_id);
+	      	$rk->nozzle_nama		 	= $nozzle->nama;
+	      	$rk->volume		 			= $request->volume;
 	      	$rk->operator_id 			= $request->operator_id;
 	      	$operator 		 			= User::find($request->operator_id);
 	      	$rk->operator_nama 			= $operator->name;
