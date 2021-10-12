@@ -11,5 +11,10 @@ $("#grid-data").bootgrid({
     rowCount: [20],
     url: BASE_URL + "/master/unit/get" + window.location.search,
     navigation: 2,
-    formatters: {}
+    formatters: {
+        commands: function(column, row) {
+            var ret = '<a href="/master/unit/track/' + row.id + '" class ="btn btn-xs btn-info">' + ' Tracking</a>';
+            return ret += ' <a href="/master/unit/playback/' + row.id + '" class ="btn btn-xs btn-success">' + ' Playback</a>';
+        }
+    }
 }).on("loaded.rs.jquery.bootgrid", function(a) {});

@@ -37,6 +37,7 @@
                             <th data-column-id="source_device_id" data-header-css-class="nowrap">Source Device ID</th>
                             <th data-column-id="source_model" data-header-css-class="nowrap">Source Model</th>
                             <th data-column-id="source_phone" data-header-css-class="nowrap">Source Phone</th>
+                            <th data-column-id="commands" data-width="15%" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                         </tr>
                     </thead>
                 </table>
