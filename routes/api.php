@@ -47,6 +47,7 @@ Route::group([
 ], function ($router) {
     Route::get('list', 'UnitController@list');
     Route::get('detail', 'UnitController@detail');
+    Route::get('playback', 'UnitController@playback');
 });
 
 // LOKASI
