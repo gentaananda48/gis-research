@@ -25,12 +25,17 @@
        		 	<div id="map" style="width: 100%; height: 400px;"></div>
 		    	<div style="margin-top: 4px;">
 		    		<form style="margin-bottom: 2px;">
-			            <div class="input-group input-group-sm col-md-2">
-			              	<input type="date" name="tgl" id="date_range" class="form-control" value="{{ $tgl }}" />
-			              	<span class="input-group-btn">
-			                	<button type="submit" class="btn btn-info"><i class="fa fa-search"></i></button>
-			              	</span>
-			            </div>
+		    			<div class="row">
+			    			<div class="col-sm-2">
+			    				{{ Form::date('tgl', $tgl, array('class' => 'form-control')) }}
+			    			</div>
+			    			<div class="col-sm-2">
+			    				{{ Form::select('interval', $list_interval , $interval, array('class' => 'form-control select2')) }}
+			    			</div>
+			    			<div class="col-sm-1">
+				            	<button type="submit" class="btn btn-info"><i class="fa fa-search"></i></button>
+			    			</div>
+			    		</div>
 			     	</form>
 			    	<div class="progress" style="margin-bottom: 0px;">
 			            <div class="progress-bar progress-bar-aqua" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="86400" style="width: 0%">
@@ -57,6 +62,7 @@
 	var poly;
 	var lacak = {!! $list_lacak !!};
 	var i = 0;
+	var interval = {!! $interval !!};
 
 	function setLokasi(latitude, loagitude){
         $.ajax({
@@ -142,7 +148,7 @@
 			$(".progress-bar-aqua").attr('aria-valuenow', lacak[i].progress_time);
 			$(".progress-bar-aqua").css("width", lacak[i].progress_time_pers + "%");
 			//setLokasi(lacak[i].position_latitude, lacak[i].position_longitude)
-		  	await timer(1000);
+		  	await timer(interval);
 		}
 		async function updateLocation() {
 			for (var i = 0, len = lacak.length; i < len; i += 1) {

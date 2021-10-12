@@ -96,7 +96,12 @@ class UnitController extends Controller {
 
     public function playback(Request $request, $id) {
         $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
+        $interval = !empty($request->interval) ? $request->interval : 1000;
         $unit = Unit::find($id);
+        $list_interval = [];
+        for($i=1; $i<=10; $i++){
+            $list_interval[$i*100] = $i*100;
+        }
         $list = KoordinatLokasi::orderBy('lokasi', 'ASC')
             ->orderBy('bagian', 'ASC')
             ->orderBy('posnr', 'ASC')
@@ -138,7 +143,9 @@ class UnitController extends Controller {
             'unit'          => $unit,
             'list_lacak'    => json_encode($list_lacak),
             'list_lokasi'   => json_encode($list_lokasi),
-            'tgl'           => $tgl
+            'tgl'           => $tgl,
+            'list_interval' => $list_interval,
+            'interval'      => $interval
         ]);
     }
 
