@@ -28,35 +28,35 @@
         				<tbody>
         					<tr>
         						<td width="10%">Lokasi</td>
-        						<td width="30%">: <span class="text-bold">{{ $unit->lokasi }}</span></td>
+        						<td width="30%">: <span class="text-bold" id="lokasi">{{ $unit->lokasi }}</span></td>
         						<td width="20%"></td>
         						<td width="10%">Status</td>
-        						<td width="30%">: <span class="text-bold">{{ $unit->movement_status_desc }}</span></td>
+        						<td width="30%">: <span class="text-bold" id="movement_status_desc">{{ $unit->movement_status_desc }}</span></td>
         					</tr>
         					<tr>
         						<td>Signal Level</td>
-        						<td>: <span class="text-bold">{{ $unit->gsm_signal_level }}</span></td>
+        						<td>: <span class="text-bold" id="gsm_signal_level">{{ $unit->gsm_signal_level }}</span></td>
         						<td></td>
         						<td>Kecepatan</td>
-        						<td>: <span class="text-bold">{{ $unit->position_speed }} KM/Jam</span></td>
+        						<td>: <span class="text-bold" id="position_speed">{{ $unit->position_speed }} KM/Jam</span></td>
         					</tr>
         					<tr>
         						<td>Latitude</td>
-        						<td>: <span class="text-bold">{{ $unit->position_latitude }}</span></td>
+        						<td>: <span class="text-bold" id="position_latitude">{{ $unit->position_latitude }}</span></td>
         						<td></td>
         						<td>Nozzle Kiri</td>
-        						<td>: <span class="text-bold">{{ $unit->nozzle_kiri }}</span></td>
+        						<td>: <span class="text-bold" id="nozzle_kiri">{{ $unit->nozzle_kiri }}</span></td>
         					</tr>
         					<tr>
         						<td>Longitude</td>
-        						<td>: <span class="text-bold">{{ $unit->position_longitude }}</span></td>
+        						<td>: <span class="text-bold" id="position_longitude">{{ $unit->position_longitude }}</span></td>
         						<td></td>
         						<td>Nozzle Kanan</td>
-        						<td>: <span class="text-bold">{{ $unit->nozzle_kanan }}</span></td>
+        						<td>: <span class="text-bold" id="nozzle_kanan">{{ $unit->nozzle_kanan }}</span></td>
         					</tr>
         					<tr>
         						<td>Altitude</td>
-        						<td>: <span class="text-bold">{{ $unit->position_altitude }}</span></td>
+        						<td>: <span class="text-bold" id="position_altitude">{{ $unit->position_altitude }}</span></td>
         						<td></td>
         						<td></td>
         						<td></td>
@@ -82,21 +82,29 @@
 <script>
 	var map;
 	var marker;
-
+	var unit_id = {!! $unit->id !!};
 	function updateLocation(){
-		var icon = marker.getIcon();
-		var position_direction = icon.rotation + 45;
-		if(position_direction > 360) {
-			position_direction = position_direction - 360
-		}
-	    icon.rotation = position_direction;
-	    //marker.setIcon(icon);
-	    var position_longitude = Number(marker.getPosition().lng()) + 0.000001;
-	    var position_latitude = marker.getPosition().lat();
-	    var position = new google.maps.LatLng(position_latitude, position_longitude);
-        marker.setPosition(position);
-		console.log(marker.icon.rotation);
-		console.log(position_longitude);
+		$.ajax({
+            type: 'GET',
+            url: BASE_URL + '/master/unit/track_json/' + unit_id,
+        }).then(function (data) {
+            data = JSON.parse(data)
+			var icon = marker.getIcon();
+		    icon.rotation = data.position_direction;
+		    marker.setIcon(icon);
+		    var position = new google.maps.LatLng(data.position_latitude, data.position_longitude);
+			marker.setPosition(position);
+			map.setCenter(position);
+			$("#lokasi").text(data.lokasi);
+			$("#gsm_signal_level").text(data.gsm_signal_level);
+			$("#position_latitude").text(data.position_latitude);
+			$("#position_longitude").text(data.position_longitude);
+			$("#position_altitude").text(data.position_altitude);
+			$("#movement_status_desc").text(data.movement_status_desc);
+			$("#position_speed").text(data.position_speed);
+			$("#nozzle_kanan").text(data.nozzle_kanan);
+			$("#nozzle_kiri").text(data.nozzle_kiri);
+        });
 	    setTimeout(updateLocation, 3 * 1000);
 	}
 

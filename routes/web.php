@@ -50,6 +50,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/unit/get', array('uses' => 'Master\UnitController@getList', 'as' => 'master.unit.get'));
     Route::get('/master/unit/sync', array('uses' => 'Master\UnitController@sync', 'as' => 'master.unit.sync'));
     Route::get('/master/unit/track/{id}', array('uses' => 'Master\UnitController@track', 'as' => 'master.track'));
+    Route::get('/master/unit/track_json/{id}', array('uses' => 'Master\UnitController@track_json', 'as' => 'master.track_json'));
     Route::get('/master/unit/playback/{id}', array('uses' => 'Master\UnitController@playback', 'as' => 'master.playback'));
     Route::get('/master/unit/lokasi', array('uses' => 'Master\UnitController@lokasi', 'as' => 'master.lokasi'));
 
