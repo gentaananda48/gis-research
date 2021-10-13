@@ -115,3 +115,41 @@ Route::group([
 ], function ($router) {
     Route::post('create', 'LacakController@create');
 });
+
+// LAPORAN MASALAH
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+    'prefix'        => 'laporan_masalah'
+], function ($router) {
+    Route::get('list', 'LaporanMasalahController@list');
+    Route::post('create', 'LaporanMasalahController@create');
+    Route::post('update', 'LaporanMasalahController@update');
+});
+
+// PEMELIHARAAN
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+    'prefix'        => 'pemeliharaan'
+], function ($router) {
+    Route::get('list', 'PemeliharaanController@list');
+    Route::post('create', 'PemeliharaanController@create');
+    Route::post('start_maintenance', 'PemeliharaanController@start_maintenance');
+    Route::post('finish_maintenance', 'PemeliharaanController@finish_maintenance');
+
+});
+
+// ORDER MATERIAL
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+    'prefix'        => 'order_material'
+], function ($router) {
+    Route::get('list', 'OrderMaterialController@list');
+    Route::post('create', 'OrderMaterialController@create');
+    Route::post('start_order_material', 'OrderMaterialController@start_order_material');
+    Route::post('cancel_order_material', 'OrderMaterialController@cancel_order_material');
+    Route::post('finish_order_material', 'OrderMaterialController@finish_order_material');
+
+});
