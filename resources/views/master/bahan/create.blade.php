@@ -26,8 +26,12 @@
 							{{ Form::text('nama', Input::old('nama'), array('placeholder' => 'Nama', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required', 'autocomplete'=>'off')) }}
 						</div>
 						<div class="form-group">
-							<label for="bruto">Kategori</label>
-							{{ Form::text('kategori', Input::old('kategori'), array('placeholder' => 'Kategori', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
+							<label for="kategori">Kategori</label>
+	                		{{ Form::select('kategori', $list_kategori, null, array('class' => 'form-control select2', 'required' => 'required')) }}
+						</div>
+						<div class="form-group">
+							<label for="uom">UOM</label>
+							{{ Form::text('uom', Input::old('uom'), array('placeholder' => 'UOM', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
 						</div>
 					<div class="box-footer">
 						{{ Form::submit('Save', array('class' => 'btn btn-success'))}}

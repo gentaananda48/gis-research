@@ -23,7 +23,8 @@ class BahanController extends Controller {
 
     public function create()
     {
-        return view('master.bahan.create', []);
+        $list_kategori = ['ADUK' => 'ADUK', 'KEMAS' => 'KEMAS'];
+        return view('master.bahan.create', ['list_kategori' => $list_kategori]);
     }
 
     public function store(Request $request) {
@@ -39,9 +40,10 @@ class BahanController extends Controller {
         }
         try {
             $bahan= new Bahan;   
-            $bahan->kode       = $request->input('kode'); 
-            $bahan->nama       = $request->input('nama'); 
+            $bahan->kode        = $request->input('kode'); 
+            $bahan->nama        = $request->input('nama'); 
             $bahan->kategori    = $request->input('kategori'); 
+            $bahan->uom         = $request->input('uom'); 
             $bahan->save();
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
@@ -55,7 +57,8 @@ class BahanController extends Controller {
 
     public function edit($id) {
         $data = Bahan::find($id);
-        return view('master.bahan.edit', ['data' => $data]);
+        $list_kategori = ['ADUK' => 'ADUK', 'KEMAS' => 'KEMAS'];
+        return view('master.bahan.edit', ['data' => $data, 'list_kategori' => $list_kategori]);
 
     }
 
@@ -77,9 +80,10 @@ class BahanController extends Controller {
         }
         try {
             $bahan= Bahan::find($id);;   
-            $bahan->kode       = $request->input('kode'); 
-            $bahan->nama       = $request->input('nama'); 
+            $bahan->kode        = $request->input('kode'); 
+            $bahan->nama        = $request->input('nama'); 
             $bahan->kategori    = $request->input('kategori'); 
+            $bahan->uom         = $request->input('uom'); 
             $bahan->save();
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());

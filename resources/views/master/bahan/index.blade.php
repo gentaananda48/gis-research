@@ -34,6 +34,7 @@
                             <th data-column-id="kode" data-width="20%">Kode</th>
                             <th data-column-id="nama">Nama</th>
                             <th data-column-id="kategori">Kategori</th>
+                            <th data-column-id="uom">UOM</th>
                             <th data-column-id="commands" data-width="15%" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                         </tr>
                     </thead>
