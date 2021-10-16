@@ -107,6 +107,20 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transaction/rencana_kerja/get', array('uses' => 'Transaction\RencanaKerjaController@getList', 'as' => 'transaction.rencana_kerja.get'));
     Route::get('/transaction/rencana_kerja/show/{id}', array('uses' => 'Transaction\RencanaKerjaController@show', 'as' => 'transaction.rencana_kerja.show'));
 
+    // LAPORAN MASALAH
+    Route::get('/transaction/laporan_masalah', array('uses' => 'Transaction\LaporanMasalahController@index', 'as' => 'transaction.laporan_masalah'));
+    Route::get('/transaction/laporan_masalah/get', array('uses' => 'Transaction\LaporanMasalahController@getList', 'as' => 'transaction.laporan_masalah.get'));
+    Route::get('/transaction/laporan_masalah/show/{id}', array('uses' => 'Transaction\LaporanMasalahController@show', 'as' => 'transaction.laporan_masalah.show'));
+
+    // ORDER MATERIAL
+    Route::get('/transaction/order_material', array('uses' => 'Transaction\OrderMaterialController@index', 'as' => 'transaction.order_material'));
+    Route::get('/transaction/order_material/get', array('uses' => 'Transaction\OrderMaterialController@getList', 'as' => 'transaction.order_material.get'));
+    Route::get('/transaction/order_material/show/{id}', array('uses' => 'Transaction\OrderMaterialController@show', 'as' => 'transaction.order_material.show'));
+
+    // PEMELIHARAAN
+    Route::get('/transaction/pemeliharaan', array('uses' => 'Transaction\PemeliharaanController@index', 'as' => 'transaction.pemeliharaan'));
+    Route::get('/transaction/pemeliharaan/get', array('uses' => 'Transaction\PemeliharaanController@getList', 'as' => 'transaction.pemeliharaan.get'));
+    Route::get('/transaction/pemeliharaan/show/{id}', array('uses' => 'Transaction\PemeliharaanController@show', 'as' => 'transaction.pemeliharaan.show'));
     // ------------------------------- REPORT -------------------------------- //
 
 });

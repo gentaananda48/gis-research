@@ -30,6 +30,12 @@
 			    				{{ Form::date('tgl', $tgl, array('class' => 'form-control')) }}
 			    			</div>
 			    			<div class="col-sm-2">
+			    				{{ Form::input('time', 'jam_mulai', $jam_mulai, array('class' => 'form-control')) }}
+			    			</div>
+			    			<div class="col-sm-2">
+			    				{{ Form::input('time', 'jam_selesai', $jam_selesai, array('class' => 'form-control')) }}
+			    			</div>
+			    			<div class="col-sm-2">
 			    				{{ Form::select('interval', $list_interval , $interval, array('class' => 'form-control select2')) }}
 			    			</div>
 			    			<div class="col-sm-1">
@@ -38,7 +44,7 @@
 			    		</div>
 			     	</form>
 			    	<div class="progress" style="margin-bottom: 0px;">
-			            <div class="progress-bar progress-bar-aqua" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="86400" style="width: 0%">
+			            <div class="progress-bar progress-bar-aqua" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="{{$durasi}}" style="width: 0%">
 			            	<span class="sr-only"></span>
 			            </div>
 		          	</div>
@@ -119,19 +125,18 @@
 			    fillOpacity: 0.4,
 		  	});
 	    	polygon.infoWindow = new google.maps.InfoWindow({
-	      		content: lokasi.nama,
+	      		content: lokasi.nama
 	    	});
 		  	polygon.setMap(map);
-	    	// google.maps.event.addListener(polygon,"mouseover",function(){
-	     //  		this.setOptions({fillColor: "#00FF00"});
-	     //  		// polygon.infoWindow.setPosition(lokasi.koordinat[0]);
-	     //  		// polygon.infoWindow.open(map);
-	    	// }); 
-
-	    	// google.maps.event.addListener(polygon,"mouseout",function(){
-	     //  		this.setOptions({fillColor: '#964B00'});
-	     //  		// polygon.infoWindow.close();
-	    	// });
+	    	google.maps.event.addListener(polygon, "mouseover", function(event){
+	      		this.setOptions({fillColor: "#00FF00"});
+	      		polygon.infoWindow.setPosition(event.latLng);
+	      		polygon.infoWindow.open({ map, shouldFocus: false});
+	    	}); 
+	    	google.maps.event.addListener(polygon, "mouseout", function(event){
+	      		this.setOptions({fillColor: '#964B00'});
+	      		polygon.infoWindow.close();
+	    	});
 		});
 		async function taskUpdateLocation(i) { // 3
 	  		var icon = marker.getIcon();

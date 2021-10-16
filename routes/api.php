@@ -135,8 +135,8 @@ Route::group([
 ], function ($router) {
     Route::get('list', 'PemeliharaanController@list');
     Route::post('create', 'PemeliharaanController@create');
-    Route::post('start_maintenance', 'PemeliharaanController@start_maintenance');
-    Route::post('finish_maintenance', 'PemeliharaanController@finish_maintenance');
+    Route::post('start', 'PemeliharaanController@start_maintenance');
+    Route::post('finish', 'PemeliharaanController@finish_maintenance');
 
 });
 
@@ -148,8 +148,8 @@ Route::group([
 ], function ($router) {
     Route::get('list', 'OrderMaterialController@list');
     Route::post('create', 'OrderMaterialController@create');
-    Route::post('start_order_material', 'OrderMaterialController@start_order_material');
-    Route::post('cancel_order_material', 'OrderMaterialController@cancel_order_material');
-    Route::post('finish_order_material', 'OrderMaterialController@finish_order_material');
+    Route::post('start', 'OrderMaterialController@start_order_material');
+    Route::post('cancel', 'OrderMaterialController@cancel_order_material');
+    Route::post('finish', 'OrderMaterialController@finish_order_material');
 
 });

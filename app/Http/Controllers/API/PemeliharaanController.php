@@ -48,17 +48,18 @@ class PemeliharaanController extends Controller {
 	    DB::beginTransaction();
 	    try {
 	    	$post = $request->all();
-	    	$pemeliharaan = new Pemeliharaan();
-	    	$pemeliharaan->tanggal  = isset($post["tanggal"]) ? $post["tanggal"] : null;
-			$pemeliharaan->unit_id  = isset($post["unit_id"]) ? $post["unit_id"] : null;
-			$unit = Unit::find($request->unit_id);
-			$pemeliharaan->unit_label = $unit->label;
-			$pemeliharaan->perbaikan = isset($post["perbaikan"]) ? $post["perbaikan"] : null;
-			$pemeliharaan->laporan_driver  = isset($post["laporan_driver"]) ? $post["laporan_driver"] : null;
-			$pemeliharaan->kasie_id = $user->id;
-			$pemeliharaan->kasie_nama = $user->name;
-			$status = Status::find(1);
-			$pemeliharaan->status = $status->nama;
+	    	$pemeliharaan 					= new Pemeliharaan();
+	    	$pemeliharaan->tanggal  		= isset($post["tanggal"]) ? $post["tanggal"] : null;
+			$pemeliharaan->unit_id  		= isset($post["unit_id"]) ? $post["unit_id"] : null;
+			$unit 							= Unit::find($request->unit_id);
+			$pemeliharaan->unit_label 		= $unit->label;
+			$pemeliharaan->perbaikan 		= isset($post["perbaikan"]) ? $post["perbaikan"] : null;
+			$pemeliharaan->laporan_driver  	= isset($post["laporan_driver"]) ? $post["laporan_driver"] : null;
+			$pemeliharaan->kasie_id 		= $user->id;
+			$pemeliharaan->kasie_nama 		= $user->name;
+			$status 						= Status::find(9);
+			$pemeliharaan->status_id 	 	= $status->id;
+			$pemeliharaan->status_nama 	 	= $status->nama;
 			$pemeliharaan->save();
 
 			$log_pemeliharaan = new PemeliharaanLog;
@@ -94,14 +95,16 @@ class PemeliharaanController extends Controller {
 	    $user = $this->guard()->user();
 	    DB::beginTransaction();
 	    try {
-	      	$pemeliharaan = Pemeliharaan::find($request->id);
-	      	$status_nama_lama 	= $pemeliharaan->status;
-	      	$status 	 		= Status::find(2);
-	      	$pemeliharaan->status 	= $status->nama;
-	      	$pemeliharaan->teknisi_id = $request->teknisi_id;
-			$teknisi 		= User::find($request->teknisi_id);  
-		 	$pemeliharaan->teknisi_nama = $teknisi->name;
-			$pemeliharaan->tanggal_mulai 	= date('Y-m-d H:i:s');
+	      	$pemeliharaan 					= Pemeliharaan::find($request->id);
+	      	$status_id_lama 				= $pemeliharaan->status_id;
+	      	$status_nama_lama 				= $pemeliharaan->status_nama;
+	      	$status 	 					= Status::find(10);
+	      	$pemeliharaan->status_id 		= $status->id;
+	      	$pemeliharaan->status_nama 		= $status->nama;
+	      	$pemeliharaan->teknisi_id 		= $request->teknisi_id;
+			$teknisi 						= User::find($request->teknisi_id);  
+		 	$pemeliharaan->teknisi_nama 	= $teknisi->name;
+			$pemeliharaan->tanggal_mulai	= date('Y-m-d H:i:s');
 	      	$pemeliharaan->save();
 
 	      	$log_pemeliharaan = new PemeliharaanLog;
@@ -111,16 +114,16 @@ class PemeliharaanController extends Controller {
 	      	$log_pemeliharaan->user_nama 	 	= $user->name;
 	      	$log_pemeliharaan->status_id 		= $status->id;
 	      	$log_pemeliharaan->status_nama 		= $status->nama;
-			$log_pemeliharaan->status_id_lama 	= 1;
+			$log_pemeliharaan->status_id_lama 	= $status_id_lama;
 	      	$log_pemeliharaan->status_nama_lama = $status_nama_lama;
-	      	$log_pemeliharaan->event 			= 'Update';
+	      	$log_pemeliharaan->event 			= 'Start';
 	      	$log_pemeliharaan->catatan 			= '';	      	
 	      	$log_pemeliharaan->save();
 
 	      	DB::commit();
 	      	return response()->json([
 	        	'status' 	=> true, 
-	        	'message' 	=> 'Submitted successfully', 
+	        	'message' 	=> 'Started successfully', 
 	        	'data' 		=> null
 	      	]);
 	    } catch(Exception $e){
@@ -137,10 +140,12 @@ class PemeliharaanController extends Controller {
 	    $user = $this->guard()->user();
 	    DB::beginTransaction();
 	    try {
-	      	$pemeliharaan = Pemeliharaan::find($request->id);
-	      	$status_nama_lama 	= $pemeliharaan->status;
-	      	$status 	 		= Status::find(4);
-	      	$pemeliharaan->status 	= $status->nama;
+	      	$pemeliharaan 					= Pemeliharaan::find($request->id);
+	      	$status_id_lama 				= $pemeliharaan->status_id;
+	      	$status_nama_lama 				= $pemeliharaan->status_nama;
+	      	$status 	 					= Status::find(12);
+	      	$pemeliharaan->status_id 		= $status->id;
+	      	$pemeliharaan->status_nama 		= $status->nama;
 	      	$pemeliharaan->tanggal_selesai 	= date('Y-m-d H:i:s');
 	      	$pemeliharaan->catatan_teknisi	= $request->catatan_teknisi;
 			$pemeliharaan->save();
@@ -152,16 +157,16 @@ class PemeliharaanController extends Controller {
 	      	$log_pemeliharaan->user_nama 	 	= $user->name;
 	      	$log_pemeliharaan->status_id 		= $status->id;
 	      	$log_pemeliharaan->status_nama 		= $status->nama;
-			$log_pemeliharaan->status_id_lama 	= 2;
+			$log_pemeliharaan->status_id_lama 	= $status_id_lama;
 	      	$log_pemeliharaan->status_nama_lama = $status_nama_lama;
-	      	$log_pemeliharaan->event 			= 'Update';
+	      	$log_pemeliharaan->event 			= 'Finish';
 	      	$log_pemeliharaan->catatan 			= $pemeliharaan->catatan_teknisi;	      	
 	      	$log_pemeliharaan->save();
 
 	      	DB::commit();
 	      	return response()->json([
 	        	'status' 	=> true, 
-	        	'message' 	=> 'Submitted successfully', 
+	        	'message' 	=> 'Finished successfully', 
 	        	'data' 		=> null
 	      	]);
 	    } catch(Exception $e){

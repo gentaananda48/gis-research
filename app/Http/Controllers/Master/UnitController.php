@@ -119,6 +119,8 @@ class UnitController extends Controller {
 
     public function playback(Request $request, $id) {
         $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
+        $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '00:00:00';
+        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '23:59:00';
         $interval = !empty($request->interval) ? $request->interval : 1000;
         $unit = Unit::find($id);
         $list_interval = [];
@@ -146,19 +148,20 @@ class UnitController extends Controller {
         }
         $list_lokasi = array_values($list_lokasi);
         $geofenceHelper = new GeofenceHelper;
-        $jam_mulai = $tgl.' 00:00:00';
-        $jam_selesai = $tgl.' 23:59:59';
+        $tgl_jam_mulai = $tgl.' '.$jam_mulai;
+        $tgl_jam_selesai = $tgl.' '.$jam_selesai;
+        $durasi = strtotime($tgl_jam_selesai) - strtotime($tgl_jam_mulai) + 1;
         $lacak = Lacak::where('ident', $unit->source_device_id)
-            ->where('timestamp', '>=', strtotime($jam_mulai))
-            ->where('timestamp', '<=', strtotime($jam_selesai))
+            ->where('timestamp', '>=', strtotime($tgl_jam_mulai))
+            ->where('timestamp', '<=', strtotime($tgl_jam_selesai))
             ->orderBy('timestamp', 'ASC')
             ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp']);
         $list_lacak = [];
         foreach($lacak as $v){
             $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
             $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
-            $v->progress_time = doubleval($v->timestamp) - strtotime($jam_mulai);
-            $v->progress_time_pers = ($v->progress_time / 86400) * 100 ;
+            $v->progress_time = doubleval($v->timestamp) - strtotime($tgl_jam_mulai);
+            $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
             $v->timestamp_2 = date('H:i:s', $v->timestamp);
             $list_lacak[] = $v;
         }
@@ -167,8 +170,11 @@ class UnitController extends Controller {
             'list_lacak'    => json_encode($list_lacak),
             'list_lokasi'   => json_encode($list_lokasi),
             'tgl'           => $tgl,
+            'jam_mulai'     => $jam_mulai,
+            'jam_selesai'   => $jam_selesai,
             'list_interval' => $list_interval,
-            'interval'      => $interval
+            'interval'      => $interval,
+            'durasi'        => $durasi
         ]);
     }
 
