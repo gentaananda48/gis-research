@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Model\Lokasi;
 use App\Center\GridCenter;
 use App\Transformer\LokasiTransformer;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\LokasiImport;
 
 class LokasiController extends Controller {
     public function index() {
@@ -99,6 +101,22 @@ class LokasiController extends Controller {
             return redirect('master/lokasi')->with('message', 'Deleted successfully');
         } catch (Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
+        }
+    }
+
+    public function import_lokasi(Request $request)
+    {
+        $this->validate($request, [
+            'file' => 'required|mimes:xls,xlsx'
+        ]);
+
+        $import = Excel::import(new LokasiImport,request()->file('file'));
+        if($import) {
+            //redirect
+            return redirect()->route('master.lokasi')->with(['success' => 'Data Berhasil Diimport!']);
+        } else {
+            //redirect
+            return redirect()->route('master.lokasi')->with(['error' => 'Data Gagal Diimport!']);
         }
     }
 }

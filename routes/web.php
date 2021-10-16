@@ -62,6 +62,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/lokasi/edit/{id}', array('uses' => 'Master\LokasiController@edit', 'as' => 'master.lokasi.edit'));
     Route::put('/master/lokasi/update/{id}', array('uses' => 'Master\LokasiController@update', 'as' => 'master.lokasi.update'));
     Route::delete('/master/lokasi/delete/{id}', array('uses' => 'Master\LokasiController@destroy', 'as' => 'master.lokasi.destroy')); 
+    Route::post('/master/lokasi/import', 'Master\LokasiController@import_lokasi')->name('master.lokasi.import');
+
 
     // AKTIVITAS
     Route::get('/master/aktivitas', array('uses' => 'Master\AktivitasController@index', 'as' => 'master.aktivitas'));
@@ -106,6 +108,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transaction/rencana_kerja', array('uses' => 'Transaction\RencanaKerjaController@index', 'as' => 'transaction.rencana_kerja'));
     Route::get('/transaction/rencana_kerja/get', array('uses' => 'Transaction\RencanaKerjaController@getList', 'as' => 'transaction.rencana_kerja.get'));
     Route::get('/transaction/rencana_kerja/show/{id}', array('uses' => 'Transaction\RencanaKerjaController@show', 'as' => 'transaction.rencana_kerja.show'));
+    Route::post('/transaction/rencana_kerja/import', 'Transaction\RencanaKerjaController@import_rencana_kerja')->name('transaction.rencana_kerja.import');
 
     // LAPORAN MASALAH
     Route::get('/transaction/laporan_masalah', array('uses' => 'Transaction\LaporanMasalahController@index', 'as' => 'transaction.laporan_masalah'));
