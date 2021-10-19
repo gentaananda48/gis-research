@@ -14,7 +14,7 @@ class TindakLanjutPendingController extends Controller {
         return view('master.tindak_lanjut_pending.index');
     }
 
-    public function getList(){
+    public function get_list(){
         $query = TindakLanjutPending::select();
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new TindakLanjutPendingTransformer()));

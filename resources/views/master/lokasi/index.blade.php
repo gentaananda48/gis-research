@@ -37,6 +37,7 @@
         <strong>{{ $message }}</strong>
       </div>
     @endif    
+<button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".win-filter">Filter</button>
     <a href="{{ url('/master/lokasi/create') }}" class="btn btn-success btn-xs">Add <i class="fa fa-plus" aria-hidden="true"></i></a>
     <button type="button" class="btn btn-xs btn-success" data-toggle="modal" data-target="#import">
         Import  <i class="fa fa-sm fa-file-excel-o"></i>
@@ -78,7 +79,7 @@
                             <th data-column-id="wilayah">Wilayah</th>
                             <th data-column-id="lsbruto" data-header-css-class="nowrap">Luas Bruto</th>
                             <th data-column-id="lsnetto" data-header-css-class="nowrap">Luas Netto</th>
-                            <th data-column-id="status">Status</th>
+                            <!-- <th data-column-id="status">Status</th> -->
                             <th data-column-id="commands" data-width="15%" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                         </tr>
                     </thead>
@@ -86,6 +87,55 @@
             </div>
         </div>
     </section>
+
+<div class="modal fade win-filter" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Filter</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">   
+                            <div class="form-group">
+                                <label for="kode" class="col-sm-4">Kode</label>
+                                <div class="col-sm-8">
+                                    {{ Form::text('kode', null, array('class' => 'form-control', 'autocomplete'=>'off')) }}
+                                </div>
+                            </div>     
+                            <div class="form-group">
+                                <label for="nama" class="col-sm-4">Nama</label>
+                                <div class="col-sm-8">
+                                    {{ Form::text('nama', null, array('class' => 'form-control', 'autocomplete'=>'off')) }}
+                                </div>
+                            </div>  
+                        </div>
+                        <div class="col-md-6"> 
+                            <div class="form-group">
+                                <label for="grup" class="col-sm-4">Grup</label>
+                                <div class="col-sm-8">
+                                    {{ Form::text('grup', null, array('class' => 'form-control', 'autocomplete'=>'off')) }}
+                                </div>
+                            </div>     
+                            <div class="form-group">
+                                <label for="wilayah" class="col-sm-4">Wilayah</label>
+                                <div class="col-sm-8">
+                                    {{ Form::text('wilayah', null, array('class' => 'form-control', 'autocomplete'=>'off')) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-save">OK</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @stop
 
 @section("script")

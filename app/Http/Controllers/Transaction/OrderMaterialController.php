@@ -14,7 +14,7 @@ class OrderMaterialController extends Controller {
         return view('transaction.order_material.index');
     }
 
-    public function getList(){
+    public function get_list(){
         $query = OrderMaterial::orderBy('tanggal', 'DESC');
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new OrderMaterialTransformer()));

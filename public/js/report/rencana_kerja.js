@@ -10,14 +10,13 @@ $("#grid-data").bootgrid({
         cache: false
     },
     rowCount: [20],
-    url: BASE_URL + "/transaction/rencana_kerja/get" + window.location.search,
+    url: BASE_URL + "/report/rencana_kerja/get" + window.location.search,
     navigation: 2,
     formatters: {
         commands: function(column, row) {
             var ret = '';
-            if(row.status_id==4) {
-                ret += '<a href="/transaction/rencana_kerja/playback/' + row.id + '" class ="btn btn-xs btn-success">' + ' Playback</a>';
-            }
+           	ret += '<a href="/report/rencana_kerja/summary/' + row.id + '" class ="btn btn-xs btn-default">' + ' Summary</a>';
+           	ret += ' <a href="/report/rencana_kerja/playback/' + row.id + '" class ="btn btn-xs btn-success">' + ' Playback</a>';
             return ret;
         }
     }

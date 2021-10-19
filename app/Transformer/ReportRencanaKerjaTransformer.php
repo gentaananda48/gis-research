@@ -3,7 +3,7 @@
 namespace App\Transformer;
 use League\Fractal\TransformerAbstract;
 
-class RencanaKerjaTransformer extends TransformerAbstract {
+class ReportRencanaKerjaTransformer extends TransformerAbstract {
     public function transform($model) {
         return [
             'id'            	=> $model->id,
@@ -32,6 +32,7 @@ class RencanaKerjaTransformer extends TransformerAbstract {
             'kasie_nama'   		=> $model->kasie_nama,
             'status_id'    		=> $model->status_id,
             'status_nama'  		=> $model->status_nama,
+            'kualitas'  		=> $model->kualitas,
             'created_at'    	=> $model->created_at->format('Y-m-d H:i:s'),
             'created_by'    	=> $model->created_by,
             'updated_at'    	=> $model->updated_at->format('Y-m-d H:i:s'),

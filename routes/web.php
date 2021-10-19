@@ -20,7 +20,7 @@ Route::group(['middleware' => ['auth']], function () {
     // ------------------------------- ADMIN -------------------------------- //
     // ROLE
     Route::get('/admin/role', array('uses' => 'Admin\RoleController@index', 'as' => 'admin.role'));
-    Route::get('/admin/role/get', array('uses' => 'Admin\RoleController@getList', 'as' => 'admin.role.get'));
+    Route::get('/admin/role/get', array('uses' => 'Admin\RoleController@get_list', 'as' => 'admin.role.get'));
     Route::get('/admin/role/create', array('uses' => 'Admin\RoleController@create', 'as' => 'admin.role.create'));
     Route::post('/admin/role', array('uses' => 'Admin\RoleController@store', 'as' => 'admin.role.store'));
     Route::get('/admin/role/edit/{id}', array('uses' => 'Admin\RoleController@edit', 'as' => 'admin.role.edit'));
@@ -31,7 +31,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // USER
     Route::get('/admin/user', array('uses' => 'Admin\UserController@index', 'as' => 'admin.user'));
-    Route::get('/admin/user/get', array('uses' => 'Admin\UserController@getList', 'as' => 'admin.user.get'));
+    Route::get('/admin/user/get', array('uses' => 'Admin\UserController@get_list', 'as' => 'admin.user.get'));
     Route::get('/admin/user/create', array('uses' => 'Admin\UserController@create', 'as' => 'admin.user.create'));
     Route::post('/admin/user', array('uses' => 'Admin\UserController@store', 'as' => 'admin.user.store'));
     Route::get('/admin/user/edit/{id}', array('uses' => 'Admin\UserController@edit', 'as' => 'admin.user.edit'));
@@ -47,7 +47,7 @@ Route::group(['middleware' => ['auth']], function () {
     // ------------------------------- MASTER -------------------------------- // 
     // UNIT
     Route::get('/master/unit', array('uses' => 'Master\UnitController@index', 'as' => 'master.unit'));
-    Route::get('/master/unit/get', array('uses' => 'Master\UnitController@getList', 'as' => 'master.unit.get'));
+    Route::get('/master/unit/get', array('uses' => 'Master\UnitController@get_list', 'as' => 'master.unit.get'));
     Route::get('/master/unit/sync', array('uses' => 'Master\UnitController@sync', 'as' => 'master.unit.sync'));
     Route::get('/master/unit/track/{id}', array('uses' => 'Master\UnitController@track', 'as' => 'master.track'));
     Route::get('/master/unit/track_json/{id}', array('uses' => 'Master\UnitController@track_json', 'as' => 'master.track_json'));
@@ -56,7 +56,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // LOKASI
     Route::get('/master/lokasi', array('uses' => 'Master\LokasiController@index', 'as' => 'master.lokasi'));
-    Route::get('/master/lokasi/get', array('uses' => 'Master\LokasiController@getList', 'as' => 'master.lokasi.get'));
+    Route::get('/master/lokasi/get', array('uses' => 'Master\LokasiController@get_list', 'as' => 'master.lokasi.get'));
     Route::get('/master/lokasi/create', array('uses' => 'Master\LokasiController@create', 'as' => 'master.lokasi.create'));
     Route::post('/master/lokasi', array('uses' => 'Master\LokasiController@store', 'as' => 'master.lokasi.store'));
     Route::get('/master/lokasi/edit/{id}', array('uses' => 'Master\LokasiController@edit', 'as' => 'master.lokasi.edit'));
@@ -67,7 +67,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // AKTIVITAS
     Route::get('/master/aktivitas', array('uses' => 'Master\AktivitasController@index', 'as' => 'master.aktivitas'));
-    Route::get('/master/aktivitas/get', array('uses' => 'Master\AktivitasController@getList', 'as' => 'master.aktivitas.get'));
+    Route::get('/master/aktivitas/get', array('uses' => 'Master\AktivitasController@get_list', 'as' => 'master.aktivitas.get'));
     Route::get('/master/aktivitas/create', array('uses' => 'Master\AktivitasController@create', 'as' => 'master.aktivitas.create'));
     Route::post('/master/aktivitas', array('uses' => 'Master\AktivitasController@store', 'as' => 'master.aktivitas.store'));
     Route::get('/master/aktivitas/edit/{id}', array('uses' => 'Master\AktivitasController@edit', 'as' => 'master.aktivitas.edit'));
@@ -78,7 +78,7 @@ Route::group(['middleware' => ['auth']], function () {
     
     // ALASAN PENDING
     Route::get('/master/alasan_pending', array('uses' => 'Master\AlasanPendingController@index', 'as' => 'master.alasan_pending'));
-    Route::get('/master/alasan_pending/get', array('uses' => 'Master\AlasanPendingController@getList', 'as' => 'master.alasan_pending.get'));
+    Route::get('/master/alasan_pending/get', array('uses' => 'Master\AlasanPendingController@get_list', 'as' => 'master.alasan_pending.get'));
     Route::get('/master/alasan_pending/create', array('uses' => 'Master\AlasanPendingController@create', 'as' => 'master.alasan_pending.create'));
     Route::post('/master/alasan_pending', array('uses' => 'Master\AlasanPendingController@store', 'as' => 'master.alasan_pending.store'));
     Route::get('/master/alasan_pending/edit/{id}', array('uses' => 'Master\AlasanPendingController@edit', 'as' => 'master.alasan_pending.edit'));
@@ -87,7 +87,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // TINDAK LANJUT PENDING
     Route::get('/master/tindak_lanjut_pending', array('uses' => 'Master\TindakLanjutPendingController@index', 'as' => 'master.tindak_lanjut_pending'));
-    Route::get('/master/tindak_lanjut_pending/get', array('uses' => 'Master\TindakLanjutPendingController@getList', 'as' => 'master.tindak_lanjut_pending.get'));
+    Route::get('/master/tindak_lanjut_pending/get', array('uses' => 'Master\TindakLanjutPendingController@get_list', 'as' => 'master.tindak_lanjut_pending.get'));
     Route::get('/master/tindak_lanjut_pending/create', array('uses' => 'Master\TindakLanjutPendingController@create', 'as' => 'master.tindak_lanjut_pending.create'));
     Route::post('/master/tindak_lanjut_pending', array('uses' => 'Master\TindakLanjutPendingController@store', 'as' => 'master.tindak_lanjut_pending.store'));
     Route::get('/master/tindak_lanjut_pending/edit/{id}', array('uses' => 'Master\TindakLanjutPendingController@edit', 'as' => 'master.tindak_lanjut_pending.edit'));
@@ -96,35 +96,72 @@ Route::group(['middleware' => ['auth']], function () {
     
     // BAHAN
     Route::get('/master/bahan', array('uses' => 'Master\BahanController@index', 'as' => 'master.bahan'));
-    Route::get('/master/bahan/get', array('uses' => 'Master\BahanController@getList', 'as' => 'master.bahan.get'));
+    Route::get('/master/bahan/get', array('uses' => 'Master\BahanController@get_list', 'as' => 'master.bahan.get'));
     Route::get('/master/bahan/create', array('uses' => 'Master\BahanController@create', 'as' => 'master.bahan.create'));
     Route::post('/master/bahan', array('uses' => 'Master\BahanController@store', 'as' => 'master.bahan.store'));
     Route::get('/master/bahan/edit/{id}', array('uses' => 'Master\BahanController@edit', 'as' => 'master.bahan.edit'));
     Route::put('/master/bahan/update/{id}', array('uses' => 'Master\BahanController@update', 'as' => 'master.bahan.update'));
     Route::delete('/master/bahan/delete/{id}', array('uses' => 'Master\BahanController@destroy', 'as' => 'master.bahan.destroy')); 
+
+    // REPORT PARAMETER
+    Route::get('/master/report_parameter', array('uses' => 'Master\ReportParameterController@index', 'as' => 'master.report_parameter'));
+    Route::get('/master/report_parameter/get', array('uses' => 'Master\ReportParameterController@get_list', 'as' => 'master.report_parameter.get'));
+    Route::get('/master/report_parameter/create', array('uses' => 'Master\ReportParameterController@create', 'as' => 'master.report_parameter.create'));
+    Route::post('/master/report_parameter', array('uses' => 'Master\ReportParameterController@store', 'as' => 'master.report_parameter.store'));
+    Route::get('/master/report_parameter/edit/{id}', array('uses' => 'Master\ReportParameterController@edit', 'as' => 'master.report_parameter.edit'));
+    Route::put('/master/report_parameter/update/{id}', array('uses' => 'Master\ReportParameterController@update', 'as' => 'master.report_parameter.update'));
+    Route::delete('/master/report_parameter/delete/{id}', array('uses' => 'Master\ReportParameterController@destroy', 'as' => 'master.report_parameter.destroy'));
+
+    // REPORT PARAMETER BOBOT
+    Route::get('/master/report_parameter_bobot', array('uses' => 'Master\ReportParameterBobotController@index', 'as' => 'master.report_parameter_bobot'));
+    Route::get('/master/report_parameter_bobot/get', array('uses' => 'Master\ReportParameterBobotController@get_list', 'as' => 'master.report_parameter_bobot.get'));
+    Route::get('/master/report_parameter_bobot/create', array('uses' => 'Master\ReportParameterBobotController@create', 'as' => 'master.report_parameter_bobot.create'));
+    Route::post('/master/report_parameter_bobot', array('uses' => 'Master\ReportParameterBobotController@store', 'as' => 'master.report_parameter_bobot.store'));
+    Route::get('/master/report_parameter_bobot/edit/{id}', array('uses' => 'Master\ReportParameterBobotController@edit', 'as' => 'master.report_parameter_bobot.edit'));
+    Route::put('/master/report_parameter_bobot/update/{id}', array('uses' => 'Master\ReportParameterBobotController@update', 'as' => 'master.report_parameter_bobot.update'));
+    Route::delete('/master/report_parameter_bobot/delete/{id}', array('uses' => 'Master\ReportParameterBobotController@destroy', 'as' => 'master.report_parameter_bobot.destroy'));
     
+    // REPORT PARAMETER STANDARD
+    Route::get('/master/report_parameter_standard', array('uses' => 'Master\ReportParameterStandardController@index', 'as' => 'master.report_parameter_standard'));
+    Route::get('/master/report_parameter_standard/get', array('uses' => 'Master\ReportParameterStandardController@get_list', 'as' => 'master.report_parameter_standard.get'));
+    Route::get('/master/report_parameter_standard/create', array('uses' => 'Master\ReportParameterStandardController@create', 'as' => 'master.report_parameter_standard.create'));
+    Route::post('/master/report_parameter_standard', array('uses' => 'Master\ReportParameterStandardController@store', 'as' => 'master.report_parameter_standard.store'));
+    Route::get('/master/report_parameter_standard/edit/{id}', array('uses' => 'Master\ReportParameterStandardController@edit', 'as' => 'master.report_parameter_standard.edit'));
+    Route::get('/master/report_parameter_standard/detail/{id}', array('uses' => 'Master\ReportParameterStandardController@detail', 'as' => 'master.report_parameter_standard.detail'));
+    Route::put('/master/report_parameter_standard/update/{id}', array('uses' => 'Master\ReportParameterStandardController@update', 'as' => 'master.report_parameter_standard.update'));
+    Route::delete('/master/report_parameter_standard/delete/{id}', array('uses' => 'Master\ReportParameterStandardController@destroy', 'as' => 'master.report_parameter_standard.destroy'));
+    Route::put('/master/report_parameter_standard/detail_update/{id}', array('uses' => 'Master\ReportParameterStandardController@detail_update', 'as' => 'master.report_parameter_standard.detail_update'));
+
     // ------------------------------- TRANSACTION -------------------------------- //
     // RENCANA KERJA
     Route::get('/transaction/rencana_kerja', array('uses' => 'Transaction\RencanaKerjaController@index', 'as' => 'transaction.rencana_kerja'));
-    Route::get('/transaction/rencana_kerja/get', array('uses' => 'Transaction\RencanaKerjaController@getList', 'as' => 'transaction.rencana_kerja.get'));
+    Route::get('/transaction/rencana_kerja/get', array('uses' => 'Transaction\RencanaKerjaController@get_list', 'as' => 'transaction.rencana_kerja.get'));
     Route::get('/transaction/rencana_kerja/show/{id}', array('uses' => 'Transaction\RencanaKerjaController@show', 'as' => 'transaction.rencana_kerja.show'));
-    Route::post('/transaction/rencana_kerja/import', 'Transaction\RencanaKerjaController@import_rencana_kerja')->name('transaction.rencana_kerja.import');
+    Route::post('/transaction/rencana_kerja/import', 'Transaction\RencanaKerjaController@import')->name('transaction.rencana_kerja.import');
+    Route::get('/transaction/rencana_kerja/export', array('uses' => 'Transaction\RencanaKerjaController@export', 'as' => 'transaction.rencana_kerja.export'));
+    Route::get('/transaction/rencana_kerja/playback/{id}', array('uses' => 'Transaction\RencanaKerjaController@playback', 'as' => 'transaction.rencana_kerja.playback'));
 
     // LAPORAN MASALAH
     Route::get('/transaction/laporan_masalah', array('uses' => 'Transaction\LaporanMasalahController@index', 'as' => 'transaction.laporan_masalah'));
-    Route::get('/transaction/laporan_masalah/get', array('uses' => 'Transaction\LaporanMasalahController@getList', 'as' => 'transaction.laporan_masalah.get'));
+    Route::get('/transaction/laporan_masalah/get', array('uses' => 'Transaction\LaporanMasalahController@get_list', 'as' => 'transaction.laporan_masalah.get'));
     Route::get('/transaction/laporan_masalah/show/{id}', array('uses' => 'Transaction\LaporanMasalahController@show', 'as' => 'transaction.laporan_masalah.show'));
 
     // ORDER MATERIAL
     Route::get('/transaction/order_material', array('uses' => 'Transaction\OrderMaterialController@index', 'as' => 'transaction.order_material'));
-    Route::get('/transaction/order_material/get', array('uses' => 'Transaction\OrderMaterialController@getList', 'as' => 'transaction.order_material.get'));
+    Route::get('/transaction/order_material/get', array('uses' => 'Transaction\OrderMaterialController@get_list', 'as' => 'transaction.order_material.get'));
     Route::get('/transaction/order_material/show/{id}', array('uses' => 'Transaction\OrderMaterialController@show', 'as' => 'transaction.order_material.show'));
 
     // PEMELIHARAAN
     Route::get('/transaction/pemeliharaan', array('uses' => 'Transaction\PemeliharaanController@index', 'as' => 'transaction.pemeliharaan'));
-    Route::get('/transaction/pemeliharaan/get', array('uses' => 'Transaction\PemeliharaanController@getList', 'as' => 'transaction.pemeliharaan.get'));
+    Route::get('/transaction/pemeliharaan/get', array('uses' => 'Transaction\PemeliharaanController@get_list', 'as' => 'transaction.pemeliharaan.get'));
     Route::get('/transaction/pemeliharaan/show/{id}', array('uses' => 'Transaction\PemeliharaanController@show', 'as' => 'transaction.pemeliharaan.show'));
     // ------------------------------- REPORT -------------------------------- //
+    // RENCANA KERJA
+    Route::get('/report/rencana_kerja', array('uses' => 'Report\RencanaKerjaController@index', 'as' => 'report.rencana_kerja'));
+    Route::get('/report/rencana_kerja/get', array('uses' => 'Report\RencanaKerjaController@get_list', 'as' => 'report.rencana_kerja.get'));
+    Route::get('/report/rencana_kerja/summary/{id}', array('uses' => 'Report\RencanaKerjaController@summary', 'as' => 'report.rencana_kerja.summary'));
+    Route::get('/report/rencana_kerja/export', array('uses' => 'Report\RencanaKerjaController@export', 'as' => 'report.rencana_kerja.export'));
+    Route::get('/report/rencana_kerja/playback/{id}', array('uses' => 'Report\RencanaKerjaController@playback', 'as' => 'report.rencana_kerja.playback'));
 
 });
 

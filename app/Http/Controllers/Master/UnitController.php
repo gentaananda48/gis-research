@@ -22,7 +22,7 @@ class UnitController extends Controller {
         return view('master.unit.index');
     }
 
-    public function getList(){
+    public function get_list(){
         $query = Unit::select();
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new UnitTransformer()));

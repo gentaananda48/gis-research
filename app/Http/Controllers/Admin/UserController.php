@@ -18,7 +18,7 @@ class UserController extends Controller {
         return view('admin.user.index', []);
     }
 
-    public function getList(){
+    public function get_list(){
         $query = User::select('users.*', 'roles.code as role_code', 'roles.name as role_name')
             ->join('roles','roles.id','=','users.role_id');
         if(!empty($_GET['email'])){

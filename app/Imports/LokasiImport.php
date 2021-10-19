@@ -21,8 +21,8 @@ class LokasiImport implements ToModel, WithHeadingRow
             'nama'      => $row["nama"],
             'grup'      => $row["grup"],
             'wilayah'   => $row["wilayah"],
-            'lsbruto'   => $row["lsbruto"],
-            'lsnetto'   => $row["lsnetto"],
+            'lsbruto'   => $row["luas_bruto"],
+            'lsnetto'   => $row["luas_netto"],
             'status'   => $row["status"],
         ]);
     }

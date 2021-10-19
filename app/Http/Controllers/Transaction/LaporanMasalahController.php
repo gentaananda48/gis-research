@@ -14,7 +14,7 @@ class LaporanMasalahController extends Controller {
         return view('transaction.laporan_masalah.index');
     }
 
-    public function getList(){
+    public function get_list(){
         $query = LaporanMasalah::orderBy('tanggal', 'DESC');
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new LaporanMasalahTransformer()));

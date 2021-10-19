@@ -16,8 +16,20 @@ class LokasiController extends Controller {
         return view('master.lokasi.index');
     }
 
-    public function getList(){
+    public function get_list(Request $request){
         $query = Lokasi::select();
+        if(!empty($request->kode)){
+            $query->whereRaw("kode LIKE '%".$request->kode."%'");
+        }
+        if(!empty($request->nama)){
+            $query->whereRaw("nama LIKE '%".$request->nama."%'");
+        }
+        if(!empty($request->grup)){
+            $query->whereRaw("grup LIKE '%".$request->grup."%'");
+        }
+        if(!empty($request->wilayah)){
+            $query->whereRaw("wilayah LIKE '%".$request->wilayah."%'");
+        }
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new LokasiTransformer()));
         exit;

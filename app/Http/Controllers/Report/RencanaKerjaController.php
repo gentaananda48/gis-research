@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Transaction;
+namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Model\RencanaKerja;
+use App\Model\RencanaKerjaSummary;
 use App\Model\Lokasi;
 use App\Model\Shift;
 use App\Model\Aktivitas;
@@ -15,13 +16,13 @@ use App\Model\Unit;
 use App\Model\Nozzle;
 use App\Model\VolumeAir;
 use App\Model\Status;
+use App\Model\ReportStatus;
 use App\Model\KoordinatLokasi;
 use App\Model\Lacak;
 use App\Center\GridCenter;
-use App\Transformer\RencanaKerjaTransformer;
+use App\Transformer\ReportRencanaKerjaTransformer;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\RencanaKerjaImport;
-use App\Exports\RencanaKerjaExport;
+use App\Exports\ReportRencanaKerjaExport;
 use App\Helper\GeofenceHelper;
 
 class RencanaKerjaController extends Controller {
@@ -33,6 +34,7 @@ class RencanaKerjaController extends Controller {
         $list_nozzle = [];
         $list_volume = [];
         $list_status = [];
+        $list_report_status = [];
         $res = Shift::get(['id', 'nama']);
         foreach($res AS $v){
             $list_shift[$v->id] = $v->nama;
@@ -61,21 +63,27 @@ class RencanaKerjaController extends Controller {
         foreach($res AS $v){
             $list_status[$v->id] = $v->nama;
         }
-        return view('transaction.rencana_kerja.index', [
+        $res = ReportStatus::get(['id', 'status']);
+        foreach($res AS $v){
+            $list_report_status[$v->status] = $v->status;
+        }
+        return view('report.rencana_kerja.index', [
             'list_shift'        => $list_shift,
             'list_lokasi'       => $list_lokasi,
             'list_aktivitas'    => $list_aktivitas,
             'list_unit'         => $list_unit,
             'list_nozzle'       => $list_nozzle,
             'list_volume'       => $list_volume,
-            'list_status'       => $list_status
+            'list_status'       => $list_status,
+            'list_report_status'    => $list_report_status
         ]);
     }
 
     public function get_list(Request $request){
         $user = $this->guard()->user();
         $kasie_id = $user->id;
-        $query = RencanaKerja::where('kasie_id', $kasie_id);
+        $query = RencanaKerja::where('kasie_id', $kasie_id)
+        	->where('status_id', 4);
         if(!empty($request->tgl)){
             $tgl = explode(' - ', $request->tgl);
             $tgl_1 = date('Y-m-d', strtotime($tgl[0]));
@@ -103,35 +111,30 @@ class RencanaKerjaController extends Controller {
         if(isset($request->status)){
             $query->whereIn('status_id', $request->status);
         }
+        if(isset($request->kualitas)){
+            $query->whereIn('kualitas', $request->kualitas);
+        }
         $data = new GridCenter($query, $_GET);
-        echo json_encode($data->render(new RencanaKerjaTransformer()));
+        echo json_encode($data->render(new ReportRencanaKerjaTransformer()));
         exit;
     }
 
     public function export(Request $request){
         $user = $this->guard()->user();
-        return Excel::download(new RencanaKerjaExport($request, $user->id), 'rencana_kerja.xlsx');
+        return Excel::download(new ReportRencanaKerjaExport($request, $user->id), 'report_rencana_kerja.xlsx');
     }
 
-    public function show($id) {
+    public function summary($id) {
         $data = RencanaKerja::find($id);
-        return view('transaction.rencana_kerja.edit', ['data' => $data]);
-    }
-
-    public function import(Request $request) {
-        $user = $this->guard()->user();
-        $this->validate($request, [
-            'file' => 'required|mimes:xls,xlsx'
-        ]);
-
-        $import = Excel::import(new RencanaKerjaImport($user->id), request()->file('file'));
-        if($import) {
-            //redirect
-            return redirect()->route('transaction.rencana_kerja')->with(['success' => 'Data Berhasil Diimport!']);
-        } else {
-            //redirect
-            return redirect()->route('transaction.rencana_kerja')->with(['error' => 'Data Gagal Diimport!']);
+        $rks = RencanaKerjaSummary::where('rk_id', $id)
+            ->orderBy('ritase', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get();
+        $list_rks;
+        foreach($rks as $v){
+            $list_rks[$v->ritase][] = $v;
         }
+        return view('report.rencana_kerja.summary', ['data' => $data, 'list_rks' => $list_rks]);
     }
 
     public function playback(Request $request, $id) {
@@ -180,7 +183,7 @@ class RencanaKerjaController extends Controller {
             $v->timestamp_2 = date('H:i:s', $v->timestamp);
             $list_lacak[] = $v;
         }
-        return view('transaction.rencana_kerja.playback', [
+        return view('report.rencana_kerja.playback', [
             'unit'          => $unit,
             'list_lacak'    => json_encode($list_lacak),
             'list_lokasi'   => json_encode($list_lokasi),

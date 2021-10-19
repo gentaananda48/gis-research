@@ -20,7 +20,7 @@ class RoleController extends Controller {
         ]);
     }
 
-    public function getList(){
+    public function get_list(){
         $query = Role::select();
         $data = new GridCenter($query, $_GET);
     

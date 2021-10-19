@@ -14,7 +14,7 @@ class BahanController extends Controller {
         return view('master.bahan.index');
     }
 
-    public function getList(){
+    public function get_list(){
         $query = Bahan::select();
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new BahanTransformer()));

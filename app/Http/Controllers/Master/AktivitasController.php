@@ -16,7 +16,7 @@ class AktivitasController extends Controller {
         return view('master.aktivitas.index');
     }
 
-    public function getList(){
+    public function get_list(){
         $query = Aktivitas::select();
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new AktivitasTransformer()));

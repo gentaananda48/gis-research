@@ -20,22 +20,8 @@
     </section>
     
     <section class="content container-fluid">
-    @if ($message = Session::get('success'))
-      <div class="alert alert-success alert-block">
-        <button type="button" class="close" data-dismiss="alert">×</button>    
-          <strong>{{ $message }}</strong>
-      </div>
-    @endif
-
-    @if ($message = Session::get('error'))
-      <div class="alert alert-danger alert-block">
-        <button type="button" class="close" data-dismiss="alert">×</button>    
-        <strong>{{ $message }}</strong>
-      </div>
-    @endif
-        <button type="button" class="btn btn-xs btn-success" data-toggle="modal" data-target="#import">Import</button>
         <button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".win-filter">Filter</button>
-        <a href="{{ url('transaction/rencana_kerja/export'.str_replace(Request::url(), '', Request::fullUrl())) }}" class="btn btn-xs btn-warning">Export</a>
+        <a href="{{ url('report/rencana_kerja/export'.str_replace(Request::url(), '', Request::fullUrl())) }}" class="btn btn-xs btn-warning">Export</a>
         <div class="box box-success">
             <div class="box-body table-responsive no-padding">
                 <table id="grid-data" class="table table-hover table-bordered">
@@ -58,7 +44,7 @@
                             <th data-column-id="operator_nama">Operator</th>
                             <th data-column-id="driver_nama">Driver</th>
                             <th data-column-id="kasie_nama">Kasie</th>
-                            <th data-column-id="status_nama">Status</th>
+                            <th data-column-id="kualitas">Kualitas</th>
                         </tr>
                     </thead>
                 </table>
@@ -67,30 +53,6 @@
     </section>
 
 <!-- modal -->
-<div class="modal fade" id="import" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">IMPORT DATA</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="{{ route('transaction.rencana_kerja.import') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>PILIH FILE</label>
-                        <input type="file" name="file" class="form-control" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Upload</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 <div class="modal fade win-filter" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -151,6 +113,12 @@
                                 <div class="col-sm-8">
                                     {{ Form::select('status[]', $list_status , null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
+                            </div>   
+                            <div class="form-group">
+                                <label for="kualitas" class="col-sm-4">Kualitas</label>
+                                <div class="col-sm-8">
+                                    {{ Form::select('kualitas[]', $list_report_status , null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                </div>
                             </div>        
                         </div>
                     </div>
@@ -181,5 +149,5 @@
         $(this).val('');
     });
 </script>
-{!! Html::script('/js/transaction/rencana_kerja.js') !!}
+{!! Html::script('/js/report/rencana_kerja.js') !!}
 @stop

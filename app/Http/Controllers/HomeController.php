@@ -13,7 +13,9 @@ use App\Model\KoordinatLokasi;
 use App\Model\KoordinatLokasiTemp;
 use App\Model\Lacak;
 use App\Model\RencanaKerja;
-use App\Model\ReportParameter;
+use App\Model\ReportParameterStandard;
+use App\Model\RencanaKerjaSummary;
+use App\Model\ReportStatus;
 
 class HomeController extends Controller
 {
@@ -171,12 +173,13 @@ class HomeController extends Controller
             echo "Jarak Spray : ".$jarak_tempuh." KM<br/>";
             echo "Waktu Spray :".round($waktu_tempuh/60,2)." Menit<br/>";
             echo "Kecepatan Operasi : ".$kecepatan." KM/Jam. ";
-            $list_rp = ReportParameter::where('tipe', 'Kecepatan Operasi')
-                ->where('kriteria_1', $rk->aktivitas_nama)
-                ->where('kriteria_2', $rk->nozzle_nama)
-                ->where('kriteria_3', $rk->volume)
-                ->orderBy('range_1', 'ASC')
-                ->get();
+            $list_rp =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', 1)
+                ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                ->orderBy('d.range_1', 'ASC')
+                ->get(['d.*']);
             $nilai_bobot_kecepatan = 0;
             foreach($list_rp AS $rp){
                 if(doubleval($rp->range_1) <= $kecepatan && $kecepatan <= doubleval($rp->range_2)){
@@ -184,17 +187,44 @@ class HomeController extends Controller
                 }
             }
             echo "BOBOT : ".$nilai_bobot_kecepatan."<br/>";
+
+            $list_rs = ReportStatus::get();
+
+            $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                ->where('ritase', $k)
+                ->where('parameter_id', 1)
+                ->first();
+            if($rks==null){
+                $rks = new RencanaKerjaSummary;
+                $rks->rk_id = $rk->id;
+                $rks->ritase = $k;
+                $rks->parameter_id = 1;
+                $rks->parameter_nama = 'Keceparan Operasi';
+            }
+            $rks->realisasi = $kecepatan;
+            $rks->hasil = $nilai_bobot_kecepatan;
+            $rks->kualitas = '';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $nilai_bobot_kecepatan && $nilai_bobot_kecepatan <= doubleval($v->range_2)){
+                    $rks->kualitas = $v->status;
+                    break;
+                }
+            }
+            $rks->save();
+
             $luas_spray_total = ($v['jarak_spray_kanan'] * 1000 * 18 + $v['jarak_spray_kiri'] * 1000 * 18)/10000;
             echo "Luas Spray : ".$luas_spray_total." Ha <br/>";
             $luas_standard_spray = 8000 / $rk->volume - 0.012 * (8000 / $rk->volume);
             echo "Luas Standard Spray : ".$luas_standard_spray." Ha <br/>";
             $overlapping = ($luas_spray_total / $luas_standard_spray - 1)* 100;
             echo "Overlapping : ".$overlapping." %. ";
-            $list_rp = ReportParameter::where('tipe', 'Overlapping')
-                ->where('kriteria_1', $rk->aktivitas_nama)
-                ->where('kriteria_2', $rk->nozzle_nama)
-                ->orderBy('range_1', 'ASC')
-                ->get();
+            $list_rp =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', 2)
+                ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                ->orderBy('d.range_1', 'ASC')
+                ->get(['d.*']);
             $nilai_bobot_overlapping = 0;
             foreach($list_rp AS $rp){
                 if(doubleval($rp->range_1) <= $overlapping && $overlapping <= doubleval($rp->range_2)){
@@ -202,12 +232,37 @@ class HomeController extends Controller
                 }
             }
             echo "BOBOT : ".$nilai_bobot_overlapping."<br/>";
+
+            $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                ->where('ritase', $k)
+                ->where('parameter_id', 2)
+                ->first();
+            if($rks==null){
+                $rks = new RencanaKerjaSummary;
+                $rks->rk_id = $rk->id;
+                $rks->ritase = $k;
+                $rks->parameter_id = 2;
+                $rks->parameter_nama = 'Overlapping';
+            }
+            $rks->realisasi = $overlapping;
+            $rks->hasil = $nilai_bobot_overlapping;
+            $rks->kualitas = '';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $nilai_bobot_overlapping && $nilai_bobot_overlapping <= doubleval($v->range_2)){
+                    $rks->kualitas = $v->status;
+                    break;
+                }
+            }
+            $rks->save();
+
             echo "Waktu Spray per Ritase :".round($waktu_tempuh/60,2)." Menit. ";
-            $list_rp = ReportParameter::where('tipe', 'Waktu Spray')
-                ->where('kriteria_1', $rk->aktivitas_nama)
-                ->where('kriteria_2', $rk->nozzle_nama)
-                ->orderBy('range_1', 'ASC')
-                ->get();
+            $list_rp =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', 3)
+                ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                ->orderBy('d.range_1', 'ASC')
+                ->get(['d.*']);
             $nilai_bobot_waktu_spray = 0;
             foreach($list_rp AS $rp){
                 if(doubleval($rp->range_1) <= $waktu_tempuh && $waktu_tempuh <= doubleval($rp->range_2)){
@@ -215,13 +270,38 @@ class HomeController extends Controller
                 }
             }
             echo "BOBOT : ".$nilai_bobot_waktu_spray."<br/>";
+
+            $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                ->where('ritase', $k)
+                ->where('parameter_id', 3)
+                ->first();
+            if($rks==null){
+                $rks = new RencanaKerjaSummary;
+                $rks->rk_id = $rk->id;
+                $rks->ritase = $k;
+                $rks->parameter_id = 3;
+                $rks->parameter_nama = 'Waktu Spray per Ritase';
+            }
+            $rks->realisasi = round($waktu_tempuh/60,2);
+            $rks->hasil = $nilai_bobot_waktu_spray;
+            $rks->kualitas = '';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $nilai_bobot_waktu_spray && $nilai_bobot_waktu_spray <= doubleval($v->range_2)){
+                    $rks->kualitas = $v->status;
+                    break;
+                }
+            }
+            $rks->save();
+
             $ketepatan_dosis = 100 - $overlapping;
             echo "Ketepatan Dosis :".$ketepatan_dosis.". ";
-            $list_rp = ReportParameter::where('tipe', 'Ketepatan Dosis')
-                ->where('kriteria_1', $rk->aktivitas_nama)
-                ->where('kriteria_2', $rk->nozzle_nama)
-                ->orderBy('range_1', 'ASC')
-                ->get();
+            $list_rp =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', 4)
+                ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                ->orderBy('d.range_1', 'ASC')
+                ->get(['d.*']);
             $nilai_bobot_ketepatan_dosis = 0;
             foreach($list_rp AS $rp){
                 if(doubleval($rp->range_1) <= $ketepatan_dosis && $ketepatan_dosis <= doubleval($rp->range_2)){
@@ -230,13 +310,37 @@ class HomeController extends Controller
             }
             echo "BOBOT : ".$nilai_bobot_ketepatan_dosis."<br/>";
 
+            $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                ->where('ritase', $k)
+                ->where('parameter_id', 4)
+                ->first();
+            if($rks==null){
+                $rks = new RencanaKerjaSummary;
+                $rks->rk_id = $rk->id;
+                $rks->ritase = $k;
+                $rks->parameter_id = 4;
+                $rks->parameter_nama = 'Ketepatan Dosis';
+            }
+            $rks->realisasi = $ketepatan_dosis;
+            $rks->hasil = $nilai_bobot_ketepatan_dosis;
+            $rks->kualitas = '';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $nilai_bobot_ketepatan_dosis && $nilai_bobot_ketepatan_dosis <= doubleval($v->range_2)){
+                    $rks->kualitas = $v->status;
+                    break;
+                }
+            }
+            $rks->save();
+
             $golden_time = date('H:i', $list_movement[$k]['jam_mulai']);
             echo "Golden Time :".$golden_time.". ";
-            $list_rp = ReportParameter::where('tipe', 'Golden Time')
-                ->where('kriteria_1', $rk->aktivitas_nama)
-                ->where('kriteria_2', $rk->nozzle_nama)
-                ->orderBy('range_1', 'ASC')
-                ->get();
+            $list_rp = ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', 5)
+                ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                ->orderBy('d.range_1', 'ASC')
+                ->get(['d.*']);
             $nilai_bobot_golden_time = 0;
             foreach($list_rp AS $rp){
                 if($rp->range_1 >= $golden_time){
@@ -244,9 +348,76 @@ class HomeController extends Controller
                 }
             }
             echo "BOBOT : ".$nilai_bobot_golden_time."<br/>";
+
+            $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                ->where('ritase', $k)
+                ->where('parameter_id', 5)
+                ->first();
+            if($rks==null){
+                $rks = new RencanaKerjaSummary;
+                $rks->rk_id = $rk->id;
+                $rks->ritase = $k;
+                $rks->parameter_id = 5;
+                $rks->parameter_nama = 'Golden Time';
+            }
+            $rks->realisasi = $golden_time;
+            $rks->hasil = $nilai_bobot_golden_time;
+            $rks->kualitas = '';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $nilai_bobot_golden_time && $nilai_bobot_golden_time <= doubleval($v->range_2)){
+                    $rks->kualitas = $v->status;
+                    break;
+                }
+            }
+            $rks->save();
+            $wing_level = 1.3;
+            $nilai_bobot_wing_level = 10;
+            $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                ->where('ritase', $k)
+                ->where('parameter_id', 6)
+                ->first();
+            if($rks==null){
+                $rks = new RencanaKerjaSummary;
+                $rks->rk_id = $rk->id;
+                $rks->ritase = $k;
+                $rks->parameter_id = 6;
+                $rks->parameter_nama = 'Wing Level';
+            }
+            $rks->realisasi = $wing_level;
+            $rks->hasil = $nilai_bobot_wing_level;
+            $rks->kualitas = '';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $nilai_bobot_wing_level && $nilai_bobot_wing_level <= doubleval($v->range_2)){
+                    $rks->kualitas = $v->status;
+                    break;
+                }
+            }
+            $rks->save();
+
+            $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                ->where('ritase', $k)
+                ->where('parameter_id', 999)
+                ->first();
+            if($rks==null){
+                $rks = new RencanaKerjaSummary;
+                $rks->rk_id = $rk->id;
+                $rks->ritase = $k;
+                $rks->parameter_id = 999;
+                $rks->parameter_nama = 'Total';
+            }
+            $rks->realisasi = 0;
+            $rks->hasil = $nilai_bobot_kecepatan + $nilai_bobot_overlapping + $nilai_bobot_ketepatan_dosis + $nilai_bobot_waktu_spray + $nilai_bobot_golden_time + $nilai_bobot_wing_level;
+            $rks->kualitas = '';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $rks->hasil && $rks->hasil <= doubleval($v->range_2)){
+                    $rks->kualitas = $v->status;
+                    break;
+                }
+            }
+            $rks->save();
+
             echo "<hr/>";
         } 
-        exit;
         $jam_mulai          = count($list_movement) > 0 ? $list_movement[1]['jam_mulai'] : 0;
         $jam_selesai        = count($list_movement) > 1 ? $list_movement[count($list_movement)]['jam_selesai'] : $jam_mulai;
         $kecepatan_total    = round($jarak_tempuh_total / ($waktu_tempuh_total/3600),2); 
@@ -261,6 +432,31 @@ class HomeController extends Controller
         $luas_spray_total = ($jarak_spray_kanan_total * 1000 * 18 + $jarak_spray_kiri_total * 1000 * 18)/10000;
         echo "LUAS SPRAY : ".$luas_spray_total." Ha<br/>";
 
+        $area_not_spray = 0;
+        $nilai_bobot_area_not_spray = 5;
+        $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+            ->where('ritase', 999)
+            ->where('parameter_id', 7)
+            ->first();
+        if($rks==null){
+            $rks = new RencanaKerjaSummary;
+            $rks->rk_id = $rk->id;
+            $rks->ritase = 999;
+            $rks->parameter_id = 7;
+            $rks->parameter_nama = 'Area Not Spray';
+        }
+        $rks->realisasi = $area_not_spray;
+        $rks->hasil = $nilai_bobot_area_not_spray;
+        $rks->kualitas = '';
+        foreach($list_rs as $v){
+            if(doubleval($v->range_1) <= $nilai_bobot_area_not_spray && $nilai_bobot_area_not_spray <= doubleval($v->range_2)){
+                $rks->kualitas = $v->status;
+                break;
+            }
+        }
+        $rks->save();
+        
+        exit;
         $bobot_kecepatan = 0;
         if($kecepatan_total > 6.8){
             $bobot_kecepatan = 50;
