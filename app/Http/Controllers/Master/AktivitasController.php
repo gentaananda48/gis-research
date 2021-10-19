@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Model\Aktivitas;
+use App\Model\GrupAktivitas;
 use App\Model\AktivitasParameter;
 use App\Model\Parameter;
 use App\Center\GridCenter;
@@ -17,19 +18,26 @@ class AktivitasController extends Controller {
     }
 
     public function get_list(){
-        $query = Aktivitas::select();
+        $query = Aktivitas::leftJoin('grup_aktivitas AS ga', 'ga.id', '=', 'aktivitas.grup_id')
+        ->select(['aktivitas.*', 'ga.nama AS grup_nama']);
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new AktivitasTransformer()));
         exit;
     }
 
     public function create() {
-        return view('master.aktivitas.create', []);
+        $res = GrupAktivitas::get(['id', 'nama']);
+        foreach($res AS $v){
+            $list_grup_aktivitas[$v->id] = $v->nama;
+        }
+        return view('master.aktivitas.create', [
+            'list_grup_aktivitas' 	=> $list_grup_aktivitas
+        ]);
     }
 
     public function store(Request $request) {
         $post = $request->all();
-        $validated_fields = ['kode' => 'required', 'nama' => 'required'];
+        $validated_fields = ['kode' => 'required', 'nama' => 'required','grup_id' => 'required'];
         $valid = Validator::make($post,$validated_fields);
         if($valid->fails()) {
             return redirect()->back()->withInput($request->input())->withErrors($valid->errors());
@@ -42,6 +50,7 @@ class AktivitasController extends Controller {
             $aktivitas= new Aktivitas;   
             $aktivitas->kode 	= $request->input('kode'); 
             $aktivitas->nama 	= $request->input('nama'); 
+            $aktivitas->grup_id = $request->input('grup_id');
             $aktivitas->save();
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
@@ -52,7 +61,15 @@ class AktivitasController extends Controller {
 
     public function edit($id) {
         $data = Aktivitas::find($id);
-        return view('master.aktivitas.edit', ['data' => $data]);
+        $list_grup_aktivitas = [];
+        $res = GrupAktivitas::get(['id', 'nama']);
+        foreach($res AS $v){
+            $list_grup_aktivitas[$v->id] = $v->nama;
+        }
+        return view('master.aktivitas.edit', [
+            'data' => $data,
+            'list_grup_aktivitas' 	=> $list_grup_aktivitas
+        ]);
     }
 
     public function update(Request $request, $id) {
@@ -70,6 +87,7 @@ class AktivitasController extends Controller {
             $aktivitas= Aktivitas::find($id);   
             $aktivitas->kode 	= $request->input('kode'); 
             $aktivitas->nama 	= $request->input('nama'); 
+            $aktivitas->grup_id = $request->input('grup_id');
             $aktivitas->save();
 
         } catch(Exception $e) {

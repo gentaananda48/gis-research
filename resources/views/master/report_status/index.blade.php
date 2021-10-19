@@ -2,8 +2,8 @@
 
 @section("style")
     <style>
-        .nowrap {
-            white-space: nowrap;
+        .table-responsive .bootgrid-table th, .table-responsive .bootgrid-table td {
+            white-space: nowrap !important;
         }
         .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
             padding: 0 4px;
@@ -15,21 +15,22 @@
     <section class="content-header">
         <h1>
             <i class="fa fa-list"></i> 
-            Aktivitas
+            Report Status
         </h1>
     </section>
 
     <section class="content container-fluid">
-    <a href="{{ url('/master/aktivitas/create') }}" class="btn btn-success btn-xs">Add <i class="fa fa-plus" aria-hidden="true"></i></a>
+    <a href="{{ url('/master/report_status/create') }}" class="btn btn-success btn-xs">Add <i class="fa fa-plus" aria-hidden="true"></i></a>
         <div class="box box-success">
             <div class="box-body table-responsive no-padding">
                 <table id="grid-data" class="table table-hover table-bordered">
                     <thead>
                         <tr>
                             <th data-column-id="id" data-order="asc" data-type="numeric" data-identifier="true" data-visible="false">ID</th>
-                            <th data-column-id="kode" data-width="20%">Kode</th>
-                            <th data-column-id="nama">Nama</th>
-                            <th data-column-id="grup_nama">Grup Aktivitas</th>
+                            <th data-column-id="status">Status</th>
+                            <th data-column-id="range_1">Range 1</th>
+                            <th data-column-id="range_2">Range 2</th>
+                            <th data-column-id="icon">Icon</th>
                             <th data-column-id="commands" data-width="15%" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                         </tr>
                     </thead>
@@ -40,5 +41,5 @@
 @stop
 
 @section("script")
-{!! Html::script('/js/master/aktivitas.js') !!}
+{!! Html::script('/js/master/report_status.js') !!}
 @stop

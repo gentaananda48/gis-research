@@ -67,9 +67,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/lokasi/koordinat/{id}', array('uses' => 'Master\LokasiController@koordinat', 'as' => 'master.lokasi.koordinat'));
     Route::get('/master/lokasi/koordinat/{id}/get', array('uses' => 'Master\LokasiController@koordinat_get_list', 'as' => 'master.lokasi.koordinat.get'));
 
-
-
-
     // AKTIVITAS
     Route::get('/master/aktivitas', array('uses' => 'Master\AktivitasController@index', 'as' => 'master.aktivitas'));
     Route::get('/master/aktivitas/get', array('uses' => 'Master\AktivitasController@get_list', 'as' => 'master.aktivitas.get'));
@@ -136,6 +133,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/master/report_parameter_standard/update/{id}', array('uses' => 'Master\ReportParameterStandardController@update', 'as' => 'master.report_parameter_standard.update'));
     Route::delete('/master/report_parameter_standard/delete/{id}', array('uses' => 'Master\ReportParameterStandardController@destroy', 'as' => 'master.report_parameter_standard.destroy'));
     Route::put('/master/report_parameter_standard/detail_update/{id}', array('uses' => 'Master\ReportParameterStandardController@detail_update', 'as' => 'master.report_parameter_standard.detail_update'));
+
+    // REPORT STATUS
+    Route::get('/master/report_status', array('uses' => 'Master\ReportStatusController@index', 'as' => 'master.report_status'));
+    Route::get('/master/report_status/get', array('uses' => 'Master\ReportStatusController@get_list', 'as' => 'master.report_status.get'));
+    Route::get('/master/report_status/create', array('uses' => 'Master\ReportStatusController@create', 'as' => 'master.report_status.create'));
+    Route::post('/master/report_status', array('uses' => 'Master\ReportStatusController@store', 'as' => 'master.report_status.store'));
+    Route::get('/master/report_status/edit/{id}', array('uses' => 'Master\ReportStatusController@edit', 'as' => 'master.report_status.edit'));
+    Route::put('/master/report_status/update/{id}', array('uses' => 'Master\ReportStatusController@update', 'as' => 'master.report_status.update'));
+    Route::delete('/master/report_status/delete/{id}', array('uses' => 'Master\ReportStatusController@destroy', 'as' => 'master.report_status.destroy'));
 
     // ------------------------------- TRANSACTION -------------------------------- //
     // RENCANA KERJA

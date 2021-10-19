@@ -25,6 +25,10 @@
 							<label for="nama">Nama</label>
 							{{ Form::text('nama', $data->nama, array('placeholder' => 'Nama', 'class' => 'form-control')) }}
 						</div>
+						<div class="form-group">
+							<label for="grup_id">Grup Aktivitas</label>
+							{{ Form::select('grup_id', $list_grup_aktivitas, $data->grup_id, array('class' => 'form-control select2', 'required' => 'required')) }}
+						</div>
 					</div>
 					<div class="box-footer">
 						{{ Form::submit('Update', array('class' => 'btn btn-success'))}}

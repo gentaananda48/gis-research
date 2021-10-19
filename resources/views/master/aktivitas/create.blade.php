@@ -25,6 +25,10 @@
 							<label for="nama">Nama</label>
 							{{ Form::text('nama', null, array('placeholder' => 'Nama', 'class' => 'form-control')) }}
 						</div>
+						<div class="form-group">
+							<label for="grup_id">Grup Aktivitas</label>
+							{{ Form::select('grup_id', $list_grup_aktivitas, Input::old('grup_id'), array('class' => 'form-control select2', 'required' => 'required')) }}
+						</div>
 					<div class="box-footer">
 						{{ Form::submit('Save', array('class' => 'btn btn-success'))}}
 						<a href="{{ url('/master/aktivitas') }}" class="btn btn-warning"> Back </a>
