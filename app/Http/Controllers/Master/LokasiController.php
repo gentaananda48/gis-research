@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Model\Lokasi;
+use App\Model\KoordinatLokasi;
 use App\Center\GridCenter;
 use App\Transformer\LokasiTransformer;
+use App\Transformer\KoordinatLokasiTransformer;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\LokasiImport;
 
@@ -130,5 +132,29 @@ class LokasiController extends Controller {
             //redirect
             return redirect()->route('master.lokasi')->with(['error' => 'Data Gagal Diimport!']);
         }
+    }
+
+    public function map($id) {
+        $data = Lokasi::find($id);
+        $koordinat = KoordinatLokasi::where('lokasi', $data->kode)->orderBy('posnr','asc')->get(['long as lng', 'latd as lat']);
+        return view('master.lokasi.map', [
+            'data'          => $data,
+            'koordinat'     => $koordinat
+        ]);
+    }
+
+    public function koordinat($id) {
+        $lokasi = Lokasi::find($id);
+        return view('master.lokasi.koordinat', [
+            'lokasi'       => $lokasi
+        ]);
+    }
+
+    public function koordinat_get_list(Request $request, $id){
+        $lokasi = Lokasi::find($id);
+        $query = KoordinatLokasi::where('lokasi', $lokasi->kode)->orderBy('bagian','asc')->orderBy('posnr','asc')->select();
+        $data = new GridCenter($query, $_GET);
+        echo json_encode($data->render(new KoordinatLokasiTransformer()));
+        exit;
     }
 }

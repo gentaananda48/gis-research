@@ -63,6 +63,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/master/lokasi/update/{id}', array('uses' => 'Master\LokasiController@update', 'as' => 'master.lokasi.update'));
     Route::delete('/master/lokasi/delete/{id}', array('uses' => 'Master\LokasiController@destroy', 'as' => 'master.lokasi.destroy')); 
     Route::post('/master/lokasi/import', 'Master\LokasiController@import_lokasi')->name('master.lokasi.import');
+    Route::get('/master/lokasi/map/{id}', array('uses' => 'Master\LokasiController@map', 'as' => 'master.lokasi.map')); 
+    Route::get('/master/lokasi/koordinat/{id}', array('uses' => 'Master\LokasiController@koordinat', 'as' => 'master.lokasi.koordinat'));
+    Route::get('/master/lokasi/koordinat/{id}/get', array('uses' => 'Master\LokasiController@koordinat_get_list', 'as' => 'master.lokasi.koordinat.get'));
+
+
 
 
     // AKTIVITAS
