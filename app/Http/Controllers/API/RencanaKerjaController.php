@@ -758,6 +758,7 @@ class RencanaKerjaController extends Controller {
 	    try {
 	      	$rk = RencanaKerja::find($request->id);
 	      	$status_id_lama 	= $rk->status_id;
+	      	$status_nama_lama 	= $rk->status_nama;
 	      	$rk->status_id 		= 4;
 	      	$status 	 		= Status::find($rk->status_id);
 	      	$rk->status_nama 	= $status->nama;
