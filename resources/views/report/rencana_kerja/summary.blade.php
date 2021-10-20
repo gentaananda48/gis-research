@@ -14,7 +14,7 @@
 					<div class="box-body">
 						<table class="table">
 						<tr>
-							<th>Ritase</th>
+							<th width="5%">Ritase</th>
 							<th>Kecepatan Operasi</th>
 							<th>Overlapping</th>
 							<th>Ketepatan Dosis</th>
@@ -26,23 +26,24 @@
 						</tr>
 						@foreach($list_rks as $k=>$v)
 						<tr>
-							<td>{{$k==999 ? 'Area Not Spray' : $k}}</td>
+							@if($k==999999)
+							<td colspan="7">Total Nilai Kualitas Spraying</td>
+							@elseif($k==999)
+							<td colspan="7">Area Not Spray</td>
+							@else
+							<td>{{$k}}</td>
+							@endif
+							
 							@if($k<999)
 								@foreach($v as $k2=>$v2)
-								<td>{{$v2->hasil}}</td>
+								<td>{{$v2->nilai}}</td>
 								@if($k2==6)
 								<td>{{$v2->kualitas}}</td>
 								@endif
 								@endforeach
 							@else
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
 								@foreach($v as $k2=>$v2)
-								<td>{{$v2->hasil}}</td>
+								<td>{{$v2->nilai}}</td>
 								<td>{{$v2->kualitas}}</td>
 								@endforeach
 							@endif
