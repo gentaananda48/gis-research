@@ -37,6 +37,7 @@ class RencanaKerjaImport implements ToModel, WithHeadingRow
         $unit = Unit::where('label', $row["unit"])->first();
         $operator = User::where('employee_id', $row["operator"])->first();
         $driver = User::where('employee_id', $row["driver"])->first();
+        $volumeAir = VolumeAir::where('volume', $row["volume_air"])->first();
         $kasie = User::find($this->kasie_id);
         $lokasi_lsbruto = !empty($row["luas_bruto"]) ? $row["luas_bruto"] : $lokasi->lsbruto;
         $lokasi_lsnetto = !empty($row["luas_netto"]) ? $row["luas_netto"] : $lokasi->lsnetto;
@@ -58,7 +59,8 @@ class RencanaKerjaImport implements ToModel, WithHeadingRow
             'unit_id'               => $unit->id,
             'unit_label'            => $unit->label,
             'unit_source_device_id' => $unit->source_device_id,
-            'volume'                => $row["volume_air"],
+            'volume_id'             => $volumeAir->id,
+            'volume'                => $volumeAir->volume,
             'operator_id'           => $operator->id,
             'operator_empid'        => $operator->employee_id,
             'operator_nama'         => $operator->name,
