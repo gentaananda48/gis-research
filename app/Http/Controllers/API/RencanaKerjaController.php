@@ -591,12 +591,20 @@ class RencanaKerjaController extends Controller {
     		$list_rks2[] = (object) $o;
     	}
 
+
+        $lacak = Lacak::where('ident', $rk->unit_source_device_id)
+            ->where('timestamp', '>=', strtotime($rk->jam_mulai))
+            ->where('timestamp', '<=', strtotime($rk->jam_selesai))
+            ->orderBy('timestamp', 'ASC')
+            ->get(['position_latitude AS latitude', 'position_longitude AS longitude']);
+
 		return response()->json([
       		'status' 	=> true, 
       		'message' 	=> '', 
       		'data' 		=> [
 				'rk' 		=> $rk,
-				'rks' 		=> $list_rks2
+				'rks' 		=> $list_rks2,
+				'lacak'		=> $lacak
 			]
     	]);
 	} 
