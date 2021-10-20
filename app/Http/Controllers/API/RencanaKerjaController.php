@@ -220,7 +220,9 @@ class RencanaKerjaController extends Controller {
 	      	$rk->nozzle_id  				= $request->unit_id;
 	      	$nozzle 		 		 	= Nozzle::find($request->nozzle_id);
 	      	$rk->nozzle_nama		 	= $nozzle->nama;
-	      	$rk->volume		 			= $request->volume;
+	      	$rk->volume_id				= $request->volume_id;
+	      	$volume_air 		 		= VolumeAir::find($request->volume_id);
+	      	$rk->volume		 			= $volume_air->volume;
 	      	$rk->operator_id 			= $request->operator_id;
 	      	$operator 		 			= User::find($request->operator_id);
 	      	$rk->operator_nama 			= $operator->name;
