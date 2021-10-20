@@ -97,6 +97,7 @@ Route::group([
     Route::get('list3', 'RencanaKerjaController@list3');
     Route::get('get_master_data', 'RencanaKerjaController@get_master_data');
     Route::get('detail', 'RencanaKerjaController@detail');
+    Route::get('hasil', 'RencanaKerjaController@hasil');
     Route::get('unit', 'RencanaKerjaController@unit');
     Route::post('create', 'RencanaKerjaController@create');
     Route::post('update', 'RencanaKerjaController@update');

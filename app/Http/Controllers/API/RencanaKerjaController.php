@@ -23,9 +23,12 @@ use App\Helper\GeofenceHelper;
 use App\Model\Lacak;
 use App\Model\TindakLanjutPending;
 use App\Model\AlasanPending;
-use App\Model\Parameter;
 use App\Model\Nozzle;
 use App\Model\VolumeAir;
+use App\Model\ReportParameter;
+use App\Model\ReportParameterStandard;
+use App\Model\ReportParameterBobot;
+use App\Model\ReportStatus;
 
 class RencanaKerjaController extends Controller {
     public function __construct() {
@@ -78,10 +81,38 @@ class RencanaKerjaController extends Controller {
 
     public function detail(Request $request){
     	$rk = RencanaKerja::find($request->id);
+    	$list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->orderBy('ritase', 'ASC')->orderBy('id', 'ASC')->get();
 		return response()->json([
       		'status' 	=> true, 
       		'message' 	=> '', 
       		'data' 		=> $rk
+    	]);
+	} 
+
+	public function hasil(Request $request){
+    	$rk = RencanaKerja::find($request->id);
+    	$rks = RencanaKerjaSummary::where('rk_id', $rk->id)->orderBy('ritase', 'ASC')->orderBy('id', 'ASC')->get();
+    	$list_rks = [];
+        foreach($rks as $v){
+            $list_rks[$v->ritase][] = $v;
+        }
+        $list_rks2 = [];
+    	foreach($list_rks AS $k=>$v){
+    		$o = [];
+    		$o['ritase'] = $k;
+    		foreach($v AS $k2=>$v2) {
+    			$o['nilai_'.$v2->parameter_id] = $v2->nilai;
+    			$o['kualitas_'.$v2->parameter_id] = $v2->kualitas;
+    		}
+    		$list_rks2[] = (object) $o;
+    	}
+		return response()->json([
+      		'status' 	=> true, 
+      		'message' 	=> '', 
+      		'data' 		=> [
+      			'rk' 	=> $rk,
+      			'rks'	=> $list_rks2
+      		]
     	]);
 	} 
 
@@ -402,7 +433,8 @@ class RencanaKerjaController extends Controller {
 	}
 
 	public function summary(Request $request){
-    	$rk = RencanaKerja::find($request->id);
+    	set_time_limit(0);
+        $rk = RencanaKerja::find($request->id);
         $geofenceHelper = new GeofenceHelper;
         $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
         $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
@@ -422,7 +454,7 @@ class RencanaKerjaController extends Controller {
             $jarak_tempuh   = ($k==0) ? 0 : round(abs($v->vehicle_mileage - $list[$k-1]->vehicle_mileage),3);
             $jarak_spray_kanan     = ($k==0) ? 0 : ($list[$k-1]->ain_1 > 12.63 ? $jarak_tempuh : 0);
             $jarak_spray_kiri     = ($k==0) ? 0 : ($list[$k-1]->ain_2 > 12.63 ? $jarak_tempuh : 0);
-            if(!empty($lokasi) && $v->position_speed>=5 && $width >= 18) {
+            if(!empty($lokasi) && $width >= 18) {
                 $is_started = true;
                 $obj = (object) [
                     'timestamp'                 => $v->timestamp,
@@ -487,136 +519,38 @@ class RencanaKerjaController extends Controller {
             $stop_time = $k > 1 ? $list_movement[$k]['jam_mulai'] - $list_movement[$k-1]['jam_selesai'] : 0;
             $jarak_spray_kanan_total += $v['jarak_spray_kanan']; 
             $jarak_spray_kiri_total += $v['jarak_spray_kiri']; 
-        }
+            $aktivitas = Aktivitas::find($rk->aktivitas_id);
+            $list_rs = ReportStatus::get();
+            $this->saveRKS($rk->id, $k, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 1, $kecepatan);
+
+            $luas_spray_total = ($v['jarak_spray_kanan'] * 1000 * 18 + $v['jarak_spray_kiri'] * 1000 * 18)/10000;
+            $luas_standard_spray = 8000 / $rk->volume - 0.012 * (8000 / $rk->volume);
+            $overlapping = ($luas_spray_total / $luas_standard_spray - 1)* 100;
+            $this->saveRKS($rk->id, $k, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 2, $overlapping);
+
+            $this->saveRKS($rk->id, $k, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 3, round($waktu_tempuh/60,2));
+
+            $ketepatan_dosis = 100 - $overlapping;
+            $this->saveRKS($rk->id, $k, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 4, $ketepatan_dosis);
+
+            $golden_time = date('H:i:s', $list_movement[$k]['jam_mulai']);
+            $this->saveRKS($rk->id, $k, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 5, $golden_time);
+
+            $wing_level = 1.3;
+            $this->saveRKS($rk->id, $k, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 6, $wing_level);
+
+            $this->saveRKS($rk->id, $k, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 999, 0);
+        } 
         $jam_mulai          = count($list_movement) > 0 ? $list_movement[1]['jam_mulai'] : 0;
         $jam_selesai        = count($list_movement) > 1 ? $list_movement[count($list_movement)]['jam_selesai'] : $jam_mulai;
         $kecepatan_total    = round($jarak_tempuh_total / ($waktu_tempuh_total/3600),2); 
-        $bobot_kecepatan = 0;
-        if($kecepatan_total > 6.8){
-            $bobot_kecepatan = 50;
-            $status_kecepatan = 'BURUK';
-        } else if($kecepatan_total < 5.6){
-            $bobot_kecepatan = 50;
-            $status_kecepatan = 'BURUK';
-        } else {
-            $bobot_kecepatan = 100;
-            $status_kecepatan = 'BAIK';
-        }
-        $bobot_kecepatan = $bobot_kecepatan / 100 * 30;  
-        $this->saveRKS($rk->id, 1, $kecepatan_total, $bobot_kecepatan, $status_kecepatan);
-
         $luas_spray_total = ($jarak_spray_kanan_total * 1000 * 18 + $jarak_spray_kiri_total * 1000 * 18)/10000;
-        $luas_lahan = $rk->lokasi_lsnetto;
-        $overlapping = round(($luas_spray_total / $luas_lahan) - 1,2);
-        $bobot_overlapping = 0;
-        $status_overlapping = '';
-        if($overlapping <= 0.55){
-            $bobot_overlapping = 100;
-            $status_overlapping = 'BAIK';
-        } else if($overlapping >= 0.56 && $overlapping <= 2.09){
-            $bobot_overlapping = 90;
-            $status_overlapping = 'BAIK';
-        } else if($overlapping >= 2.10 && $overlapping <= 3.59){
-            $bobot_overlapping = 80;
-            $status_overlapping = 'BAIK';
-        } else if($overlapping >= 3.60 && $overlapping <= 5.50){
-            $bobot_overlapping = 70;
-            $status_overlapping = 'BURUK';
-        } else {
-            $bobot_overlapping = 50;
-            $status_overlapping = 'BURUK';
-        }
-        $this->saveRKS($rk->id, 2, $overlapping, $bobot_overlapping, $status_overlapping);
 
-        $ketepatan_dosis = 100  - ($overlapping / $luas_spray_total * 100);
-        $bobot_ketepatan_dosis = 0;
-        $status_ketepatan_dosis = '';
-        if($ketepatan_dosis >= 89.96){
-            $bobot_ketepatan_dosis = 100;
-            $status_ketepatan_dosis = 'BAIK';
-        } else if($ketepatan_dosis >= 80 && $ketepatan_dosis <= 89.95){
-            $bobot_ketepatan_dosis = 90;
-            $status_ketepatan_dosis = 'BAIK';
-        } else if($ketepatan_dosis >= 70 && $ketepatan_dosis <= 79.99){
-            $bobot_ketepatan_dosisg = 80;
-            $status_ketepatan_dosis = 'BAIK';
-        } else {
-            $bobot_ketepatan_dosis = 50;
-            $status_ketepatan_dosis = 'BURUK';
-        }
+        $area_not_spray = 0;
+        $this->saveRKS($rk->id, 999, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 7, $area_not_spray);
+        $this->saveRKS($rk->id, 999999, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 999999, 0);
 
-        $this->saveRKS($rk->id, 4, $ketepatan_dosis, $bobot_ketepatan_dosis, $status_ketepatan_dosis);
-
-        $golden_time = 0; 
-        $status_golden_time = '';
-        if(date('H', $jam_mulai) >= '16' || date('H', $jam_mulai) <= '11'){
-            $golden_time = 100;
-            $status_golden_time = 'BAIK';
-        } else {
-            $golden_time = 50;
-            $status_golden_time = 'BURUK';
-        }
-        $bobot_golden_time = $golden_time / 100 * 15; 
-        $this->saveRKS($rk->id, 5, $golden_time, $bobot_golden_time, $status_golden_time);
-
-        $area_not_spray = $luas_lahan - $luas_spray_total;
-        $bobot_area_not_spray = 5;
-        $status_area_not_spray = '';
-        $this->saveRKS($rk->id, 7, $area_not_spray, $bobot_area_not_spray, $status_area_not_spray);
-
-        $wing_level = 1.3;
-        $bobot_wing_level = 20;
-        $status_wing_level = 'BAIK';
-        $this->saveRKS($rk->id, 6, $wing_level, $bobot_wing_level, $status_wing_level);
-        
-        $waktu_tunggu_ritase = 0;
-        $bobot_waktu_tunggu_ritase = 0;
-        $status_waktu_tunggu_ritase = '';
-        $this->saveRKS($rk->id, 8, $waktu_tunggu_ritase, $bobot_waktu_tunggu_ritase, $status_waktu_tunggu_ritase);
-        
-        $waktu_transport = 0;
-        $bobot_waktu_transport = 0;
-        $status_waktu_transport = '';
-        $this->saveRKS($rk->id, 9, $waktu_transport, $bobot_waktu_transport, $status_waktu_transport);
-
-        $waktu_spray_per_ritase = 0;
-        $bobot_waktu_spray_per_ritase = 0;
-        $status_waktu_spray_per_ritase = '';
-        $this->saveRKS($rk->id, 3, $waktu_spray_per_ritase, $bobot_waktu_spray_per_ritase, $status_waktu_spray_per_ritase);
-
-        $total_bobot = $bobot_kecepatan + $bobot_overlapping + $bobot_ketepatan_dosis + $bobot_golden_time + $bobot_area_not_spray + $bobot_wing_level + $bobot_waktu_spray_per_ritase;
-        $status = '';
-        if($total_bobot>=91){
-        	$status = 'Excellent';
-        } else if($total_bobot>=85 && $total_bobot>=90.99){
-        	$status = 'Very Good';
-        } else if($total_bobot>=80 && $total_bobot>=84.99){
-        	$status = 'Good';
-        } else {
-        	$status = 'Poor';
-        }
-        $summary = [
-            'luas_spray_total'				=> $luas_spray_total,
-            'kecepatan'             		=> $kecepatan_total, 
-            'status_kecepatan'				=> $status_kecepatan,
-            'overlapping'					=> $overlapping,
-            'status_overlapping'			=> $status_overlapping,
-            'ketepatan_dosis'				=> round($ketepatan_dosis,2),
-            'status_ketepatan_dosis'		=> $status_ketepatan_dosis,
-            'golden_time'           		=> $golden_time,
-            'status_golden_time'			=> $status_golden_time,
-            'area_not_spray'				=> $area_not_spray,
-            'status_area_not_spray'			=> $status_area_not_spray,
-            'wing_level'					=> $wing_level,
-            'status_wing_level'				=> $status_wing_level,
-            'waktu_tunggu_ritase'			=> $waktu_tunggu_ritase,
-            'status_waktu_tunggu_ritase'	=> $status_waktu_tunggu_ritase,
-            'waktu_transport'				=> $waktu_transport,
-            'status_waktu_transport'		=> $status_waktu_transport,
-            'waktu_spray_per_ritase'		=> $waktu_spray_per_ritase,
-            'status_waktu_spray_per_ritase'	=> $status_waktu_spray_per_ritase,
-            'status'						=> $status
-        ];
+        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->orderBy('ritase', 'ASC')->orderBy('id', 'ASC')->get();
 
         // // Jarak tempuh: Dihitung mulai spray sd stop spray ( m)
         // //Luas aplikasi spray total: (Jarak tempuh x 1000) x (36/10.000)
@@ -630,25 +564,116 @@ class RencanaKerjaController extends Controller {
       		'message' 	=> '', 
       		'data' 		=> [
 				'rk' 		=> $rk,
-				'summary'	=> $summary
+				'summary'	=> $list_rks
 			]
     	]);
 	} 
 
-	function saveRKS($rk_id, $parameter_id, $nilai, $bobot, $kualitas) {
-		$rks = RencanaKerjaSummary::where('rk_id', $rk_id)->where('parameter_id', $parameter_id)->first();
-        if($rks == null){
-        	$rks = new RencanaKerjaSummary();
-        	$rks->rk_id 		= $rk_id;
-        	$rks->parameter_id 	= $parameter_id;
+	function saveRKS($rencana_kerja_id, $ritase, $grup_aktivitas_id, $aktivitas_id, $nozzle_id, $volume_id, $parameter_id, $realisasi) {
+        $bobot = 0;
+        $nilai = 0;
+        $nilai_bobot = 0;
+        $parameter_nama = '';
+        $kualitas = '';
+        $list_rs = ReportStatus::get();
+        if($parameter_id == 999999) {
+            $list_rks = RencanaKerjaSummary::where('rk_id', $rencana_kerja_id)
+                ->whereRaw("(ritase = 999 OR parameter_id = 999)")
+                ->get();
+            foreach($list_rks as $rks){
+                $nilai += $rks->nilai;
+                $bobot += $rks->bobot;
+                $nilai_bobot += $rks->nilai_bobot;
+            }
+            $nilai = $nilai / count($list_rks);
+            $parameter_nama = 'Total Nilai Kualitas Spraying';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $nilai && $nilai <= doubleval($v->range_2)){
+                    $kualitas = $v->status;
+                    break;
+                }
+            }
+            $rk1 = RencanaKerja::find($rencana_kerja_id);
+            $rk1->kualitas = $kualitas;
+            $rk1->jam_laporan = date('Y-m-d H:i:s');
+            $rk1->save();
+        } else if($parameter_id == 999) {
+            $list_rks = RencanaKerjaSummary::where('rk_id', $rencana_kerja_id)
+                ->where('ritase', $ritase)
+                ->where('parameter_id', '<', 999)
+                ->get();
+            foreach($list_rks as $rks){
+                $bobot += $rks->bobot;
+                $nilai_bobot += $rks->nilai_bobot;
+            }
+            $nilai = round($nilai_bobot / $bobot,2) * 100;
+            $parameter_nama = 'Total';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $nilai && $nilai <= doubleval($v->range_2)){
+                    $kualitas = $v->status;
+                    break;
+                }
+            }
+        } else {
+            $rpb = ReportParameterBobot::where('grup_aktivitas_id', $grup_aktivitas_id)
+                ->where('report_parameter_id', $parameter_id)
+                ->first();
+            $bobot = !empty($rpb->bobot) ? $rpb->bobot : 0;
+            $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', $parameter_id)
+                ->where('report_parameter_standard.aktivitas_id', $aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $nozzle_id)
+                ->where('report_parameter_standard.volume_id', $volume_id)
+                ->orderByRaw("d.range_1*1 ASC")
+                ->get(['d.*']);
+            foreach($list_rps AS $rps){
+                if($parameter_id==5){
+                    $dt_realisasi = date('Y-m-d '.$realisasi);
+                    if($rps->range_1 > $rps->range_2) {
+                        $dt_range_1 = date('Y-m-d '.$rps->range_1,strtotime("-1 days"));
+                    } else {
+                        $dt_range_1 = date('Y-m-d '.$rps->range_1);
+                    }
+                    $dt_range_2 = date('Y-m-d '.$rps->range_2);
+                    if($dt_range_1 <= $dt_realisasi && $realisasi <= doubleval($rps->range_2)){
+                        $nilai = $rps->point;
+                        break;
+                    }
+                } else {
+                    if(doubleval($rps->range_1) <= $realisasi && $realisasi <= doubleval($rps->range_2)){
+                        $nilai = $rps->point;
+                        break;
+                    }
+                }
+            }
+            $nilai_bobot = $nilai / 100 * $bobot;
+            $rp = ReportParameter::find($parameter_id);
+            $parameter_nama = $rp->nama;
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $nilai && $nilai <= doubleval($v->range_2)){
+                    $kualitas = $v->status;
+                    break;
+                }
+            }
         }
-        $parameter = Parameter::find($parameter_id);
-        $rks->parameter_nama 	= $parameter->nama;
-        $rks->nilai 			= $nilai;
-        $rks->bobot 			= $bobot;
-        $rks->kualitas 			= $kualitas;
+        $rks = RencanaKerjaSummary::where('rk_id', $rencana_kerja_id)
+            ->where('ritase', $ritase)
+            ->where('parameter_id', $parameter_id)
+            ->first();
+        if($rks==null){
+            $rks = new RencanaKerjaSummary;
+            $rks->rk_id = $rencana_kerja_id;
+            $rks->ritase = $ritase;
+            $rks->parameter_id = $parameter_id;
+            $rks->parameter_nama = $parameter_nama;
+        }
+        $rks->realisasi     = $realisasi;
+        $rks->nilai         = $nilai;
+        $rks->bobot         = $bobot;
+        $rks->nilai_bobot   = $nilai_bobot;
+        $rks->kualitas      = $kualitas;
         $rks->save();
-	}
+    }
 
 	// Finish Spraying
   	public function finish_spraying(Request $request){
