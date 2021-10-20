@@ -101,7 +101,7 @@ class RencanaKerjaController extends Controller {
     		$o = [];
     		$o['ritase'] = $k;
     		foreach($v AS $k2=>$v2) {
-    			$o['nilai_'.$v2->parameter_id] = $v2->nilai;
+    			$o['nilai_'.$v2->parameter_id] = number_format($v2->nilai,0);
     			$o['kualitas_'.$v2->parameter_id] = $v2->kualitas;
     		}
     		$list_rks2[] = (object) $o;
@@ -585,7 +585,7 @@ class RencanaKerjaController extends Controller {
     		$o = [];
     		$o['ritase'] = $k;
     		foreach($v AS $k2=>$v2) {
-    			$o['nilai_'.$v2->parameter_id] = $v2->nilai;
+    			$o['nilai_'.$v2->parameter_id] = number_format($v2->nilai,0);
     			$o['kualitas_'.$v2->parameter_id] = $v2->kualitas;
     		}
     		$list_rks2[] = (object) $o;
