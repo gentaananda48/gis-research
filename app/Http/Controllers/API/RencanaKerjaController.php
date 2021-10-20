@@ -217,7 +217,7 @@ class RencanaKerjaController extends Controller {
 	      	$unit 		 				= Unit::find($request->unit_id);
 	      	$rk->unit_label				= $unit->label;
 	      	$rk->unit_source_device_id 	= $unit->source_device_id;
-	      	$rk->nozzle_id  				= $request->unit_id;
+	      	$rk->nozzle_id  			= $request->nozzle_id;
 	      	$nozzle 		 		 	= Nozzle::find($request->nozzle_id);
 	      	$rk->nozzle_nama		 	= $nozzle->nama;
 	      	$rk->volume_id				= $request->volume_id;
@@ -293,7 +293,7 @@ class RencanaKerjaController extends Controller {
 	      	$unit 		 				= Unit::find($request->unit_id);
 	      	$rk->unit_label				= $unit->label;
 	      	$rk->unit_source_device_id 	= $unit->source_device_id;
-	      	$rk->nozzle_id  				= $request->unit_id;
+	      	$rk->nozzle_id  			= $request->nozzle_id;
 	      	$nozzle 		 		 	= Nozzle::find($request->nozzle_id);
 	      	$rk->nozzle_nama		 	= $nozzle->nama;
 	      	$rk->volume_id				= $request->volume_id;
