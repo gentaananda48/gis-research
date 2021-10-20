@@ -573,11 +573,28 @@ class RencanaKerjaController extends Controller {
         // // Satu ritase: Waktu, jarak dan lebar semprot per satu tangki boom sprayer ( 8000 liter)
         // // Waktu tunggu antar rit: Waktu yg dihasilkan saat tidak ada aktivitas spray dr rit sblmnya ke start spray rit berikutnya
 
+        $rks = RencanaKerjaSummary::where('rk_id', $rk->id)->orderBy('ritase', 'ASC')->orderBy('id', 'ASC')->get();
+    	$list_rks = [];
+        foreach($rks as $v){
+            $list_rks[$v->ritase][] = $v;
+        }
+        $list_rks2 = [];
+    	foreach($list_rks AS $k=>$v){
+    		$o = [];
+    		$o['ritase'] = $k;
+    		foreach($v AS $k2=>$v2) {
+    			$o['nilai_'.$v2->parameter_id] = $v2->nilai;
+    			$o['kualitas_'.$v2->parameter_id] = $v2->kualitas;
+    		}
+    		$list_rks2[] = (object) $o;
+    	}
+
 		return response()->json([
       		'status' 	=> true, 
       		'message' 	=> '', 
       		'data' 		=> [
 				'rk' 		=> $rk,
+				'rks' 		=> $list_rks2,
 				'summary'	=> $list_rks
 			]
     	]);
