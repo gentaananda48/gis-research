@@ -3,9 +3,12 @@
 namespace App\Imports;
 
 use App\Model\RencanaKerja;
+use App\Model\RencanaKerjaLog;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Model\Shift;
 use App\Model\Unit;
 use App\Model\Aktivitas;
@@ -13,6 +16,7 @@ use App\Model\Lokasi;
 use App\Model\User;
 use App\Model\Status;
 use App\Model\Nozzle;
+use App\Model\VolumeAir;
 
 
 class RencanaKerjaImport implements ToModel, WithHeadingRow
@@ -67,8 +71,24 @@ class RencanaKerjaImport implements ToModel, WithHeadingRow
             'status_id'             => $aktivitas->id,
             'status_urutan'         => $status->urutan,
             'status_nama'           => $status->nama,
-            'status_color'          => $status->color,
+            'status_color'          => $status->color,  
+        ],
+        [
+            $rk = DB::table('rencana_kerja')->latest('id')->first(),
+            $id_rk = ($rk->id + 1),
+            $rkl = new RencanaKerjaLog,
+            $rkl->rk_id 			= $id_rk,
+            $rkl->jam 				= date('Y-m-d H:i:s'),
+            $rkl->user_id 			= $kasie->id,
+            $rkl->user_nama 	 	= $kasie->name,
+            $rkl->status_id 		= $status->id,
+            $rkl->status_nama 		= $status->nama,
+            $rkl->event 			= 'Create',
+            $rkl->catatan 			= '',
+            $rkl->status_id_lama 	= 0,
+            $rkl->status_nama_lama 	= '',
+            $rkl->save(),
         ]);
-        
+
     }
 }
