@@ -187,6 +187,8 @@ class HomeController extends Controller
         set_time_limit(0);
         // get Rencana Kerja
         $rk = RencanaKerja::find(1);
+        $aktivitas = Aktivitas::find($rk->aktivitas_id);
+        $list_rs = ReportStatus::get();
         echo $rk->lokasi_nama.$rk->unit_label.$rk->aktivitas_nama.$rk->nozzle_nama.$rk->volume.' '.$rk->unit_source_device_id."<br/>";
 
         $geofenceHelper = new GeofenceHelper;
@@ -199,17 +201,13 @@ class HomeController extends Controller
         foreach($list AS $k=>$v){
             $lokasi         = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
             $waktu_tempuh   = ($k==0) ? 0 : round(abs($v->timestamp - $list[$k-1]->timestamp),2);
-            $nozzle_kanan   = $v->ain_1 != null ? $v->ain_1 : 0;
-            $nozzle_kiri    = $v->ain_2 != null ? $v->ain_2 : 0;
-            $width          = ($nozzle_kanan > 12.63 ? 18 : 0) + ($nozzle_kiri > 12.63 ? 18 : 0);
-            $lebar_kanan    = ($nozzle_kanan > 12.63 ? 18 : 0);
-            $lebar_kiri     = ($nozzle_kiri > 12.63 ? 18 : 0);
-            $width          = ($nozzle_kanan > 12.63 ? 18 : 0) + ($nozzle_kiri > 12.63 ? 18 : 0);
+            $lebar_kanan    = !empty($v->din_3) && !empty($v->din_1) ? 18 : 0;
+            $lebar_kiri     = !empty($v->din_3) && !empty($v->din_2) ? 18 : 0;
+            $lebar          = $lebar_kanan + $lebar_kiri;
             $jarak_tempuh   = ($k==0) ? 0 : round(abs($v->vehicle_mileage - $list[$k-1]->vehicle_mileage),3);
-            $jarak_spray_kanan     = ($k==0) ? 0 : ($list[$k-1]->ain_1 > 12.63 ? $jarak_tempuh : 0);
-            $jarak_spray_kiri     = ($k==0) ? 0 : ($list[$k-1]->ain_2 > 12.63 ? $jarak_tempuh : 0);
-            // echo date('Y-m-d H:i:s.Z', $v->timestamp).$lokasi."<br/>";
-            if(!empty($lokasi) && $width >= 18) {
+            $jarak_spray_kanan  = ($k==0) ? 0 : ($lebar_kanan > 0 ? $jarak_tempuh : 0);
+            $jarak_spray_kiri   = ($k==0) ? 0 : ($lebar_kiri > 0 ? $jarak_tempuh : 0);
+            if(!empty($lokasi) && $lebar >= 18) {
                 $is_started = true;
                 $obj = (object) [
                     'timestamp'                 => $v->timestamp,
@@ -217,9 +215,9 @@ class HomeController extends Controller
                     'position_latitude'         => $v->position_latitude,
                     'position_longitude'        => $v->position_longitude,
                     'vehicle_mileage'           => $v->vehicle_mileage,
-                    'nozzle_kanan'              => $nozzle_kanan,
-                    'nozzle_kiri'               => $nozzle_kiri,
-                    'width'                     => $width,
+                    'lebar_kanan'               => $lebar_kanan,
+                    'lebar_kiri'                => $lebar_kiri,
+                    'lebar'                     => $lebar,
                     'jarak_spray_kanan'         => $jarak_spray_kanan,
                     'jarak_spray_kiri'          => $jarak_spray_kiri,
                 ];
@@ -257,7 +255,7 @@ class HomeController extends Controller
             $list_gps = $v['list_gps'];
             echo "RITASE ".$k."<br/>";
             foreach($list_gps as $v2){
-                //echo "[".date('Y-m-d H:i:s.Z', $v2->timestamp)."] Lokasi: ".$v2->lokasi.", Koordinat: [".$v2->position_latitude.",".$v2->position_longitude."], Mileage: ".$v2->vehicle_mileage.", Jarak Spray Kanan: ".$v2->jarak_spray_kanan.", Jarak Spray Kiri: ".$v2->jarak_spray_kiri.", WIDTH: ".$v2->width." <br/>";
+                echo "[".date('Y-m-d H:i:s.Z', $v2->timestamp)."] Lokasi: ".$v2->lokasi.", Koordinat: [".$v2->position_latitude.",".$v2->position_longitude."], Mileage: ".$v2->vehicle_mileage.", Jarak Spray Kanan: ".$v2->jarak_spray_kanan.", Jarak Spray Kiri: ".$v2->jarak_spray_kiri.", LEBAR: ".$v2->lebar." <br/>";
             }
             if(count($list_gps)>0){
                 $mileage1       = $list_gps[0]->vehicle_mileage;
@@ -283,13 +281,11 @@ class HomeController extends Controller
             echo "Jarak Spray : ".$jarak_tempuh." KM<br/>";
             echo "Waktu Spray :".round($waktu_tempuh/60,2)." Menit<br/>";
             echo "Kecepatan Operasi : ".$kecepatan." KM/Jam. ";
-            $aktivitas = Aktivitas::find($rk->aktivitas_id);
-            $list_rs = ReportStatus::get();
             $this->saveRKS($rk->id, $k, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 1, $kecepatan);
 
             $luas_spray_total = ($v['jarak_spray_kanan'] * 1000 * 18 + $v['jarak_spray_kiri'] * 1000 * 18)/10000;
             echo "Luas Spray : ".$luas_spray_total." Ha <br/>";
-            $luas_standard_spray = 8000 / $rk->volume - 0.012 * (8000 / $rk->volume);
+            $luas_standard_spray = round(8000 / $rk->volume - 0.012 * (8000 / $rk->volume),2);
             echo "Luas Standard Spray : ".$luas_standard_spray." Ha <br/>";
             $overlapping = ($luas_spray_total / $luas_standard_spray - 1)* 100;
             echo "Overlapping : ".$overlapping." %. ";
@@ -314,7 +310,7 @@ class HomeController extends Controller
         } 
         $jam_mulai          = count($list_movement) > 0 ? $list_movement[1]['jam_mulai'] : 0;
         $jam_selesai        = count($list_movement) > 1 ? $list_movement[count($list_movement)]['jam_selesai'] : $jam_mulai;
-        $kecepatan_total    = round($jarak_tempuh_total / ($waktu_tempuh_total/3600),2); 
+        $kecepatan_total    = $waktu_tempuh_total > 0 ? round($jarak_tempuh_total / ($waktu_tempuh_total/3600),2) : 0; 
         echo "<br/>";
         // echo "JARAK TEMPUH TOTAL : ".$jarak_tempuh_total." KM<br/>";
         // echo "JAM MULAI :".date('Y-m-d H:i:s.Z', $jam_mulai)."<br/>";

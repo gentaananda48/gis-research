@@ -96,14 +96,14 @@
 		    }
 		});
 
-	    poly = new google.maps.Polyline({
-		    //path: [{lng: lacak[0].position_longitude, lat: lacak[0].position_latitude}],
-		    geodesic: true,
-		    strokeColor: "#FF0000",
-		    strokeOpacity: 1.0,
-		    strokeWeight: 4,
-		});
-	    poly.setMap(map);
+	 //    poly = new google.maps.Polyline({
+		//     //path: [{lng: lacak[0].position_longitude, lat: lacak[0].position_latitude}],
+		//     geodesic: true,
+		//     strokeColor: "#FF0000",
+		//     strokeOpacity: 1.0,
+		//     strokeWeight: 2,
+		// });
+	 //    poly.setMap(map);
 
 		var list_lokasi = {!! $list_lokasi !!} || []
 	  	list_lokasi.forEach(function(lokasi) {
@@ -137,8 +137,31 @@
 			marker.setPosition(position);
 			map.setCenter(position);
 			// POLYLINE
-			var path = poly.getPath();
-			path.push(position);
+			// var path = poly.getPath();
+			// path.push(position);
+			if(i>0){
+				if(lacak[i-1].din_3 == 1 && (lacak[i-1].din_1==1 || lacak[i-1].din_2==1)) {
+					var strokeColor = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? "#0CF704" : lacak[i-1].din_1==1 && lacak[i-1].din_2==0 ? "#F0FF01" : "#05FAE4";
+					var strokeWeight = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? 12 : 7;
+					var poly = new google.maps.Polyline({
+					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+					    geodesic: true,
+					    strokeColor: strokeColor,
+					    strokeOpacity: 1.0,
+					    strokeWeight: strokeWeight,
+					});
+			    	poly.setMap(map);
+				} else {
+					var poly = new google.maps.Polyline({
+					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+					    geodesic: true,
+					    strokeColor: "#FF0000",
+					    strokeOpacity: 1.0,
+					    strokeWeight: 3,
+					});
+			    	poly.setMap(map);
+				}
+			}
 			$("#lokasi_nama").text(lacak[i].lokasi);
 			$("#timestamp").text(lacak[i].timestamp_2);
 			$(".progress-bar-aqua").attr('aria-valuenow', lacak[i].progress_time);

@@ -155,7 +155,7 @@ class UnitController extends Controller {
             ->where('timestamp', '>=', strtotime($tgl_jam_mulai))
             ->where('timestamp', '<=', strtotime($tgl_jam_selesai))
             ->orderBy('timestamp', 'ASC')
-            ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp']);
+            ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'din_1', 'din_2', 'din_3', 'timestamp']);
         $list_lacak = [];
         foreach($lacak as $v){
             $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);

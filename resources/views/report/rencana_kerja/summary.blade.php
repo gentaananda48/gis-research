@@ -17,8 +17,8 @@
 							<th width="5%">Ritase</th>
 							<th>Kecepatan Operasi</th>
 							<th>Overlapping</th>
-							<th>Ketepatan Dosis</th>
 							<th>Waktu Spray per Ritase</th>
+							<th>Ketepatan Dosis</th>
 							<th>Golden Time</th>
 							<th>Wing Level</th>
 							<th>Hasil</th>
