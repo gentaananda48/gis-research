@@ -46,7 +46,7 @@ class RencanaKerjaController extends Controller {
 
     public function list2(Request $request){
     	$list_status = explode(',', $request->status);
-        $list =RencanaKerja::where('.tgl', $request->tgl)
+        $list =RencanaKerja::where('tgl', $request->tgl)
             ->whereIn('status_id', $list_status)
             ->orderBy('unit_label', 'ASC')
             ->orderBy('status_urutan', 'DESC')
@@ -163,7 +163,7 @@ class RencanaKerjaController extends Controller {
 
 	public function get_master_data(Request $request){
 		$list_shift 	= Shift::orderBy('id', 'ASC')->get(['id', 'nama']);
-		$list_lokasi 	= Lokasi::orderBy('kode', 'ASC')->get(['id', 'kode', 'nama', 'lsbruto', 'lsnetto']);
+		$list_lokasi 	= Lokasi::where('grup', $user->area)->orderBy('kode', 'ASC')->get(['id', 'kode', 'nama', 'lsbruto', 'lsnetto']);
 		$list_aktivitas = Aktivitas::orderBy('kode', 'ASC')->get(['id', 'kode', 'nama']);
 		$list_unit 		= Unit::orderBy('label', 'ASC')->get(['id', 'label']);
 		$list_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
