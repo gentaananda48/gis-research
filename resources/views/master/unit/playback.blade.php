@@ -152,7 +152,7 @@
 				if(lacak[i-1].din_3 == 1 && (lacak[i-1].din_1==1 || lacak[i-1].din_2==1)) {
 					var strokeColor = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? "#0CF704" : lacak[i-1].din_1==1 && lacak[i-1].din_2==0 ? "#F0FF01" : "#05FAE4";
 					var strokeWeight = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? 12 : 7;
-					var poly = new google.maps.Polyline({
+					poly = new google.maps.Polyline({
 					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
 					    geodesic: true,
 					    strokeColor: strokeColor,
@@ -161,7 +161,7 @@
 					});
 			    	poly.setMap(map);
 				} else {
-					var poly = new google.maps.Polyline({
+					poly = new google.maps.Polyline({
 					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
 					    geodesic: true,
 					    strokeColor: "#FF0000",
@@ -170,21 +170,30 @@
 					});
 			    	poly.setMap(map);
 				}
+				marker2 = new google.maps.Marker({
+				    position: {lng: lacak[i-1].position_longitude, lat: lacak[i-1].position_latitude},
+				    //label: 'TEST',
+				    map: map,
+				    icon: {
+				        path: google.maps.SymbolPath.CIRCLE,
+				        fillColor: '#04F8E5',
+					    fillOpacity: 1,
+					    strokeWeight: 1,
+				        strokeColor: '#FFFFFF',
+					    scale: 4
+				    }
+				});
+				marker2.infoWindow = new google.maps.InfoWindow({
+		      		content: 'Latitude : ' + lacak[i-1].position_longitude + ', Longitude : ' + lacak[i-1].position_latitude
+		    	});
+		    	google.maps.event.addListener(marker2, "mouseover", function(event){
+		      		marker2.infoWindow.setPosition(event.latLng);
+		      		marker2.infoWindow.open({ map, shouldFocus: false});
+		    	}); 
+		    	google.maps.event.addListener(marker2, "mouseout", function(event){
+		      		marker2.infoWindow.close();
+		    	});
 			}
-			new google.maps.Marker({
-			    position: {lng: lacak[i].position_longitude, lat: lacak[i].position_latitude},
-			    //label: 'TEST',
-			    map: map,
-			    //animation: google.maps.Animation.DROP,
-			    icon: {
-			        path: google.maps.SymbolPath.CIRCLE,
-			        fillColor: '#04F8E5',
-				    fillOpacity: 1,
-				    strokeWeight: 1,
-			        strokeColor: '#04F8E5',
-				    scale: 4
-			    }
-			});
 			$("#lokasi_nama").text(lacak[i].lokasi);
 			$("#timestamp").text(lacak[i].timestamp_2);
 			$(".progress-bar-aqua").attr('aria-valuenow', lacak[i].progress_time);

@@ -10,11 +10,15 @@ use Illuminate\Support\Facades\Log;
 use App\Model\RencanaKerja;
 use App\Model\RencanaKerjaLog;
 use App\Model\RencanaKerjaSummary;
+use App\Model\OrderMaterial;
+use App\Model\OrderMaterialBahan;
+use App\Model\OrderMaterialLog;
 use App\Model\Shift;
 use App\Model\Lokasi;
 use App\Model\Aktivitas;
 use App\Model\AktivitasParameter;
 use App\Model\Unit;
+use App\Model\Bahan;
 use App\Model\User;
 use App\Model\Status;
 use App\Model\Tracker;
@@ -162,29 +166,47 @@ class RencanaKerjaController extends Controller {
     }
 
 	public function get_master_data(Request $request){
+		$user = $this->guard()->user();
 		$list_shift 	= Shift::orderBy('id', 'ASC')->get(['id', 'nama']);
-		$list_lokasi 	= Lokasi::where('grup', $user->area)->orderBy('kode', 'ASC')->get(['id', 'kode', 'nama', 'lsbruto', 'lsnetto']);
+		$list_lokasi 	= Lokasi::where('grup', $user->area)
+			->orderBy('kode', 'ASC')
+			->get(['id', 'kode', 'nama', 'lsbruto', 'lsnetto']);
 		$list_aktivitas = Aktivitas::orderBy('kode', 'ASC')->get(['id', 'kode', 'nama']);
 		$list_unit 		= Unit::orderBy('label', 'ASC')->get(['id', 'label']);
 		$list_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
 			->where('r.code', 'MBL_SPRAY_OPERATOR')
+			->where('users.area', $user->area)
 			->orderBy('users.name', 'ASC')
 			->get(['users.id', 'users.name AS nama']);
 		$list_driver 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
 			->where('r.code', 'MBL_SPRAY_DRIVER')
+			->where('users.area', $user->area)
 			->orderBy('users.name', 'ASC')
 			->get(['users.id', 'users.name AS nama']);
-		$list_volume_air = VolumeAir::orderBy('volume', 'ASC')->get(['id', 'volume']);
-		$list_nozzle 	 = Nozzle::orderBy('nama', 'ASC')->get(['id', 'nama']);
+		$list_mixing_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
+			->where('r.code', 'MBL_MIXING_OPERATOR')
+			->where('users.area', $user->area)
+			->orderBy('users.name', 'ASC')
+			->get(['users.id', 'users.name AS nama']);
+		$list_volume_air= VolumeAir::orderBy('volume', 'ASC')->get(['id', 'volume']);
+		$list_nozzle 	= Nozzle::orderBy('nama', 'ASC')->get(['id', 'nama']);
+		$list_bahan 	= Bahan::orderBy('nama', 'ASC')->get(['id', 'kode', 'nama', 'uom']);
+		$list_standard 	= ReportParameterStandard::leftJoin('aktivitas AS a', 'a.id', '=', 'report_parameter_standard.aktivitas_id')
+            ->leftJoin('nozzle AS n', 'n.id', '=', 'report_parameter_standard.nozzle_id')
+            ->leftJoin('volume_air AS v', 'v.id', '=', 'report_parameter_standard.volume_id')
+            ->get(['report_parameter_standard.*', 'a.nama AS aktivitas_nama', 'n.nama AS nozzle_nama', 'v.volume']);
 		$data = [
 			'list_shift'		=> $list_shift,
 			'list_lokasi'		=> $list_lokasi,
 			'list_aktivitas'	=> $list_aktivitas,
 			'list_unit'			=> $list_unit,
 			'list_operator' 	=> $list_operator,
+			'list_mixing_operator' 	=> $list_mixing_operator,
 			'list_driver' 		=> $list_driver,
 			'list_volume_air' 	=> $list_volume_air,
-			'list_nozzle'		=> $list_nozzle
+			'list_nozzle'		=> $list_nozzle,
+			'list_bahan'		=> $list_bahan,
+			'list_standard'		=> $list_standard
 		];
 		return response()->json([
         	'status' 	=> true, 
@@ -227,6 +249,10 @@ class RencanaKerjaController extends Controller {
 	      	$operator 		 			= User::find($request->operator_id);
 	      	$rk->operator_empid 		= $operator->employee_id;
 	      	$rk->operator_nama 			= $operator->name;
+	      	$rk->mixing_operator_id 	= $request->mixing_operator_id;
+	      	$mixing_operator 			= User::find($request->mixing_operator_id);
+	      	$rk->mixing_operator_empid 	= $mixing_operator->employee_id;
+	      	$rk->mixing_operator_nama 	= $mixing_operator->name;
 	      	$rk->driver_id 				= $request->driver_id;
 	      	$driver 		 			= User::find($request->driver_id);
 	      	$rk->driver_empid 			= $driver->employee_id;
@@ -253,6 +279,60 @@ class RencanaKerjaController extends Controller {
 	      	$rkl->status_id_lama 	= 0;
 	      	$rkl->status_nama_lama 	= '';
 	      	$rkl->save();
+
+	      	$om                         = new OrderMaterial;
+            $om->rk_id                  = $rk->id;
+            $om->tanggal                = $rk->tgl;
+            $om->unit_id                = $rk->unit_id;
+            $om->unit_label             = $rk->unit_label;
+            $om->aktivitas_id           = $rk->aktivitas_id;
+            $om->aktivitas_kode         = $rk->aktivitas_kode;
+            $om->aktivitas_nama         = $rk->aktivitas_nama;
+            $om->lokasi_id              = $rk->lokasi_id;
+            $om->lokasi_kode            = $rk->lokasi_kode;
+            $om->lokasi_nama            = $rk->lokasi_nama;
+            $om->kasie_id               = $rk->kasie_id;
+            $om->kasie_empid            = $rk->kasie_empid;
+            $om->kasie_nama             = $rk->kasie_nama;
+            $om->operator_id            = $rk->operator_id;
+            $om->operator_empid         = $rk->operator_empid;
+            $om->operator_nama          = $rk->operator_nama;
+            $om->mixing_operator_id     = $rk->mixing_operator_id;
+            $om->mixing_operator_empid  = $rk->mixing_operator_empid;
+            $om->mixing_operator_nama   = $rk->mixing_operator_nama;
+            $status                     = Status::find(5);
+            $om->status_id              = $status->id;
+            $om->status_nama            = $status->nama;
+            $om->status_urutan          = $status->urutan;
+            $om->status_color           = $status->color;
+            $om->save();
+
+            foreach($request->bahan as $v){
+            	$v = (object) $v;
+                if(!empty($v->qty)){
+                    $omb                        = new OrderMaterialBahan;
+                    $omb->order_material_id     = $om->id;
+                    $omb->bahan_id              = $v->bahan_id;
+                    $omb->bahan_kode            = $v->bahan_kode;
+                    $omb->bahan_nama            = $v->bahan_nama;
+                    $omb->qty                   = $v->qty;
+                    $omb->uom                   = $v->uom;
+                    $omb->save();
+                }
+            }
+
+            $oml                     = new OrderMaterialLog;
+            $oml->order_material_id  = $om->id;
+            $oml->jam                = date('Y-m-d H:i:s');
+            $oml->user_id            = $rk->kasie_id;
+            $oml->user_nama          = $rk->kasie_nama;
+            $oml->status_id          = $status->id;
+            $oml->status_nama        = $status->nama;
+            $oml->status_id_lama     = 0;
+            $oml->status_nama_lama   = '';
+            $oml->event              = 'Create';
+            $oml->catatan            = '';           
+            $oml->save();
 
 	      	DB::commit();
 	      	return response()->json([
@@ -355,6 +435,23 @@ class RencanaKerjaController extends Controller {
 	    DB::beginTransaction();
 	    try {
 	      	$rk = RencanaKerja::find($request->id);
+	      	$geofenceHelper = new GeofenceHelper;
+	      	$list_polygon = $geofenceHelper->createListPolygon();
+	      	$lacak = Lacak::where('ident', $rk->source_device_id)
+	      		->orderBy('timestamp', 'DESC')
+	      		->limit(1)
+	      		->first();
+            $position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
+            $position_longitude        = $lacak != null ? $lacak->position_longitude : 0;
+        	$lokasi = $geofenceHelper->checkLocation($list_polygon, $position_latitude, $position_longitude);
+        	$lokasi = !empty($lokasi) ? substr($lokasi, 0, strlen($lokasi)-2) : '';
+	      	if($lokasi!=$rk->lokasi_kode){
+	      		return response()->json([
+		        	'status' 	=> false, 
+		        	'message' 	=> 'Lokasi tidak sesuai dengan Rencana Kerja', 
+		        	'data' 		=> null
+		      	]);
+	      	}
 	      	$status_id_lama 	= $rk->status_id;
 	      	$status_nama_lama 	= $rk->status_nama;
 	      	$rk->status_id 		= 2;

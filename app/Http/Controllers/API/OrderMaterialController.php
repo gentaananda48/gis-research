@@ -20,6 +20,7 @@ use App\Model\Unit;
 use App\Model\Status;
 use App\Model\Aktivitas;
 use App\Model\Lokasi;
+use App\Model\RencanaKerja;
 use App\Model\Bahan;
 
 
@@ -29,13 +30,58 @@ class OrderMaterialController extends Controller {
     }
 
 	public function list(Request $request){
-        $list = OrderMaterial::get();
+        $list = OrderMaterial::orderBy('tanggal', 'DESC')->get();
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 
             'data'      => $list
         ]);
     }
+
+    public function list2(Request $request){
+        $list = OrderMaterial::where('mixing_operator_id', $request->operator_id)
+            ->orderBy('tanggal', 'DESC')
+            ->get();
+        return response()->json([
+            'status'    => true, 
+            'message'   => 'success', 
+            'data'      => $list
+        ]);
+    }
+
+    public function detail(Request $request){
+        $order = OrderMaterial::find($request->id);
+        $bahan = OrderMaterialBahan::where('order_material_id', $request->id)->get(['id', 'bahan_kode', 'bahan_nama', 'qty', 'uom']);
+       	$data = [
+       		'order'	=> $order,
+       		'bahan'	=> $bahan
+       	];
+        return response()->json([
+            'status'    => true, 
+            'message'   => 'success', 
+            'data'      => $data
+        ]);
+    }
+
+    public function form_create(Request $request){
+		$user = $this->guard()->user();
+        $list_rk  = RencanaKerja::get();
+        $list_bahan  = RencanaKerja::get();
+        $list_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
+			->where('r.code', 'MBL_MIXING_OPERATOR')
+			->orderBy('users.name', 'ASC')
+			->get(['users.id', 'users.name AS nama']);
+        $data = [
+            'list_rk' 		=> $list_rk, 
+            'list_operator'	=> $list_operator,
+            'list_bahan' 	=> $list_bahan
+        ];
+		return response()->json([
+        	'status' 	=> true, 
+        	'message' 	=> '', 
+        	'data' 		=> $data
+      	]);
+	}
 
     public function sync_down(Request $request){
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
@@ -51,26 +97,24 @@ class OrderMaterialController extends Controller {
 	    $user = $this->guard()->user();
 	    DB::beginTransaction();
 	    try {
-	    	$post = $request->all();
+	    	$rencana_kerja 					= RencanaKerja::find($request->rk_id);
 	    	$order_material 				= new OrderMaterial();
-	    	$order_material->tanggal  		= isset($post["tanggal"]) ? $post["tanggal"] : null;
-			$order_material->unit_id  		= isset($post["unit_id"]) ? $post["unit_id"] : null;
-			$unit 							= Unit::find($request->unit_id);
-			$order_material->unit_label 	= $unit->label;
-			$order_material->operator_id 	= isset($post["operator_id"]) ? $post["operator_id"] : null;
-			$operator 						= User::find($request->operator_id);
-			$order_material->operator_nama 	= $operator->name;
-			$order_material->aktivitas_id 	= isset($post["aktivitas_id"]) ? $post["aktivitas_id"] : null;
-			$aktivitas 						= Aktivitas::find($request->aktivitas_id);
-			$order_material->aktivitas_kode = $aktivitas->kode;
-			$order_material->aktivitas_nama = $aktivitas->nama;
-			$order_material->lokasi_id 		= isset($post["lokasi_id"]) ? $post["lokasi_id"] : null;
-			$lokasi 						= Lokasi::find($request->lokasi_id);	
-			$order_material->lokasi_kode 	= $lokasi->kode;
-			$order_material->lokasi_nama 	= $lokasi->nama;
+	    	$order_material->rk_id  		= $request->rk_id;
+	    	$order_material->tanggal  		= $request->tanggal;
+			$order_material->unit_id  		= $rencana_kerja->unit_id;
+			$order_material->unit_label 	= $rencana_kerja->unit_label;
+			$order_material->aktivitas_id 	= $rencana_kerja->aktivitas_id;
+			$order_material->aktivitas_kode = $rencana_kerja->aktivitas_kode;
+			$order_material->aktivitas_nama = $rencana_kerja->aktivitas_nama;
+			$order_material->lokasi_id 		= $rencana_kerja->lokasi_id;
+			$order_material->lokasi_kode 	= $rencana_kerja->lokasi_kode;
+			$order_material->lokasi_nama 	= $rencana_kerja->lokasi_nama;
 			$order_material->kasie_id 		= $user->id;
 			$order_material->kasie_nama 	= $user->name;
-			$order_material->ritase 		= isset($post["ritase"]) ? $post["ritase"] : null;;
+			$order_material->ritase 		= $request->ritase;
+			$order_material->operator_id 	= $request->operator_id;
+			$operator 						= User::find($request->operator_id);
+			$order_material->operator_nama 	= $operator->name;
 			$status 						= Status::find(5);
 			$order_material->status_id 		= $status->id;
 			$order_material->status_nama 	= $status->nama;
@@ -127,6 +171,8 @@ class OrderMaterialController extends Controller {
 	      	$status 	 					= Status::find(6);
 	      	$order_material->status_id 		= $status->id;
 	      	$order_material->status_nama 	= $status->nama;
+	      	$order_material->status_urutan 	= $status->urutan;
+	      	$order_material->status_color 	= $status->color;
 	      	$order_material->save();
 
 	      	$log_order_material 					= new OrderMaterialLog;
@@ -168,6 +214,8 @@ class OrderMaterialController extends Controller {
 	      	$status 	 					= Status::find(7);
 	      	$order_material->status_id 		= $status->id;
 	      	$order_material->status_nama 	= $status->nama;
+	      	$order_material->status_urutan 	= $status->urutan;
+	      	$order_material->status_color 	= $status->color;
 	      	$order_material->save();
 
 	      	$log_order_material = new OrderMaterialLog;
@@ -208,6 +256,8 @@ class OrderMaterialController extends Controller {
 	      	$status 	 					= Status::find(8);
 	      	$order_material->status_id 		= $status->id;
 	      	$order_material->status_nama 	= $status->nama;
+	      	$order_material->status_urutan 	= $status->urutan;
+	      	$order_material->status_color 	= $status->color;
 			$order_material->save();
 
 	      	$log_order_material = new OrderMaterialLog;

@@ -149,6 +149,9 @@ Route::group([
     'prefix'        => 'order_material'
 ], function ($router) {
     Route::get('list', 'OrderMaterialController@list');
+    Route::get('list2', 'OrderMaterialController@list2');
+    Route::get('detail', 'OrderMaterialController@detail');
+    Route::get('form_create', 'OrderMaterialController@form_create');
     Route::post('create', 'OrderMaterialController@create');
     Route::post('start', 'OrderMaterialController@start_order_material');
     Route::post('cancel', 'OrderMaterialController@cancel_order_material');
