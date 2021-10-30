@@ -40,7 +40,10 @@ class RencanaKerjaController extends Controller {
     }
 
     public function list(Request $request){
-        $list =RencanaKerja::orderBy('tgl', 'DESC')->get();
+    	$user = $this->guard()->user();
+        $list =RencanaKerja::where('kasie_id', $user->id)
+        	->orderBy('tgl', 'DESC')
+        	->get();
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 
@@ -49,8 +52,10 @@ class RencanaKerjaController extends Controller {
     }
 
     public function list2(Request $request){
+    	$user = $this->guard()->user();
     	$list_status = explode(',', $request->status);
         $list =RencanaKerja::where('tgl', $request->tgl)
+        	->where('kasie_id', $user->id)
             ->whereIn('status_id', $list_status)
             ->orderBy('unit_label', 'ASC')
             ->orderBy('status_urutan', 'DESC')
@@ -72,8 +77,9 @@ class RencanaKerjaController extends Controller {
     }
 
     public function list3(Request $request){
+    	$user = $this->guard()->user();
         $list =RencanaKerja::where('tgl', $request->tgl)
-            ->where('operator_id', $request->operator_id)
+            ->where('operator_id', $user->id)
             ->orderBy('shift_id', 'ASC')
             ->get();
         return response()->json([
