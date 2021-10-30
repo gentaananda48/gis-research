@@ -454,7 +454,7 @@ class RencanaKerjaController extends Controller {
 	      	if($lokasi!=$rk->lokasi_kode){
 	      		return response()->json([
 		        	'status' 	=> false, 
-		        	'message' 	=> 'Lokasi Anda ['.$lokasi.'] tidak sesuai dengan Lokasi di Rencana Kerja ['.$rk->lokasi_kode.']', 
+		        	'message' 	=> "Lokasi Anda '".$lokasi."' tidak sesuai dengan Lokasi di Rencana Kerja '".$rk->lokasi_kode."'", 
 		        	'data' 		=> null
 		      	]);
 	      	}
