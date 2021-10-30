@@ -30,7 +30,9 @@ class OrderMaterialController extends Controller {
     }
 
 	public function list(Request $request){
-        $list = OrderMaterial::orderBy('tanggal', 'DESC')->get();
+        $list = OrderMaterial::where('kasie_id', $request->user_id)
+            ->orderBy('tanggal', 'DESC')
+            ->get();
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 
@@ -39,7 +41,18 @@ class OrderMaterialController extends Controller {
     }
 
     public function list2(Request $request){
-        $list = OrderMaterial::where('mixing_operator_id', $request->operator_id)
+        $list = OrderMaterial::where('mixing_operator_id', $request->user_id)
+            ->orderBy('tanggal', 'DESC')
+            ->get();
+        return response()->json([
+            'status'    => true, 
+            'message'   => 'success', 
+            'data'      => $list
+        ]);
+    }
+
+    public function list3(Request $request){
+        $list = OrderMaterial::where('operator_id', $request->user_id)
             ->orderBy('tanggal', 'DESC')
             ->get();
         return response()->json([
