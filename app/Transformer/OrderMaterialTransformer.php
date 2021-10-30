@@ -18,6 +18,8 @@ class OrderMaterialTransformer extends TransformerAbstract {
             'unit_label'   		=> $model->unit_label,
             'operator_id'  		=> $model->operator_id,
             'operator_nama'   	=> $model->operator_nama,
+            'mixing_operator_id'       => $model->mixing_operator_id,
+            'mixing_operator_nama'     => $model->mixing_operator_nama,
             'ritase'   			=> $model->ritase,
             'kasie_id'  		=> $model->kasie_id,
             'kasie_nama'   		=> $model->kasie_nama,

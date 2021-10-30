@@ -12,6 +12,13 @@ $("#grid-data").bootgrid({
     rowCount: [20],
     url: BASE_URL + "/transaction/order_material/get" + window.location.search,
     navigation: 2,
+    formatters: {
+        commands: function(column, row) {
+            var ret = '';
+            ret += '<a href="/transaction/order_material/show/' + row.id + '" class ="btn btn-xs btn-default">' + ' Detail</a>';
+            return ret;
+        }
+    }
 }).on("loaded.rs.jquery.bootgrid", function(e) {
     //
 }).on("click.rs.jquery.bootgrid", function (e, columns, row){
