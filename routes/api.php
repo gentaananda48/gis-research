@@ -150,6 +150,7 @@ Route::group([
 ], function ($router) {
     Route::get('list', 'OrderMaterialController@list');
     Route::get('list2', 'OrderMaterialController@list2');
+    Route::get('list3', 'OrderMaterialController@list3');
     Route::get('detail', 'OrderMaterialController@detail');
     Route::get('form_create', 'OrderMaterialController@form_create');
     Route::post('create', 'OrderMaterialController@create');
