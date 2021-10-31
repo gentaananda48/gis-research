@@ -125,6 +125,7 @@ Route::group([
     'prefix'        => 'laporan_masalah'
 ], function ($router) {
     Route::get('list', 'LaporanMasalahController@list');
+    Route::get('show', 'LaporanMasalahController@show');
     Route::post('create', 'LaporanMasalahController@create');
     Route::post('update', 'LaporanMasalahController@update');
 });
@@ -136,6 +137,7 @@ Route::group([
     'prefix'        => 'pemeliharaan'
 ], function ($router) {
     Route::get('list', 'PemeliharaanController@list');
+    Route::get('show', 'PemeliharaanController@show');
     Route::post('create', 'PemeliharaanController@create');
     Route::post('start', 'PemeliharaanController@start_maintenance');
     Route::post('finish', 'PemeliharaanController@finish_maintenance');

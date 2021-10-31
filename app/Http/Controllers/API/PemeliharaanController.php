@@ -32,7 +32,15 @@ class PemeliharaanController extends Controller {
             'data'      => $list
         ]);
     }
+	public function show(Request $id) {
+        $data = Pemeliharaan::find($id);
+        return response()->json([
+			'status'    => true, 
+            'message'   => 'success', 
+			'data' => $data
+		]);
 
+    }
     public function sync_down(Request $request){
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
     	$list = Pemeliharaan::where('updated_at', '>', $updated_at)->get();
