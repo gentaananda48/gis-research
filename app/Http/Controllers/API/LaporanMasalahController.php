@@ -31,8 +31,8 @@ class LaporanMasalahController extends Controller {
             'data'      => $list
         ]);
     }
-	public function show(Request $id) {
-        $data = LaporanMasalah::find($id);
+	public function show(Request $request) {
+        $data = LaporanMasalah::find($request->id);
         return response()->json([
 			'status'    => true, 
             'message'   => 'success', 

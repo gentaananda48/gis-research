@@ -32,8 +32,8 @@ class PemeliharaanController extends Controller {
             'data'      => $list
         ]);
     }
-	public function show(Request $id) {
-        $data = Pemeliharaan::find($id);
+	public function show(Request $request) {
+        $data = Pemeliharaan::find($request->id);
         return response()->json([
 			'status'    => true, 
             'message'   => 'success', 
