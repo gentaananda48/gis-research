@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Boom Sprayer</title>
     <link rel="shortcut icon" type="img/png" href="{{ url('/img/logo.png') }}"/>
+    {!! Html::style('AdminLTE-2.4.2/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}
     <!--head-->
     <style>
     	html, body, #map {
@@ -21,7 +22,15 @@
     </style>
 </head>
 <body>
-    <div id="map"></div>
+    <div id="map" style="width: 100%; height: 93vh;"></div>
+    <div  style="width: 100%; height: 7vh; padding: 2px;">
+		<div class="progress" style="margin: 0px;">
+	        <div class="progress-bar progress-bar-aqua" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="{{$durasi}}" style="width: 0%">
+	        	<span class="sr-only"></span>
+	        </div>
+	  	</div>
+		<span class="text-bold" id="timestamp"></span>
+	</div>
 {!! Html::script('AdminLTE-2.4.2/bower_components/jquery/dist/jquery.min.js') !!}
 <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
