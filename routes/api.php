@@ -48,6 +48,7 @@ Route::group([
     Route::get('list', 'UnitController@list');
     Route::get('detail', 'UnitController@detail');
     Route::get('playback', 'UnitController@playback');
+    Route::get('playback_view', 'UnitController@playback_view');
 });
 
 // LOKASI
