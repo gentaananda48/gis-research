@@ -108,7 +108,7 @@ Route::group([
     Route::post('finish', 'RencanaKerjaController@finish_spraying');
     Route::post('report', 'RencanaKerjaController@report_spraying');
     Route::get('summary', 'RencanaKerjaController@summary');
-    Route::get('playback_view', 'UnitController@playback_view');
+    Route::get('playback_view', 'RencanaKerjaController@playback_view');
 });
 
 // LACAK
