@@ -143,29 +143,29 @@
 					});
 			    	poly.setMap(map);
 				}
-				marker2 = new google.maps.Marker({
-				    position: {lng: lacak[i-1].position_longitude, lat: lacak[i-1].position_latitude},
-				    //label: 'TEST',
-				    map: map,
-				    icon: {
-				        path: google.maps.SymbolPath.CIRCLE,
-				        fillColor: '#04F8E5',
-					    fillOpacity: 1,
-					    strokeWeight: 1,
-				        strokeColor: '#FFFFFF',
-					    scale: 4
-				    }
-				});
-				marker2.infoWindow = new google.maps.InfoWindow({
-		      		content: 'Latitude : ' + lacak[i-1].position_longitude + ', Longitude : ' + lacak[i-1].position_latitude
-		    	});
-		    	google.maps.event.addListener(marker2, "mouseover", function(event){
-		      		marker2.infoWindow.setPosition(event.latLng);
-		      		marker2.infoWindow.open({ map, shouldFocus: false});
-		    	}); 
-		    	google.maps.event.addListener(marker2, "mouseout", function(event){
-		      		marker2.infoWindow.close();
-		    	});
+				// marker2 = new google.maps.Marker({
+				//     position: {lng: lacak[i-1].position_longitude, lat: lacak[i-1].position_latitude},
+				//     //label: 'TEST',
+				//     map: map,
+				//     icon: {
+				//         path: google.maps.SymbolPath.CIRCLE,
+				//         fillColor: '#04F8E5',
+				// 	    fillOpacity: 1,
+				// 	    strokeWeight: 1,
+				//         strokeColor: '#FFFFFF',
+				// 	    scale: 4
+				//     }
+				// });
+				// marker2.infoWindow = new google.maps.InfoWindow({
+		  //     		content: 'Latitude : ' + lacak[i-1].position_longitude + ', Longitude : ' + lacak[i-1].position_latitude
+		  //   	});
+		  //   	google.maps.event.addListener(marker2, "mouseover", function(event){
+		  //     		marker2.infoWindow.setPosition(event.latLng);
+		  //     		marker2.infoWindow.open({ map, shouldFocus: false});
+		  //   	}); 
+		  //   	google.maps.event.addListener(marker2, "mouseout", function(event){
+		  //     		marker2.infoWindow.close();
+		  //   	});
 			}
 			$("#lokasi_nama").text(lacak[i].lokasi);
 			$("#timestamp").text(lacak[i].timestamp_2);
