@@ -49,6 +49,10 @@
 										{{ Form::text('employee_id', $user->employee_id, array('placeholder' => 'Employee ID', 'class' => 'form-control')) }}
 									</div>
 									<div class="form-group">
+										<label for="area">PG</label>
+										{{ Form::select('area', $list_area , $user->area, array('class' => 'form-control select2')) }}
+									</div>
+									<div class="form-group">
 										<label for="password">Password</label>
 										{{ Form::password('password', array('placeholder' => 'Password', 'class' => 'form-control')) }}
 									</div>

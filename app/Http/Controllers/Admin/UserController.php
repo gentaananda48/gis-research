@@ -54,8 +54,15 @@ class UserController extends Controller {
         foreach($res as $o){
             $roles[$o->id] = $o->name;
         }
+        $list_area = [
+            ''      => 'Select Role',
+            'PG1'   => 'PG1',
+            'PG2'   => 'PG2',
+            'PG1'   => 'PG2'
+        ];
         return view('admin.user.create', [
-            'roles'     => $roles
+            'roles'     => $roles,
+            'list_area' => $list_area
         ]);
     }
 
@@ -108,6 +115,7 @@ class UserController extends Controller {
             $user->role_id          = $request->input('role_id');
             $user->employee_id      = $request->input('employee_id');
             $user->password         = bcrypt($request->input('password'));
+            $user->area             = $request->input('area');
             $user->status           = 'active';
             if($request->hasFile('image_file')){
                 //Create thumbnail and upload
@@ -144,9 +152,16 @@ class UserController extends Controller {
         foreach($res as $o){
             $roles[$o->id] = $o->name;
         }
+        $list_area = [
+            ''      => 'Select Role',
+            'PG1'   => 'PG1',
+            'PG2'   => 'PG2',
+            'PG1'   => 'PG2'
+        ];
         return view('admin.user.edit', [
             'user'      => $user, 
-            'roles'     => $roles
+            'roles'     => $roles,
+            'list_area' => $list_area
         ]);
     }
 
@@ -220,6 +235,7 @@ class UserController extends Controller {
             $user->phone            = $request->input('phone');
             $user->role_id          = $request->input('role_id');
             $user->employee_id      = $request->input('employee_id');
+            $user->area             = $request->input('area');
             //$user->status           = 'active';
             if($request->hasFile('image_file')){
                 $filenameCombine = 'USR-'.$user->id.'.'.$extension;
