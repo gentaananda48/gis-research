@@ -44,15 +44,15 @@
         						<td>Latitude</td>
         						<td>: <span class="text-bold" id="position_latitude">{{ $unit->position_latitude }}</span></td>
         						<td></td>
-        						<td>Nozzle Kiri</td>
-        						<td>: <span class="text-bold" id="nozzle_kiri">{{ $unit->nozzle_kiri }}</span></td>
+        						<td></td>
+        						<td></td>
         					</tr>
         					<tr>
         						<td>Longitude</td>
         						<td>: <span class="text-bold" id="position_longitude">{{ $unit->position_longitude }}</span></td>
         						<td></td>
-        						<td>Nozzle Kanan</td>
-        						<td>: <span class="text-bold" id="nozzle_kanan">{{ $unit->nozzle_kanan }}</span></td>
+        						<td></td>
+        						<td></td>
         					</tr>
         					<tr>
         						<td>Altitude</td>

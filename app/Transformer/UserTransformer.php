@@ -18,6 +18,7 @@ class UserTransformer extends TransformerAbstract {
             'role_name'     => $model->role_name,
             'employee_id'   => $model->employee_id,
             'status'        => $model->status,
+            'area'          => $model->area,
             'status_name'   => $model->status,
             'created_at'    => $model->created_at->format('Y-m-d H:i:s'),
             'created_by'    => $model->created_by,

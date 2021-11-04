@@ -965,6 +965,30 @@ class RencanaKerjaController extends Controller {
         ]);
     }
 
+    // Delete
+    public function delete(Request $request){
+        $user = $this->guard()->user();
+        DB::beginTransaction();
+        try {
+            $rk = RencanaKerja::find($request->id);
+            $rk->delete();
+            RencanaKerjaLog::where('rk_id', $rk->id)->delete();
+            DB::commit();
+            return response()->json([
+                'status'    => true, 
+                'message'   => 'Deleted successfully', 
+                'data'      => null
+            ]);
+        } catch(Exception $e){
+            DB::rollback(); 
+            return response()->json([
+                'status'    => false, 
+                'message'   => $e->getMessage(), 
+                'data'      => null
+            ]);
+        }
+    }
+
     public function guard(){
         return Auth::guard('api');
     }

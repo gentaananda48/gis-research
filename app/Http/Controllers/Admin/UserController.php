@@ -18,14 +18,29 @@ class UserController extends Controller {
         return view('admin.user.index', []);
     }
 
-    public function get_list(){
+    public function get_list(Request $request){
         $query = User::select('users.*', 'roles.code as role_code', 'roles.name as role_name')
             ->join('roles','roles.id','=','users.role_id');
-        if(!empty($_GET['email'])){
-            $query->where('email', $_GET['email']);
+        if(!empty($_GET['username'])){
+            $query->where('username', 'like', '%'.$request->username.'%');
         }
         if(!empty($_GET['name'])){
-            $query->where('name', $_GET['name']);
+            $query->where('users.name', 'like', '%'.$request->name.'%');
+        }
+        if(!empty($_GET['email'])){
+            $query->where('email', 'like', '%'.$request->email.'%');
+        }
+        if(!empty($_GET['phone'])){
+            $query->where('phone', 'like', '%'.$request->phone.'%');
+        }
+        if(!empty($_GET['employee_id'])){
+            $query->where('employee_id', 'like', '%'.$request->employee_id.'%');
+        }
+        if(!empty($_GET['role_name'])){
+            $query->where('roles.name', 'like', '%'.$request->role_name.'%');
+        }
+        if(!empty($_GET['status'])){
+            $query->where('status', 'like', '%'.$request->status.'%');
         }
         $data = new GridCenter($query, $_GET);
     
