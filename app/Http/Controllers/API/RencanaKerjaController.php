@@ -973,6 +973,10 @@ class RencanaKerjaController extends Controller {
             $rk = RencanaKerja::find($request->id);
             $rk->delete();
             RencanaKerjaLog::where('rk_id', $rk->id)->delete();
+            $om = OrderMaterial::where('rk_id', $rk->id)->first();
+            $om->delete();
+            OrderMaterialBahan::where('order_material_id', $om->id)->delete();
+            OrderMaterialLog::where('order_material_id', $om->id)->delete();
             DB::commit();
             return response()->json([
                 'status'    => true, 
