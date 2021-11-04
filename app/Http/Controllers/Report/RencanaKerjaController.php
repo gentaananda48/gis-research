@@ -130,7 +130,7 @@ class RencanaKerjaController extends Controller {
             ->orderBy('ritase', 'ASC')
             ->orderBy('id', 'ASC')
             ->get();
-        $list_rks;
+        $list_rks = [];
         foreach($rks as $v){
             $list_rks[$v->ritase][] = $v;
         }
