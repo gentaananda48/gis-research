@@ -11,37 +11,18 @@ $("#grid-data").bootgrid({
     },
     rowCount: [20],
     url: BASE_URL + "/admin/role/get" + window.location.search,
+    formatters: {
+        commands: function(a, t) {
+            var e = '<a href="/admin/role/edit/' + t.id + '" class ="btn btn-xs btn-info">' + 'Edit' + ' <i class="fa fa-edit" aria-hidden="true"></i></a>'  +
+            ' <a href="/admin/role/permission/' + t.id + '" class ="btn btn-xs btn-primary">' + 'Permission' + ' <i class="fa fa-lock" aria-hidden="true"></i></a>';
+            return e += ' <a class="btn btn-xs btn-danger btn-delete" role="button" data-id="' + t.id + '">' + 'Delete' + ' <i class="fa fa-trash"></i></a>';
+        }
+    },
     navigation: 2,
 }).on("loaded.rs.jquery.bootgrid", function(e) {
-    $(this).on("contextmenu", "tbody tr", function(e) {
-        $('table tbody tr').removeClass('info');
-        $(this).addClass('info');
-
-        var id = $(this).attr('data-row-id');
-        $contextMenu.css({
-            display: "block",
-            left: e.pageX,
-            top: e.pageY
+    $(".btn-delete").on("click", function() {
+            deleteData(BASE_URL + "/admin/role/delete/" + $(this).data("id"), this);
         });
-        $contextMenu.find('.btn-permission').on('click', function(){
-            location.href = BASE_URL + "/admin/role/permission/" + id;
-        });
-        $contextMenu.find('.btn-edit').on('click', function(){
-            location.href = BASE_URL + "/admin/role/edit/" + id;
-        });
-        $contextMenu.find('.btn-delete').on('click', function(){
-            deleteData(BASE_URL + "/admin/role/delete/" + id,this);
-        });
-        $contextMenu.find('.btn-refresh').on('click', function(){
-            location.reload();
-        });
-        return false;
-    });
-    $("html").on("click", function() {
-         $contextMenu.hide();
-    });
 }).on("click.rs.jquery.bootgrid", function (e, columns, row){
-    $(this).find("tbody tr").removeClass('info');
-    $(this).find("tbody tr[data-row-id="+ row.id +"]").addClass('info');
-    $contextMenu.hide();
+    
 });
