@@ -58,7 +58,7 @@ class UserController extends Controller {
             ''      => 'Select Role',
             'PG1'   => 'PG1',
             'PG2'   => 'PG2',
-            'PG1'   => 'PG2'
+            'PG3'   => 'PG3'
         ];
         return view('admin.user.create', [
             'roles'     => $roles,
@@ -156,7 +156,7 @@ class UserController extends Controller {
             ''      => 'Select Role',
             'PG1'   => 'PG1',
             'PG2'   => 'PG2',
-            'PG1'   => 'PG2'
+            'PG3'   => 'PG3'
         ];
         return view('admin.user.edit', [
             'user'      => $user, 
