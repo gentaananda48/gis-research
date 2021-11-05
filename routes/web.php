@@ -15,6 +15,7 @@ Auth::routes();
 
 Route::get('/test', 'HomeController@test');
 Route::get('/check_geofence', 'HomeController@check_geofence');
+Route::get('/check_lokasi_rk', 'HomeController@check_lokasi_rk');
 Route::group(['middleware' => ['auth']], function () {
 
     // ------------------------------- ADMIN -------------------------------- //

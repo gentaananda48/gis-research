@@ -58,23 +58,31 @@ class HomeController extends Controller
 
     public function check_geofence(Request $request){
         $coordinate = explode(',', $request->coordinate);
-        $list = KoordinatLokasi::orderBy('lokasi', 'ASC')
-            ->orderBy('bagian', 'ASC')
-            ->orderBy('posnr', 'ASC')
-            ->get();
-        $list_polygon = [];
-        foreach($list as $v){
-            $idx = $v->lokasi.'_'.$v->bagian;
-            if(array_key_exists($idx, $list_polygon)){
-                $list_polygon[$idx][] = $v->latd." ".$v->long;
-            } else {
-                $list_polygon[$idx] = [$v->latd." ".$v->long];
-            }
-        }
         $geofenceHelper = new GeofenceHelper;
+        $list_polygon = $geofenceHelper->createListPolygon();
         $lokasi = $geofenceHelper->checkLocation($list_polygon, trim($coordinate[0]), trim($coordinate[1]));
         echo "LOKASI: ".$lokasi."<br/>";
     }
+
+    public function check_lokasi_rk(Request $request){
+        $rk = RencanaKerja::find($request->id);
+        $geofenceHelper = new GeofenceHelper;
+        $list_polygon = $geofenceHelper->createListPolygon();
+        $lacak = Lacak::where('ident', $rk->source_device_id)
+            ->orderBy('timestamp', 'DESC')
+            ->limit(1)
+            ->first();
+        $position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
+        $position_longitude        = $lacak != null ? $lacak->position_longitude : 0;
+        $lokasi = $geofenceHelper->checkLocation($list_polygon, $position_latitude, $position_longitude);
+        $lokasi = !empty($lokasi) ? substr($lokasi, 0, strlen($lokasi)-2) : '';
+        if($lokasi!=$rk->lokasi_kode){
+            echo 'Lokasi Anda ['.$lokasi.'] tidak sesuai dengan Lokasi di Rencana Kerja ['.$rk->lokasi_kode.']';
+        }
+        echo "LOKASI: ".$lokasi."<br/>";
+    }
+
+    
 
     function saveRKS($rencana_kerja_id, $ritase, $grup_aktivitas_id, $aktivitas_id, $nozzle_id, $volume_id, $parameter_id, $realisasi) {
         $bobot = 0;
