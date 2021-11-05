@@ -74,6 +74,7 @@ class HomeController extends Controller
             ->first();
         $position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
         $position_longitude        = $lacak != null ? $lacak->position_longitude : 0;
+        echo "LOKASI: ".$position_latitude.' , '.$position_longitude."<br/>";
         $lokasi = $geofenceHelper->checkLocation($list_polygon, $position_latitude, $position_longitude);
         $lokasi = !empty($lokasi) ? substr($lokasi, 0, strlen($lokasi)-2) : '';
         if($lokasi!=$rk->lokasi_kode){
