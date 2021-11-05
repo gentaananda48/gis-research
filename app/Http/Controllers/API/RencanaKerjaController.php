@@ -661,7 +661,7 @@ class RencanaKerjaController extends Controller {
 	        } 
 	        $jam_mulai          = count($list_movement) > 0 ? $list_movement[1]['jam_mulai'] : 0;
 	        $jam_selesai        = count($list_movement) > 1 ? $list_movement[count($list_movement)]['jam_selesai'] : $jam_mulai;
-	        $kecepatan_total    = round($jarak_tempuh_total / ($waktu_tempuh_total/3600),2); 
+	        $kecepatan_total    = $waktu_tempuh_total > 0 ? round($jarak_tempuh_total / ($waktu_tempuh_total/3600),2) : 0; 
 	        $luas_spray_total = ($jarak_spray_kanan_total * 1000 * 18 + $jarak_spray_kiri_total * 1000 * 18)/10000;
 
 	        $area_not_spray = 0;
