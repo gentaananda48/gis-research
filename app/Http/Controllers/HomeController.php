@@ -192,10 +192,10 @@ class HomeController extends Controller
         $rks->save();
     }
 
-    public function test(){
+    public function test(Request $request){
         set_time_limit(0);
         // get Rencana Kerja
-        $rk = RencanaKerja::find(1);
+        $rk = RencanaKerja::find($request->id);
         $aktivitas = Aktivitas::find($rk->aktivitas_id);
         $list_rs = ReportStatus::get();
         echo $rk->lokasi_nama.$rk->unit_label.$rk->aktivitas_nama.$rk->nozzle_nama.$rk->volume.' '.$rk->unit_source_device_id."<br/>";
