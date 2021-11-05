@@ -553,6 +553,8 @@ class RencanaKerjaController extends Controller {
     	set_time_limit(0);
         $rk = RencanaKerja::find($request->id);
         if(empty($rk->jam_laporan)) {
+            $aktivitas = Aktivitas::find($rk->aktivitas_id);
+            $list_rs = ReportStatus::get();
 	        $geofenceHelper = new GeofenceHelper;
 	        $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
 	        $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
@@ -637,8 +639,6 @@ class RencanaKerjaController extends Controller {
 	            $stop_time = $k > 1 ? $list_movement[$k]['jam_mulai'] - $list_movement[$k-1]['jam_selesai'] : 0;
 	            $jarak_spray_kanan_total += $v['jarak_spray_kanan']; 
 	            $jarak_spray_kiri_total += $v['jarak_spray_kiri']; 
-	            $aktivitas = Aktivitas::find($rk->aktivitas_id);
-	            $list_rs = ReportStatus::get();
 	            $this->saveRKS($rk->id, $k, $aktivitas->grup_id, $rk->aktivitas_id, $rk->nozzle_id, $rk->volume_id, 1, $kecepatan);
 
 	            $luas_spray_total = ($v['jarak_spray_kanan'] * 1000 * 18 + $v['jarak_spray_kiri'] * 1000 * 18)/10000;
