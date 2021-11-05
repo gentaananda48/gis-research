@@ -68,13 +68,13 @@ class HomeController extends Controller
         $rk = RencanaKerja::find($request->id);
         $geofenceHelper = new GeofenceHelper;
         $list_polygon = $geofenceHelper->createListPolygon();
-        $lacak = Lacak::where('ident', $rk->source_device_id)
+        $lacak = Lacak::where('ident', $rk->unit_source_device_id)
             ->orderBy('timestamp', 'DESC')
             ->limit(1)
             ->first();
         $position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
         $position_longitude        = $lacak != null ? $lacak->position_longitude : 0;
-        echo "LOKASI: ".$position_latitude.' , '.$position_longitude."<br/>";
+        echo "DEVICE: ".$rk->unit_source_device_id.', GEOLOCATION: '.$position_latitude.' , '.$position_longitude."<br/>";
         $lokasi = $geofenceHelper->checkLocation($list_polygon, $position_latitude, $position_longitude);
         $lokasi = !empty($lokasi) ? substr($lokasi, 0, strlen($lokasi)-2) : '';
         if($lokasi!=$rk->lokasi_kode){

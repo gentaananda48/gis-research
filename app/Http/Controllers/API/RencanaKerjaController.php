@@ -443,7 +443,7 @@ class RencanaKerjaController extends Controller {
 	      	$rk = RencanaKerja::find($request->id);
 	      	$geofenceHelper = new GeofenceHelper;
 	      	$list_polygon = $geofenceHelper->createListPolygon();
-	      	$lacak = Lacak::where('ident', $rk->source_device_id)
+	      	$lacak = Lacak::where('ident', $rk->unit_source_device_id)
 	      		->orderBy('timestamp', 'DESC')
 	      		->limit(1)
 	      		->first();
