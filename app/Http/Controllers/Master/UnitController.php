@@ -76,8 +76,8 @@ class UnitController extends Controller {
         $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
         $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
         $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
-        $unit->nozzle_kanan             = $lacak != null && $lacak->ain_1 != null ? $lacak->ain_1 : 0;
-        $unit->nozzle_kiri              = $lacak != null && $lacak->ain_2 != null ? $lacak->ain_2 : 0;
+        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
+        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
 
         $geofenceHelper = new GeofenceHelper;
         $list_polygon = $geofenceHelper->createListPolygon();
@@ -100,8 +100,8 @@ class UnitController extends Controller {
         $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
         $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
         $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
-        $unit->nozzle_kanan             = $lacak != null && $lacak->ain_1 != null ? $lacak->ain_1 : 0;
-        $unit->nozzle_kiri              = $lacak != null && $lacak->ain_2 != null ? $lacak->ain_2 : 0;
+        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
+        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
 
         $geofenceHelper = new GeofenceHelper;
         $list_polygon = $geofenceHelper->createListPolygon();
