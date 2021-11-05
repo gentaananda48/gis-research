@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Model\Unit;
 use App\Model\Lacak;
+use App\Model\PG;
 use App\Model\KoordinatLokasi;
 use App\Center\GridCenter;
 use App\Transformer\UnitTransformer;
@@ -16,7 +17,7 @@ use App\Helper\GeofenceHelper;
 
 class UnitController extends Controller {
     protected $base_url = 'https://api.lacak.io';
-    protected $hash = '3eb8df6bd3c3e09cf1c8f2051f44b56d';
+    protected $hash = '906d7b9082f71adcc03ea897ec3818fa';
 
     public function index() {
         return view('master.unit.index');
@@ -51,6 +52,10 @@ class UnitController extends Controller {
                 $unit->source_device_id = $v->source->device_id;
                 $unit->source_model = $v->source->model;
                 $unit->source_phone = $v->source->phone;
+                $pg = PG::find($unit->group_id);
+                if($pg!=null){
+                    $unit->pg = $pg->nama;
+                }
                 $unit->save();
             }
         } catch (\Exception $e) {

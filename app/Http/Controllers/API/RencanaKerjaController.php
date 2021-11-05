@@ -178,7 +178,7 @@ class RencanaKerjaController extends Controller {
 			->orderBy('kode', 'ASC')
 			->get(['id', 'kode', 'nama', 'lsbruto', 'lsnetto']);
 		$list_aktivitas = Aktivitas::orderBy('kode', 'ASC')->get(['id', 'kode', 'nama']);
-		$list_unit 		= Unit::orderBy('label', 'ASC')->get(['id', 'label']);
+		$list_unit 		= Unit::where('pg', $user->area)->orderBy('label', 'ASC')->get(['id', 'label']);
 		$list_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
 			->where('r.code', 'MBL_SPRAY_OPERATOR')
 			->where('users.area', $user->area)
