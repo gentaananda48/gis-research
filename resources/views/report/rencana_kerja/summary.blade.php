@@ -40,7 +40,7 @@
 							
 							@if($k<999)
 								@foreach($v as $k2=>$v2)
-								<td>{{$v2->nilai}} {{ $v2->parameter_id<999 ? '('.$v2->realisasi.')' : '' }}</td>
+								<td>{{number_format($v2->nilai,0)}} {{ $v2->parameter_id<999 ? '('.($v2->parameter_id!=5 ? number_format($v2->realisasi,2) : $v2->realisasi).')' : '' }}</td>
 								@if($k2==6)
 								<td>{{$v2->kualitas}}</td>
 								@endif

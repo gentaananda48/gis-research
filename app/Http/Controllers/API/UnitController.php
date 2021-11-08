@@ -30,8 +30,8 @@ class UnitController extends Controller {
             $v->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
             $v->position_direction       = $lacak != null ? $lacak->position_direction : 0;
             $v->position_speed           = $lacak != null ? $lacak->position_speed : 0;
-            $v->nozzle_kanan             = $lacak != null && $lacak->ain_1 != null ? $lacak->ain_1 : 0;
-            $v->nozzle_kiri              = $lacak != null && $lacak->ain_2 != null ? $lacak->ain_2 : 0;
+            $v->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
+            $v->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
             $list_unit[] = $v;
         }
         return response()->json([

@@ -151,6 +151,10 @@
 					    strokeWeight: strokeWeight,
 					});
 			    	poly.setMap(map);
+					google.maps.event.addListener(poly, 'click', function(h) {
+				     	var latlng=h.latLng;
+				     	alert("Kecepatan: "+lacak[i-1].position_speed+"\nNozzle Kanan: "+lacak[i-1].din_1+"\nNozzle Kiri: "+lacak[i-1].din_2+"\n");
+					});
 				} else {
 					var poly = new google.maps.Polyline({
 					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
@@ -160,6 +164,10 @@
 					    strokeWeight: 3,
 					});
 			    	poly.setMap(map);
+					google.maps.event.addListener(poly, 'click', function(h) {
+				     	var latlng=h.latLng;
+				     	alert("Kecepatan: "+lacak[i-1].position_speed+"\nNozzle Kanan: "+lacak[i-1].din_1+"\nNozzle Kiri: "+lacak[i-1].din_2+"\n");
+					});
 				}
 			}
 			$("#lokasi_nama").text(lacak[i].lokasi);
