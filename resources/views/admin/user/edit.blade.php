@@ -65,7 +65,7 @@
 						</div>
 						<div class="box-footer">
 							{{ Form::submit('Update', array('class' => 'btn btn-success'))}}
-							<a href="{{ url('/master/user') }}" class="btn btn-warning"> Back </a>
+							<a href="{{ url('/admin/user') }}" class="btn btn-warning"> Back </a>
 						</div>
 						{{ Form::close() }}
 					</div>
