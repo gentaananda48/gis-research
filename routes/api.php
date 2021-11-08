@@ -46,6 +46,7 @@ Route::group([
     'prefix' => 'unit'
 ], function ($router) {
     Route::get('list', 'UnitController@list');
+    Route::get('sync_down', 'UnitController@sync_down');
     Route::get('detail', 'UnitController@detail');
     Route::get('playback', 'UnitController@playback');
     Route::get('playback_view', 'UnitController@playback_view');
@@ -58,6 +59,7 @@ Route::group([
     'prefix' => 'lokasi'
 ], function ($router) {
     Route::get('list', 'LokasiController@list');
+    Route::get('sync_down', 'LokasiController@sync_down');
 });
 
 // Aktivitas
@@ -67,6 +69,7 @@ Route::group([
     'prefix' => 'aktivitas'
 ], function ($router) {
     Route::get('list', 'AktivitasController@list');
+    Route::get('sync_down', 'AktivitasController@sync_down');
 });
 
 // Alasan Pending
@@ -76,6 +79,7 @@ Route::group([
     'prefix' => 'alasan_pending'
 ], function ($router) {
     Route::get('list', 'AlasanPendingController@list');
+    Route::get('sync_down', 'AlasanPendingController@sync_down');
 });
 
 // Tindak Lanjut Pending
@@ -85,6 +89,7 @@ Route::group([
     'prefix' => 'tindak_lanjut_pending'
 ], function ($router) {
     Route::get('list', 'TindakLanjutPendingController@list');
+    Route::get('sync_down', 'TindakLanjutPendingController@sync_down');
 });
 
 // RENCANA KERJA
