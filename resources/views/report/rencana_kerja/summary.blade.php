@@ -33,7 +33,7 @@
 							@if($k==999999)
 							<th colspan="7">Total Nilai Kualitas Spraying</th>
 							@elseif($k==999)
-							<th colspan="7">Area Not Spray</th>
+							<th colspan="7">{{$v[0]->parameter_nama}} ({{$v[0]->standard}})</th>
 							@else
 							<td>{{$k}}</td>
 							@endif
