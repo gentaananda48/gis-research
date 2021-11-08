@@ -1,5 +1,11 @@
 @extends('base_theme')
-
+@section("style")
+    <style>
+	    .table-responsive .table th, .table-responsive .table td {
+	        white-space: nowrap !important;
+	    }
+    </style>
+@stop
 @section('content')
 	<section class="content-header">
 		<h1>
@@ -15,35 +21,33 @@
 						<table class="table">
 						<tr>
 							<th width="5%">Ritase</th>
-							<th>Kecepatan Operasi</th>
-							<th>Overlapping</th>
-							<th>Waktu Spray per Ritase</th>
-							<th>Ketepatan Dosis</th>
-							<th>Golden Time</th>
-							<th>Wing Level</th>
-							<th>Hasil</th>
+							@if(count($list_rks)>0)
+								@foreach($list_rks[1] as $k2=>$v2)
+								<th>{{$v2->parameter_nama}} <br/>{{ $v2->parameter_id<999 ? '('.$v2->standard.')' : '' }}</th>
+								@endforeach
+							@endif
 							<th>Kualitas</th>
 						</tr>
 						@foreach($list_rks as $k=>$v)
 						<tr>
 							@if($k==999999)
-							<td colspan="7">Total Nilai Kualitas Spraying</td>
+							<th colspan="7">Total Nilai Kualitas Spraying</th>
 							@elseif($k==999)
-							<td colspan="7">Area Not Spray</td>
+							<th colspan="7">Area Not Spray</th>
 							@else
 							<td>{{$k}}</td>
 							@endif
 							
 							@if($k<999)
 								@foreach($v as $k2=>$v2)
-								<td>{{$v2->nilai}}</td>
+								<td>{{$v2->nilai}} {{ $v2->parameter_id<999 ? '('.$v2->realisasi.')' : '' }}</td>
 								@if($k2==6)
 								<td>{{$v2->kualitas}}</td>
 								@endif
 								@endforeach
 							@else
 								@foreach($v as $k2=>$v2)
-								<td>{{$v2->nilai}}</td>
+								<td>{{$v2->nilai}} {{ $v2->parameter_id<999 ? '('.$v2->realisasi.')' : '' }}</td>
 								<td>{{$v2->kualitas}}</td>
 								@endforeach
 							@endif

@@ -86,6 +86,7 @@ class HomeController extends Controller
     
 
     function saveRKS($rencana_kerja_id, $ritase, $grup_aktivitas_id, $aktivitas_id, $nozzle_id, $volume_id, $parameter_id, $realisasi) {
+        $nilai_standard = '';
         $bobot = 0;
         $nilai = 0;
         $nilai_bobot = 0;
@@ -119,7 +120,7 @@ class HomeController extends Controller
                 $nilai_bobot += $rks->nilai_bobot;
             }
             $nilai = round($nilai_bobot / $bobot,2) * 100;
-            $parameter_nama = 'Total';
+            $parameter_nama = 'Hasil';
             foreach($list_rs as $v){
                 if(doubleval($v->range_1) <= $nilai && $nilai <= doubleval($v->range_2)){
                     $kualitas = $v->status;
@@ -131,6 +132,23 @@ class HomeController extends Controller
                 ->where('report_parameter_id', $parameter_id)
                 ->first();
             $bobot = !empty($rpb->bobot) ? $rpb->bobot : 0;
+            $std =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', $parameter_id)
+                ->where('report_parameter_standard.aktivitas_id', $aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $nozzle_id)
+                ->where('report_parameter_standard.volume_id', $volume_id)
+                ->where('d.point', 100)
+                ->first(['d.*']);
+            $nilai_standard = $std != null ? $std->range_1.' - '.$std->range_2 : '';
+            if($std != null) {
+                if($std->range_1=='-999') {
+                    $nilai_standard = '<= '.$std->range_2;
+                } else if($std->range_2=='999') {
+                    $nilai_standard = '>= '.$std->range_1;
+                } else {
+                    $nilai_standard = $std->range_1.' - '.$std->range_2;
+                }
+            }
             $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
                 ->where('d.report_parameter_id', $parameter_id)
                 ->where('report_parameter_standard.aktivitas_id', $aktivitas_id)
@@ -184,6 +202,7 @@ class HomeController extends Controller
             $rks->parameter_id = $parameter_id;
             $rks->parameter_nama = $parameter_nama;
         }
+        $rks->standard      = $nilai_standard;
         $rks->realisasi     = $realisasi;
         $rks->nilai         = $nilai;
         $rks->bobot         = $bobot;
@@ -198,6 +217,7 @@ class HomeController extends Controller
         $rk = RencanaKerja::find($request->id);
         $aktivitas = Aktivitas::find($rk->aktivitas_id);
         $list_rs = ReportStatus::get();
+        RencanaKerjaSummary::where('rk_id', $rk->id)->delete();
         echo $rk->lokasi_nama.$rk->unit_label.$rk->aktivitas_nama.$rk->nozzle_nama.$rk->volume.' '.$rk->unit_source_device_id."<br/>";
 
         $geofenceHelper = new GeofenceHelper;
