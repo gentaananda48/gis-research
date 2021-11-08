@@ -15,10 +15,10 @@
 						<div class="box-header with-border">
 							<h3 class="box-title">Fill the forms</h3>
 						</div>
+						{!! Form::open(['method' => 'PUT', 'route'=>['admin.user.update', $user->id], 'files' => true]) !!}
+						{{ Form::hidden('page_name', 'admin') }}
 						<div class="box-body">
 							<div class="row">
-								{!! Form::open(['method' => 'PUT', 'route'=>['admin.user.update', $user->id], 'files' => true]) !!}
-								{{ Form::hidden('page_name', 'admin') }}
 								<div class="col-md-12">
 									<div class="form-group">
 										<img class="profile-user-img img-responsive img-circle" src="{{$user->avatar_thumb != "" ? $user->avatar_thumb : '/img/user.png'}}" alt="User profile picture">
@@ -61,32 +61,13 @@
 										{{ Form::password('password_confirmation', array('placeholder' => 'Password Confirmation', 'class' => 'form-control')) }}
 									</div>
 								</div>
-								<div class="col-md-12">
-									<div class="col-md-2">
-										{{ Form::submit('Update', array('class' => 'btn btn-success'))}}
-										{{ csrf_field() }}
-										{{ Form::close() }}
-									</div>
-									@if($user->status=='active')
-									<div class="col-md-2">
-										{!! Form::open(['method' => 'DELETE', 'route'=>['admin.user.destroy', $user->id], 'onsubmit' => "return ConfirmDelete()"]) !!}
-										{!! Form::submit('Delete', ['class' => 'btn btn-danger btn-delete-confirm']) !!}
-										{!! Form::close() !!}
-									</div>
-									@else
-									<div class="col-md-2">
-										{!! Form::open(['method' => 'PUT', 'route'=>['admin.user.activate', $user->id], 'onsubmit' => "return ConfirmActivate()"]) !!}
-										{!! Form::submit('Activate', ['class' => 'btn btn-success btn-activate-confirm']) !!}
-										{!! Form::close() !!}
-									</div>
-									@endif
-									<div class="col-md-2 col-md-offset-6">
-										<a href="{{ url('/admin/user') }}" class="btn btn-warning"> Back </a>
-									</div>
-								</div>
-								{{ Form::close() }}
 							</div>
 						</div>
+						<div class="box-footer">
+							{{ Form::submit('Update', array('class' => 'btn btn-success'))}}
+							<a href="{{ url('/master/user') }}" class="btn btn-warning"> Back </a>
+						</div>
+						{{ Form::close() }}
 					</div>
 				</div>
 			</div>
