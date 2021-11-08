@@ -303,4 +303,25 @@ class UserController extends Controller {
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
+
+    public function update_status($id) {
+        $data = User::find($id);
+        $list_status = ['active' => 'active', 'inactive' => 'inactive'];
+        return view('admin.user.update_status', [
+            'data' => $data,
+            'list_status' => $list_status
+        ]);
+    }
+    public function set_status(Request $request, $id) {
+        try{
+            $user = User::find($id);
+            $user->status = $request->input('status');
+            $user->save();
+
+            return redirect('admin/user')->with('message', 'Update status successfully');
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+    }
+
 }
