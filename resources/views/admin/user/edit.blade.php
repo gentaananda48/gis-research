@@ -60,6 +60,10 @@
 										<label for="password_confirmation">Password Confirmation</label>
 										{{ Form::password('password_confirmation', array('placeholder' => 'Password Confirmation', 'class' => 'form-control')) }}
 									</div>
+									<div class="form-group">
+										<label for="area">Status</label>
+										{{ Form::select('status', $list_status , $user->status, array('class' => 'form-control select2')) }}
+									</div>
 								</div>
 							</div>
 						</div>

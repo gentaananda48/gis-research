@@ -39,8 +39,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/admin/user/update/{id}', array('uses' => 'Admin\UserController@update', 'as' => 'admin.user.update'));
     Route::delete('/admin/user/delete/{id}', array('uses' => 'Admin\UserController@destroy', 'as' => 'admin.user.destroy'));
     Route::put('/admin/user/activate/{id}', array('uses' => 'Admin\UserController@activate', 'as' => 'admin.user.activate'));
-    Route::get('/admin/user/update_status/{id}', array('uses' => 'Admin\UserController@update_status', 'as' => 'admin.user.update_status'));
-    Route::put('/admin/user/set_status/{id}', array('uses' => 'Admin\UserController@set_status', 'as' => 'admin.user.set_status'));
 
 
 
