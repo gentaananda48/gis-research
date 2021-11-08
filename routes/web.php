@@ -144,6 +144,24 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/master/report_status/update/{id}', array('uses' => 'Master\ReportStatusController@update', 'as' => 'master.report_status.update'));
     Route::delete('/master/report_status/delete/{id}', array('uses' => 'Master\ReportStatusController@destroy', 'as' => 'master.report_status.destroy'));
 
+    // NOZZLE
+    Route::get('/master/nozzle', array('uses' => 'Master\NozzleController@index', 'as' => 'master.nozzle'));
+    Route::get('/master/nozzle/get', array('uses' => 'Master\NozzleController@get_list', 'as' => 'master.nozzle.get'));
+    Route::get('/master/nozzle/create', array('uses' => 'Master\NozzleController@create', 'as' => 'master.nozzle.create'));
+    Route::post('/master/nozzle', array('uses' => 'Master\NozzleController@store', 'as' => 'master.nozzle.store'));
+    Route::get('/master/nozzle/edit/{id}', array('uses' => 'Master\NozzleController@edit', 'as' => 'master.nozzle.edit'));
+    Route::put('/master/nozzle/update/{id}', array('uses' => 'Master\NozzleController@update', 'as' => 'master.nozzle.update'));
+    Route::delete('/master/nozzle/delete/{id}', array('uses' => 'Master\NozzleController@destroy', 'as' => 'master.nozzle.destroy')); 
+
+    // VOLUME AIR
+    Route::get('/master/volume_air', array('uses' => 'Master\VolumeAirController@index', 'as' => 'master.volume_air'));
+    Route::get('/master/volume_air/get', array('uses' => 'Master\VolumeAirController@get_list', 'as' => 'master.volume_air.get'));
+    Route::get('/master/volume_air/create', array('uses' => 'Master\VolumeAirController@create', 'as' => 'master.volume_air.create'));
+    Route::post('/master/volume_air', array('uses' => 'Master\VolumeAirController@store', 'as' => 'master.volume_air.store'));
+    Route::get('/master/volume_air/edit/{id}', array('uses' => 'Master\VolumeAirController@edit', 'as' => 'master.volume_air.edit'));
+    Route::put('/master/volume_air/update/{id}', array('uses' => 'Master\VolumeAirController@update', 'as' => 'master.volume_air.update'));
+    Route::delete('/master/volume_air/delete/{id}', array('uses' => 'Master\VolumeAirController@destroy', 'as' => 'master.volume_air.destroy')); 
+
     // ------------------------------- TRANSACTION -------------------------------- //
     // RENCANA KERJA
     Route::get('/transaction/rencana_kerja', array('uses' => 'Transaction\RencanaKerjaController@index', 'as' => 'transaction.rencana_kerja'));
