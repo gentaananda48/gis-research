@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Model\User;
 use App\Model\Permission;
 use Illuminate\Support\Facades\Hash;
+use App\Model\VUser;
 
 class AuthController extends Controller
 {
@@ -34,17 +35,8 @@ class AuthController extends Controller
 
         if ($token = $this->guard()->attempt($credentials)) {
           $user = $this->guard()->user();
-
-          $user_profile = [
-            'id'        => $user->id,
-            'username'  => $user->username,
-            'name'      => $user->name,
-            'email'     => $user->email,
-            'phone'     => $user->phone,
-            'role_id'     => $user->role_id ,
-            'employee_id' => $user->employee_id,
-            'status'      => $user->status
-          ];
+          VUser::find($user->id);
+          $user_profile = VUser::find($user->id);
           $data = [
             'user_info'     => $user_profile,
             'token'  => [
