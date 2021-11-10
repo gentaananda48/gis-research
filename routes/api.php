@@ -49,6 +49,7 @@ Route::group([
     Route::get('lokasi/sync_down', 'MasterDataController@lokasi_sync_down');
     Route::get('unit/sync_down', 'MasterDataController@unit_sync_down');
     Route::get('standard/sync_down', 'MasterDataController@standard_sync_down');
+    Route::get('user/sync_down', 'MasterDataController@user_sync_down');
     Route::get('alasan_pending/sync_down', 'MasterDataController@alasan_pending_sync_down');
     Route::get('tindak_lanjut_pending/sync_down', 'MasterDataController@tindak_lanjut_pending_sync_down');
 });
