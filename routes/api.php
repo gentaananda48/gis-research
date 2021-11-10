@@ -45,15 +45,11 @@ Route::group([
     'namespace' => 'API',
     'prefix' => 'master_data'
 ], function ($router) {
-    Route::get('lokasi/list', 'MasterDataController@lokasi_list');
+    Route::get('shift/sync_down', 'MasterDataController@shift_sync_down');
     Route::get('lokasi/sync_down', 'MasterDataController@lokasi_sync_down');
-    Route::get('unit/list', 'MasterDataController@unit_list');
     Route::get('unit/sync_down', 'MasterDataController@unit_sync_down');
-    Route::get('standard/list', 'MasterDataController@standard_list');
     Route::get('standard/sync_down', 'MasterDataController@standard_sync_down');
-    Route::get('alasan_pending/list', 'MasterDataController@alasan_pending_list');
     Route::get('alasan_pending/sync_down', 'MasterDataController@alasan_pending_sync_down');
-    Route::get('tindak_lanjut_pending/list', 'MasterDataController@tindak_lanjut_pending_list');
     Route::get('tindak_lanjut_pending/sync_down', 'MasterDataController@tindak_lanjut_pending_sync_down');
 });
 
