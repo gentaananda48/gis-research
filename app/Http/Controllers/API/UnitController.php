@@ -18,7 +18,8 @@ class UnitController extends Controller {
     }
 
     public function list(Request $request){
-        $list = Unit::orderBy('label', 'ASC')->get();
+        $user = $this->guard()->user();
+        $list = Unit::where('pg', $user->area)->orderBy('label', 'ASC')->get();
         $list_unit = [];
         foreach($list AS $v){
             $lacak = Lacak::where('ident', $v->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
