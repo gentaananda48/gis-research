@@ -9,7 +9,7 @@ use App\Model\Lokasi;
 use App\Model\Unit;
 use App\Model\TindakLanjutPending;
 use App\Model\AlasanPending;
-use App\Model\ReportParameterStandard;
+use App\Model\VReportParameterStandard;
 
 class MasterDataController extends Controller {
     public function __construct() {
@@ -55,10 +55,7 @@ class MasterDataController extends Controller {
     }
 
     public function standard_list(Request $request){
-        $list = ReportParameterStandard::leftJoin('aktivitas AS a', 'a.id', '=', 'report_parameter_standard.aktivitas_id')
-            ->leftJoin('nozzle AS n', 'n.id', '=', 'report_parameter_standard.nozzle_id')
-            ->leftJoin('volume_air AS v', 'v.id', '=', 'report_parameter_standard.volume_id')
-            ->get(['report_parameter_standard.*', 'a.nama AS aktivitas_nama', 'n.nama AS nozzle_nama', 'v.volume']);
+        $list = VReportParameterStandard::get();
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 
@@ -68,11 +65,7 @@ class MasterDataController extends Controller {
 
     public function standard_sync_down(Request $request){
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
-        $list = ReportParameterStandard::leftJoin('aktivitas AS a', 'a.id', '=', 'report_parameter_standard.aktivitas_id')
-            ->leftJoin('nozzle AS n', 'n.id', '=', 'report_parameter_standard.nozzle_id')
-            ->leftJoin('volume_air AS v', 'v.id', '=', 'report_parameter_standard.volume_id')
-            ->where('report_parameter_standard.updated_at', '>', $updated_at)
-            ->get(['report_parameter_standard.*', 'a.nama AS aktivitas_nama', 'n.nama AS nozzle_nama', 'v.volume']);
+        $list = VReportParameterStandard::where('last_updated', '>', $updated_at)->get();
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 
