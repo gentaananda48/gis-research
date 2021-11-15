@@ -8,11 +8,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Model\RencanaKerja;
+use App\Model\RencanaKerjaBahan;
 use App\Model\RencanaKerjaLog;
 use App\Model\RencanaKerjaSummary;
-use App\Model\OrderMaterial;
-use App\Model\OrderMaterialBahan;
-use App\Model\OrderMaterialLog;
 use App\Model\Shift;
 use App\Model\Lokasi;
 use App\Model\Aktivitas;
@@ -284,7 +282,26 @@ class RencanaKerjaController extends Controller {
 	      	$rk->status_nama 			= $status->nama;
 	      	$rk->status_urutan 			= $status->urutan;
 	      	$rk->status_color 			= $status->color;
+            $status                     = Status::find(5);
+            $rk->om_status_id           = $status->id;
+            $rk->om_status_nama         = $status->nama;
+            $rk->om_status_urutan       = $status->urutan;
+            $rk->om_status_color        = $status->color;
 	      	$rk->save();
+
+            foreach($request->bahan as $v){
+                $v = (object) $v;
+                if(!empty($v->qty)){
+                    $rkb                        = new RencanaKerjaBahan;
+                    $rkb->rk_id     = $rk->id;
+                    $rkb->bahan_id              = $v->bahan_id;
+                    $rkb->bahan_kode            = $v->bahan_kode;
+                    $rkb->bahan_nama            = $v->bahan_nama;
+                    $rkb->qty                   = $v->qty;
+                    $rkb->uom                   = $v->uom;
+                    $rkb->save();
+                }
+            }
 
 	      	$rkl = new RencanaKerjaLog;
 	      	$rkl->rk_id 			= $rk->id;
@@ -298,60 +315,6 @@ class RencanaKerjaController extends Controller {
 	      	$rkl->status_id_lama 	= 0;
 	      	$rkl->status_nama_lama 	= '';
 	      	$rkl->save();
-
-	      	$om                         = new OrderMaterial;
-            $om->rk_id                  = $rk->id;
-            $om->tanggal                = $rk->tgl;
-            $om->unit_id                = $rk->unit_id;
-            $om->unit_label             = $rk->unit_label;
-            $om->aktivitas_id           = $rk->aktivitas_id;
-            $om->aktivitas_kode         = $rk->aktivitas_kode;
-            $om->aktivitas_nama         = $rk->aktivitas_nama;
-            $om->lokasi_id              = $rk->lokasi_id;
-            $om->lokasi_kode            = $rk->lokasi_kode;
-            $om->lokasi_nama            = $rk->lokasi_nama;
-            $om->kasie_id               = $rk->kasie_id;
-            $om->kasie_empid            = $rk->kasie_empid;
-            $om->kasie_nama             = $rk->kasie_nama;
-            $om->operator_id            = $rk->operator_id;
-            $om->operator_empid         = $rk->operator_empid;
-            $om->operator_nama          = $rk->operator_nama;
-            $om->mixing_operator_id     = $rk->mixing_operator_id;
-            $om->mixing_operator_empid  = $rk->mixing_operator_empid;
-            $om->mixing_operator_nama   = $rk->mixing_operator_nama;
-            $status                     = Status::find(5);
-            $om->status_id              = $status->id;
-            $om->status_nama            = $status->nama;
-            $om->status_urutan          = $status->urutan;
-            $om->status_color           = $status->color;
-            $om->save();
-
-            foreach($request->bahan as $v){
-            	$v = (object) $v;
-                if(!empty($v->qty)){
-                    $omb                        = new OrderMaterialBahan;
-                    $omb->order_material_id     = $om->id;
-                    $omb->bahan_id              = $v->bahan_id;
-                    $omb->bahan_kode            = $v->bahan_kode;
-                    $omb->bahan_nama            = $v->bahan_nama;
-                    $omb->qty                   = $v->qty;
-                    $omb->uom                   = $v->uom;
-                    $omb->save();
-                }
-            }
-
-            $oml                     = new OrderMaterialLog;
-            $oml->order_material_id  = $om->id;
-            $oml->jam                = date('Y-m-d H:i:s');
-            $oml->user_id            = $rk->kasie_id;
-            $oml->user_nama          = $rk->kasie_nama;
-            $oml->status_id          = $status->id;
-            $oml->status_nama        = $status->nama;
-            $oml->status_id_lama     = 0;
-            $oml->status_nama_lama   = '';
-            $oml->event              = 'Create';
-            $oml->catatan            = '';           
-            $oml->save();
 
 	      	DB::commit();
 	      	return response()->json([

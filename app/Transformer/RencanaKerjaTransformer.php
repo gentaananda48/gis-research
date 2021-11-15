@@ -15,6 +15,7 @@ class RencanaKerjaTransformer extends TransformerAbstract {
             'lokasi_nama'   	=> $model->lokasi_nama,
             'lokasi_lsbruto'   	=> $model->lokasi_lsbruto,
             'lokasi_lsnetto'   	=> $model->lokasi_lsnetto,
+            'lokasi_grup'       => $model->lokasi_grup,
             'aktivitas_id'  	=> $model->aktivitas_id,
             'aktivitas_kode'   	=> $model->aktivitas_kode,
             'aktivitas_nama'   	=> $model->aktivitas_nama,

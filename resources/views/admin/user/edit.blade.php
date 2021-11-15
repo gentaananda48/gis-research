@@ -50,7 +50,7 @@
 									</div>
 									<div class="form-group">
 										<label for="area">PG</label>
-										{{ Form::select('area', $list_area , $user->area, array('class' => 'form-control select2')) }}
+										{{ Form::select('area[]', $list_area , explode(',',$user->area), array('class' => 'form-control select2', 'multiple'=>'multiple')) }}
 									</div>
 									<div class="form-group">
 										<label for="password">Password</label>
@@ -61,7 +61,7 @@
 										{{ Form::password('password_confirmation', array('placeholder' => 'Password Confirmation', 'class' => 'form-control')) }}
 									</div>
 									<div class="form-group">
-										<label for="area">Status</label>
+										<label for="status">Status</label>
 										{{ Form::select('status', $list_status , $user->status, array('class' => 'form-control select2')) }}
 									</div>
 								</div>

@@ -49,6 +49,7 @@
                             <th data-column-id="lokasi_nama">Nama Lokasi</th>
                             <th data-column-id="lokasi_lsbruto">Luas Bruto</th>
                             <th data-column-id="lokasi_lsnetto">Luas Netto</th>
+                            <th data-column-id="lokasi_grup">PG</th>
                             <th data-column-id="aktivitas_nama">Aktivitas</th>
                             <th data-column-id="nozzle_nama">Nozzle</th>
                             <th data-column-id="volume">Volume</th>
