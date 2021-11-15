@@ -189,19 +189,19 @@ class RencanaKerjaController extends Controller {
 		$list_unit 		= Unit::where('pg', $user->area)->orderBy('label', 'ASC')->get(['id', 'label']);
 		$list_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
 			->where('r.code', 'MBL_SPRAY_OPERATOR')
-			->where('users.area', $user->area)
+			->whereIn('users.area', explode(',', $user->area))
 			->where('users.status','active')
 			->orderBy('users.name', 'ASC')
 			->get(['users.id', 'users.name AS nama']);
 		$list_driver 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
 			->where('r.code', 'MBL_SPRAY_DRIVER')
-			->where('users.area', $user->area)
+			->whereIn('users.area', explode(',', $user->area))
 			->where('users.status','active')
 			->orderBy('users.name', 'ASC')
 			->get(['users.id', 'users.name AS nama']);
 		$list_mixing_operator 	= User::join('roles AS r', 'r.id', '=', 'users.role_id')
 			->where('r.code', 'MBL_MIXING_OPERATOR')
-			->where('users.area', $user->area)
+			->whereIn('users.area', explode(',', $user->area))
 			->where('users.status','active')
 			->orderBy('users.name', 'ASC')
 			->get(['users.id', 'users.name AS nama']);
