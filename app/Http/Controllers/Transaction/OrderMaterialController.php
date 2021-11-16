@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use App\Model\OrderMaterial;
-use App\Model\OrderMaterialBahan;
-use App\Model\OrderMaterialLog;
+use App\Model\RencanaKerja;
+use App\Model\RencanaKerjaBahan;
+use App\Model\RencanaKerjaLog;
 use App\Model\Shift;
 use App\Model\Lokasi;
 use App\Model\Aktivitas;
@@ -17,7 +17,7 @@ use App\Model\Nozzle;
 use App\Model\VolumeAir;
 use App\Model\Status;
 use App\Center\GridCenter;
-use App\Transformer\OrderMaterialTransformer;
+use App\Transformer\RencanaKerjaTransformer;
 
 class OrderMaterialController extends Controller {
     public function index() {
@@ -52,7 +52,7 @@ class OrderMaterialController extends Controller {
         foreach($res AS $v){
             $list_volume[$v->volume] = $v->volume;
         }
-        $res = Status::where('proses', 'ORDER_MATERIAL')->get(['id', 'nama']);
+        $res = Status::where('proses', 'RENCANA_KERJA')->get(['id', 'nama']);
         foreach($res AS $v){
             $list_status[$v->id] = $v->nama;
         }
@@ -70,7 +70,8 @@ class OrderMaterialController extends Controller {
     public function get_list(Request $request){
         $user = $this->guard()->user();
         $kasie_id = $user->id;
-        $query = OrderMaterial::where('kasie_id', $kasie_id);
+        $query = RencanaKerja:://where('kasie_id', $kasie_id)->
+            whereIn('lokasi_grup', explode(',', $user->area));
         if(!empty($request->tgl)){
             $tgl = explode(' - ', $request->tgl);
             $tgl_1 = date('Y-m-d', strtotime($tgl[0]));
@@ -96,16 +97,16 @@ class OrderMaterialController extends Controller {
             $query->whereIn('volume', $request->volume);
         }
         if(isset($request->status)){
-            $query->whereIn('status_id', $request->status);
+            $query->whereIn('om_status_id', $request->status);
         }
         $data = new GridCenter($query, $_GET);
-        echo json_encode($data->render(new OrderMaterialTransformer()));
+        echo json_encode($data->render(new RencanaKerjaTransformer()));
         exit;
     }
 
     public function show($id) {
-        $data = OrderMaterial::find($id);
-        $bahan = OrderMaterialBahan::where('order_material_id', $id)->get();
+        $data = RencanaKerja::find($id);
+        $bahan = RencanaKerjaBahan::where('rk_id', $id)->get();
         $data->bahan = $bahan;
         return view('transaction.order_material.show', ['data' => $data]);
     }

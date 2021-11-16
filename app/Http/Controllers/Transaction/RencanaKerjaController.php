@@ -75,7 +75,8 @@ class RencanaKerjaController extends Controller {
     public function get_list(Request $request){
         $user = $this->guard()->user();
         $kasie_id = $user->id;
-        $query = RencanaKerja::where('kasie_id', $kasie_id);
+        $query = RencanaKerja:://where('kasie_id', $kasie_id)->
+            whereIn('lokasi_grup', explode(',', $user->area));
         if(!empty($request->tgl)){
             $tgl = explode(' - ', $request->tgl);
             $tgl_1 = date('Y-m-d', strtotime($tgl[0]));

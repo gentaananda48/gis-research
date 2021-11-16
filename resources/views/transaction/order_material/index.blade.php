@@ -35,14 +35,14 @@
                         <tr>
                             <th data-column-id="commands" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                             <th data-column-id="id" data-order="desc" data-type="numeric" data-identifier="true" data-visible="true">ID</th>
-                            <th data-column-id="tanggal" data-width="20%">Tanggal</th>
+                            <th data-column-id="tgl" data-width="20%">Tanggal</th>
                             <th data-column-id="lokasi_kode">Lokasi</th>
                             <th data-column-id="aktivitas_nama">Aktivitas</th>
                             <th data-column-id="unit_label">Unit</th>
                             <th data-column-id="operator_nama">Operator</th>
                             <th data-column-id="mixing_operator_nama">Mixing Operator</th>
                             <th data-column-id="kasie_nama">Kasie</th>
-                            <th data-column-id="status_nama">Status</th>
+                            <th data-column-id="om_status_nama">Status</th>
                         </tr>
                     </thead>
                 </table>
