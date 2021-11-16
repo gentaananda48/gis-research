@@ -179,10 +179,8 @@ Route::group([
     Route::get('list2', 'OrderMaterialController@list2');
     Route::get('list3', 'OrderMaterialController@list3');
     Route::get('detail', 'OrderMaterialController@detail');
-    Route::get('form_create', 'OrderMaterialController@form_create');
-    Route::post('create', 'OrderMaterialController@create');
-    Route::post('start', 'OrderMaterialController@start_order_material');
-    Route::post('cancel', 'OrderMaterialController@cancel_order_material');
-    Route::post('finish', 'OrderMaterialController@finish_order_material');
+    Route::post('start', 'OrderMaterialController@start');
+    Route::post('cancel', 'OrderMaterialController@cancel');
+    Route::post('finish', 'OrderMaterialController@finish');
 
 });
