@@ -89,7 +89,17 @@ class RencanaKerjaController extends Controller {
 
     public function sync_down(Request $request){
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
-        $list = RencanaKerja::where('updated_at', '>', $updated_at)->get();
+        $list_rk = RencanaKerja::where('updated_at', '>', $updated_at)->get();
+        $list = [];
+        foreach ($list_rk as $k=>$v) {
+	      $list[$k] = $v;
+	      $list_rkb = RencanaKerjaBahan::where('rk_id', $v->id)->get();
+	      $list[$k]->bahan = $list_rkb;
+	      $list_rks = RencanaKerjaSummary::where('rk_id', $v->id)->get();
+	      $list[$k]->summary = $list_rks;
+	      $list_rkl = RencanaKerjaLog::where('rk_id', $v->id)->get();
+	      $list[$k]->log = $list_rkl;
+	    }
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 
