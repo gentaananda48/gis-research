@@ -2,16 +2,12 @@
 
 @section("style")
     <style>
-        #contextMenu {
-            position: absolute;
-            display: none;
-        }
-        .nowrap {
-            white-space: nowrap;
-        }
-        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
-            padding: 0 4px;
-        }
+        .table-responsive .bootgrid-table th, .table-responsive .bootgrid-table td {
+        white-space: nowrap !important;
+    }
+    .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+        padding: 4px;
+    }
     </style>
 @stop
 

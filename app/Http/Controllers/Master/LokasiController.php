@@ -18,7 +18,7 @@ class LokasiController extends Controller {
         return view('master.lokasi.index');
     }
 
-    public function get_list(Request $request){
+    public function get_list(Request $request) {
         $query = Lokasi::select();
         if(!empty($request->kode)){
             $query->whereRaw("kode LIKE '%".$request->kode."%'");
@@ -37,8 +37,7 @@ class LokasiController extends Controller {
         exit;
     }
 
-    public function create()
-    {
+    public function create() {
         return view('master.lokasi.create', []);
     }
 
@@ -109,7 +108,7 @@ class LokasiController extends Controller {
     }
 
     public function destroy($id) {
-        try{
+        try {
             $lokasi = Lokasi::find($id);
             $lokasi->delete();
             return redirect('master/lokasi')->with('message', 'Deleted successfully');
@@ -118,8 +117,7 @@ class LokasiController extends Controller {
         }
     }
 
-    public function import_lokasi(Request $request)
-    {
+    public function import_lokasi(Request $request) {
         $this->validate($request, [
             'file' => 'required|mimes:xls,xlsx'
         ]);
@@ -150,7 +148,7 @@ class LokasiController extends Controller {
         ]);
     }
 
-    public function koordinat_get_list(Request $request, $id){
+    public function koordinat_get_list(Request $request, $id) {
         $lokasi = Lokasi::find($id);
         $query = KoordinatLokasi::where('lokasi', $lokasi->kode)->orderBy('bagian','asc')->orderBy('posnr','asc')->select();
         $data = new GridCenter($query, $_GET);
