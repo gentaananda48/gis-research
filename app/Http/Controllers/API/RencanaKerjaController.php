@@ -107,6 +107,94 @@ class RencanaKerjaController extends Controller {
           ]);
     }
 
+    public function sync_up(Request $request){
+	    $user = $this->guard()->user();
+	    DB::beginTransaction();
+	    try {
+	      	$rk = RencanaKerja::find($request->id);
+	      	if($rk==null) {
+	      		$rk = new RencanaKerja;
+	      	}
+	      	$rk->tgl 			= $request->tgl;
+		  	$rk->shift_id 		= $request->shift_id;
+		  	$shift 				= Shift::find($request->shift_id);
+		  	$rk->shift_nama 	= $shift->nama;
+		  	$rk->lokasi_id 		= $request->lokasi_id;
+		  	$lokasi 		 	= Lokasi::find($request->lokasi_id);
+		  	$rk->lokasi_kode 	= $lokasi->kode;
+		  	$rk->lokasi_nama 	= $lokasi->nama;
+		  	$rk->lokasi_lsbruto = $request->lokasi_lsbruto;
+		  	$rk->lokasi_lsnetto = $request->lokasi_lsnetto;
+		  	$rk->aktivitas_id  	= $request->aktivitas_id;
+		  	$aktivitas 		 	= Aktivitas::find($request->aktivitas_id);
+		  	$rk->aktivitas_kode = $aktivitas->kode;
+		  	$rk->aktivitas_nama = $aktivitas->nama;
+		  	$rk->unit_id  				= $request->unit_id;
+		  	$unit 		 				= Unit::find($request->unit_id);
+		  	$rk->unit_label				= $unit->label;
+		  	$rk->unit_source_device_id 	= $unit->source_device_id;
+		  	$rk->nozzle_id  			= $request->nozzle_id;
+		  	$nozzle 		 		 	= Nozzle::find($request->nozzle_id);
+		  	$rk->nozzle_nama		 	= $nozzle->nama;
+		  	$rk->volume_id				= $request->volume_id;
+		  	$volume_air 		 		= VolumeAir::find($request->volume_id);
+		  	$rk->volume		 			= $volume_air->volume;
+		  	$rk->operator_id 			= $request->operator_id;
+		  	$operator 		 			= User::find($request->operator_id);
+		  	$rk->operator_empid 		= $operator->employee_id;
+		  	$rk->operator_nama 			= $operator->name;
+		  	$rk->mixing_operator_id 	= $request->mixing_operator_id;
+		  	$mixing_operator 			= User::find($request->mixing_operator_id);
+		  	$rk->mixing_operator_empid 	= $mixing_operator->employee_id;
+		  	$rk->mixing_operator_nama 	= $mixing_operator->name;
+		  	$rk->driver_id 				= $request->driver_id;
+		  	$driver 		 			= User::find($request->driver_id);
+		  	$rk->driver_empid 			= $driver->employee_id;
+		  	$rk->driver_nama 			= $driver->name;
+		  	$rk->kasie_id  				= $user->id;
+		  	$rk->kasie_empid 			= $user->employee_id;
+		  	$rk->kasie_nama 			= $user->name;
+		  	$rk->status_id 				= $request->status_id;
+		  	$status 		 			= Status::find($rk->status_id);
+		  	$rk->status_nama 			= $status->nama;
+		  	$rk->status_urutan 			= $status->urutan;
+		  	$rk->status_color 			= $status->color;
+		    $rk->om_status_id           = $request->om_status_id;
+		    $status                     = Status::find($rk->om_status_id);
+		    $rk->om_status_nama         = $status->nama;
+		    $rk->om_status_urutan       = $status->urutan;
+		    $rk->om_status_color        = $status->color;
+		  	$rk->save();
+		  	RencanaKerjaBahan::where('rk_id', $request->id)->delete();
+		  	foreach($request->bahan as $v){
+                $v = (object) $v;
+                if(!empty($v->qty)){
+                    $rkb                        = new RencanaKerjaBahan;
+                    $rkb->rk_id     = $rk->id;
+                    $rkb->bahan_id              = $v->bahan_id;
+                    $rkb->bahan_kode            = $v->bahan_kode;
+                    $rkb->bahan_nama            = $v->bahan_nama;
+                    $rkb->qty                   = $v->qty;
+                    $rkb->uom                   = $v->uom;
+                    $rkb->save();
+                }
+            }
+	      	DB::commit();
+	      	return response()->json([
+	        	'status' => true, 
+	        	'message' => 'Submitted successfully', 
+	        	'data' => null
+	      	]);
+	    } catch(Exception $e){
+	      DB::rollback(); 
+	      return response()->json([
+	        'status' => false, 
+	        'message' => $e->getMessage(), 
+	        'data' => null
+	      ]);
+	    }
+  	}
+
     public function detail(Request $request){
     	$rk = RencanaKerja::find($request->id);
     	$list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->orderBy('ritase', 'ASC')->orderBy('id', 'ASC')->get();

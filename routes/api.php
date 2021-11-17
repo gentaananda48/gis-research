@@ -118,6 +118,7 @@ Route::group([
     Route::get('list2', 'RencanaKerjaController@list2');
     Route::get('list3', 'RencanaKerjaController@list3');
     Route::get('sync_down', 'RencanaKerjaController@sync_down');
+    Route::post('sync_up', 'RencanaKerjaController@sync_up');
     Route::get('get_master_data', 'RencanaKerjaController@get_master_data');
     Route::get('detail', 'RencanaKerjaController@detail');
     Route::get('hasil', 'RencanaKerjaController@hasil');
