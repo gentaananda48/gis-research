@@ -183,7 +183,7 @@ class RencanaKerjaController extends Controller {
 	      	return response()->json([
 	        	'status' => true, 
 	        	'message' => 'Submitted successfully', 
-	        	'data' => null
+	        	'data' => $rk
 	      	]);
 	    } catch(Exception $e){
 	      DB::rollback(); 
