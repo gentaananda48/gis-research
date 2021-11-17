@@ -44,6 +44,45 @@
         	</div>
         </div>
     </section>
+<div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Information</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                    	<tbody>
+                    		<tr>
+                    			<td>Latitude</td>
+                    			<td>: <span id="info-latitude"></span></td>
+                    			<td>Kecepatan</td>
+                    			<td>: <span id="info-kecepatan"></span> KM/Jam</td>
+                    		</tr>
+                    		<tr>
+                    			<td>Longitude</td>
+                    			<td>: <span id="info-longitude"></span></td>
+                    			<td>Nozzle Kiri</td>
+                    			<td>: <span id="info-nozzle-kanan"></span></td>
+                    		</tr>
+                    		<tr>
+                    			<td>Altitude</td>
+                    			<td>: <span id="info-altitude"></span></td>
+                    			<td>Nozzle Kanan</td>
+                    			<td>: <span id="info-nozzle-kiri"></span></td>
+                    		</tr>
+                    	</tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @stop
 
 @section("script")
@@ -153,7 +192,13 @@
 			    	poly.setMap(map);
 					google.maps.event.addListener(poly, 'click', function(h) {
 				     	var latlng=h.latLng;
-				     	alert("Kecepatan: "+lacak[i-1].position_speed+"\nNozzle Kanan: "+lacak[i-1].din_1+"\nNozzle Kiri: "+lacak[i-1].din_2+"\n");
+				     	$("#info-latitude").text(lacak[i-1].position_latitude);
+				     	$("#info-longitude").text(lacak[i-1].position_longitude);
+				     	$("#info-altitude").text(lacak[i-1].position_altitude);
+				     	$("#info-kecepatan").text(lacak[i-1].position_speed);
+				     	$("#info-nozzle-kanan").text(lacak[i-1].din_1==1?'On':'Off');
+				     	$("#info-nozzle-kiri").text(lacak[i-1].din_2==1?'On':'Off');
+				     	$('.win-info').modal('show');
 					});
 				} else {
 					var poly = new google.maps.Polyline({
@@ -166,7 +211,13 @@
 			    	poly.setMap(map);
 					google.maps.event.addListener(poly, 'click', function(h) {
 				     	var latlng=h.latLng;
-				     	alert("Kecepatan: "+lacak[i-1].position_speed+"\nNozzle Kanan: "+lacak[i-1].din_1+"\nNozzle Kiri: "+lacak[i-1].din_2+"\n");
+				     	$("#info-latitude").text(lacak[i-1].position_latitude);
+				     	$("#info-longitude").text(lacak[i-1].position_longitude);
+				     	$("#info-altitude").text(lacak[i-1].position_altitude);
+				     	$("#info-kecepatan").text(lacak[i-1].position_speed);
+				     	$("#info-nozzle-kiri").text('Off');
+				     	$("#info-nozzle-kanan").text('Off');
+				     	$('.win-info').modal('show');
 					});
 				}
 			}
