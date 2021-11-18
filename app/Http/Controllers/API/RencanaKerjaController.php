@@ -125,6 +125,7 @@ class RencanaKerjaController extends Controller {
 		  	$rk->lokasi_nama 	= $lokasi->nama;
 		  	$rk->lokasi_lsbruto = $request->lokasi_lsbruto;
 		  	$rk->lokasi_lsnetto = $request->lokasi_lsnetto;
+		  	$rk->lokasi_grup 	= $lokasi->grup;
 		  	$rk->aktivitas_id  	= $request->aktivitas_id;
 		  	$aktivitas 		 	= Aktivitas::find($request->aktivitas_id);
 		  	$rk->aktivitas_kode = $aktivitas->kode;
@@ -346,6 +347,7 @@ class RencanaKerjaController extends Controller {
 	      	$rk->lokasi_nama 	= $lokasi->nama;
 	      	$rk->lokasi_lsbruto = $request->lokasi_lsbruto;
 	      	$rk->lokasi_lsnetto = $request->lokasi_lsnetto;
+		  	$rk->lokasi_grup 	= $lokasi->grup;
 	      	$rk->aktivitas_id  	= $request->aktivitas_id;
 	      	$aktivitas 		 	= Aktivitas::find($request->aktivitas_id);
 	      	$rk->aktivitas_kode = $aktivitas->kode;
@@ -448,6 +450,7 @@ class RencanaKerjaController extends Controller {
 	      	$rk->lokasi_nama 	= $lokasi->nama;
 	      	$rk->lokasi_lsbruto = $request->lokasi_lsbruto;
 	      	$rk->lokasi_lsnetto = $request->lokasi_lsnetto;
+		  	$rk->lokasi_grup 	= $lokasi->grup;
 	      	$rk->aktivitas_id  	= $request->aktivitas_id;
 	      	$aktivitas 		 	= Aktivitas::find($request->aktivitas_id);
 	      	$rk->aktivitas_kode = $aktivitas->kode;
