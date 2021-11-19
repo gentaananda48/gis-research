@@ -626,7 +626,30 @@ class RencanaKerjaController extends Controller {
 	    }
 	}
 
-	public function summary(Request $request){
+	public function summary($id) {
+        $rk = RencanaKerja::find($id);
+        $rks = RencanaKerjaSummary::where('rk_id', $id)
+            ->orderBy('ritase', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get();
+        $lacak = Lacak::where('ident', $rk->unit_source_device_id)
+            ->where('timestamp', '>=', strtotime($rk->jam_mulai))
+            ->where('timestamp', '<=', strtotime($rk->jam_selesai))
+            ->orderBy('timestamp', 'ASC')
+            ->get(['position_latitude AS latitude', 'position_longitude AS longitude', 'position_direction AS direction']);
+
+		return response()->json([
+      		'status' 	=> true, 
+      		'message' 	=> '', 
+      		'data' 		=> [
+				'rk' 		=> $rk,
+				'rks' 		=> $rks,
+				'lacak'		=> $lacak
+			]
+    	]);
+    }
+
+	public function summary_old(Request $request){
     	set_time_limit(0);
         $rk = RencanaKerja::find($request->id);
         if(empty($rk->jam_laporan)) {
