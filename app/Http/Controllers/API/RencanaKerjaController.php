@@ -626,9 +626,9 @@ class RencanaKerjaController extends Controller {
 	    }
 	}
 
-	public function summary($id) {
-        $rk = RencanaKerja::find($id);
-        $rks = RencanaKerjaSummary::where('rk_id', $id)
+	public function summary(Request $request) {
+        $rk = RencanaKerja::find($request->id);
+        $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
             ->orderBy('ritase', 'ASC')
             ->orderBy('id', 'ASC')
             ->get();
