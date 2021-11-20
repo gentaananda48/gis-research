@@ -56,6 +56,18 @@
                     <table class="table">
                     	<tbody>
                     		<tr>
+                    			<td>Lokasi</td>
+                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
+                    			<td>Aktivitas</td>
+                    			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
+                    		</tr>
+                    		<tr>
+                    			<td>Nozzle</td>
+                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
+                    			<td>Volume</td>
+                    			<td>: <span>{{$rk->volume}}</span></td>
+                    		</tr>
+                    		<tr>
                     			<td>Latitude</td>
                     			<td>: <span id="info-latitude"></span></td>
                     			<td>Kecepatan</td>
