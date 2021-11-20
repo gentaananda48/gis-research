@@ -52,7 +52,7 @@ class RencanaKerjaController extends Controller {
     public function list2(Request $request){
     	$user = $this->guard()->user();
     	$list_status = explode(',', $request->status);
-    	$list_area = explode(',', $request->area);
+    	$list_area = explode(',', $user->area);
         $list =RencanaKerja::where('tgl', $request->tgl)
         	//->where('kasie_id', $user->id)
         	->whereIn('lokasi_grup', $list_area)
