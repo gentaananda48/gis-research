@@ -638,7 +638,7 @@ class RencanaKerjaController extends Controller {
             ->where('timestamp', '>=', strtotime($rk->jam_mulai))
             ->where('timestamp', '<=', strtotime($rk->jam_selesai))
             ->orderBy('timestamp', 'ASC')
-            ->get(['position_latitude AS latitude', 'position_longitude AS longitude', 'position_direction AS direction']);
+            ->get(['position_latitude AS latitude', 'position_longitude AS longitude', 'position_direction AS direction', 'din_1', 'din_2', 'din_3']);
 
 		return response()->json([
       		'status' 	=> true, 
