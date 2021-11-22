@@ -34,7 +34,7 @@ use App\Model\ReportStatus;
 
 class RencanaKerjaController extends Controller {
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['playback_view']]);
+        $this->middleware('auth:api', ['except' => ['playback_view', 'map_view']]);
     }
 
     public function list(Request $request){
@@ -1083,6 +1083,38 @@ class RencanaKerjaController extends Controller {
             'list_interval' => $list_interval,
             'interval'      => $interval,
             'durasi'        => $durasi
+        ]);
+    }
+
+    public function map_view(Request $request) {
+        $id = !empty($request->id) ? $request->id :0;
+        $rk = RencanaKerja::find($id);
+        $jam_mulai = $rk->jam_mulai;
+        $jam_selesai = $rk->jam_selesai;
+        $unit = Unit::find($rk->unit_id);
+        $list = KoordinatLokasi::where('lokasi', $rk->lokasi_kode)
+            ->orderBy('bagian', 'ASC')
+            ->orderBy('posnr', 'ASC')
+            ->get();
+        $list_lokasi = [];
+        foreach($list as $v){
+            $idx = $v->lokasi.'_'.$v->bagian;
+            if(array_key_exists($idx, $list_lokasi)){
+                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+            } else {
+                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            }
+        }
+        $list_lokasi = array_values($list_lokasi);
+        $list_lacak = Lacak::where('ident', $unit->source_device_id)
+            ->where('timestamp', '>=', strtotime($jam_mulai))
+            ->where('timestamp', '<=', strtotime($jam_selesai))
+            ->orderBy('timestamp', 'ASC')
+            ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
+        return view('api.rencana_kerja.map', [
+            'rk'            => $rk, 
+            'list_lacak'    => json_encode($list_lacak),
+            'list_lokasi'   => json_encode($list_lokasi)
         ]);
     }
 

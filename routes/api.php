@@ -132,6 +132,7 @@ Route::group([
     Route::post('report', 'RencanaKerjaController@report_spraying');
     Route::get('summary', 'RencanaKerjaController@summary');
     Route::get('playback_view', 'RencanaKerjaController@playback_view');
+    Route::get('map_view', 'RencanaKerjaController@map_view');
     Route::delete('delete', 'RencanaKerjaController@delete');
 });
 
