@@ -126,7 +126,7 @@ class RencanaKerjaController extends Controller {
     }
 
     public function summary($id) {
-        $data = RencanaKerja::find($id);
+        $rk = RencanaKerja::find($id);
         $rks = RencanaKerjaSummary::where('rk_id', $id)
             ->orderBy('ritase', 'ASC')
             ->orderBy('id', 'ASC')
@@ -135,7 +135,34 @@ class RencanaKerjaController extends Controller {
         foreach($rks as $v){
             $list_rks[$v->ritase][] = $v;
         }
-        return view('report.rencana_kerja.summary', ['data' => $data, 'list_rks' => $list_rks]);
+        $jam_mulai = $rk->jam_mulai;
+        $jam_selesai = $rk->jam_selesai;
+        $unit = Unit::find($rk->unit_id);
+        $list = KoordinatLokasi::where('lokasi', $rk->lokasi_kode)
+            ->orderBy('bagian', 'ASC')
+            ->orderBy('posnr', 'ASC')
+            ->get();
+        $list_lokasi = [];
+        foreach($list as $v){
+            $idx = $v->lokasi.'_'.$v->bagian;
+            if(array_key_exists($idx, $list_lokasi)){
+                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+            } else {
+                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            }
+        }
+        $list_lokasi = array_values($list_lokasi);
+        $list_lacak = Lacak::where('ident', $unit->source_device_id)
+            ->where('timestamp', '>=', strtotime($jam_mulai))
+            ->where('timestamp', '<=', strtotime($jam_selesai))
+            ->orderBy('timestamp', 'ASC')
+            ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
+        return view('report.rencana_kerja.summary', [
+            'rk'            => $rk, 
+            'list_rks'      => $list_rks,
+            'list_lacak'    => json_encode($list_lacak),
+            'list_lokasi'   => json_encode($list_lokasi)
+        ]);
     }
 
     public function playback(Request $request, $id) {
