@@ -122,6 +122,19 @@ class LacakController extends Controller {
 	    }
 	}
 
+	public function sync_down(Request $request){
+        $created_at = !empty($request->created_at) ? $request->created_at : '1900-01-01 00:00:00';
+    	$list = Lacak::where('created_at', '>=', $created_at)
+    		->orderBy('created_at', 'ASC')
+    		->limit(1000)
+    		->get();
+        return response()->json([
+            'status'    => true, 
+            'message'   => 'success', 
+            'data'      => $list
+          ]);
+    }
+
     public function guard(){
         return Auth::guard('api');
     }
