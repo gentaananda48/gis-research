@@ -59,6 +59,7 @@ class Kernel extends ConsoleKernel
             ->orderBy('id', 'ASC')
             ->get();
         foreach($list_rk AS $rk) {
+            Log::info('START_GENERATING_SUMMARY #'.$rk->id);
             $aktivitas = Aktivitas::find($rk->aktivitas_id);
             $list_rs = ReportStatus::get();
             $geofenceHelper = new GeofenceHelper;
@@ -181,6 +182,7 @@ class Kernel extends ConsoleKernel
             // // Ketepatan dosis spray(%) 100%  - prosen overlapping
             // // Satu ritase: Waktu, jarak dan lebar semprot per satu tangki boom sprayer ( 8000 liter)
             // // Waktu tunggu antar rit: Waktu yg dihasilkan saat tidak ada aktivitas spray dr rit sblmnya ke start spray rit berikutnya
+            Log::info('FINISH_GENERATING_SUMMARY #'.$rk->id);
         }
     } 
 
