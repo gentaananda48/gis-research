@@ -105,6 +105,7 @@ class LacakController extends Controller {
 			$lacak->server_timestamp  = isset($post["server.timestamp"]) ? $post["server.timestamp"] : null;
 			$lacak->timestamp  = isset($post["timestamp"]) ? $post["timestamp"] : null;
 			$lacak->vehicle_mileage  = isset($post["vehicle.mileage"]) ? $post["vehicle.mileage"] : null;
+			$lacak->created_at = date('Y-m-d H:i:s');
 			$lacak->save();
 	      	DB::commit();
 	      	return response()->json([
@@ -124,9 +125,10 @@ class LacakController extends Controller {
 
 	public function sync_down(Request $request){
         $created_at = !empty($request->created_at) ? $request->created_at : '1900-01-01 00:00:00';
+        $limit = !empty($request->limit) ? $request->limit : 1000;
     	$list = Lacak::where('created_at', '>=', $created_at)
     		->orderBy('created_at', 'ASC')
-    		->limit(1000)
+    		->limit($limit)
     		->get();
         return response()->json([
             'status'    => true, 
