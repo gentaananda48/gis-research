@@ -182,6 +182,7 @@ class RencanaKerjaController extends Controller {
             $list_lacak[] = $v;
         }
         return view('transaction.rencana_kerja.playback', [
+            'rk'            => $rk, 
             'unit'          => $unit,
             'list_lacak'    => json_encode($list_lacak),
             'list_lokasi'   => json_encode($list_lokasi),

@@ -164,7 +164,7 @@
 			    strokeOpacity: 0.9,
 			    strokeWeight: 2,
 			    fillColor: '#964B00',
-			    fillOpacity: 0.4,
+			    fillOpacity: 0.4
 		  	});
 	    	polygon.infoWindow = new google.maps.InfoWindow({
 	      		content: lokasi.nama
@@ -200,6 +200,7 @@
 					    strokeColor: strokeColor,
 					    strokeOpacity: 1.0,
 					    strokeWeight: strokeWeight,
+			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
 					google.maps.event.addListener(poly, 'click', function(h) {
@@ -219,6 +220,7 @@
 					    strokeColor: "#FF0000",
 					    strokeOpacity: 1.0,
 					    strokeWeight: 3,
+			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
 					google.maps.event.addListener(poly, 'click', function(h) {

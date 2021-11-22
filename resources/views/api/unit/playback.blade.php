@@ -131,6 +131,7 @@
 					    strokeColor: strokeColor,
 					    strokeOpacity: 1.0,
 					    strokeWeight: strokeWeight,
+			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
 				} else {
@@ -140,6 +141,7 @@
 					    strokeColor: "#FF0000",
 					    strokeOpacity: 1.0,
 					    strokeWeight: 3,
+			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
 				}

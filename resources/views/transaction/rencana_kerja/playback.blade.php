@@ -56,6 +56,18 @@
                     <table class="table">
                     	<tbody>
                     		<tr>
+                    			<td>Lokasi</td>
+                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
+                    			<td>Aktivitas</td>
+                    			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
+                    		</tr>
+                    		<tr>
+                    			<td>Nozzle</td>
+                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
+                    			<td>Volume</td>
+                    			<td>: <span>{{$rk->volume}}</span></td>
+                    		</tr>
+                    		<tr>
                     			<td>Latitude</td>
                     			<td>: <span id="info-latitude"></span></td>
                     			<td>Kecepatan</td>
@@ -152,7 +164,7 @@
 			    strokeOpacity: 0.9,
 			    strokeWeight: 2,
 			    fillColor: '#964B00',
-			    fillOpacity: 0.4,
+			    fillOpacity: 0.4
 		  	});
 	    	polygon.infoWindow = new google.maps.InfoWindow({
 	      		content: lokasi.nama
@@ -188,6 +200,7 @@
 					    strokeColor: strokeColor,
 					    strokeOpacity: 1.0,
 					    strokeWeight: strokeWeight,
+			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
 					google.maps.event.addListener(poly, 'click', function(h) {
@@ -207,6 +220,7 @@
 					    strokeColor: "#FF0000",
 					    strokeOpacity: 1.0,
 					    strokeWeight: 3,
+			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
 					google.maps.event.addListener(poly, 'click', function(h) {
