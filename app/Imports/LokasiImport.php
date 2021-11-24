@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Model\lokasi;
+use App\Model\Lokasi;
 use App\Model\Koordinatlokasi;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Collection;
