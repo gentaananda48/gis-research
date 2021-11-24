@@ -27,7 +27,7 @@
 						</div>
 						<div class="form-group">
 							<label for="kategori">Kategori</label>
-	                		{{ Form::select('kategori', $list_kategori, null, array('class' => 'form-control select2', 'required' => 'required')) }}
+	                		{{ Form::select('kategori[]', $list_kategori, null, array('class' => 'form-control select2', 'multiple'=>'multiple', 'required' => 'required')) }}
 						</div>
 						<div class="form-group">
 							<label for="uom">UOM</label>

@@ -10,6 +10,7 @@ class BahanTransformer extends TransformerAbstract {
             'kode'        	=> $model->kode,
             'nama'    		=> $model->nama,
             'kategori'    	=> $model->kategori,
+            'kategori_nama' => $model->kategori_nama,
             'uom'           => $model->uom,
             'created_at'    => $model->created_at->format('Y-m-d H:i:s'),
             'created_by'    => $model->created_by,

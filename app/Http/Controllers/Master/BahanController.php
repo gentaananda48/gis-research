@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Model\Bahan;
+use App\Model\Aktivitas;
 use App\Center\GridCenter;
 use App\Transformer\BahanTransformer;
 
@@ -15,7 +16,7 @@ class BahanController extends Controller {
     }
 
     public function get_list(){
-        $query = Bahan::select();
+        $query = Bahan::selectRaw("bahan.*,(SELECT GROUP_CONCAT(nama) FROM aktivitas WHERE FIND_IN_SET(id,bahan.kategori)>0) kategori_nama");
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new BahanTransformer()));
         exit;
@@ -23,7 +24,11 @@ class BahanController extends Controller {
 
     public function create()
     {
-        $list_kategori = ['ADUK' => 'ADUK', 'KEMAS' => 'KEMAS'];
+        $res = Aktivitas::get(['id', 'nama']);
+        $list_kategori = [];
+        foreach($res AS $v){
+            $list_kategori[$v->id] = $v->nama;
+        }
         return view('master.bahan.create', ['list_kategori' => $list_kategori]);
     }
 
@@ -42,7 +47,7 @@ class BahanController extends Controller {
             $bahan= new Bahan;   
             $bahan->kode        = $request->input('kode'); 
             $bahan->nama        = $request->input('nama'); 
-            $bahan->kategori    = $request->input('kategori'); 
+            $bahan->kategori    = implode(",",$request->input('kategori')); 
             $bahan->uom         = $request->input('uom'); 
             $bahan->save();
         } catch(Exception $e) {
@@ -57,7 +62,11 @@ class BahanController extends Controller {
 
     public function edit($id) {
         $data = Bahan::find($id);
-        $list_kategori = ['ADUK' => 'ADUK', 'KEMAS' => 'KEMAS'];
+        $res = Aktivitas::get(['id', 'nama']);
+        $list_kategori = [];
+        foreach($res AS $v){
+            $list_kategori[$v->id] = $v->nama;
+        }
         return view('master.bahan.edit', ['data' => $data, 'list_kategori' => $list_kategori]);
 
     }
@@ -82,7 +91,7 @@ class BahanController extends Controller {
             $bahan= Bahan::find($id);;   
             $bahan->kode        = $request->input('kode'); 
             $bahan->nama        = $request->input('nama'); 
-            $bahan->kategori    = $request->input('kategori'); 
+            $bahan->kategori    = implode(",",$request->input('kategori')); 
             $bahan->uom         = $request->input('uom'); 
             $bahan->save();
         } catch(Exception $e) {
