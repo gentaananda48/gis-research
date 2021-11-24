@@ -18,11 +18,15 @@ class LokasiImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows) {
         set_time_limit(0);
         DB::beginTransaction();
-        lokasi::query()->truncate();
-        Koordinatlokasi::query()->truncate();
+        // lokasi::query()->truncate();
+        // Koordinatlokasi::query()->truncate();
+        DB::table('lokasi')->delete();
+        DB::table('koordinat_lokasi')->delete();
         try {
             $bagian = [];
-            foreach ($rows as $row){
+            $lokasi_id = 1;
+            $koordinat_lokasi_id = 1;
+            foreach ($rows as $k=>$row){
                 $kode           = $row["kode"];
                 $nama           = $row["nama"];
                 $grup           = $row["grup"];
@@ -31,6 +35,7 @@ class LokasiImport implements ToCollection, WithHeadingRow
                 $lsnetto        = $row["luas_netto"];
                 $geofence       = $row["geofence"];
                 $lok = new Lokasi;
+                $lok->id            = $lokasi_id;
                 $lok->kode          = $kode;
                 $lok->nama          = $nama;
                 $lok->grup          = $grup;
@@ -39,20 +44,25 @@ class LokasiImport implements ToCollection, WithHeadingRow
                 $lok->lsnetto       = $lsnetto;
                 $lok->status        = 'A';
                 $lok->save();
+                $lokasi_id++;
 
                 if(array_key_exists($kode, $bagian)) {
                     $bagian[$kode] += 1;
                 } else {
                     $bagian[$kode] = 1;
                 }
-                $list_geoloc = explode(' ', $geofence);
+                $list_geoloc = explode(' ', trim($geofence));
                 $i = 1;
                 foreach($list_geoloc AS $geoloc) {
                     if(empty($geoloc)) {
                         continue;
                     }
                     $arr_geoloc = explode(',', $geoloc);
+                    if(count($arr_geoloc)<2){
+                        continue;
+                    }
                     $koor_lok           = new Koordinatlokasi;
+                    $koor_lok->id       = $koordinat_lokasi_id;
                     $koor_lok->grup     = $lok->grup;
                     $koor_lok->lokasi   = $lok->kode;
                     $koor_lok->bagian   = $bagian[$kode];
@@ -61,6 +71,7 @@ class LokasiImport implements ToCollection, WithHeadingRow
                     $koor_lok->latd     = $arr_geoloc[1];
                     $koor_lok->save();
                     $i++;
+                    $koordinat_lokasi_id++;
                 }
             }
             DB::commit();
