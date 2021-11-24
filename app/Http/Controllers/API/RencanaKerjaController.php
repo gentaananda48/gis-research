@@ -237,8 +237,16 @@ class RencanaKerjaController extends Controller {
 
 	public function monitor(Request $request){
     	$rk = RencanaKerja::find($request->id);
-    	$ap = AktivitasParameter::where('aktivitas_id', $rk->aktivitas_id)->where('parameter_id', 1)->first();
-    	$rk->standard_kecepatan = $ap->standard;
+    	$std =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', 1)
+                ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                ->where('d.point', 100)
+                ->first(['d.*']);
+        $rk->standard_kecepatan = $std->range_1.' - '.$std->range_2;
+    	$rk->standard_kecepatan_range_1 = $std->range_1;
+    	$rk->standard_kecepatan_range_2 = $std->range_2;
 		return response()->json([
       		'status' 	=> true, 
       		'message' 	=> '', 
@@ -266,8 +274,8 @@ class RencanaKerjaController extends Controller {
         $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
         $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
         $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
-        $unit->nozzle_kanan             = $lacak != null && $lacak->ain_1 != null ? $lacak->ain_1 : 0;
-        $unit->nozzle_kiri              = $lacak != null && $lacak->ain_2 != null ? $lacak->ain_2 : 0;
+        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_1) ? 'On' : 'Off';
+        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_2) ? 'On' : 'Off';
 
         $geofenceHelper = new GeofenceHelper;
         $list_polygon = $geofenceHelper->createListPolygon();
