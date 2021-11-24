@@ -3,7 +3,7 @@
 namespace App\Imports;
 
 use App\Model\Lokasi;
-use App\Model\Koordinatlokasi;
+use App\Model\KoordinatLokasi;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -61,7 +61,7 @@ class LokasiImport implements ToCollection, WithHeadingRow
                     if(count($arr_geoloc)<2){
                         continue;
                     }
-                    $koor_lok           = new Koordinatlokasi;
+                    $koor_lok           = new KoordinatLokasi;
                     $koor_lok->id       = $koordinat_lokasi_id;
                     $koor_lok->grup     = $lok->grup;
                     $koor_lok->lokasi   = $lok->kode;
