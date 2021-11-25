@@ -195,6 +195,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/report/rencana_kerja/export', array('uses' => 'Report\RencanaKerjaController@export', 'as' => 'report.rencana_kerja.export'));
     Route::get('/report/rencana_kerja/playback/{id}', array('uses' => 'Report\RencanaKerjaController@playback', 'as' => 'report.rencana_kerja.playback'));
 
+     // RENCANA KERJA DETAIL
+    Route::get('/report/rencana_kerja_detail', array('uses' => 'Report\RencanaKerjaDetailController@index', 'as' => 'report.rencana_kerja_detail'));
+    Route::get('/report/rencana_kerja_detail/get', array('uses' => 'Report\RencanaKerjaDetailController@get_list', 'as' => 'report.rencana_kerja_detail.get'));
+    Route::get('/report/rencana_kerja_detail/export', array('uses' => 'Report\RencanaKerjaDetailController@export', 'as' => 'report.rencana_kerja_detail.export'));
 });
 
 
