@@ -177,7 +177,7 @@
 	function initMap() {
 		map = new google.maps.Map(document.getElementById("map"), {
 		    zoom: 17,
-		    //center: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
+		    center: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
 		    mapTypeId: "satellite",
 		});
 
