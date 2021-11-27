@@ -82,14 +82,14 @@
 									
 									@if($k<999)
 										@foreach($v as $k2=>$v2)
-										<td>{{number_format($v2->nilai,0)}} {{ $v2->parameter_id<999 ? '('.($v2->parameter_id!=5 ? number_format($v2->realisasi,2) : $v2->realisasi).')' : '' }}</td>
+										<td>{{ $v2->parameter_id<999 ? $v2->realisasi.' '.$v2->uom : '' }} {{$v2->parameter_id<999 ? '('.$v2->nilai.')' : $v2->nilai }} </td>
 										@if($k2==6)
 										<td>{{$v2->kualitas}}</td>
 										@endif
 										@endforeach
 									@else
 										@foreach($v as $k2=>$v2)
-										<td>{{$v2->nilai}} {{ $v2->parameter_id<999 ? '('.$v2->realisasi.')' : '' }}</td>
+										<td>{{$v2->nilai}}</td>
 										<td>{{$v2->kualitas}}</td>
 										@endforeach
 									@endif

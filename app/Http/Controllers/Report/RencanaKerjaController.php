@@ -133,6 +133,18 @@ class RencanaKerjaController extends Controller {
             ->get();
         $list_rks = [];
         foreach($rks as $v){
+            $v->nilai = number_format($v->nilai, 0);
+            $v->realisasi = $v->parameter_id == 5 ? $v->realisasi : number_format($v->realisasi, 2);
+            $v->uom = '';
+            if($v->parameter_id == 1) {
+                $v->uom = 'KM/Jam';
+            } else if($v->parameter_id == 2) {
+                $v->uom = '%';
+            } else if($v->parameter_id == 3) {
+                $v->uom = 'Menit';
+            } else if($v->parameter_id == 4) {
+                $v->uom = '%';
+            }
             $list_rks[$v->ritase][] = $v;
         }
         $jam_mulai = $rk->jam_mulai;
