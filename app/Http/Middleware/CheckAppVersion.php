@@ -21,7 +21,7 @@ class CheckAppVersion
             return $next($request);
         }
         $app_version = $request->header('APP-VERSION', '');
-        if($app_version!=$sysconf->value){
+        if($app_version<$sysconf->value){
             return response()->json([
                 'status'    => false, 
                 'message'   => 'Silahkan Install Versi Terbaru !!', 
