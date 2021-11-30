@@ -40,6 +40,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/admin/user/delete/{id}', array('uses' => 'Admin\UserController@destroy', 'as' => 'admin.user.destroy'));
     Route::put('/admin/user/activate/{id}', array('uses' => 'Admin\UserController@activate', 'as' => 'admin.user.activate'));
 
+    // SYSTEM CONFIGURATION
+    Route::get('/admin/system_configuration', array('uses' => 'Admin\SystemConfigurationController@index', 'as' => 'admin.system_configuration'));
+    Route::get('/admin/system_configuration/get', array('uses' => 'Admin\SystemConfigurationController@get_list', 'as' => 'admin.system_configuration.get'));
+    Route::get('/admin/system_configuration/create', array('uses' => 'Admin\SystemConfigurationController@create', 'as' => 'admin.system_configuration.create'));
+    Route::post('/admin/system_configuration', array('uses' => 'Admin\SystemConfigurationController@store', 'as' => 'admin.system_configuration.store'));
+    Route::get('/admin/system_configuration/edit/{id}', array('uses' => 'Admin\SystemConfigurationController@edit', 'as' => 'admin.system_configuration.edit'));
+    Route::put('/admin/system_configuration/update/{id}', array('uses' => 'Admin\SystemConfigurationController@update', 'as' => 'admin.system_configuration.update'));
+    Route::delete('/admin/system_configuration/delete/{id}', array('uses' => 'Admin\SystemConfigurationController@destroy', 'as' => 'admin.system_configuration.destroy'));
+
 
 
     Route::get('/myprofile', array('uses' => 'Admin\UserController@myprofile', 'as' => 'myprofile'));
