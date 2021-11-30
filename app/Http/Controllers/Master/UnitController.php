@@ -5,20 +5,19 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Model\Unit;
 use App\Model\Lacak;
 use App\Model\PG;
 use App\Model\KoordinatLokasi;
+use App\Model\SystemConfiguration;
 use App\Center\GridCenter;
 use App\Transformer\UnitTransformer;
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Log;
 use App\Helper\GeofenceHelper;
 
 class UnitController extends Controller {
-    protected $base_url = 'https://api.lacak.io';
-    protected $hash = '906d7b9082f71adcc03ea897ec3818fa';
-
     public function index() {
         return view('master.unit.index');
     }
@@ -31,34 +30,37 @@ class UnitController extends Controller {
     }
 
     public function sync(){
+        $base_url = SystemConfiguration::where('code', 'LACAK_API_URL')->first(['value'])->value;
+        $hash = SystemConfiguration::where('code', 'LACAK_API_HASH')->first(['value'])->value;
+        DB::beginTransaction();
         try {
             $client = new Client();
-            $res = $client->request('POST', $this->base_url.'/tracker/list', [
+            $res = $client->request('POST', $base_url.'/tracker/list', [
                 'form_params' => [
-                    'hash'      => $this->hash,
+                    'hash'      => $hash,
                     'labels'    => '["BSC"]'
                 ]
             ]);
             $body = json_decode($res->getBody());
+            DB::table('unit')->delete();
             foreach($body->list AS $v) {
-                $unit = Unit::where('id', $v->id)->first();
-                if($unit==null){
-                    $unit = new Unit;
-                    $unit->id = $v->id;
-                }
-                $unit->label = $v->label;
-                $unit->group_id = $v->group_id;
-                $unit->source_id = $v->source->id;
+                $unit = new Unit;
+                $unit->id               = $v->id;
+                $unit->label            = $v->label;
+                $unit->group_id         = $v->group_id;
+                $unit->source_id        = $v->source->id;
                 $unit->source_device_id = $v->source->device_id;
-                $unit->source_model = $v->source->model;
-                $unit->source_phone = $v->source->phone;
+                $unit->source_model     = $v->source->model;
+                $unit->source_phone     = $v->source->phone;
                 $pg = PG::find($unit->group_id);
                 if($pg!=null){
                     $unit->pg = $pg->nama;
                 }
                 $unit->save();
             }
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollback(); 
             Log::error($e->getMessage());
             return redirect()->back()->withErrors($e->getMessage());
         }
