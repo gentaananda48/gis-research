@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Model\RencanaKerja;
+use App\Model\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -21,9 +22,11 @@ class RencanaKerjaExport implements FromCollection, WithHeadings {
     public function collection() {
     	$request = $this->request;
         $kasie_id = $this->kasie_id;
+        $user = User::find($kasie_id);
     	$query = RencanaKerja::selectRaw("id, tgl, shift_nama AS shift, lokasi_kode, lokasi_nama, lokasi_lsbruto, lokasi_lsnetto, aktivitas_kode, aktivitas_nama, nozzle_nama AS nozzle, volume, unit_id, unit_label, unit_source_device_id, operator_nama AS operator, driver_nama AS driver, kasie_nama AS kasie, status_nama AS status, jam_mulai, jam_selesai, jam_laporan");
         if(!empty($kasie_id)){
-            $query->where('kasie_id', $kasie_id);
+            //$query->where('kasie_id', $kasie_id);
+            $query->whereIn('lokasi_grup', explode(',', $user->area));
         }
         if(!empty($request->tgl)){
             $tgl = explode(' - ', $request->tgl);
