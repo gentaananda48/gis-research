@@ -18,6 +18,7 @@ use App\Model\ReportParameterBobot;
 use App\Model\RencanaKerjaSummary;
 use App\Model\ReportStatus;
 use App\Model\Aktivitas;
+use App\Model\ReportRencanaKerja;
 
 class Kernel extends ConsoleKernel
 {
@@ -119,6 +120,39 @@ class Kernel extends ConsoleKernel
                     $ritase += 1;
                     $is_started = false;
                 }
+                $rrk = new ReportRencanaKerja;
+                $rrk->rencana_kerja_id = $rk->id;
+                $rrk->tanggal = $rk->tgl;
+                $rrk->shift = $rk->shift_nama;
+                $rrk->lokasi = $rk->lokasi_kode;
+                $rrk->luas_bruto = $rk->lokasi_lsbruto;
+                $rrk->luas_netto = $rk->lokasi_lsnetto;
+                $rrk->kode_aktivitas = $rk->aktivitas_kode;
+                $rrk->nama_aktivitas = $rk->aktivitas_nama;
+                $rrk->nozzle = $rk->nozzle_nama;
+                $rrk->volume = $rk->volume;
+                $rrk->kode_unit = $rk->unit_id;
+                $rrk->nama_unit = $rk->unit_label;
+                $rrk->device_id = $rk->unit_source_device_id;
+                $rrk->operator = $rk->operator_nama;
+                $rrk->driver = $rk->driver_nama;
+                $rrk->kasie = $rk->kasie_nama;
+                $rrk->status = $rk->status_nama;
+                $rrk->jam_mulai = $rk->jam_mulai;
+                $rrk->jam_selesai = $rk->jam_selesai;
+                $rrk->latitude = $v->position_latitude;
+                $rrk->longitude = $v->position_longitude;
+                $rrk->position_direction = $v->position_direction;
+                $rrk->gsm_signal_level = $v->gsm_signal_level;
+                $rrk->timestamp = date('Y-m-d H:i:s', $v->timestamp);
+                $rrk->position_speed = $v->position_speed;
+                $rrk->din = $v->din;
+                $rrk->din_1 = $v->din_1;
+                $rrk->din_2 = $v->din_2;
+                $rrk->din_3 = $v->din_3;
+                $rrk->ritase = $ritase;
+                $rrk->overlapping = null;
+                $rrk->save();
             }
             $jarak_tempuh_total   = 0;
             $waktu_tempuh_total   = 0;

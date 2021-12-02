@@ -54,6 +54,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/myprofile', array('uses' => 'Admin\UserController@myprofile', 'as' => 'myprofile'));
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/home', 'HomeController@home')->name('home');
+    Route::get('/generate_report', 'HomeController@generate_report');
 
 
     // ------------------------------- MASTER -------------------------------- // 

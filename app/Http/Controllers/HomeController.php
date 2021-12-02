@@ -13,6 +13,7 @@ use App\Model\KoordinatLokasi;
 use App\Model\KoordinatLokasiTemp;
 use App\Model\Lacak;
 use App\Model\RencanaKerja;
+use App\Model\ReportRencanaKerja;
 use App\Model\ReportParameter;
 use App\Model\ReportParameterStandard;
 use App\Model\ReportParameterBobot;
@@ -386,5 +387,108 @@ class HomeController extends Controller
         //print_r($data);
         exit;
     }
+
+    public function generate_report(){
+        set_time_limit(0);
+        $list_rk = RencanaKerja::whereRaw("status_id = 4 AND (jam_laporan IS NULL OR jam_laporan = '')")
+            ->orderBy('id', 'ASC')
+            ->get();
+        foreach($list_rk AS $rk) {
+            $aktivitas = Aktivitas::find($rk->aktivitas_id);
+            $list_rs = ReportStatus::get();
+            $geofenceHelper = new GeofenceHelper;
+            $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
+            $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+            $is_started = false;
+            $waktu_berhenti = 0;
+            $ritase = 1;
+            $list_movement = [];
+            foreach($list AS $k=>$v){
+                $lokasi         = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+                $waktu_tempuh   = ($k==0) ? 0 : round(abs($v->timestamp - $list[$k-1]->timestamp),2);
+                $nozzle_kanan   = $v->ain_1 != null ? $v->ain_1 : 0;
+                $nozzle_kiri    = $v->ain_2 != null ? $v->ain_2 : 0;
+                $width          = ($nozzle_kanan > 12.63 ? 18 : 0) + ($nozzle_kiri > 12.63 ? 18 : 0);
+                $lebar_kanan    = ($nozzle_kanan > 12.63 ? 18 : 0);
+                $lebar_kiri     = ($nozzle_kiri > 12.63 ? 18 : 0);
+                $width          = ($nozzle_kanan > 12.63 ? 18 : 0) + ($nozzle_kiri > 12.63 ? 18 : 0);
+                $jarak_tempuh   = ($k==0) ? 0 : round(abs($v->vehicle_mileage - $list[$k-1]->vehicle_mileage),3);
+                $jarak_spray_kanan     = ($k==0) ? 0 : ($list[$k-1]->ain_1 > 12.63 ? $jarak_tempuh : 0);
+                $jarak_spray_kiri     = ($k==0) ? 0 : ($list[$k-1]->ain_2 > 12.63 ? $jarak_tempuh : 0);
+                if(!empty($lokasi) && $width >= 18) {
+                    $is_started = true;
+                    $obj = (object) [
+                        'timestamp'                 => $v->timestamp,
+                        'lokasi'                    => $lokasi,
+                        'position_latitude'         => $v->position_latitude,
+                        'position_longitude'        => $v->position_longitude,
+                        'vehicle_mileage'           => $v->vehicle_mileage,
+                        'nozzle_kanan'              => $nozzle_kanan,
+                        'nozzle_kiri'               => $nozzle_kiri,
+                        'width'                     => $width,
+                        'jarak_spray_kanan'         => $jarak_spray_kanan,
+                        'jarak_spray_kiri'          => $jarak_spray_kiri,
+                    ];
+                    if(array_key_exists($ritase, $list_movement)){
+                        $list_movement[$ritase]['list_gps'][] = $obj;
+                        $list_movement[$ritase]['jarak_spray_kanan'] += $jarak_spray_kanan;
+                        $list_movement[$ritase]['jarak_spray_kiri'] += $jarak_spray_kiri;
+                    } else {
+                        $list_movement[$ritase] = [
+                            'list_gps'          => [$obj],
+                            'jarak_tempuh'      => 0,
+                            'jam_mulai'         => 0,
+                            'jam_selesai'       => 0,
+                            'waktu_tempuh'      => 0,
+                            'kecepatan'         => 0,
+                            'jarak_spray_kanan' => $jarak_spray_kanan,
+                            'jarak_spray_kiri'  => $jarak_spray_kiri
+                        ];
+                    }
+                    $waktu_berhenti = 0;
+                } else {
+                    $waktu_berhenti += $waktu_tempuh;
+                }
+                if($is_started && $waktu_berhenti>=240){
+                    $ritase += 1;
+                    $is_started = false;
+                }
+                $rrk = new ReportRencanaKerja;
+                $rrk->rencana_kerja_id = $rk->id;
+                $rrk->tanggal = $rk->tgl;
+                $rrk->shift = $rk->shift_nama;
+                $rrk->lokasi = $rk->lokasi_kode;
+                $rrk->luas_bruto = $rk->lokasi_lsbruto;
+                $rrk->luas_netto = $rk->lokasi_lsnetto;
+                $rrk->kode_aktivitas = $rk->aktivitas_kode;
+                $rrk->nama_aktivitas = $rk->aktivitas_nama;
+                $rrk->nozzle = $rk->nozzle_nama;
+                $rrk->volume = $rk->volume;
+                $rrk->kode_unit = $rk->unit_id;
+                $rrk->nama_unit = $rk->unit_label;
+                $rrk->device_id = $rk->unit_source_device_id;
+                $rrk->operator = $rk->operator_nama;
+                $rrk->driver = $rk->driver_nama;
+                $rrk->kasie = $rk->kasie_nama;
+                $rrk->status = $rk->status_nama;
+                $rrk->jam_mulai = $rk->jam_mulai;
+                $rrk->jam_selesai = $rk->jam_selesai;
+                $rrk->latitude = $v->position_latitude;
+                $rrk->longitude = $v->position_longitude;
+                $rrk->position_direction = $v->position_direction;
+                $rrk->gsm_signal_level = $v->gsm_signal_level;
+                $rrk->timestamp = date('Y-m-d H:i:s', $v->timestamp);
+                $rrk->position_speed = $v->position_speed;
+                $rrk->din = $v->din;
+                $rrk->din_1 = $v->din_1;
+                $rrk->din_2 = $v->din_2;
+                $rrk->din_3 = $v->din_3;
+                $rrk->ritase = $ritase;
+                $rrk->overlapping = null;
+                $rrk->save();
+            }
+
+        }
+    } 
 
 }
