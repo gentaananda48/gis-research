@@ -30,7 +30,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth', ['except' => ['users','test']]);
+        $this->middleware('auth', ['except' => ['users','test', 'privacy']]);
     }
 
     /**
@@ -45,6 +45,10 @@ class HomeController extends Controller
 
     public function home(){
         return redirect('/');
+    }
+
+    public function privacy(){
+        return view('privacy', []);
     }
 
     public function users()

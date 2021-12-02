@@ -16,6 +16,7 @@ Auth::routes();
 Route::get('/test', 'HomeController@test');
 Route::get('/check_geofence', 'HomeController@check_geofence');
 Route::get('/check_lokasi_rk', 'HomeController@check_lokasi_rk');
+Route::get('/privacy', 'HomeController@privacy')->name('privacy');
 Route::group(['middleware' => ['auth']], function () {
 
     // ------------------------------- ADMIN -------------------------------- //
