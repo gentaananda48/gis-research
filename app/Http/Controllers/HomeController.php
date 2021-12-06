@@ -272,6 +272,14 @@ class HomeController extends Controller
                     ];
                 }
                 $waktu_berhenti = 0;
+
+                $point_overlapping = 0;
+                if($k>0) {
+                    $point_distance = $geofenceHelper->haversineGreatCircleDistance($list[$k-1]->position_latitude, $list[$k-1]->position_longitude, $v->position_latitude, $v->position_longitude);
+                    if($point_distance<=4){
+                        $point_overlapping = 1;
+                    }
+                }
             } else {
                 $waktu_berhenti += $waktu_tempuh;
             }
@@ -279,6 +287,39 @@ class HomeController extends Controller
                 $ritase += 1;
                 $is_started = false;
             }
+            $rrk = new ReportRencanaKerja;
+            $rrk->rencana_kerja_id = $rk->id;
+            $rrk->tanggal = $rk->tgl;
+            $rrk->shift = $rk->shift_nama;
+            $rrk->lokasi = $rk->lokasi_kode;
+            $rrk->luas_bruto = $rk->lokasi_lsbruto;
+            $rrk->luas_netto = $rk->lokasi_lsnetto;
+            $rrk->kode_aktivitas = $rk->aktivitas_kode;
+            $rrk->nama_aktivitas = $rk->aktivitas_nama;
+            $rrk->nozzle = $rk->nozzle_nama;
+            $rrk->volume = $rk->volume;
+            $rrk->kode_unit = $rk->unit_id;
+            $rrk->nama_unit = $rk->unit_label;
+            $rrk->device_id = $rk->unit_source_device_id;
+            $rrk->operator = $rk->operator_nama;
+            $rrk->driver = $rk->driver_nama;
+            $rrk->kasie = $rk->kasie_nama;
+            $rrk->status = $rk->status_nama;
+            $rrk->jam_mulai = $rk->jam_mulai;
+            $rrk->jam_selesai = $rk->jam_selesai;
+            $rrk->latitude = $v->position_latitude;
+            $rrk->longitude = $v->position_longitude;
+            $rrk->position_direction = $v->position_direction;
+            $rrk->gsm_signal_level = $v->gsm_signal_level;
+            $rrk->timestamp = date('Y-m-d H:i:s', $v->timestamp);
+            $rrk->position_speed = $v->position_speed;
+            $rrk->din = $v->din;
+            $rrk->din_1 = $v->din_1;
+            $rrk->din_2 = $v->din_2;
+            $rrk->din_3 = $v->din_3;
+            $rrk->ritase = $ritase;
+            $rrk->overlapping = $point_overlapping;
+            $rrk->save();
         }
         $jarak_tempuh_total   = 0;
         $waktu_tempuh_total   = 0;
@@ -398,6 +439,7 @@ class HomeController extends Controller
             ->orderBy('id', 'ASC')
             ->get();
         foreach($list_rk AS $rk) {
+            ReportRencanaKerja::where('rencana_kerja_id', $rk->id)->delete();
             $aktivitas = Aktivitas::find($rk->aktivitas_id);
             $list_rs = ReportStatus::get();
             $geofenceHelper = new GeofenceHelper;
@@ -410,15 +452,14 @@ class HomeController extends Controller
             foreach($list AS $k=>$v){
                 $lokasi         = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
                 $waktu_tempuh   = ($k==0) ? 0 : round(abs($v->timestamp - $list[$k-1]->timestamp),2);
-                $nozzle_kanan   = $v->ain_1 != null ? $v->ain_1 : 0;
-                $nozzle_kiri    = $v->ain_2 != null ? $v->ain_2 : 0;
-                $width          = ($nozzle_kanan > 12.63 ? 18 : 0) + ($nozzle_kiri > 12.63 ? 18 : 0);
-                $lebar_kanan    = ($nozzle_kanan > 12.63 ? 18 : 0);
-                $lebar_kiri     = ($nozzle_kiri > 12.63 ? 18 : 0);
-                $width          = ($nozzle_kanan > 12.63 ? 18 : 0) + ($nozzle_kiri > 12.63 ? 18 : 0);
-                $jarak_tempuh   = ($k==0) ? 0 : round(abs($v->vehicle_mileage - $list[$k-1]->vehicle_mileage),3);
-                $jarak_spray_kanan     = ($k==0) ? 0 : ($list[$k-1]->ain_1 > 12.63 ? $jarak_tempuh : 0);
-                $jarak_spray_kiri     = ($k==0) ? 0 : ($list[$k-1]->ain_2 > 12.63 ? $jarak_tempuh : 0);
+                $nozzle_kanan   = !empty($lacak->din_3) && !empty($lacak->din_1) ? 1 : 0;
+                $nozzle_kiri    = !empty($lacak->din_3) && !empty($lacak->din_2) ? 1 : 0;
+                $lebar_kanan    = ($nozzle_kanan == 1 ? 18 : 0);
+                $lebar_kiri     = ($nozzle_kiri == 1 ? 18 : 0);
+                $width          = $lebar_kanan + $lebar_kiri;
+                $jarak_tempuh       = ($k==0) ? 0 : round(abs($v->vehicle_mileage - $list[$k-1]->vehicle_mileage),3);
+                $jarak_spray_kanan  = ($k==0) ? 0 : (!empty($list[$k-1]->din_3) && !empty($list[$k-1]->din_1) ? $jarak_tempuh : 0);
+                $jarak_spray_kiri   = ($k==0) ? 0 : (!empty($list[$k-1]->din_3) && !empty($list[$k-1]->din_2) ? $jarak_tempuh : 0);
                 if(!empty($lokasi) && $width >= 18) {
                     $is_started = true;
                     $obj = (object) [
@@ -450,6 +491,14 @@ class HomeController extends Controller
                         ];
                     }
                     $waktu_berhenti = 0;
+
+                    $point_overlapping = 0;
+                    if($k>0) {
+                        $point_distance = $geofenceHelper->haversineGreatCircleDistance($list[$k-1]->position_latitude, $list[$k-1]->position_longitude, $v->position_latitude, $v->position_longitude);
+                        if($point_distance<=4){
+                            $point_overlapping = 1;
+                        }
+                    }
                 } else {
                     $waktu_berhenti += $waktu_tempuh;
                 }
@@ -488,7 +537,7 @@ class HomeController extends Controller
                 $rrk->din_2 = $v->din_2;
                 $rrk->din_3 = $v->din_3;
                 $rrk->ritase = $ritase;
-                $rrk->overlapping = null;
+                $rrk->overlapping = $point_overlapping;
                 $rrk->save();
             }
 

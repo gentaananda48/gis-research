@@ -56,6 +56,7 @@ class Kernel extends ConsoleKernel
 
     public function generate_rencana_kerja_summary(){
         set_time_limit(0);
+        $geofenceHelper = new GeofenceHelper;
         $list_rk = RencanaKerja::whereRaw("status_id = 4 AND (jam_laporan IS NULL OR jam_laporan = '')")
             ->orderBy('id', 'ASC')
             ->get();
@@ -63,7 +64,6 @@ class Kernel extends ConsoleKernel
             Log::info('START_GENERATING_SUMMARY #'.$rk->id);
             $aktivitas = Aktivitas::find($rk->aktivitas_id);
             $list_rs = ReportStatus::get();
-            $geofenceHelper = new GeofenceHelper;
             $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
             $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
             $is_started = false;

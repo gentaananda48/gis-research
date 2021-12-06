@@ -192,13 +192,13 @@
 			// path.push(position);
 			if(i>0){
 				if(lacak[i-1].din_3 == 1 && (lacak[i-1].din_1==1 || lacak[i-1].din_2==1)) {
-					var strokeColor = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? "#0CF704" : lacak[i-1].din_1==1 && lacak[i-1].din_2==0 ? "#F0FF01" : "#05FAE4";
+					var strokeColor = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? "#00FF00" : lacak[i-1].din_1==1 && lacak[i-1].din_2==0 ? "#FFA500" : "#FFFF00";
 					var strokeWeight = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? 12 : 7;
 					var poly = new google.maps.Polyline({
 					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
 					    geodesic: true,
 					    strokeColor: strokeColor,
-					    strokeOpacity: 1.0,
+					    strokeOpacity: 0.5,
 					    strokeWeight: strokeWeight,
 			    		zIndex: 999999,
 					});
@@ -218,7 +218,7 @@
 					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
 					    geodesic: true,
 					    strokeColor: "#FF0000",
-					    strokeOpacity: 1.0,
+					    strokeOpacity: 0.5,
 					    strokeWeight: 3,
 			    		zIndex: 999999,
 					});
