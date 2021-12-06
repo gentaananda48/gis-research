@@ -118,7 +118,7 @@ class RencanaKerjaController extends Controller {
 	      	if($rk==null) {
 	      		$rk = new RencanaKerja;
 	      	}
-	      	if($rk->deleted=='Y') {
+	      	if($request->deleted=='Y') {
 	      		RencanaKerjaBahan::where('rk_id', $rk->id)->delete();
 	      		$rk->delete();
 	      	} else {
