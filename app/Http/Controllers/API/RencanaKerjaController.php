@@ -159,9 +159,10 @@ class RencanaKerjaController extends Controller {
 			  	$driver 		 			= User::find($request->driver_id);
 			  	$rk->driver_empid 			= $driver->employee_id;
 			  	$rk->driver_nama 			= $driver->name;
-			  	$rk->kasie_id  				= $user->id;
-			  	$rk->kasie_empid 			= $user->employee_id;
-			  	$rk->kasie_nama 			= $user->name;
+			  	$rk->kasie_id  				= $request->kasie_id;
+			  	$kasie 		 				= User::find($request->kasie_id);
+			  	$rk->kasie_empid 			= $kasie->employee_id;
+			  	$rk->kasie_nama 			= $kasie->name;
 			  	$rk->status_id 				= $request->status_id;
 			  	$status 		 			= Status::find($rk->status_id);
 			  	$rk->status_nama 			= $status->nama;
