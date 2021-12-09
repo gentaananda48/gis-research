@@ -182,6 +182,8 @@ class RencanaKerjaController extends Controller {
 			  	$rk->status_nama 			= $status->nama;
 			  	$rk->status_urutan 			= $status->urutan;
 			  	$rk->status_color 			= $status->color;
+			  	$rk->jam_mulai 				= $request->jam_mulai;
+			  	$rk->jam_selesai 			= $request->jam_selesai;
 			    $rk->om_status_id           = $request->om_status_id;
 			    $status                     = Status::find($rk->om_status_id);
 			    $rk->om_status_nama         = $status->nama;
