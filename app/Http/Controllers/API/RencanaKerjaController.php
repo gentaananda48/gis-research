@@ -114,6 +114,20 @@ class RencanaKerjaController extends Controller {
 	    $user = $this->guard()->user();
 	    DB::beginTransaction();
 	    try {
+	    	if($request->id<0){
+		      	$count = RencanaKerja::where('tgl', $request->tgl)
+		      		->where('lokasi_id', $request->lokasi_id)
+		      		->where('unit_id', $request->unit_id)
+		      		->where('aktivitas_id', $request->aktivitas_id)
+		      		->count();
+		      	if($count>1){
+		      		return response()->json([
+			        	'status' => true, 
+			        	'message' => 'Submitted successfully', 
+			        	'data' => $rk
+			      	]);
+		      	}
+	    	}
 	      	$rk = RencanaKerja::find($request->id);
 	      	if($rk==null) {
 	      		$rk = new RencanaKerja;
@@ -173,6 +187,8 @@ class RencanaKerjaController extends Controller {
 			    $rk->om_status_nama         = $status->nama;
 			    $rk->om_status_urutan       = $status->urutan;
 			    $rk->om_status_color        = $status->color;
+			  	$rk->mobile_id  	 		= $request->mobile_id;
+			  	$rk->device_id  	 		= $request->device_id;
 			  	$rk->save();
 			  	RencanaKerjaBahan::where('rk_id', $request->id)->delete();
 			  	foreach($request->bahan as $v){
