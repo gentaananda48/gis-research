@@ -47,12 +47,106 @@ class Kernel extends ConsoleKernel
         // $this->base_url = SystemConfiguration::where('code', 'LACAK_API_URL')->first(['value'])->value;
         // $this->hash = SystemConfiguration::where('code', 'LACAK_API_HASH')->first(['value'])->value;
         $schedule->call(function () {
-            $this->generate_rencana_kerja_summary();
+            //$this->generate_rencana_kerja_summary();
+            $this->generate_rencana_kerja_report();
         })->everyMinute();
         $schedule->call(function () {
             $this->pull_data_lacak();
         })->everyMinute();
     }
+
+    public function generate_rencana_kerja_report(){
+        set_time_limit(0);
+        $geofenceHelper = new GeofenceHelper;
+        $list_rk = RencanaKerja::
+            whereRaw("status_id = 4 AND (jam_laporan IS NULL OR jam_laporan = '')")
+            //where('id', $request->id)
+            ->orderBy('id', 'ASC')
+            ->get();
+        foreach($list_rk AS $rk) {
+            ReportRencanaKerja::where('rencana_kerja_id', $rk->id)->delete();
+            $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
+            $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+            $list2 = [];
+            $i2 = 0;
+            $list_kel = [];
+            foreach($list AS $k=>$v) {
+                $lokasi             = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+                $v->waktu_tempuh    = ($k==0) ? 0 : round(abs($v->timestamp - $list[$k-1]->timestamp),2);
+                $v->spraying      = !empty($lokasi) && !empty($v->din_3) && (!empty($v->din_1) || !empty($v->din_2)) ? 'Y' : 'N';
+                if($k>0 && $v->spraying != $list2[$k-1]->spraying) {
+                    $i2++;
+                }
+                if(array_key_exists($i2, $list_kel)) {
+                    $list_kel[$i2]->selesai        = $v->timestamp;
+                    $list_kel[$i2]->waktu_tempuh   = round(abs($list_kel[$i2]->selesai - $list_kel[$i2]->mulai),2);
+                    $list_kel[$i2]->waktu_tempuh2  += $v->waktu_tempuh;
+                    $list_kel[$i2]->break          = $list_kel[$i2]->spraying == 'N' && $list_kel[$i2]->waktu_tempuh > 240 ? 'Y' : 'N';
+                } else {
+                    $list_kel[$i2] = (object) [
+                        'spraying'      => $v->spraying, 
+                        'mulai'         => $v->timestamp, 
+                        'selesai'       => $v->timestamp, 
+                        'waktu_tempuh'  => 0, 
+                        'waktu_tempuh2' => $v->waktu_tempuh,
+                        'break'         => 'N'
+                    ];
+                }
+                $v->kel = $i2;
+                $list2[] = $v;
+            }
+            $ritase = 0;
+            foreach($list2 as $k=>$v){
+                if($k>0){
+                    if($v->spraying=='Y' && $list_kel[$list2[$k-1]->kel]->break=='Y') {
+                        $ritase++;
+                    }
+                } else {
+                    if($v->spraying=='Y') {
+                        $ritase++;
+                    }
+                }
+                if($list_kel[$v->kel]->break=='Y'){
+                    $v->ritase = 0;
+                } else {
+                    $v->ritase = $ritase;
+                }
+                $rrk = new ReportRencanaKerja;
+                $rrk->rencana_kerja_id = $rk->id;
+                $rrk->tanggal = $rk->tgl;
+                $rrk->shift = $rk->shift_nama;
+                $rrk->lokasi = $rk->lokasi_kode;
+                $rrk->luas_bruto = $rk->lokasi_lsbruto;
+                $rrk->luas_netto = $rk->lokasi_lsnetto;
+                $rrk->kode_aktivitas = $rk->aktivitas_kode;
+                $rrk->nama_aktivitas = $rk->aktivitas_nama;
+                $rrk->nozzle = $rk->nozzle_nama;
+                $rrk->volume = $rk->volume;
+                $rrk->kode_unit = $rk->unit_id;
+                $rrk->nama_unit = $rk->unit_label;
+                $rrk->device_id = $rk->unit_source_device_id;
+                $rrk->operator = $rk->operator_nama;
+                $rrk->driver = $rk->driver_nama;
+                $rrk->kasie = $rk->kasie_nama;
+                $rrk->status = $rk->status_nama;
+                $rrk->jam_mulai = $rk->jam_mulai;
+                $rrk->jam_selesai = $rk->jam_selesai;
+                $rrk->latitude = $v->position_latitude;
+                $rrk->longitude = $v->position_longitude;
+                $rrk->position_direction = $v->position_direction;
+                $rrk->gsm_signal_level = $v->gsm_signal_level;
+                $rrk->timestamp = date('Y-m-d H:i:s', $v->timestamp);
+                $rrk->position_speed = $v->position_speed;
+                $rrk->din = $v->din;
+                $rrk->din_1 = $v->din_1;
+                $rrk->din_2 = $v->din_2;
+                $rrk->din_3 = $v->din_3;
+                $rrk->ritase = $v->ritase;
+                $rrk->overlapping = null;
+                $rrk->save();
+            }
+        }
+    } 
 
     public function generate_rencana_kerja_summary(){
         set_time_limit(0);

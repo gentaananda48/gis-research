@@ -20,6 +20,7 @@ use App\Model\ReportParameterBobot;
 use App\Model\RencanaKerjaSummary;
 use App\Model\ReportStatus;
 use App\Model\Aktivitas;
+use App\Model\VReportRencanaKerja;
 
 class HomeController extends Controller
 {
@@ -433,78 +434,61 @@ class HomeController extends Controller
         exit;
     }
 
-    public function generate_report(){
+    public function generate_report(Request $request){
         set_time_limit(0);
-        $list_rk = RencanaKerja::whereRaw("status_id = 4 AND (jam_laporan IS NULL OR jam_laporan = '')")
+        $geofenceHelper = new GeofenceHelper;
+        $list_rk = RencanaKerja::
+            //whereRaw("status_id = 4 AND (jam_laporan IS NULL OR jam_laporan = '')")
+            where('id', $request->id)
             ->orderBy('id', 'ASC')
             ->get();
         foreach($list_rk AS $rk) {
             ReportRencanaKerja::where('rencana_kerja_id', $rk->id)->delete();
-            $aktivitas = Aktivitas::find($rk->aktivitas_id);
-            $list_rs = ReportStatus::get();
-            $geofenceHelper = new GeofenceHelper;
             $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
             $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
-            $is_started = false;
-            $waktu_berhenti = 0;
-            $ritase = 1;
-            $list_movement = [];
-            foreach($list AS $k=>$v){
-                $lokasi         = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
-                $waktu_tempuh   = ($k==0) ? 0 : round(abs($v->timestamp - $list[$k-1]->timestamp),2);
-                $nozzle_kanan   = !empty($lacak->din_3) && !empty($lacak->din_1) ? 1 : 0;
-                $nozzle_kiri    = !empty($lacak->din_3) && !empty($lacak->din_2) ? 1 : 0;
-                $lebar_kanan    = ($nozzle_kanan == 1 ? 18 : 0);
-                $lebar_kiri     = ($nozzle_kiri == 1 ? 18 : 0);
-                $width          = $lebar_kanan + $lebar_kiri;
-                $jarak_tempuh       = ($k==0) ? 0 : round(abs($v->vehicle_mileage - $list[$k-1]->vehicle_mileage),3);
-                $jarak_spray_kanan  = ($k==0) ? 0 : (!empty($list[$k-1]->din_3) && !empty($list[$k-1]->din_1) ? $jarak_tempuh : 0);
-                $jarak_spray_kiri   = ($k==0) ? 0 : (!empty($list[$k-1]->din_3) && !empty($list[$k-1]->din_2) ? $jarak_tempuh : 0);
-                if(!empty($lokasi) && $width >= 18) {
-                    $is_started = true;
-                    $obj = (object) [
-                        'timestamp'                 => $v->timestamp,
-                        'lokasi'                    => $lokasi,
-                        'position_latitude'         => $v->position_latitude,
-                        'position_longitude'        => $v->position_longitude,
-                        'vehicle_mileage'           => $v->vehicle_mileage,
-                        'nozzle_kanan'              => $nozzle_kanan,
-                        'nozzle_kiri'               => $nozzle_kiri,
-                        'width'                     => $width,
-                        'jarak_spray_kanan'         => $jarak_spray_kanan,
-                        'jarak_spray_kiri'          => $jarak_spray_kiri,
+            $list2 = [];
+            $i2 = 0;
+            $list_kel = [];
+            foreach($list AS $k=>$v) {
+                $lokasi             = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+                $v->waktu_tempuh    = ($k==0) ? 0 : round(abs($v->timestamp - $list[$k-1]->timestamp),2);
+                $v->spraying      = !empty($lokasi) && !empty($v->din_3) && (!empty($v->din_1) || !empty($v->din_2)) ? 'Y' : 'N';
+                if($k>0 && $v->spraying != $list2[$k-1]->spraying) {
+                    $i2++;
+                }
+                if(array_key_exists($i2, $list_kel)) {
+                    $list_kel[$i2]->selesai        = $v->timestamp;
+                    $list_kel[$i2]->waktu_tempuh   = round(abs($list_kel[$i2]->selesai - $list_kel[$i2]->mulai),2);
+                    $list_kel[$i2]->waktu_tempuh2  += $v->waktu_tempuh;
+                    $list_kel[$i2]->break          = $list_kel[$i2]->spraying == 'N' && $list_kel[$i2]->waktu_tempuh > 240 ? 'Y' : 'N';
+                } else {
+                    $list_kel[$i2] = (object) [
+                        'spraying'      => $v->spraying, 
+                        'mulai'         => $v->timestamp, 
+                        'selesai'       => $v->timestamp, 
+                        'waktu_tempuh'  => 0, 
+                        'waktu_tempuh2' => $v->waktu_tempuh,
+                        'break'         => 'N'
                     ];
-                    if(array_key_exists($ritase, $list_movement)){
-                        $list_movement[$ritase]['list_gps'][] = $obj;
-                        $list_movement[$ritase]['jarak_spray_kanan'] += $jarak_spray_kanan;
-                        $list_movement[$ritase]['jarak_spray_kiri'] += $jarak_spray_kiri;
-                    } else {
-                        $list_movement[$ritase] = [
-                            'list_gps'          => [$obj],
-                            'jarak_tempuh'      => 0,
-                            'jam_mulai'         => 0,
-                            'jam_selesai'       => 0,
-                            'waktu_tempuh'      => 0,
-                            'kecepatan'         => 0,
-                            'jarak_spray_kanan' => $jarak_spray_kanan,
-                            'jarak_spray_kiri'  => $jarak_spray_kiri
-                        ];
-                    }
-                    $waktu_berhenti = 0;
-
-                    $point_overlapping = 0;
-                    if($k>0) {
-                        $point_distance = $geofenceHelper->haversineGreatCircleDistance($list[$k-1]->position_latitude, $list[$k-1]->position_longitude, $v->position_latitude, $v->position_longitude);
-                        if($point_distance<=4){
-                            $point_overlapping = 1;
-                        }
+                }
+                $v->kel = $i2;
+                $list2[] = $v;
+            }
+            $ritase = 0;
+            foreach($list2 as $k=>$v){
+                if($k>0){
+                    if($v->spraying=='Y' && $list_kel[$list2[$k-1]->kel]->break=='Y') {
+                        $ritase++;
                     }
                 } else {
-                    $waktu_berhenti += $waktu_tempuh;
+                    if($v->spraying=='Y') {
+                        $ritase++;
+                    }
                 }
-                if($is_started && $waktu_berhenti>=240){
-                    $ritase += 1;
-                    $is_started = false;
+                if($list_kel[$v->kel]->break=='Y'){
+                    $v->ritase = 0;
+                } else {
+                    $v->ritase = $ritase;
                 }
                 $rrk = new ReportRencanaKerja;
                 $rrk->rencana_kerja_id = $rk->id;
@@ -536,12 +520,137 @@ class HomeController extends Controller
                 $rrk->din_1 = $v->din_1;
                 $rrk->din_2 = $v->din_2;
                 $rrk->din_3 = $v->din_3;
-                $rrk->ritase = $ritase;
-                $rrk->overlapping = $point_overlapping;
+                $rrk->ritase = $v->ritase;
+                $rrk->overlapping = null;
                 $rrk->save();
             }
-
         }
+
+        // GENERATE SUMMARY
+        $rk = RencanaKerja::find($request->id);
+        $aktivitas = Aktivitas::find($rk->aktivitas_id);
+        $list = VReportRencanaKerja::where('rencana_kerja_id', $request->id)->get();
+        echo "<table border=1>";
+        echo "<thead>";
+        echo "<tr>";
+        echo "<td>RITASE</td>";
+        echo "<td>KECEPATAN OEPRASI</td>";
+        echo "<td>GOLDEN TIME</td>";
+        echo "<td>WAKTU SPRAY PER RITASE</td>";
+        echo "<td></td>";
+        echo "</tr>";
+        echo "</thead>";
+        echo "<tbody>";
+        $kecepatan_operasi = 0;
+        $waktu_spray_per_ritase = 0;
+        foreach($list as $v){
+            echo "<tr>";
+            echo "<td>".$v->ritase."</td>";
+            echo "<td>".$v->kecepatan_operasi."</td>";
+            echo "<td>".$v->golden_time."</td>";
+            echo "<td>".$v->waktu_spray_per_ritase."</td>";
+            echo "<td></td>";
+            echo "</tr>";
+            $kecepatan_operasi += $v->kecepatan_operasi;
+            $waktu_spray_per_ritase += $v->waktu_spray_per_ritase;
+        }
+        $golden_time = $list[0]->golden_time;
+        $kecepatan_operasi = $kecepatan_operasi / count($list);
+        $waktu_spray_per_ritase = $waktu_spray_per_ritase / count($list);
+
+        $poin_kecepatan_operasi = 0;
+        $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+            ->where('d.report_parameter_id', 1)
+            ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+            ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+            ->where('report_parameter_standard.volume_id', $rk->volume_id)
+            ->orderByRaw("d.range_1*1 ASC")
+            ->get(['d.*']);
+        foreach($list_rps AS $rps){
+            if(doubleval($rps->range_1) <= $kecepatan_operasi && $kecepatan_operasi <= doubleval($rps->range_2)){
+                $poin_kecepatan_operasi = $rps->point;
+                break;
+            }
+        }
+        $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
+            ->where('report_parameter_id', 1)
+            ->first();
+        $poin_kecepatan_operasi = !empty($rpb->bobot) ? $poin_kecepatan_operasi * $rpb->bobot : 0;
+
+        $poin_golden_time = 0;
+        $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+            ->where('d.report_parameter_id', 2)
+            ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+            ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+            ->where('report_parameter_standard.volume_id', $rk->volume_id)
+            ->orderByRaw("d.range_1*1 ASC")
+            ->get(['d.*']);
+        foreach($list_rps AS $rps){
+            $dt_golden_time = date('Y-m-d '.$golden_time);
+            if($rps->range_1 > $rps->range_2) {
+                $dt_range_2 = date('Y-m-d '.$rps->range_2,strtotime("+1 days"));
+            } else {
+                $dt_range_2 = date('Y-m-d '.$rps->range_2);
+            }
+            $dt_range_1 = date('Y-m-d '.$rps->range_1);
+            if($dt_range_1 <= $dt_golden_time && $dt_golden_time <= $dt_range_2){
+                $poin_golden_time = $rps->point;
+                break;
+            }
+        }
+        $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
+            ->where('report_parameter_id', 2)
+            ->first();
+        $poin_golden_time = !empty($rpb->bobot) ? $poin_golden_time * $rpb->bobot : 0;
+        $poin_waktu_spray_per_ritase = 0;
+        $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+            ->where('d.report_parameter_id', 3)
+            ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+            ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+            ->where('report_parameter_standard.volume_id', $rk->volume_id)
+            ->orderByRaw("d.range_1*1 ASC")
+            ->get(['d.*']);
+        foreach($list_rps AS $rps){
+            if(doubleval($rps->range_1) <= $waktu_spray_per_ritase && $waktu_spray_per_ritase <= doubleval($rps->range_2)){
+                $poin_waktu_spray_per_ritase = $rps->point;
+                break;
+            }
+        }
+        $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
+            ->where('report_parameter_id', 3)
+            ->first();
+        $poin_waktu_spray_per_ritase = !empty($rpb->bobot) ? $poin_waktu_spray_per_ritase * $rpb->bobot : 0;
+        $total_poin = $poin_kecepatan_operasi+$poin_golden_time+$poin_waktu_spray_per_ritase;
+
+        $list_rs = ReportStatus::get();
+        $kualitas = '';
+        foreach($list_rs as $v){
+            if(doubleval($v->range_1) <= $total_poin && $total_poin <= doubleval($v->range_2)){
+                $kualitas = $v->status;
+                break;
+            }
+        }
+
+        echo "<tr>";
+        echo "<td>RATA-RATA</td>";
+        echo "<td>".$kecepatan_operasi."</td>";
+        echo "<td>".$golden_time."</td>";
+        echo "<td>".$waktu_spray_per_ritase."</td>";
+        echo "<td></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<td>POIN</td>";
+        echo "<td>".$poin_kecepatan_operasi."</td>";
+        echo "<td>".$poin_golden_time."</td>";
+        echo "<td>".$poin_waktu_spray_per_ritase."</td>";
+        echo "<td>".$total_poin."</td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<td colspan=4>KATEGORI</td>";
+        echo "<td>".$kualitas."</td>";
+        echo "</tr>";
+        echo "</tbody>";
+        echo "</table>";
     } 
 
 }
