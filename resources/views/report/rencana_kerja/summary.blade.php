@@ -57,45 +57,42 @@
 						</div>
 						<div class="box box-default box-solid">
 							<div class="box-body">
-								<table class="table">
-								<tr>
-									<th width="5%">Ritase</th>
-									@if(!empty($list_rks[1]))
-										@foreach($list_rks[1] as $k2=>$v2)
-										<th>{{$v2->parameter_nama}} <br/>{{ $v2->parameter_id<999 ? '('.$v2->standard.')' : '' }}</th>
-										@endforeach
-									@else
-										<th colspan="6"></th>
-										<th>Hasil</th>
-									@endif
-									<th>Kualitas</th>
-								</tr>
-								@foreach($list_rks as $k=>$v)
-								<tr>
-									@if($k==999999)
-									<th colspan="7">Total Nilai Kualitas Spraying</th>
-									@elseif($k==999)
-									<th colspan="7">{{$v[0]->parameter_nama}} ({{$v[0]->standard}})</th>
-									@else
-									<td>{{$k}}</td>
-									@endif
-									
-									@if($k<999)
-										@foreach($v as $k2=>$v2)
-										<td>{{ $v2->parameter_id<999 ? $v2->realisasi.' '.$v2->uom : '' }} {{$v2->parameter_id<999 ? '('.$v2->nilai.')' : $v2->nilai }} </td>
-										@if($k2==6)
-										<td>{{$v2->kualitas}}</td>
-										@endif
-										@endforeach
-									@else
-										@foreach($v as $k2=>$v2)
-										<td>{{$v2->nilai}}</td>
-										<td>{{$v2->kualitas}}</td>
-										@endforeach
-									@endif
-								</tr>
-								@endforeach
-								</table>
+								<table class="table table-bordered">
+							        <tbody>
+								        <tr>
+									        <th>RITASE</th>
+									        <th>KECEPATAN OEPRASI</th>
+									        <th>GOLDEN TIME</th>
+									        <th>WAKTU SPRAY PER RITASE</th>
+									        <th rowspan="{{count($summary->ritase) + 2}}"></th>
+								        </tr>
+							        @foreach($summary->ritase as $v)
+							            <tr>
+								            <td>{{$v->ritase}}</td>
+								            <td>{{$v->kecepatan_operasi}}</td>
+								            <td>{{$v->golden_time}}</td>
+								            <td>{{$v->waktu_spray_per_ritase}}</td>
+							            </tr>
+							        @endforeach
+							        <tr>
+								        <th>RATA-RATA</th>
+								        <th>{{$summary->rata2->kecepatan_operasi}}</th>
+								        <th>{{$summary->rata2->golden_time}}</th>
+								        <th>{{$summary->rata2->waktu_spray_per_ritase}}</th>
+							        </tr>
+							        <tr>
+								        <th>POIN</th>
+								        <th>{{$summary->poin->kecepatan_operasi}}</th>
+								        <th>{{$summary->poin->golden_time}}</th>
+								        <th>{{$summary->poin->waktu_spray_per_ritase}}</th>
+								        <th>{{$summary->poin->total_poin}}</th>
+							        </tr>
+							        <tr>
+								        <th colspan=4>KATEGORI</th>
+								        <th>{{$summary->kualitas}}</th>
+							        </tr>
+							        </tbody>
+						        </table>
 							</div>
 						</div>
 					</div>
