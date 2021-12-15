@@ -530,127 +530,131 @@ class HomeController extends Controller
         $rk = RencanaKerja::find($request->id);
         $aktivitas = Aktivitas::find($rk->aktivitas_id);
         $list = VReportRencanaKerja::where('rencana_kerja_id', $request->id)->get();
-        echo "<table border=1>";
-        echo "<thead>";
-        echo "<tr>";
-        echo "<td>RITASE</td>";
-        echo "<td>KECEPATAN OEPRASI</td>";
-        echo "<td>GOLDEN TIME</td>";
-        echo "<td>WAKTU SPRAY PER RITASE</td>";
-        echo "<td></td>";
-        echo "</tr>";
-        echo "</thead>";
-        echo "<tbody>";
-        $kecepatan_operasi = 0;
-        $waktu_spray_per_ritase = 0;
-        foreach($list as $v){
+        if(count($list)>0){
+            echo "<table border=1>";
+            echo "<thead>";
             echo "<tr>";
-            echo "<td>".$v->ritase."</td>";
-            echo "<td>".$v->kecepatan_operasi."</td>";
-            echo "<td>".$v->golden_time."</td>";
-            echo "<td>".$v->waktu_spray_per_ritase."</td>";
+            echo "<td>RITASE</td>";
+            echo "<td>KECEPATAN OEPRASI</td>";
+            echo "<td>GOLDEN TIME</td>";
+            echo "<td>WAKTU SPRAY PER RITASE</td>";
             echo "<td></td>";
             echo "</tr>";
-            $kecepatan_operasi += $v->kecepatan_operasi;
-            $waktu_spray_per_ritase += $v->waktu_spray_per_ritase;
-        }
-        $golden_time = $list[0]->golden_time;
-        $kecepatan_operasi = $kecepatan_operasi / count($list);
-        $waktu_spray_per_ritase = $waktu_spray_per_ritase / count($list);
+            echo "</thead>";
+            echo "<tbody>";
+            $kecepatan_operasi = 0;
+            $waktu_spray_per_ritase = 0;
+            foreach($list as $v){
+                echo "<tr>";
+                echo "<td>".$v->ritase."</td>";
+                echo "<td>".$v->kecepatan_operasi."</td>";
+                echo "<td>".$v->golden_time."</td>";
+                echo "<td>".$v->waktu_spray_per_ritase."</td>";
+                echo "<td></td>";
+                echo "</tr>";
+                $kecepatan_operasi += $v->kecepatan_operasi;
+                $waktu_spray_per_ritase += $v->waktu_spray_per_ritase;
+            }
+            $golden_time = $list[0]->golden_time;
+            $kecepatan_operasi = $kecepatan_operasi / count($list);
+            $waktu_spray_per_ritase = $waktu_spray_per_ritase / count($list);
 
-        $poin_kecepatan_operasi = 0;
-        $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
-            ->where('d.report_parameter_id', 1)
-            ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
-            ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
-            ->where('report_parameter_standard.volume_id', $rk->volume_id)
-            ->orderByRaw("d.range_1*1 ASC")
-            ->get(['d.*']);
-        foreach($list_rps AS $rps){
-            if(doubleval($rps->range_1) <= $kecepatan_operasi && $kecepatan_operasi <= doubleval($rps->range_2)){
-                $poin_kecepatan_operasi = $rps->point;
-                break;
+            $poin_kecepatan_operasi = 0;
+            $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', 1)
+                ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                ->orderByRaw("d.range_1*1 ASC")
+                ->get(['d.*']);
+            foreach($list_rps AS $rps){
+                if(doubleval($rps->range_1) <= $kecepatan_operasi && $kecepatan_operasi <= doubleval($rps->range_2)){
+                    $poin_kecepatan_operasi = $rps->point;
+                    break;
+                }
             }
-        }
-        $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
-            ->where('report_parameter_id', 1)
-            ->first();
-        $poin_kecepatan_operasi = !empty($rpb->bobot) ? $poin_kecepatan_operasi * $rpb->bobot : 0;
+            $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
+                ->where('report_parameter_id', 1)
+                ->first();
+            $poin_kecepatan_operasi = !empty($rpb->bobot) ? $poin_kecepatan_operasi * $rpb->bobot : 0;
 
-        $poin_golden_time = 0;
-        $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
-            ->where('d.report_parameter_id', 2)
-            ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
-            ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
-            ->where('report_parameter_standard.volume_id', $rk->volume_id)
-            ->orderByRaw("d.range_1*1 ASC")
-            ->get(['d.*']);
-        foreach($list_rps AS $rps){
-            $dt_golden_time = date('Y-m-d '.$golden_time);
-            if($rps->range_1 > $rps->range_2) {
-                $dt_range_2 = date('Y-m-d '.$rps->range_2,strtotime("+1 days"));
-            } else {
-                $dt_range_2 = date('Y-m-d '.$rps->range_2);
+            $poin_golden_time = 0;
+            $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', 2)
+                ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                ->orderByRaw("d.range_1*1 ASC")
+                ->get(['d.*']);
+            foreach($list_rps AS $rps){
+                $dt_golden_time = date('Y-m-d '.$golden_time);
+                if($rps->range_1 > $rps->range_2) {
+                    $dt_range_2 = date('Y-m-d '.$rps->range_2,strtotime("+1 days"));
+                } else {
+                    $dt_range_2 = date('Y-m-d '.$rps->range_2);
+                }
+                $dt_range_1 = date('Y-m-d '.$rps->range_1);
+                if($dt_range_1 <= $dt_golden_time && $dt_golden_time <= $dt_range_2){
+                    $poin_golden_time = $rps->point;
+                    break;
+                }
             }
-            $dt_range_1 = date('Y-m-d '.$rps->range_1);
-            if($dt_range_1 <= $dt_golden_time && $dt_golden_time <= $dt_range_2){
-                $poin_golden_time = $rps->point;
-                break;
+            $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
+                ->where('report_parameter_id', 2)
+                ->first();
+            $poin_golden_time = !empty($rpb->bobot) ? $poin_golden_time * $rpb->bobot : 0;
+            $poin_waktu_spray_per_ritase = 0;
+            $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                ->where('d.report_parameter_id', 3)
+                ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                ->orderByRaw("d.range_1*1 ASC")
+                ->get(['d.*']);
+            foreach($list_rps AS $rps){
+                if(doubleval($rps->range_1) <= $waktu_spray_per_ritase && $waktu_spray_per_ritase <= doubleval($rps->range_2)){
+                    $poin_waktu_spray_per_ritase = $rps->point;
+                    break;
+                }
             }
-        }
-        $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
-            ->where('report_parameter_id', 2)
-            ->first();
-        $poin_golden_time = !empty($rpb->bobot) ? $poin_golden_time * $rpb->bobot : 0;
-        $poin_waktu_spray_per_ritase = 0;
-        $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
-            ->where('d.report_parameter_id', 3)
-            ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
-            ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
-            ->where('report_parameter_standard.volume_id', $rk->volume_id)
-            ->orderByRaw("d.range_1*1 ASC")
-            ->get(['d.*']);
-        foreach($list_rps AS $rps){
-            if(doubleval($rps->range_1) <= $waktu_spray_per_ritase && $waktu_spray_per_ritase <= doubleval($rps->range_2)){
-                $poin_waktu_spray_per_ritase = $rps->point;
-                break;
-            }
-        }
-        $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
-            ->where('report_parameter_id', 3)
-            ->first();
-        $poin_waktu_spray_per_ritase = !empty($rpb->bobot) ? $poin_waktu_spray_per_ritase * $rpb->bobot : 0;
-        $total_poin = $poin_kecepatan_operasi+$poin_golden_time+$poin_waktu_spray_per_ritase;
+            $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
+                ->where('report_parameter_id', 3)
+                ->first();
+            $poin_waktu_spray_per_ritase = !empty($rpb->bobot) ? $poin_waktu_spray_per_ritase * $rpb->bobot : 0;
+            $total_poin = $poin_kecepatan_operasi+$poin_golden_time+$poin_waktu_spray_per_ritase;
 
-        $list_rs = ReportStatus::get();
-        $kualitas = '';
-        foreach($list_rs as $v){
-            if(doubleval($v->range_1) <= $total_poin && $total_poin <= doubleval($v->range_2)){
-                $kualitas = $v->status;
-                break;
+            $list_rs = ReportStatus::get();
+            $kualitas = '';
+            foreach($list_rs as $v){
+                if(doubleval($v->range_1) <= $total_poin && $total_poin <= doubleval($v->range_2)){
+                    $kualitas = $v->status;
+                    break;
+                }
             }
-        }
 
-        echo "<tr>";
-        echo "<td>RATA-RATA</td>";
-        echo "<td>".$kecepatan_operasi."</td>";
-        echo "<td>".$golden_time."</td>";
-        echo "<td>".$waktu_spray_per_ritase."</td>";
-        echo "<td></td>";
-        echo "</tr>";
-        echo "<tr>";
-        echo "<td>POIN</td>";
-        echo "<td>".$poin_kecepatan_operasi."</td>";
-        echo "<td>".$poin_golden_time."</td>";
-        echo "<td>".$poin_waktu_spray_per_ritase."</td>";
-        echo "<td>".$total_poin."</td>";
-        echo "</tr>";
-        echo "<tr>";
-        echo "<td colspan=4>KATEGORI</td>";
-        echo "<td>".$kualitas."</td>";
-        echo "</tr>";
-        echo "</tbody>";
-        echo "</table>";
+            echo "<tr>";
+            echo "<td>RATA-RATA</td>";
+            echo "<td>".$kecepatan_operasi."</td>";
+            echo "<td>".$golden_time."</td>";
+            echo "<td>".$waktu_spray_per_ritase."</td>";
+            echo "<td></td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td>POIN</td>";
+            echo "<td>".$poin_kecepatan_operasi."</td>";
+            echo "<td>".$poin_golden_time."</td>";
+            echo "<td>".$poin_waktu_spray_per_ritase."</td>";
+            echo "<td>".$total_poin."</td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td colspan=4>KATEGORI</td>";
+            echo "<td>".$kualitas."</td>";
+            echo "</tr>";
+            echo "</tbody>";
+            echo "</table>";
+        } else {
+            echo "NOT FOUND";
+        }
     } 
 
 }
