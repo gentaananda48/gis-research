@@ -143,6 +143,7 @@ Route::group([
     'prefix'        => 'lacak'
 ], function ($router) {
     Route::post('create', 'LacakController@create');
+    Route::post('create2', 'LacakController@create2');
     Route::get('sync_down', 'LacakController@sync_down');
 });
 
