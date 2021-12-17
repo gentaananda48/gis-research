@@ -19,9 +19,7 @@ use App\Model\VolumeAir;
 use App\Model\Bahan;
 use App\Model\RencanaKerja;
 use App\Model\RencanaKerjaLog;
-use App\Model\OrderMaterial;
-use App\Model\OrderMaterialBahan;
-use App\Model\OrderMaterialLog;
+use App\Model\RencanaKerjaBahan;
 
 class RencanaKerjaImport implements ToCollection, WithHeadingRow
 {
@@ -56,6 +54,7 @@ class RencanaKerjaImport implements ToCollection, WithHeadingRow
                 $rk->lokasi_id              = $lokasi->id;
                 $rk->lokasi_kode            = $lokasi->kode;
                 $rk->lokasi_nama            = $lokasi->nama;
+                $rk->lokasi_grup            = $lokasi->grup;
                 $rk->lokasi_lsbruto         = $lokasi_lsbruto;
                 $rk->lokasi_lsnetto         = $lokasi_lsnetto;
                 $rk->aktivitas_id           = $aktivitas->id;
@@ -85,6 +84,20 @@ class RencanaKerjaImport implements ToCollection, WithHeadingRow
                 $rk->status_nama            = $status->nama;
                 $rk->status_color           = $status->color;
                 $rk->save();
+                
+                $list_bahan = Bahan::get();
+                foreach($list_bahan as $bahan){
+                    if(!empty($row[strtolower($bahan->kode)])){
+                        $rkb                        = new RencanaKerjaBahan;
+                        $rkb->rk_id                 = $rk->id;
+                        $rkb->bahan_id              = $bahan->id;
+                        $rkb->bahan_kode            = $bahan->kode;
+                        $rkb->bahan_nama            = $bahan->nama;
+                        $rkb->qty                   = $row[strtolower($bahan->kode)];
+                        $rkb->uom                   = $bahan->uom;
+                        $rkb->save();
+                    }
+                }
 
                 $rkl = new RencanaKerjaLog;
                 $rkl->rk_id             = $rk->id;
@@ -98,62 +111,6 @@ class RencanaKerjaImport implements ToCollection, WithHeadingRow
                 $rkl->status_id_lama    = 0;
                 $rkl->status_nama_lama  = '';
                 $rkl->save();
-
-                $om                         = new OrderMaterial;
-                $om->rk_id                  = $rk->id;
-                $om->tanggal                = $rk->tgl;
-                $om->unit_id                = $rk->unit_id;
-                $om->unit_label             = $rk->unit_label;
-                $om->aktivitas_id           = $rk->aktivitas_id;
-                $om->aktivitas_kode         = $rk->aktivitas_kode;
-                $om->aktivitas_nama         = $rk->aktivitas_nama;
-                $om->lokasi_id              = $rk->lokasi_id;
-                $om->lokasi_kode            = $rk->lokasi_kode;
-                $om->lokasi_nama            = $rk->lokasi_nama;
-                $om->kasie_id               = $rk->kasie_id;
-                $om->kasie_empid            = $rk->kasie_empid;
-                $om->kasie_nama             = $rk->kasie_nama;
-                $om->operator_id            = $rk->operator_id;
-                $om->operator_empid         = $rk->operator_empid;
-                $om->operator_nama          = $rk->operator_nama;
-                $om->mixing_operator_id     = $rk->mixing_operator_id;
-                $om->mixing_operator_empid  = $rk->mixing_operator_empid;
-                $om->mixing_operator_nama   = $rk->mixing_operator_nama;
-                $status                     = Status::find(5);
-                $om->status_id              = $status->id;
-                $om->status_nama            = $status->nama;
-                $om->status_urutan          = $status->urutan;
-                $om->status_color           = $status->color;
-                $om->save();
-
-                $list_bahan = Bahan::get();
-                foreach($list_bahan as $bahan){
-                    Log::info($bahan->kode);
-                    Log::info($row[strtolower($bahan->kode)]);
-                    if(!empty($row[strtolower($bahan->kode)])){
-                        $omb                        = new OrderMaterialBahan;
-                        $omb->order_material_id     = $om->id;
-                        $omb->bahan_id              = $bahan->id;
-                        $omb->bahan_kode            = $bahan->kode;
-                        $omb->bahan_nama            = $bahan->nama;
-                        $omb->qty                   = $row[strtolower($bahan->kode)];
-                        $omb->uom                   = $bahan->uom;
-                        $omb->save();
-                    }
-                }
-
-                $oml                     = new OrderMaterialLog;
-                $oml->order_material_id  = $om->id;
-                $oml->jam                = date('Y-m-d H:i:s');
-                $oml->user_id            = $rk->kasie_id;
-                $oml->user_nama          = $rk->kasie_nama;
-                $oml->status_id          = $status->id;
-                $oml->status_nama        = $status->nama;
-                $oml->status_id_lama     = 0;
-                $oml->status_nama_lama   = '';
-                $oml->event              = 'Create';
-                $oml->catatan            = '';           
-                $oml->save();
             }
             DB::commit();
         } catch(Exception $e){
