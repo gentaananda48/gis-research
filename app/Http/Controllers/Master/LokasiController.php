@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Model\Lokasi;
+use App\Model\PG;
 use App\Model\KoordinatLokasi;
 use App\Center\GridCenter;
 use App\Transformer\LokasiTransformer;
@@ -38,7 +39,12 @@ class LokasiController extends Controller {
     }
 
     public function create() {
-        return view('master.lokasi.create', []);
+        $list_grup = [];
+        $res = PG::get(['nama']);
+        foreach($res as $v) {
+            $list_grup[$v->nama] = $v->nama;
+        }
+        return view('master.lokasi.create', ['list_grup' => $list_grup]);
     }
 
     public function store(Request $request) {
@@ -56,6 +62,7 @@ class LokasiController extends Controller {
             $lokasi= new Lokasi;   
             $lokasi->kode       = $request->input('kode'); 
             $lokasi->nama       = $request->input('nama'); 
+            $lokasi->grup       = $request->input('grup'); 
             $lokasi->lsbruto    = $request->input('lsbruto'); 
             $lokasi->lsnetto    = $request->input('lsnetto');
             $lokasi->status     = $request->input('status');  
@@ -72,7 +79,12 @@ class LokasiController extends Controller {
 
     public function edit($id) {
         $data = Lokasi::find($id);
-        return view('master.lokasi.edit', ['data' => $data]);
+        $list_grup = [];
+        $res = PG::get(['nama']);
+        foreach($res as $v) {
+            $list_grup[$v->nama] = $v->nama;
+        }
+        return view('master.lokasi.edit', ['list_grup' => $list_grup, 'data' => $data]);
 
     }
 
@@ -96,6 +108,7 @@ class LokasiController extends Controller {
             $lokasi= Lokasi::find($id);;   
             $lokasi->kode       = $request->input('kode'); 
             $lokasi->nama       = $request->input('nama'); 
+            $lokasi->grup       = $request->input('grup'); 
             $lokasi->lsbruto    = $request->input('lsbruto'); 
             $lokasi->lsnetto    = $request->input('lsnetto');
             $lokasi->status     = $request->input('status'); 

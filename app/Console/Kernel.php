@@ -165,7 +165,12 @@ class Kernel extends ConsoleKernel
             $ritase = 1;
             $list_movement = [];
             foreach($list AS $k=>$v){
-                $lokasi         = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+                if(count($list_polygon)>0) {
+                    $lokasi         = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+                } else {
+
+                }
+                $lokasi         = count($list_polygon) > 0 ? $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude) : $rk->lokasi_kode;
                 $waktu_tempuh   = ($k==0) ? 0 : round(abs($v->timestamp - $list[$k-1]->timestamp),2);
                 $nozzle_kanan   = $v->ain_1 != null ? $v->ain_1 : 0;
                 $nozzle_kiri    = $v->ain_2 != null ? $v->ain_2 : 0;

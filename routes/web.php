@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/admin/user/update/{id}', array('uses' => 'Admin\UserController@update', 'as' => 'admin.user.update'));
     Route::delete('/admin/user/delete/{id}', array('uses' => 'Admin\UserController@destroy', 'as' => 'admin.user.destroy'));
     Route::put('/admin/user/activate/{id}', array('uses' => 'Admin\UserController@activate', 'as' => 'admin.user.activate'));
+    Route::post('/admin/user/import', 'Admin\UserController@import')->name('admin.user.import');
 
     // SYSTEM CONFIGURATION
     Route::get('/admin/system_configuration', array('uses' => 'Admin\SystemConfigurationController@index', 'as' => 'admin.system_configuration'));

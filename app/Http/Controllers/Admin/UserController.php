@@ -12,6 +12,8 @@ use App\Transformer\UserTransformer;
 use Intervention\Image\ImageManager;
 use Auth;
 use File;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\UserImport;
 
 class UserController extends Controller {
     public function index(Request $request) {
@@ -46,6 +48,19 @@ class UserController extends Controller {
     
         echo json_encode($data->render(new UserTransformer()));
         exit;
+    }
+
+    public function import(Request $request) {
+        $this->validate($request, [
+            'file' => 'required|mimes:xls,xlsx'
+        ]);
+
+        $import = Excel::import(new UserImport, request()->file('file'));
+        if($import) {
+            return redirect()->route('admin.user')->with(['success' => 'Data Berhasil Diimport!']);
+        } else {
+            return redirect()->route('admin.user')->with(['error' => 'Data Gagal Diimport!']);
+        }
     }
 
     public function create() {   

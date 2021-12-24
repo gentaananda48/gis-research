@@ -26,6 +26,10 @@
 							{{ Form::text('nama', $data->nama, array('placeholder' => 'Nama', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required', 'autocomplete'=>'off')) }}
 						</div>
 						<div class="form-group">
+							<label for="grup">PG</label>
+	                		{{ Form::select('grup', $list_grup, $data->grup, array('class' => 'form-control select2', 'required' => 'required')) }}
+						</div>
+						<div class="form-group">
 							<label for="lsbruto">Luas Bruto</label>
 							{{ Form::text('lsbruto', $data->lsbruto, array('placeholder' => 'Luas Bruto', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
 						</div>
