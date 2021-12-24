@@ -46,17 +46,16 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
         // $this->base_url = SystemConfiguration::where('code', 'LACAK_API_URL')->first(['value'])->value;
         // $this->hash = SystemConfiguration::where('code', 'LACAK_API_HASH')->first(['value'])->value;
-        // $schedule->call(function () {
-        //     //$this->generate_rencana_kerja_summary();
-        //     $this->generate_rencana_kerja_report();
-        // })->everyMinute();
+        $schedule->call(function () {
+            //$this->generate_rencana_kerja_summary();
+            $this->generate_rencana_kerja_report();
+        })->everyMinute();
         $schedule->call(function () {
             $this->pull_data_lacak();
         })->everyMinute();
     }
 
     public function generate_rencana_kerja_report(){
-        set_time_limit(0);
         $geofenceHelper = new GeofenceHelper;
         $list_rk = RencanaKerja::
             whereRaw("status_id = 4 AND (jam_laporan IS NULL OR jam_laporan = '')")
