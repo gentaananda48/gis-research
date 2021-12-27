@@ -586,6 +586,7 @@ class HomeController extends Controller
                 ->where('report_parameter_standard.volume_id', $rk->volume_id)
                 ->orderByRaw("d.range_1*1 ASC")
                 ->get(['d.*']);
+            echo $golden_time."<br/>";
             foreach($list_rps AS $rps){
                 $dt_golden_time = date('Y-m-d '.$golden_time);
                 if($rps->range_1 > $rps->range_2) {
@@ -594,6 +595,7 @@ class HomeController extends Controller
                     $dt_range_2 = date('Y-m-d '.$rps->range_2);
                 }
                 $dt_range_1 = date('Y-m-d '.$rps->range_1);
+                echo $dt_range_1."<br/>";
                 if($dt_range_1 <= $dt_golden_time && $dt_golden_time <= $dt_range_2){
                     $poin_golden_time = $rps->point;
                     break;
