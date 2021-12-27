@@ -42,8 +42,14 @@
 										<tr>
 											<td>JENIS APLIKASI</td>
 											<td>: {{$rk->aktivitas_nama}}</td>
-											<td>LOKASI</td>
-											<td>: {{$rk->lokasi_kode}}</td>
+											<td>UNIT</td>
+											<td>: {{$rk->unit_label}}</td>
+										</tr>
+										<tr>
+											<td>NOZZLE</td>
+											<td>: {{$rk->nozzle_nama}}</td>
+											<td>VOLUME AIR</td>
+											<td>: {{$rk->volume}}</td>
 										</tr>
 										<tr>
 											<td>JAM MULAI</td>
