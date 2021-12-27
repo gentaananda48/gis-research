@@ -256,6 +256,8 @@ class RencanaKerjaController extends Controller {
                 ],
                 'kualitas'                      => $kualitas
             ];
+            $rk->kualitas = $kualitas;
+            $rk->save();
         } else {
             $summary = (object) [
                 'ritase' => [],
@@ -273,7 +275,6 @@ class RencanaKerjaController extends Controller {
                 'kualitas'                      => ''
             ];
         }
-
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
             'summary'       => $summary,
