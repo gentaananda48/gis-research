@@ -104,6 +104,7 @@
 					</div>
 					<div class="box-footer">
 						<a href="{{ url('/report/rencana_kerja') }}" class="btn btn-warning"> Back </a>
+						<a href="{{ url('/report/rencana_kerja/playback/'.$rk->id) }}" class="btn btn-info"> Playback </a>
 					</div>
 				</div>
 			</div>
