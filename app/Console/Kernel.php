@@ -50,9 +50,9 @@ class Kernel extends ConsoleKernel
             //$this->generate_rencana_kerja_summary();
             $this->generate_rencana_kerja_report();
         })->everyMinute();
-        $schedule->call(function () {
-            $this->pull_data_lacak();
-        })->everyMinute();
+        // $schedule->call(function () {
+        //     $this->pull_data_lacak();
+        // })->everyMinute();
     }
 
     public function generate_rencana_kerja_report(){
