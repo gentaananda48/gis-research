@@ -144,8 +144,8 @@ class Kernel extends ConsoleKernel
                 $rrk->overlapping = null;
                 $rrk->save();
             }
-            
-            $rk->jam_selesai = date('Y-m-d H:i:s');   
+
+            $rk->jam_laporan = date('Y-m-d H:i:s');   
             $rk->save();     
         }
     } 

@@ -21,6 +21,7 @@ use App\Model\RencanaKerjaSummary;
 use App\Model\ReportStatus;
 use App\Model\Aktivitas;
 use App\Model\VReportRencanaKerja;
+use App\Model\Log;
 
 class HomeController extends Controller
 {
@@ -60,6 +61,19 @@ class HomeController extends Controller
     
         echo json_encode($user_data->render(new UserTransformer()));
         exit;
+    }
+
+    public function update_rk(Request $request) {
+        $logs = Log::where('reference_type', 'rencana_kerja')
+            ->where('event', 'update')
+            ->whereBetween('created_at', ['2021-12-28 06:00:00', '2021-12-28 08:00:00'])
+            ->get();
+        foreach($logs AS $log){
+            $rk = json_decode($log->object);
+            if($rk->status_id==4){
+                echo $log->id.' - '.$log->created_at.' - '.$log->created_by.' - '.$rk->id.' - '.$rk->status_id.' - '.$rk->jam_selesai,"<br/>";
+            }
+        }
     }
 
     public function check_geofence(Request $request){
