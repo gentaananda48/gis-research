@@ -196,12 +196,15 @@ class RencanaKerjaController extends Controller {
                 ->get(['d.*']);
             foreach($list_rps AS $rps){
                 $dt_golden_time = date('Y-m-d '.$golden_time);
+                $dt_range_1 = date('Y-m-d '.$rps->range_1);
                 if($rps->range_1 > $rps->range_2) {
+                    if($dt_golden_time < $dt_range_1){
+                        $dt_golden_time = date('Y-m-d '.$golden_time,strtotime("+1 days"));
+                    }
                     $dt_range_2 = date('Y-m-d '.$rps->range_2,strtotime("+1 days"));
                 } else {
                     $dt_range_2 = date('Y-m-d '.$rps->range_2);
                 }
-                $dt_range_1 = date('Y-m-d '.$rps->range_1);
                 if($dt_range_1 <= $dt_golden_time && $dt_golden_time <= $dt_range_2){
                     $poin_golden_time = $rps->point;
                     break;
