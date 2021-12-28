@@ -155,6 +155,7 @@ class RencanaKerjaController extends Controller {
             ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
 
         $list_rrk = VReportRencanaKerja::where('rencana_kerja_id', $id)->get();
+        $kualitas = '';
         if(count($list_rrk)>0) {
             $aktivitas = Aktivitas::find($rk->aktivitas_id);
             $kecepatan_operasi = 0;
@@ -259,9 +260,8 @@ class RencanaKerjaController extends Controller {
                 ],
                 'kualitas'                      => $kualitas
             ];
-            $rk->kualitas = $kualitas;
-            $rk->save();
         } else {
+            $kualitas = '-';
             $summary = (object) [
                 'ritase' => [],
                 'rata2' => (object) [
@@ -275,8 +275,12 @@ class RencanaKerjaController extends Controller {
                     'waktu_spray_per_ritase'    => '',
                     'total_poin'                => ''
                 ],
-                'kualitas'                      => ''
+                'kualitas'                      => $kualitas
             ];
+        }
+        if($rk->kualitas!=$kualitas){
+            $rk->kualitas = $kualitas;
+            $rk->save();
         }
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
