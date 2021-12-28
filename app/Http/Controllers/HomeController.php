@@ -491,7 +491,7 @@ class HomeController extends Controller
             $ritase = 0;
             foreach($list2 as $k=>$v){
                 if($k>0){
-                    if($v->spraying=='Y' && $list_kel[$list2[$k-1]->kel]->break=='Y') {
+                    if($v->spraying=='Y' && ($list_kel[$list2[$k-1]->kel]->break=='Y' || $ritase==0)) {
                         $ritase++;
                     }
                 } else {
