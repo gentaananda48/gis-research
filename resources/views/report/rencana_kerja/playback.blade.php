@@ -85,6 +85,12 @@
                     			<td>Nozzle Kanan</td>
                     			<td>: <span id="info-nozzle-kiri"></span></td>
                     		</tr>
+                    		<tr>
+                    			<td>Timestamp</td>
+                    			<td>: <span id="info-timestamp"></span></td>
+                    			<td></td>
+                    			<td></td>
+                    		</tr>
                     	</tbody>
                     </table>
                 </div>
@@ -211,6 +217,7 @@
 				     	$("#info-kecepatan").text(lacak[i-1].position_speed);
 				     	$("#info-nozzle-kanan").text(lacak[i-1].din_1==1?'On':'Off');
 				     	$("#info-nozzle-kiri").text(lacak[i-1].din_2==1?'On':'Off');
+				     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
 				     	$('.win-info').modal('show');
 					});
 				} else {
@@ -231,6 +238,7 @@
 				     	$("#info-kecepatan").text(lacak[i-1].position_speed);
 				     	$("#info-nozzle-kiri").text('Off');
 				     	$("#info-nozzle-kanan").text('Off');
+				     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
 				     	$('.win-info').modal('show');
 					});
 				}

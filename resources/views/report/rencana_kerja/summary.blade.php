@@ -67,7 +67,7 @@
 							        <tbody>
 								        <tr>
 									        <th>RITASE</th>
-									        <th>KECEPATAN OEPRASI</th>
+									        <th>KECEPATAN OPERASI</th>
 									        <th>GOLDEN TIME</th>
 									        <th>WAKTU SPRAY PER RITASE</th>
 									        <th rowspan="{{count($summary->ritase) + 2}}"></th>
