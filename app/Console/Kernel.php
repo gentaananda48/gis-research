@@ -72,7 +72,7 @@ class Kernel extends ConsoleKernel
             foreach($list AS $k=>$v) {
                 $lokasi = count($list_polygon) > 0 ? $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude) : $rk->lokasi_kode;
                 $v->waktu_tempuh = ($k==0) ? 0 : round(abs($v->timestamp - $list[$k-1]->timestamp),2);
-                $v->spraying = !empty($lokasi) && !empty($v->din_3) && (!empty($v->din_1) || !empty($v->din_2)) ? 'Y' : 'N';
+                $v->spraying = !empty($lokasi) && $v->position_speed >= 1 && !empty($v->din_3) && (!empty($v->din_1) || !empty($v->din_2)) ? 'Y' : 'N';
                 if($k>0 && $v->spraying != $list2[$k-1]->spraying) {
                     $i2++;
                 }

@@ -466,7 +466,7 @@ class HomeController extends Controller
             foreach($list AS $k=>$v) {
                 $lokasi             = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
                 $v->waktu_tempuh    = ($k==0) ? 0 : round(abs($v->timestamp - $list[$k-1]->timestamp),2);
-                $v->spraying      = !empty($lokasi) && !empty($v->din_3) && (!empty($v->din_1) || !empty($v->din_2)) ? 'Y' : 'N';
+                $v->spraying      = !empty($lokasi) && $v->position_speed >= 1 && !empty($v->din_3) && (!empty($v->din_1) || !empty($v->din_2)) ? 'Y' : 'N';
                 if($k>0 && $v->spraying != $list2[$k-1]->spraying) {
                     $i2++;
                 }
@@ -504,6 +504,19 @@ class HomeController extends Controller
                 } else {
                     $v->ritase = $ritase;
                 }
+
+                $is_overlap = 0;
+                $overlapped_area = [];
+                foreach($list as $key=>$point) {
+                    if($k<2) break;
+                    if($key>=($k-1)) break;
+                    $jarak = $geofenceHelper->haversineGreatCircleDistance($point->position_latitude, $point->position_longitude, $v->position_latitude, $v->position_longitude);
+                    if($jarak<=18 && $v->spraying=='Y'){
+                        $overlapped_area[] = $point->position_latitude.','.$point->position_longitude.'('.$jarak.' m) @ '.date('Y-m-d H:i:s', $point->timestamp);
+                        $is_overlap = 1;
+                    }
+                }
+                echo 'TIME: '.date('Y-m-d H:i:s', $v->timestamp).', LOCATION: '.$v->position_latitude.','.$v->position_longitude.' SPARYING: '.$v->spraying.', OVERLAPPING: '.$is_overlap.', OVERLAPPED AREA: ['.implode('|',$overlapped_area)."] <br/>";
                 $rrk = new ReportRencanaKerja;
                 $rrk->rencana_kerja_id = $rk->id;
                 $rrk->tanggal = $rk->tgl;
@@ -535,7 +548,7 @@ class HomeController extends Controller
                 $rrk->din_2 = $v->din_2;
                 $rrk->din_3 = $v->din_3;
                 $rrk->ritase = $v->ritase;
-                $rrk->overlapping = null;
+                $rrk->overlapping = $is_overlap;
                 $rrk->save();
             }
         }
