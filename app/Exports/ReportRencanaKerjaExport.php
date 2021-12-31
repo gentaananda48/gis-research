@@ -23,7 +23,7 @@ class ReportRencanaKerjaExport implements FromCollection, WithHeadings {
     	$request = $this->request;
         $kasie_id = $this->kasie_id;
         $user = User::find($kasie_id);
-    	$query = RencanaKerja::selectRaw("id, tgl, shift_nama AS shift, lokasi_kode, lokasi_nama, lokasi_grup, lokasi_lsbruto, lokasi_lsnetto, aktivitas_kode, aktivitas_nama, nozzle_nama AS nozzle, volume, unit_id, unit_label, unit_source_device_id, operator_nama AS operator, driver_nama AS driver, kasie_nama AS kasie, status_nama AS status, jam_mulai, jam_selesai, jam_laporan")
+    	$query = RencanaKerja::selectRaw("id, tgl, shift_nama AS shift, lokasi_kode, lokasi_nama, lokasi_grup, lokasi_lsbruto, lokasi_lsnetto, aktivitas_kode, aktivitas_nama, nozzle_nama AS nozzle, volume, unit_id, unit_label, unit_source_device_id, operator_nama AS operator, driver_nama AS driver, kasie_nama AS kasie, status_nama AS status, jam_mulai, jam_selesai, jam_laporan, kualitas")
     		->where('rencana_kerja.status_id', 4);
         if(!empty($kasie_id)){
             //$query->where('kasie_id', $kasie_id);
@@ -63,6 +63,6 @@ class ReportRencanaKerjaExport implements FromCollection, WithHeadings {
     }
 
     public function headings(): array {
-    	return ['ID','Tanggal','Shift','Kode Lokasi','Nama Lokasi', 'PG', 'Luas Bruto','Luas Netto','Kode Aktivitas','Nama Aktivitas','Nozzle','Volume', 'Kode Unit', 'Nama Unit', 'Device ID Unit', 'Operator', 'Driver', 'Kasie', 'Status', 'Jam Mulai', 'Jam Selesai', 'Jam Laporan'];
+    	return ['ID','Tanggal','Shift','Kode Lokasi','Nama Lokasi', 'PG', 'Luas Bruto','Luas Netto','Kode Aktivitas','Nama Aktivitas','Nozzle','Volume', 'Kode Unit', 'Nama Unit', 'Device ID Unit', 'Operator', 'Driver', 'Kasie', 'Status', 'Jam Mulai', 'Jam Selesai', 'Jam Laporan', 'Kualitas'];
     }
 }
