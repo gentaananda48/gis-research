@@ -110,6 +110,17 @@ class Kernel extends ConsoleKernel
                 } else {
                     $v->ritase = $ritase;
                 }
+                $is_overlap = 0;
+                $overlapped_area = [];
+                foreach($list as $key=>$point) {
+                    if($k<2) break;
+                    if($key>=($k-1)) break;
+                    $jarak = $geofenceHelper->haversineGreatCircleDistance($point->position_latitude, $point->position_longitude, $v->position_latitude, $v->position_longitude);
+                    if($jarak<=18 && $v->spraying=='Y'){
+                        $overlapped_area[] = $point->position_latitude.','.$point->position_longitude.'('.$jarak.' m) @ '.date('Y-m-d H:i:s', $point->timestamp);
+                        $is_overlap = 1;
+                    }
+                }
                 $rrk = new ReportRencanaKerja;
                 $rrk->rencana_kerja_id = $rk->id;
                 $rrk->tanggal = $rk->tgl;
@@ -141,7 +152,7 @@ class Kernel extends ConsoleKernel
                 $rrk->din_2 = $v->din_2;
                 $rrk->din_3 = $v->din_3;
                 $rrk->ritase = $v->ritase;
-                $rrk->overlapping = null;
+                $rrk->overlapping = $is_overlap;
                 $rrk->save();
             }
 
