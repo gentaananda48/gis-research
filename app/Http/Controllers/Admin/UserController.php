@@ -297,7 +297,7 @@ class UserController extends Controller {
     public function destroy($id) {
         try{
             $count_rk = RencanaKerja::whereRaw("(mixing_operator_id = ".$id." OR operator_id = ".$id." OR driver_id = ".$id." OR kasie_id = ".$id.")")
-                ->where('status', '<>', 4)
+                ->where('status_id', '<>', 4)
                 ->count();
             if($count_rk>0){
                 return redirect()->back()->withErrors('User ini masih terhubung dengan Rencana Kerja yang status nya belum selesai');
