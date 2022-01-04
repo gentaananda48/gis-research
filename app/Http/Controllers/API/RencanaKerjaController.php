@@ -14,6 +14,7 @@ use App\Model\RencanaKerjaSummary;
 use App\Model\Shift;
 use App\Model\Lokasi;
 use App\Model\Aktivitas;
+use App\Model\GrupAktivitas;
 use App\Model\AktivitasParameter;
 use App\Model\Unit;
 use App\Model\Bahan;
@@ -151,6 +152,9 @@ class RencanaKerjaController extends Controller {
 			  	$aktivitas 		 	= Aktivitas::find($request->aktivitas_id);
 			  	$rk->aktivitas_kode = $aktivitas->kode;
 			  	$rk->aktivitas_nama = $aktivitas->nama;
+			  	$rk->aktivitas_grup_id 		= $aktivitas->grup_id;
+			  	$grup_aktivitas 			= GrupAktivitas::find($aktivitas->grup_id);
+			  	$rk->aktivitas_grup_nama 	= $grup_aktivitas->nama;
 			  	$rk->unit_id  				= $request->unit_id;
 			  	$unit 		 				= Unit::find($request->unit_id);
 			  	$rk->unit_label				= $unit->label;
