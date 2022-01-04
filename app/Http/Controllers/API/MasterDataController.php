@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Model\Shift;
 use App\Model\Lokasi;
 use App\Model\Unit;
+use App\Model\VAktivitas;
 use App\Model\TindakLanjutPending;
 use App\Model\AlasanPending;
 use App\Model\VReportParameterStandard;
@@ -42,6 +43,16 @@ class MasterDataController extends Controller {
     public function unit_sync_down(Request $request){
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
     	$list = Unit::where('updated_at', '>', $updated_at)->get();
+        return response()->json([
+            'status'    => true, 
+            'message'   => 'success', 
+            'data'      => $list
+          ]);
+    }
+
+    public function aktivitas_sync_down(Request $request){
+        $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
+        $list = VAktivitas::where('updated_at', '>', $updated_at)->get();
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 
