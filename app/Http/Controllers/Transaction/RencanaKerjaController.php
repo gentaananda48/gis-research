@@ -21,11 +21,17 @@ use App\Center\GridCenter;
 use App\Transformer\RencanaKerjaTransformer;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\RencanaKerjaImport;
+use App\Imports\RencanaKerjaPPOImport;
 use App\Exports\RencanaKerjaExport;
 use App\Helper\GeofenceHelper;
 
 class RencanaKerjaController extends Controller {
     public function index() {
+        $user = $this->guard()->user();
+        $is_able_to_import = false;
+        if($user->hasAccess('transaction.rencana_kerja.import')){
+            $is_able_to_import = true;
+        }
         $list_shift = [];
         $list_lokasi = [];
         $list_aktivitas = [];
@@ -62,6 +68,7 @@ class RencanaKerjaController extends Controller {
             $list_status[$v->id] = $v->nama;
         }
         return view('transaction.rencana_kerja.index', [
+            'is_able_to_import' => $is_able_to_import,
             'list_shift'        => $list_shift,
             'list_lokasi'       => $list_lokasi,
             'list_aktivitas'    => $list_aktivitas,
@@ -125,7 +132,7 @@ class RencanaKerjaController extends Controller {
             'file' => 'required|mimes:xls,xlsx'
         ]);
 
-        $import = Excel::import(new RencanaKerjaImport($user->id), request()->file('file'));
+        $import = Excel::import(new RencanaKerjaPPOImport($user->id), request()->file('file'));
         if($import) {
             //redirect
             return redirect()->route('transaction.rencana_kerja')->with(['success' => 'Data Berhasil Diimport!']);

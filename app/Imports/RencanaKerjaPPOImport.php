@@ -21,37 +21,34 @@ use App\Model\RencanaKerja;
 use App\Model\RencanaKerjaLog;
 use App\Model\RencanaKerjaBahan;
 
-class RencanaKerjaImport implements ToCollection, WithHeadingRow
+class RencanaKerjaPPOImport implements ToCollection, WithHeadingRow
 {
-    protected $kasie_id;
-    function __construct($kasie_id) {
-        $this->kasie_id = $kasie_id;
+    protected $user_id;
+    function __construct($user_id) {
+        $this->user_id = $user_id;
     }
 
     public function collection(Collection $rows) { 
         DB::beginTransaction();
         try {
-            $user = User::find($this->kasie_id);
+            $user = User::find($this->user_id);
             foreach ($rows as $row){
                 $tgl = ($row["tanggal"] - 25569) * 86400;
-                $shift = Shift::where('nama', $row["shift"])->first();
+                $waktu = !empty($row["waktu"]) ? $row["waktu"] : '';
                 $lokasi = Lokasi::where('nama', $row["lokasi"])->first();
-                $aktivitas = Aktivitas::where('nama', $row["aktivitas"])->first();
-                $nozzle = Nozzle::where('nama', $row["nozzle"])->first();
+                $aktivitas = Aktivitas::where('kode', $row["kode_aktivitas"])->first();
                 $unit = Unit::where('label', $row["unit"])->first();
-                $operator = User::where('employee_id', $row["operator"])->first();
-                $mixing_operator = User::where('employee_id', $row["mixing_operator"])->first();
-                $driver = User::where('employee_id', $row["driver"])->first();
                 $volumeAir = VolumeAir::where('volume', $row["volume_air"])->first();
-                $kasie = User::where('employee_id', $row["kasie"])->first();
+                $kasie = User::where('employee_id', $row["indeks_kasie"])->first();
                 $lokasi_lsbruto = !empty($row["luas_bruto"]) ? $row["luas_bruto"] : $lokasi->lsbruto;
                 $lokasi_lsnetto = !empty($row["luas_netto"]) ? $row["luas_netto"] : $lokasi->lsnetto;
                 $status = Status::find(1);
 
                 $rk = new RencanaKerja;
                 $rk->tgl                    = gmdate('Y-m-d',$tgl);
-                $rk->shift_id               = $shift->id;
-                $rk->shift_nama             = $shift->nama;
+                $rk->waktu              	= $waktu;
+                $rk->shift_id               = null;
+                $rk->shift_nama             = null;
                 $rk->lokasi_id              = $lokasi->id;
                 $rk->lokasi_kode            = $lokasi->kode;
                 $rk->lokasi_nama            = $lokasi->nama;
@@ -61,22 +58,22 @@ class RencanaKerjaImport implements ToCollection, WithHeadingRow
                 $rk->aktivitas_id           = $aktivitas->id;
                 $rk->aktivitas_kode         = $aktivitas->kode;
                 $rk->aktivitas_nama         = $aktivitas->nama;
-                $rk->nozzle_id              = $nozzle->id;
-                $rk->nozzle_nama            = $nozzle->nama;
+                $rk->nozzle_id              = null;
+                $rk->nozzle_nama            = null;
                 $rk->unit_id                = $unit->id;
                 $rk->unit_label             = $unit->label;
                 $rk->unit_source_device_id  = $unit->source_device_id;
                 $rk->volume_id              = $volumeAir->id;
                 $rk->volume                 = $volumeAir->volume;
-                $rk->operator_id            = $operator->id;
-                $rk->operator_empid         = $operator->employee_id;
-                $rk->operator_nama          = $operator->name;
-                $rk->mixing_operator_id     = $mixing_operator->id;
-                $rk->mixing_operator_empid  = $mixing_operator->employee_id;
-                $rk->mixing_operator_nama   = $mixing_operator->name;
-                $rk->driver_id              = $driver->id;
-                $rk->driver_empid           = $driver->employee_id;
-                $rk->driver_nama            = $driver->name;
+                $rk->operator_id            = null;
+                $rk->operator_empid         = null;
+                $rk->operator_nama          = null;
+                $rk->mixing_operator_id     = null;
+                $rk->mixing_operator_empid  = null;
+                $rk->mixing_operator_nama   = null;
+                $rk->driver_id              = null;
+                $rk->driver_empid           = null;
+                $rk->driver_nama            = null;
                 $rk->kasie_id               = $kasie->id;
                 $rk->kasie_empid            = $kasie->employee_id;
                 $rk->kasie_nama             = $kasie->name;

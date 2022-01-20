@@ -33,7 +33,9 @@
         <strong>{{ $message }}</strong>
       </div>
     @endif
+        @if($is_able_to_import)
         <button type="button" class="btn btn-xs btn-success" data-toggle="modal" data-target="#import">Import</button>
+        @endif
         <button type="button" class="btn btn-xs btn-default" data-toggle="modal" data-target=".win-filter">Filter</button>
         <a href="{{ url('transaction/rencana_kerja/export'.str_replace(Request::url(), '', Request::fullUrl())) }}" class="btn btn-xs btn-warning">Export</a>
         <div class="box box-success">
@@ -44,6 +46,7 @@
                             <th data-column-id="commands" data-width="15%" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                             <th data-column-id="id" data-order="desc" data-type="numeric" data-identifier="true" data-visible="true">ID</th>
                             <th data-column-id="tgl" data-width="20%">Tanggal</th>
+                            <th data-column-id="waktu">Waktu</th>
                             <th data-column-id="shift_nama">Shift</th>
                             <th data-column-id="lokasi_kode">Kode Lokasi</th>
                             <th data-column-id="lokasi_nama">Nama Lokasi</th>

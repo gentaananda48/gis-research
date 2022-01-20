@@ -14,10 +14,12 @@
 Auth::routes();
 
 Route::get('/test', 'HomeController@test');
-Route::get('/check_geofence', 'HomeController@check_geofence');
+Route::get('/generate_geofence', 'HomeController@generate_geofence');
+Route::get('/generate_report_v2', 'HomeController@generate_report_v2');
 Route::get('/update_rk', 'HomeController@update_rk');
 Route::get('/check_lokasi_rk', 'HomeController@check_lokasi_rk');
 Route::get('/privacy', 'HomeController@privacy')->name('privacy');
+Route::get('/check_geofence', 'HomeController@check_geofence');
 Route::group(['middleware' => ['auth']], function () {
 
     // ------------------------------- ADMIN -------------------------------- //

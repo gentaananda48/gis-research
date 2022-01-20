@@ -12,6 +12,7 @@ use App\Helper\GeofenceHelper;
 use App\Model\KoordinatLokasi;
 use App\Model\KoordinatLokasiTemp;
 use App\Model\Lacak;
+use App\Model\Unit;
 use App\Model\RencanaKerja;
 use App\Model\ReportRencanaKerja;
 use App\Model\ReportParameter;
@@ -446,6 +447,73 @@ class HomeController extends Controller
         //echo json_encode($data);
         //print_r($data);
         exit;
+    }
+
+    public function generate_geofence(Request $request) {
+        set_time_limit(0);
+        $geofenceHelper = new GeofenceHelper;
+        $list_polygon = $geofenceHelper->createListPolygon();
+        $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '2021-12-26 00:00:00';
+        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '2021-12-27 23:59:59';
+        $list_lacak = Lacak::whereRaw("geofence IS NULL")->where('timestamp', '>=', strtotime($jam_mulai))->where('timestamp', '>=', strtotime($jam_mulai))->where('timestamp', '<=', strtotime($jam_selesai))->orderBy('timestamp', 'ASC')->get();
+        $list2 = [];
+        foreach($list_lacak AS $k=>$v) {
+            $geofence = $geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+            $v->geofence = !empty($geofence) ? substr($geofence, 0, strlen($geofence)-2) : '';
+            $v->save();
+        }
+
+    }
+
+    public function generate_report_v2(Request $request) {
+        set_time_limit(0);
+        $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '2021-12-27 00:00:00';
+        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '2021-12-27 23:59:59';
+        $list_lacak = Lacak::where('timestamp', '>=', strtotime($jam_mulai))->where('timestamp', '<=', strtotime($jam_selesai))->orderBy('timestamp', 'ASC')->get();
+        $list_key = [];
+        $list2 = [];
+        foreach($list_lacak AS $k=>$v) {
+            $v->is_spraying = !empty($v->din_3) && (!empty($v->din_1) || !empty($v->din_2)) ? 'Y' : 'N';
+            $key2 = $v->ident.'|'.$v->geofence;
+            if($k>0) {
+                $key1 = $list_lacak[$k-1]->ident.'|'.$list_lacak[$k-1]->geofence;
+                if($key1!=$key2) {
+                    if(array_key_exists($key2, $list_key)) {
+                        $list_key[$key2] += 1;
+                    } else {
+                        $list_key[$key2] = 0;
+                    }
+                }
+            } else {
+                $list_key[$key2] = 0;
+            }
+            $key =  $key2.'|'.$list_key[$key2];
+            if(array_key_exists($key, $list2)) {
+                $list2[$key][] = $v;
+            } else {
+                $list2[$key] = [$v];
+            }
+        }
+
+        foreach($list2 AS $k=>$v) {
+            $key = explode('|', $k);
+            $unit_source_device_id = $key[0];
+            if($unit_source_device_id!='867648047208531') continue;
+            $geofence = $key[1];
+            $seq = $key[2];
+            $unit = Unit::where('source_device_id', $unit_source_device_id)->first();
+            $tgl = '2021-12-27';
+            $rencana_kerja = RencanaKerja::where('tgl', $tgl)
+                ->where('unit_source_device_id', $unit_source_device_id)
+                ->where('lokasi_kode', $geofence)
+                ->first();
+            $rencana_kerja_id = $rencana_kerja == null ? '*NOTFOUND*' : $rencana_kerja->id;
+            //echo 'UNIT '.$unit->label.'['.$unit->source_device_id."] di ".$geofence.$seq.", RK#".$rencana_kerja_id." : <br/>";
+            foreach($v AS $k2=>$v2) {
+                echo date('d-m-Y H:i:s', $v2->timestamp).', UNIT: '.$unit->label.', GEOFENCE: '.$geofence.', SPRAYING : '.$v2->is_spraying.", RKID: ".$rencana_kerja_id."<br/>";
+            }
+        }
+
     }
 
     public function generate_report(Request $request){

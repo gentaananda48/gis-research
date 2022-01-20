@@ -6,8 +6,9 @@ use League\Fractal\TransformerAbstract;
 class RencanaKerjaTransformer extends TransformerAbstract {
     public function transform($model) {
         return [
-            'id'            	=> $model->id,
+            'id'                    => $model->id,
             'tgl'        		=> $model->tgl,
+            'waktu'                 => $model->waktu,
             'shift_id'    		=> $model->shift_id,
             'shift_nama'   		=> $model->shift_nama,
             'lokasi_id'    		=> $model->lokasi_id,
