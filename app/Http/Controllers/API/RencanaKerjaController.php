@@ -156,7 +156,7 @@ class RencanaKerjaController extends Controller {
 			  	$grup_aktivitas 			= GrupAktivitas::find($aktivitas->grup_id);
 			  	$rk->aktivitas_grup_nama 	= $grup_aktivitas->nama;
 			  	$rk->unit_id  				= $request->unit_id;
-			  	$unit 		 				= $unit == null ? null : Unit::find($request->unit_id);
+			  	$unit 		 				= Unit::find($request->unit_id);
 			  	$rk->unit_label				= $unit == null ? null : $unit->label;
 			  	$rk->unit_source_device_id 	= $unit == null ? null : $unit->source_device_id;
 			  	$rk->nozzle_id  			= $request->nozzle_id;
