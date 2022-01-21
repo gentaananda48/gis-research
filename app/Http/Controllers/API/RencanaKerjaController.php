@@ -190,9 +190,9 @@ class RencanaKerjaController extends Controller {
 			  	$rk->jam_selesai 			= $request->jam_selesai;
 			    $rk->om_status_id           = $request->om_status_id;
 			    $status                     = Status::find($rk->om_status_id);
-			    $rk->om_status_nama         = $status->nama;
-			    $rk->om_status_urutan       = $status->urutan;
-			    $rk->om_status_color        = $status->color;
+			    $rk->om_status_nama         = $status == null ? null : $status->nama;
+			    $rk->om_status_urutan       = $status == null ? null : $status->urutan;
+			    $rk->om_status_color        = $status == null ? null : $status->color;
 			  	$rk->mobile_id  	 		= $request->mobile_id;
 			  	$rk->device_id  	 		= $request->device_id;
 			  	$rk->save();
