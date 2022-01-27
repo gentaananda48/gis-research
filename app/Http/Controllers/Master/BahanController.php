@@ -9,6 +9,8 @@ use App\Model\Bahan;
 use App\Model\Aktivitas;
 use App\Center\GridCenter;
 use App\Transformer\BahanTransformer;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\BahanImport;
 
 class BahanController extends Controller {
     public function index() {
@@ -20,6 +22,19 @@ class BahanController extends Controller {
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new BahanTransformer()));
         exit;
+    }
+
+    public function import(Request $request) {
+        $this->validate($request, [
+            'file' => 'required|mimes:xls,xlsx'
+        ]);
+
+        $import = Excel::import(new BahanImport, request()->file('file'));
+        if($import) {
+            return redirect()->route('master.bahan')->with(['success' => 'Data Berhasil Diimport!']);
+        } else {
+            return redirect()->route('master.bahan')->with(['error' => 'Data Gagal Diimport!']);
+        }
     }
 
     public function create()

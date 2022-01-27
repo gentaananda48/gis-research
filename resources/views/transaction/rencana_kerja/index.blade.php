@@ -89,6 +89,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <a href="{{ url('transaction/rencana_kerja/download_template') }}" class="btn btn-primary">Download Template</a>
                     <button type="submit" class="btn btn-success">Upload</button>
                 </div>
             </form>

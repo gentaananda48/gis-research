@@ -23,6 +23,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\RencanaKerjaImport;
 use App\Imports\RencanaKerjaPPOImport;
 use App\Exports\RencanaKerjaExport;
+use App\Exports\TemplateRencanaKerjaPPOExport;
 use App\Helper\GeofenceHelper;
 
 class RencanaKerjaController extends Controller {
@@ -119,6 +120,10 @@ class RencanaKerjaController extends Controller {
     public function export(Request $request){
         $user = $this->guard()->user();
         return Excel::download(new RencanaKerjaExport($request, $user->id), 'rencana_kerja.xlsx');
+    }
+
+    public function download_template(Request $request){
+        return Excel::download(new TemplateRencanaKerjaPPOExport($request), 'import_rencana_kerja.xlsx');
     }
 
     public function show($id) {

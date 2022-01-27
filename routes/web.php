@@ -122,6 +122,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/bahan/edit/{id}', array('uses' => 'Master\BahanController@edit', 'as' => 'master.bahan.edit'));
     Route::put('/master/bahan/update/{id}', array('uses' => 'Master\BahanController@update', 'as' => 'master.bahan.update'));
     Route::delete('/master/bahan/delete/{id}', array('uses' => 'Master\BahanController@destroy', 'as' => 'master.bahan.destroy')); 
+    Route::post('/master/bahan/import', 'Master\BahanController@import')->name('master.bahan.import');
 
     // REPORT PARAMETER
     Route::get('/master/report_parameter', array('uses' => 'Master\ReportParameterController@index', 'as' => 'master.report_parameter'));
@@ -187,6 +188,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/transaction/rencana_kerja/import', 'Transaction\RencanaKerjaController@import')->name('transaction.rencana_kerja.import');
     Route::get('/transaction/rencana_kerja/export', array('uses' => 'Transaction\RencanaKerjaController@export', 'as' => 'transaction.rencana_kerja.export'));
     Route::get('/transaction/rencana_kerja/playback/{id}', array('uses' => 'Transaction\RencanaKerjaController@playback', 'as' => 'transaction.rencana_kerja.playback'));
+    Route::get('/transaction/rencana_kerja/download_template', array('uses' => 'Transaction\RencanaKerjaController@download_template', 'as' => 'transaction.rencana_kerja.download_template'));
 
     // LAPORAN MASALAH
     Route::get('/transaction/laporan_masalah', array('uses' => 'Transaction\LaporanMasalahController@index', 'as' => 'transaction.laporan_masalah'));

@@ -24,6 +24,9 @@
     </section>
 
     <section class="content container-fluid">
+    <button type="button" class="btn btn-xs btn-success" data-toggle="modal" data-target="#import">
+        Import  <i class="fa fa-sm fa-file-excel-o"></i>
+    </button>
     <a href="{{ url('/master/bahan/create') }}" class="btn btn-success btn-xs">Add <i class="fa fa-plus" aria-hidden="true"></i></a>
         <div class="box box-success">
             <div class="box-body table-responsive no-padding">
@@ -42,6 +45,31 @@
             </div>
         </div>
     </section>
+
+<div class="modal fade" id="import" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">IMPORT DATA</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('master.bahan.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>PILIH FILE</label>
+                        <input type="file" name="file" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @stop
 
 @section("script")
