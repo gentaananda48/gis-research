@@ -43,7 +43,14 @@ class HomeController extends Controller
      */
     
     public function index(Request $request){
-        return view('home', []);
+        $list_chart_1a = ['label'=>['PG 1','PG 2', 'PG 3'], 'data'=>[10,20, 10]];
+        $list_chart_1b = ['label'=>['PG 1','PG 2', 'PG 3'], 'data'=>[5,20, 7]];
+        $list_chart_2 = ['label'=>['Excellent', 'Very Good', 'Good', 'Everage', 'Poor', 'Very Poor'], 'data'=>[20, 30, 10, 50, 15, 10]];
+        return view('home', [
+            'list_chart_1a'    => json_encode($list_chart_1a, JSON_UNESCAPED_SLASHES ),
+            'list_chart_1b'    => json_encode($list_chart_1b, JSON_UNESCAPED_SLASHES ),
+            'list_chart_2'    => json_encode($list_chart_2, JSON_UNESCAPED_SLASHES )
+        ]);
     }
 
     public function home(){

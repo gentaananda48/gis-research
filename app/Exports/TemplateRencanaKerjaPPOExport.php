@@ -19,7 +19,7 @@ class TemplateRencanaKerjaPPOExport implements FromArray, WithHeadings {
 
     public function headings(): array {
     	$bahan = Bahan::get(['kode']);
-    	$list = ['tanggal','waktu','lokasi','kode_aktivitas','unit', 'indeks_kasie', 'volume_air'];
+    	$list = ['tanggal', 'lokasi', 'kode_aktivitas', 'volume_air'];
     	foreach($bahan as $v){
     		$list[] = $v->kode;
     	}

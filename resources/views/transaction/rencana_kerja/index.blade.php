@@ -72,13 +72,11 @@
 
 <!-- modal -->
 <div class="modal fade" id="import" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">IMPORT DATA</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Import Data</h4>
             </div>
             <form action="{{ route('transaction.rencana_kerja.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -110,7 +108,7 @@
                             <div class="form-group">
                                 <label for="tgl" class="col-sm-4">Tanggal</label>
                                 <div class="col-sm-8">
-                                    {{ Form::text('tgl', null, array('id' => 'tgl', 'class' => 'form-control', 'autocomplete'=>'off')) }}
+                                    {{ Form::text('tgl', $tgl, array('id' => 'tgl', 'class' => 'form-control', 'autocomplete'=>'off')) }}
                                 </div>
                             </div>
                             <div class="form-group">

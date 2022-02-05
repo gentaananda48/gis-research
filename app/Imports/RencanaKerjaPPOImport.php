@@ -20,6 +20,7 @@ use App\Model\Bahan;
 use App\Model\RencanaKerja;
 use App\Model\RencanaKerjaLog;
 use App\Model\RencanaKerjaBahan;
+use App\Model\RencanaKerjaSummary;
 
 class RencanaKerjaPPOImport implements ToCollection, WithHeadingRow
 {
@@ -31,38 +32,59 @@ class RencanaKerjaPPOImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows) { 
         DB::beginTransaction();
         try {
+            if(count($rows)>0){
+                $tgl        = ($rows[0]["tanggal"] - 25569) * 86400;
+                $tgl        = gmdate('Y-m-d',$tgl);
+                $tgl_awal   = date('Y-m-1', strtotime($tgl));
+                $tgl_akhir  = date('Y-m-t', strtotime($tgl));
+                Log::info($tgl.' '.$tgl_awal.' '.$tgl_akhir);
+                $list_rk = RencanaKerja::where('status_id', 1)
+                    ->whereBetween('tgl', [$tgl_awal, $tgl_akhir])
+                    ->get();
+                foreach($list_rk as $rk){
+                    Log::info($rk->id);
+                    $list_rkb = RencanaKerjaBahan::where('rk_id', $rk->id)->get();
+                    foreach($list_rkb as $rkb){
+                        $rkb->delete();
+                    }
+                    $list_rkl = RencanaKerjaLog::where('rk_id', $rk->id)->get();
+                    foreach($list_rkl as $rkl){
+                        $rkl->delete();
+                    }
+                    $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
+                    foreach($list_rks as $rks){
+                        $rkl->delete();
+                    }
+                    $rk->delete();
+                }
+            }
             $user = User::find($this->user_id);
             foreach ($rows as $row){
                 $tgl = ($row["tanggal"] - 25569) * 86400;
-                $waktu = !empty($row["waktu"]) ? $row["waktu"] : '';
                 $lokasi = Lokasi::where('nama', $row["lokasi"])->first();
                 $aktivitas = Aktivitas::where('kode', $row["kode_aktivitas"])->first();
-                $unit = Unit::where('label', $row["unit"])->first();
                 $volumeAir = VolumeAir::where('volume', $row["volume_air"])->first();
-                $kasie = User::where('employee_id', $row["indeks_kasie"])->first();
-                $lokasi_lsbruto = !empty($row["luas_bruto"]) ? $row["luas_bruto"] : $lokasi->lsbruto;
-                $lokasi_lsnetto = !empty($row["luas_netto"]) ? $row["luas_netto"] : $lokasi->lsnetto;
                 $status = Status::find(1);
 
                 $rk = new RencanaKerja;
                 $rk->tgl                    = gmdate('Y-m-d',$tgl);
-                $rk->waktu              	= $waktu;
+                $rk->waktu              	= null;
                 $rk->shift_id               = null;
                 $rk->shift_nama             = null;
                 $rk->lokasi_id              = $lokasi->id;
                 $rk->lokasi_kode            = $lokasi->kode;
                 $rk->lokasi_nama            = $lokasi->nama;
                 $rk->lokasi_grup            = $lokasi->grup;
-                $rk->lokasi_lsbruto         = $lokasi_lsbruto;
-                $rk->lokasi_lsnetto         = $lokasi_lsnetto;
+                $rk->lokasi_lsbruto         = $lokasi->lsbruto;
+                $rk->lokasi_lsnetto         = $lokasi->lsnetto;
                 $rk->aktivitas_id           = $aktivitas->id;
                 $rk->aktivitas_kode         = $aktivitas->kode;
                 $rk->aktivitas_nama         = $aktivitas->nama;
                 $rk->nozzle_id              = null;
                 $rk->nozzle_nama            = null;
-                $rk->unit_id                = $unit->id;
-                $rk->unit_label             = $unit->label;
-                $rk->unit_source_device_id  = $unit->source_device_id;
+                $rk->unit_id                = null;
+                $rk->unit_label             = null;
+                $rk->unit_source_device_id  = null;
                 $rk->volume_id              = $volumeAir->id;
                 $rk->volume                 = $volumeAir->volume;
                 $rk->operator_id            = null;
@@ -74,9 +96,9 @@ class RencanaKerjaPPOImport implements ToCollection, WithHeadingRow
                 $rk->driver_id              = null;
                 $rk->driver_empid           = null;
                 $rk->driver_nama            = null;
-                $rk->kasie_id               = $kasie->id;
-                $rk->kasie_empid            = $kasie->employee_id;
-                $rk->kasie_nama             = $kasie->name;
+                $rk->kasie_id               = null;
+                $rk->kasie_empid            = null;
+                $rk->kasie_nama             = null;
                 $rk->status_id              = $status->id;
                 $rk->status_urutan          = $status->urutan;
                 $rk->status_nama            = $status->nama;

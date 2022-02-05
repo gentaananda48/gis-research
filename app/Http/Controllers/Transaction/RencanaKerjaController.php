@@ -27,8 +27,12 @@ use App\Exports\TemplateRencanaKerjaPPOExport;
 use App\Helper\GeofenceHelper;
 
 class RencanaKerjaController extends Controller {
-    public function index() {
+    public function index(Request $request) {
         $user = $this->guard()->user();
+        if(empty($request->tgl)){
+            $tgl = date('m/01/Y').' - '.date('m/t/Y');
+            return redirect()->route('transaction.rencana_kerja', ['tgl' => $tgl]);
+        }
         $is_able_to_import = false;
         if($user->hasAccess('transaction.rencana_kerja.import')){
             $is_able_to_import = true;
@@ -69,6 +73,7 @@ class RencanaKerjaController extends Controller {
             $list_status[$v->id] = $v->nama;
         }
         return view('transaction.rencana_kerja.index', [
+            'tgl'               => $request->tgl,
             'is_able_to_import' => $is_able_to_import,
             'list_shift'        => $list_shift,
             'list_lokasi'       => $list_lokasi,
