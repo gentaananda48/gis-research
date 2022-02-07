@@ -60,6 +60,7 @@ class Kernel extends ConsoleKernel
         $list_rk = RencanaKerja::
             whereRaw("status_id = 4 AND jam_laporan IS NULL")
             //where('id', $request->id)
+            ->limit(10)
             ->orderBy('id', 'ASC')
             ->get();
         foreach($list_rk AS $rk) {
