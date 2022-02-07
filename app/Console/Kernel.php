@@ -58,7 +58,7 @@ class Kernel extends ConsoleKernel
     public function generate_rencana_kerja_report(){
         $geofenceHelper = new GeofenceHelper;
         $list_rk = RencanaKerja::
-            whereRaw("status_id = 4 AND (jam_laporan IS NULL OR jam_laporan = '')")
+            whereRaw("status_id = 4 AND jam_laporan IS NULL")
             //where('id', $request->id)
             ->orderBy('id', 'ASC')
             ->get();
