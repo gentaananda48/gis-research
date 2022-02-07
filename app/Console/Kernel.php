@@ -56,12 +56,13 @@ class Kernel extends ConsoleKernel
     }
 
     public function generate_rencana_kerja_report(){
+        set_time_limit(0);
         $geofenceHelper = new GeofenceHelper;
         $list_rk = RencanaKerja::
             whereRaw("status_id = 4 AND jam_laporan IS NULL")
             //where('id', $request->id)
-            ->limit(10)
             ->orderBy('id', 'ASC')
+            ->limit(5)
             ->get();
         foreach($list_rk AS $rk) {
             ReportRencanaKerja::where('rencana_kerja_id', $rk->id)->delete();
