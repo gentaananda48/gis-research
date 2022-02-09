@@ -56,7 +56,9 @@ class Kernel extends ConsoleKernel
     }
 
     public function generate_rencana_kerja_report(){
-        //set_time_limit(0);
+        $oldLimit = ini_get( 'memory_limit' );
+        ini_set( 'memory_limit', '-1' );
+        set_time_limit(0);
         $geofenceHelper = new GeofenceHelper;
         $list_rk = RencanaKerja::
             whereRaw("status_id = 4 AND jam_laporan IS NULL")
@@ -161,6 +163,7 @@ class Kernel extends ConsoleKernel
             $rk->jam_laporan = date('Y-m-d H:i:s');   
             $rk->save();     
         }
+        ini_set( 'memory_limit', $oldLimit );
     } 
 
     public function generate_rencana_kerja_summary(){
