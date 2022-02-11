@@ -43,13 +43,56 @@ class HomeController extends Controller
      */
     
     public function index(Request $request){
-        $list_chart_1a = ['label'=>['PG 1','PG 2', 'PG 3'], 'data'=>[10,20, 10]];
-        $list_chart_1b = ['label'=>['PG 1','PG 2', 'PG 3'], 'data'=>[5,20, 7]];
-        $list_chart_2 = ['label'=>['Excellent', 'Very Good', 'Good', 'Everage', 'Poor', 'Very Poor'], 'data'=>[20, 30, 10, 50, 15, 10]];
+        $res = RencanaKerja::groupBy('lokasi_grup')
+            ->orderBy('lokasi_grup', 'ASC')
+            ->selectRaw('lokasi_grup, count(1) as jumlah')
+            ->get();
+        $list_chart_1a = ['label'=>[], 'data'=>[]];
+        foreach($res as $v){
+            $list_chart_1a['label'][] = $v->lokasi_grup;
+            $list_chart_1a['data'][] = $v->jumlah;
+        }
+        $res = RencanaKerja::where('status_id', 4)
+            ->groupBy('lokasi_grup')
+            ->orderBy('lokasi_grup', 'ASC')
+            ->selectRaw('lokasi_grup, count(1) as jumlah')
+            ->get();
+        $list_chart_1b = ['label'=>[], 'data'=>[]];
+        foreach($res as $v){
+            $list_chart_1b['label'][] = $v->lokasi_grup;
+            $list_chart_1b['data'][] = $v->jumlah;
+        }
+        $res = RencanaKerja::leftJoin('report_status', 'report_status.status', '=', 'rencana_kerja.kualitas')
+            ->whereRaw("status_id = 4 and jam_laporan IS NOT NULL and kualitas IS NOT NULL and kualitas <> '-'")
+            ->groupBy('kualitas')
+            ->orderBy('report_status.id', 'ASC')
+            ->selectRaw('kualitas, count(1) as jumlah')
+            ->get();
+        $list_chart_2 = ['label'=>[], 'data'=>[]];
+        foreach($res as $v){
+            $list_chart_2['label'][] = $v->kualitas;
+            $list_chart_2['data'][] = $v->jumlah;
+        }
+        $list_data_rk_poor = RencanaKerja::whereRaw("status_id = 4 and jam_laporan IS NOT NULL and kualitas IN ('Poor', 'Very Poor')")
+            ->orderBy('tgl', 'ASC')
+            ->get(['tgl', 'lokasi_grup', 'lokasi_kode', 'aktivitas_nama', 'unit_label', 'kualitas']);
+        $res = RencanaKerja::leftJoin('report_status', 'report_status.status', '=', 'rencana_kerja.kualitas')
+            ->whereRaw("status_id = 4 and jam_laporan IS NOT NULL and kualitas IN ('Poor', 'Very Poor')")
+            ->groupBy('unit_label')
+            ->groupBy('kualitas')
+            ->orderBy('report_status.id', 'DESC')
+            ->selectRaw('unit_label, kualitas, count(1) as jumlah')
+            ->get();
+        $list_data_unit_poor = [];
+        foreach($res as $v){
+            $list_data_unit_poor[$v->unit_label][$v->kualitas] = $v->jumlah;
+        }
         return view('home', [
             'list_chart_1a'    => json_encode($list_chart_1a, JSON_UNESCAPED_SLASHES ),
             'list_chart_1b'    => json_encode($list_chart_1b, JSON_UNESCAPED_SLASHES ),
-            'list_chart_2'    => json_encode($list_chart_2, JSON_UNESCAPED_SLASHES )
+            'list_chart_2'    => json_encode($list_chart_2, JSON_UNESCAPED_SLASHES ),
+            'list_data_rk_poor' => $list_data_rk_poor,
+            'list_data_unit_poor'   => $list_data_unit_poor
         ]);
     }
 
