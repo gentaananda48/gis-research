@@ -95,7 +95,7 @@ class HomeController extends Controller
             $list_chart_1b['data'][] = $v->jumlah;
             $total_real += $v->jumlah;
         }
-        $perc_rk_real = number_format($total_real / $total_rk * 100, 2);
+        $perc_rk_real = $total_rk == 0 ? 0 : number_format($total_real / $total_rk * 100, 2);
 
         $query = RencanaKerja::leftJoin('report_status', 'report_status.status', '=', 'rencana_kerja.kualitas')
             ->whereBetween('tgl', [$date1, $date2]);
