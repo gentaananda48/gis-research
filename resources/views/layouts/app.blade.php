@@ -6,9 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    {!! Html::style('AdminLTE-2.4.2/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}
     {!! Html::style('css/app.css')!!}
-    {!! Html::style('AdminLTE-2.4.2/bower_components/font-awesome/css/font-awesome.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/font-awesome/css/font-awesome.min.css') !!}
     {!! Html::style('bootstrapvalidator-0.5.2/css/bootstrapValidator.min.css')!!}
     
     <title>Surat Perintak Kerja</title>
@@ -22,8 +22,8 @@
   <body>
     @yield('content')
     <!-- Javascripts-->
-    {!! Html::script('AdminLTE-2.4.2/bower_components/jquery/dist/jquery.min.js') !!}
-    {!! Html::script('AdminLTE-2.4.2/bower_components/bootstrap/dist/js/bootstrap.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/jquery/dist/jquery.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/bootstrap/dist/js/bootstrap.min.js') !!}
     {!! Html::script('bootstrapvalidator-0.5.2/js/bootstrapValidator.min.js') !!}
     {!! Html::script('/js/plugins/pace.min.js') !!}
     @yield('script')

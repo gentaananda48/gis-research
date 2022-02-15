@@ -8,10 +8,10 @@
     <title>Boom Sprayer</title>
     <link rel="shortcut icon" type="img/png" href="{{ url('/img/logo.png') }}"/>
     <!--head-->
-    {!! Html::style('AdminLTE-2.4.2/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}
-    {!! Html::style('AdminLTE-2.4.2/bower_components/font-awesome/css/font-awesome.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/font-awesome/css/font-awesome.min.css') !!}
     {!! Html::style('bootstrapvalidator-0.5.2/css/bootstrapValidator.min.css')!!}
-    {!! Html::style('AdminLTE-2.4.2/dist/css/AdminLTE.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/dist/css/AdminLTE.min.css') !!}
     <style>
       .login-page {
         position: relative; 
@@ -91,8 +91,8 @@
         </div>
       </div>
     </div>
-    {!! Html::script('AdminLTE-2.4.2/bower_components/jquery/dist/jquery.min.js') !!}
-    {!! Html::script('AdminLTE-2.4.2/bower_components/bootstrap/dist/js/bootstrap.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/jquery/dist/jquery.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/bootstrap/dist/js/bootstrap.min.js') !!}
     {!! Html::script('bootstrapvalidator-0.5.2/js/bootstrapValidator.min.js') !!}
     <script>
         $(function () {

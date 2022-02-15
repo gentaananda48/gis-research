@@ -11,19 +11,19 @@
     <link rel="shortcut icon" type="img/png" href="{{ url('/img/logo.png') }}"/>
     
     <!--head-->
-    {!! Html::style('AdminLTE-2.4.2/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}
-    {!! Html::style('AdminLTE-2.4.2/bower_components/font-awesome/css/font-awesome.min.css') !!}
-    {!! Html::style('AdminLTE-2.4.2/bower_components/Ionicons/css/ionicons.min.css') !!}
-    {!! Html::style('AdminLTE-2.4.2/bower_components/select2/dist/css/select2.min.css') !!}
-    {!! Html::style('AdminLTE-2.4.2/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/bootstrap/dist/css/bootstrap.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/font-awesome/css/font-awesome.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/Ionicons/css/ionicons.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/select2/dist/css/select2.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') !!}
     <!-- daterange picker -->
-    {!! Html::style('AdminLTE-2.4.2/bower_components/bootstrap-daterangepicker/daterangepicker.css') !!}
-    {!! Html::style('AdminLTE-2.4.2/plugins/timepicker/bootstrap-timepicker.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/bower_components/bootstrap-daterangepicker/daterangepicker.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/plugins/timepicker/bootstrap-timepicker.min.css') !!}
     {!! Html::style('bootstrapvalidator-0.5.2/css/bootstrapValidator.min.css')!!}
-    {!! Html::style('AdminLTE-2.4.2/dist/css/AdminLTE.min.css') !!}
-    {!! Html::style('AdminLTE-2.4.2/dist/css/skins/skin-green.min.css')!!}
+    {!! Html::style('AdminLTE-2.4.18/dist/css/AdminLTE.min.css') !!}
+    {!! Html::style('AdminLTE-2.4.18/dist/css/skins/skin-green.min.css')!!}
     <!-- Pace style -->
-    {!! Html::style('AdminLTE-2.4.2/plugins/pace/pace.min.css')!!}
+    {!! Html::style('AdminLTE-2.4.18/plugins/pace/pace.min.css')!!}
     {!! Html::style('jquery.bootgrid-1.3.1/jquery.bootgrid.min.css')!!}
     {!! Html::style('css/app.min.css')!!}
 
@@ -90,22 +90,22 @@
     <!-- /#wrapper -->
 
     <!-- JS -->
-    {!! Html::script('AdminLTE-2.4.2/bower_components/jquery/dist/jquery.min.js') !!}
-    {!! Html::script('AdminLTE-2.4.2/bower_components/bootstrap/dist/js/bootstrap.min.js') !!}
-    {!! Html::script('AdminLTE-2.4.2/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') !!}
-    {!! Html::script('AdminLTE-2.4.2/bower_components/moment/min/moment.min.js') !!}
-    {!! Html::script('AdminLTE-2.4.2/bower_components/bootstrap-daterangepicker/daterangepicker.js') !!}
-    {!! Html::script('AdminLTE-2.4.2/plugins/timepicker/bootstrap-timepicker.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/jquery/dist/jquery.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/bootstrap/dist/js/bootstrap.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/moment/min/moment.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/bootstrap-daterangepicker/daterangepicker.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/plugins/timepicker/bootstrap-timepicker.min.js') !!}
     {!! Html::script('bootstrapvalidator-0.5.2/js/bootstrapValidator.min.js') !!}
-    {!! Html::script('AdminLTE-2.4.2/bower_components/select2/dist/js/select2.full.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/select2/dist/js/select2.full.min.js') !!}
     {!! Html::script('js/plugins/sweetalert.min.js') !!}
     {!! Html::script('jquery.bootgrid-1.3.1/jquery.bootgrid.js') !!}
     {!! Html::script('jquery.bootgrid-1.3.1/jquery.bootgrid.fa.min.js') !!}
-    {!! Html::script('AdminLTE-2.4.2/dist/js/adminlte.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/dist/js/adminlte.min.js') !!}
     {!! Html::script('js/numeral.min.js') !!}
     {!! Html::script('js/app.js') !!}
     <!-- PACE -->
-    {!! Html::script('AdminLTE-2.4.2/bower_components/PACE/pace.min.js') !!}
+    {!! Html::script('AdminLTE-2.4.18/bower_components/PACE/pace.min.js') !!}
     @yield('script')
 </body>
 
