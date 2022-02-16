@@ -188,9 +188,9 @@ class RencanaKerjaController extends Controller {
 			  	$rk->status_color 			= $status->color;
 			  	$rk->jam_mulai 				= $request->jam_mulai;
 			  	if(!empty($request->jam_mulai) && !empty($request->jam_selesai)){
-			  		$minutes = round(abs(strtotime($request->jam_selesai) - strtotime($request->jam_selesai)) / 60,2);
+			  		$minutes = round(abs(strtotime($request->jam_selesai) - strtotime($request->jam_mulai)) / 60,2);
 			  		if($minutes>60){
-			  			$rk->jam_selesai	= date('Y-m-d H:i:s', strtotime("+60 minutes", strtotime($request->jam_selesai)));
+			  			$rk->jam_selesai	= date('Y-m-d H:i:s', strtotime("+60 minutes", strtotime($request->jam_mulai)));
 			  		} else {
 			  			$rk->jam_selesai 	= $request->jam_selesai;
 			  		}
