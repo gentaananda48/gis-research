@@ -44,7 +44,7 @@
         <div class="info-box">
           <span class="info-box-icon bg-aqua"><i class="fa fa-file-text-o"></i></span>
           <div class="info-box-content">
-            <span class="info-box-text">Rencana Kerja VAT</span>
+            <span>Input Data VAT</span>
             <span class="info-box-number">{{ $total_rk }}</span>
           </div>
         </div>
@@ -54,7 +54,7 @@
         <div class="info-box">
           <span class="info-box-icon bg-green"><i class="fa fa-truck"></i></span>
           <div class="info-box-content">
-            <span class="info-box-text">Realisasi VAT</span>
+            <span>Record Data VAT</span>
             <span class="info-box-number">{{ $total_real }}</span>
           </div>
         </div>
@@ -66,7 +66,7 @@
         <div class="info-box">
           <span class="info-box-icon bg-yellow"><i class="fa fa-bar-chart"></i></span>
           <div class="info-box-content">
-            <span class="info-box-text">Rencana Kerja vs Realisasi</span>
+            <span>Input Data VAT VS Record Data VAT</span>
             <span class="info-box-number">{{ $perc_rk_real }}<small>%</small></span>
           </div>
         </div>
