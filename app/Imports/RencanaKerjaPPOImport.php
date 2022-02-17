@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Model\Shift;
@@ -32,6 +33,11 @@ class RencanaKerjaPPOImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows) { 
         DB::beginTransaction();
         try {
+            Validator::make($rows->toArray(), [
+                '*.lokasi' => 'required|exists:lokasi,kode',
+                '*.kode_aktivitas' => 'required|exists:aktivitas,kode',
+                '*.volume_air' => 'required|exists:volume_air,volume',
+            ])->validate();
             if(count($rows)>0){
                 $tgl        = ($rows[0]["tanggal"] - 25569) * 86400;
                 $tgl        = gmdate('Y-m-d',$tgl);

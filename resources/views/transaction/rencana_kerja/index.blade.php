@@ -20,19 +20,19 @@
     </section>
     
     <section class="content container-fluid">
-    @if ($message = Session::get('success'))
-      <div class="alert alert-success alert-block">
-        <button type="button" class="close" data-dismiss="alert">×</button>    
-          <strong>{{ $message }}</strong>
-      </div>
-    @endif
+        @if ($message = Session::get('success'))
+          <div class="alert alert-success alert-block">
+            <button type="button" class="close" data-dismiss="alert">×</button>    
+              <strong>{{ $message }}</strong>
+          </div>
+        @endif
 
-    @if ($message = Session::get('error'))
-      <div class="alert alert-danger alert-block">
-        <button type="button" class="close" data-dismiss="alert">×</button>    
-        <strong>{{ $message }}</strong>
-      </div>
-    @endif
+        @if ($message = Session::get('error'))
+          <div class="alert alert-danger alert-block">
+            <button type="button" class="close" data-dismiss="alert">×</button>    
+            <strong>{{ $message }}</strong>
+          </div>
+        @endif
         @if($is_able_to_import)
         <button type="button" class="btn btn-xs btn-success" data-toggle="modal" data-target="#import">Import</button>
         @endif

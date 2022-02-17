@@ -72,7 +72,7 @@ $(document).ready(function(){
         $('.section-alert').remove();
     })
 
-    $(".section-alert").fadeTo(5000, 500).slideUp(500, function(){
+    $(".section-alert").fadeTo(10000, 500).slideUp(500, function(){
         $(".section-alert").slideUp(500);
     });
 
