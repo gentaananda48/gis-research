@@ -147,7 +147,7 @@ class RencanaKerjaController extends Controller {
             if($import) {
                 return redirect()->route('transaction.rencana_kerja')->with(['success' => 'Data Berhasil Diimport!']);
             } else {
-                return redirect()->back()->withErrors('error' => 'Data Gagal Diimport!');
+                return redirect()->back()->withErrors('Data Gagal Diimport!');
             }
         } else {
             return redirect()->back()->withErrors('Invalid Data Type');
