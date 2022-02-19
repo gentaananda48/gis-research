@@ -138,17 +138,19 @@ class RencanaKerjaController extends Controller {
 
     public function import(Request $request) {
         $user = $this->guard()->user();
-        $this->validate($request, [
-            'file' => 'required|mimes:xls,xlsx'
-        ]);
-
-        $import = Excel::import(new RencanaKerjaPPOImport($user->id), request()->file('file'));
-        if($import) {
-            //redirect
-            return redirect()->route('transaction.rencana_kerja')->with(['success' => 'Data Berhasil Diimport!']);
+        // $this->validate($request, [
+        //     'file' => 'required|mimes:xls,xlsx'
+        // ]);
+        $extension = $request->file('file')->getClientOriginalExtension();
+        if(in_array($extension, ['xls', 'xlsx'])) {
+            $import = Excel::import(new RencanaKerjaPPOImport($user->id), request()->file('file'));
+            if($import) {
+                return redirect()->route('transaction.rencana_kerja')->with(['success' => 'Data Berhasil Diimport!']);
+            } else {
+                return redirect()->back()->withErrors('error' => 'Data Gagal Diimport!');
+            }
         } else {
-            //redirect
-            return redirect()->route('transaction.rencana_kerja')->with(['error' => 'Data Gagal Diimport!']);
+            return redirect()->back()->withErrors('Invalid Data Type');
         }
     }
 
