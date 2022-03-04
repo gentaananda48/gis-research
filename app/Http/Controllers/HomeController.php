@@ -64,36 +64,20 @@ class HomeController extends Controller
                 $query->whereIn('kualitas', $request->kualitas);
             }
         $res = $query->orderBy('lokasi_grup', 'ASC')
-            ->selectRaw('lokasi_grup, count(1) as jumlah')
+            ->selectRaw('lokasi_grup, count(1) AS jumlah_rk, SUM(CASE WHEN status_id = 4 THEN 1 ELSE 0 END) AS jumlah_report')
             ->get();
         $list_chart_1a = ['label'=>[], 'data'=>[]];
-        $total_rk = 0;
-        foreach($res as $v){
-            $list_chart_1a['label'][] = $v->lokasi_grup;
-            $list_chart_1a['data'][] = $v->jumlah;
-            $total_rk += $v->jumlah;
-        }
-        $query = RencanaKerja::where('status_id', 4)
-            ->whereBetween('tgl', [$date1, $date2]);
-            if(!empty($request->pg)) {
-                $query->whereIn('lokasi_grup', $request->pg);
-            }
-            if(!empty($request->aktivitas)) {
-                $query->whereIn('aktivitas_kode', $request->aktivitas);
-            }
-            if(!empty($request->kualitas)) {
-                $query->whereIn('kualitas', $request->kualitas);
-            }
-        $res = $query->groupBy('lokasi_grup')
-            ->orderBy('lokasi_grup', 'ASC')
-            ->selectRaw('lokasi_grup, count(1) as jumlah')
-            ->get();
         $list_chart_1b = ['label'=>[], 'data'=>[]];
+        $total_rk = 0;
         $total_real = 0;
         foreach($res as $v){
+            $list_chart_1a['label'][] = $v->lokasi_grup;
+            $list_chart_1a['data'][] = $v->jumlah_rk;
+            $total_rk += $v->jumlah_rk;
+
             $list_chart_1b['label'][] = $v->lokasi_grup;
-            $list_chart_1b['data'][] = $v->jumlah;
-            $total_real += $v->jumlah;
+            $list_chart_1b['data'][] = $v->jumlah_report;
+            $total_real += $v->jumlah_report;
         }
         $perc_rk_real = $total_rk == 0 ? 0 : number_format($total_real / $total_rk * 100, 2);
 
