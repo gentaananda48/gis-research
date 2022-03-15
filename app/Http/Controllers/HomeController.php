@@ -115,7 +115,7 @@ class HomeController extends Controller
                 $query->whereIn('kualitas', $request->kualitas);
             }
         $list_data_rk_poor = $query->orderBy('tgl', 'ASC')
-            ->get(['tgl', 'lokasi_grup', 'lokasi_kode', 'aktivitas_nama', 'unit_label', 'kualitas']);
+            ->get(['id', 'tgl', 'lokasi_grup', 'lokasi_kode', 'aktivitas_nama', 'unit_label', 'kualitas']);
 
         $query = RencanaKerja::leftJoin('report_status', 'report_status.status', '=', 'rencana_kerja.kualitas')
             ->whereBetween('tgl', [$date1, $date2]);

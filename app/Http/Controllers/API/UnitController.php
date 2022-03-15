@@ -11,11 +11,12 @@ use App\Model\VUnit;
 use App\Model\Lacak;
 use App\Model\KoordinatLokasi;
 use App\Helper\GeofenceHelper;
+use App\Model\SystemConfiguration;
 
 class UnitController extends Controller {
 
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['playback_view']]);
+        $this->middleware('auth:api', ['except' => ['playback_view', 'offline_data']]);
     }
 
     public function list(Request $request){
@@ -205,6 +206,71 @@ class UnitController extends Controller {
             'list_interval' => $list_interval,
             'interval'      => $interval,
             'durasi'        => $durasi
+        ]);
+    }
+
+    public function offline_data() {
+        $geoloc = [
+            ['latitude' => -4.796459, 'longitude' => 105.302609],
+            ['latitude' => -4.796395, 'longitude' => 105.302775],
+            ['latitude' => -4.796379, 'longitude' => 105.302877],
+            ['latitude' => -4.796406, 'longitude' => 105.303011],
+            ['latitude' => -4.796374, 'longitude' => 105.303118],
+            ['latitude' => -4.796347, 'longitude' => 105.303252],
+            ['latitude' => -4.796326, 'longitude' => 105.303376],
+            ['latitude' => -4.796272, 'longitude' => 105.303488],
+            ['latitude' => -4.796229, 'longitude' => 105.303622],
+            ['latitude' => -4.796192, 'longitude' => 105.3038],
+            ['latitude' => -4.796133, 'longitude' => 105.303955],
+            ['latitude' => -4.796096, 'longitude' => 105.304159],
+            ['latitude' => -4.796037, 'longitude' => 105.304336],
+            ['latitude' => -4.79601, 'longitude' => 105.304475],
+            ['latitude' => -4.795968, 'longitude' => 105.304615],
+            ['latitude' => -4.795946, 'longitude' => 105.304776],
+            ['latitude' => -4.795898, 'longitude' => 105.304915],
+            ['latitude' => -4.795839, 'longitude' => 105.305098],
+            ['latitude' => -4.795791, 'longitude' => 105.305264],
+            ['latitude' => -4.795754, 'longitude' => 105.305446],
+            ['latitude' => -4.795695, 'longitude' => 105.305597],
+            ['latitude' => -4.795631, 'longitude' => 105.305768],
+            ['latitude' => -4.795615, 'longitude' => 105.305918],
+            ['latitude' => -4.795556, 'longitude' => 105.306069],
+            ['latitude' => -4.795476, 'longitude' => 105.306208],
+            ['latitude' => -4.795465, 'longitude' => 105.306391],
+            ['latitude' => -4.795422, 'longitude' => 105.306514],
+            ['latitude' => -4.795321, 'longitude' => 105.306519],
+            ['latitude' => -4.795251, 'longitude' => 105.306476],
+            ['latitude' => -4.795155, 'longitude' => 105.306423],
+            ['latitude' => -4.795176, 'longitude' => 105.306273]
+        ];
+        $sysconf = SystemConfiguration::where('code', 'OFFLINE_DATA_IDX')->first();
+        $i = intval($sysconf->value);
+        if($i>=count($geoloc)) {
+            $i = 0;
+        }
+        $flow_meter_right = rand(0,50);
+        $flow_meter_left = rand(0,50);
+        $data = [
+            'utc_timestamp'         => strtotime(gmdate("Y-m-d\TH:i:s\Z")),
+            'latitude'              => $geoloc[$i]['latitude'],
+            'longitude'             => $geoloc[$i]['longitude'],
+            'speed'                 => rand(0,10),
+            'tank_level'            => rand(0,10),
+            'temperature_right'     => rand(0,50),
+            'temperature_left'      => rand(0,50),
+            'flow_meter_right'      => $flow_meter_right,
+            'flow_meter_left'       => $flow_meter_left,
+            'pump_switch_main'      => true,
+            'pump_switch_left'      => $flow_meter_left > 0,
+            'pump_switch_right'     => $flow_meter_left > 0
+        ];
+        $i++;
+        $sysconf->value = ''.$i;
+        $sysconf->save();
+        return response()->json([
+            'status'    => true, 
+            'message'   => '', 
+            'data'      => $data
         ]);
     }
 
