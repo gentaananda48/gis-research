@@ -11,12 +11,11 @@ use App\Model\VUnit;
 use App\Model\Lacak;
 use App\Model\KoordinatLokasi;
 use App\Helper\GeofenceHelper;
-use App\Model\SystemConfiguration;
 
 class UnitController extends Controller {
 
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['playback_view', 'offline_data']]);
+        $this->middleware('auth:api', ['except' => ['playback_view']]);
     }
 
     public function list(Request $request){

@@ -119,7 +119,9 @@
                 <tr>
                   <td>{{$v->tgl}}</td>
                   <td>{{$v->lokasi_grup}}</td>
-                  <td>{{$v->lokasi_kode}}</td>
+                  <td>
+                    <a href="/report/rencana_kerja/summary/{{$v->id}}">{{$v->lokasi_kode}}</a>
+                  </td>
                   <td>{{$v->aktivitas_nama}}</td>
                   <td>{{$v->unit_label}}</td>
                   <td>{{$v->kualitas}}</td>
