@@ -17,6 +17,7 @@ use App\Model\VolumeAir;
 use App\Model\Status;
 use App\Model\KoordinatLokasi;
 use App\Model\Lacak;
+use App\Model\Lacak2;
 use App\Center\GridCenter;
 use App\Transformer\RencanaKerjaTransformer;
 use Maatwebsite\Excel\Facades\Excel;
@@ -186,11 +187,19 @@ class RencanaKerjaController extends Controller {
         $list_lokasi = array_values($list_lokasi);
         $geofenceHelper = new GeofenceHelper;
         $durasi = strtotime($jam_selesai) - strtotime($jam_mulai) + 1;
-        $lacak = Lacak::where('ident', $unit->source_device_id)
-            ->where('timestamp', '>=', strtotime($jam_mulai))
-            ->where('timestamp', '<=', strtotime($jam_selesai))
-            ->orderBy('timestamp', 'ASC')
-            ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
+        if($rk->tgl>='2022-03-15') {
+            $lacak = Lacak2::where('ident', $unit->source_device_id)
+                ->where('timestamp', '>=', strtotime($jam_mulai))
+                ->where('timestamp', '<=', strtotime($jam_selesai))
+                ->orderBy('timestamp', 'ASC')
+                ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
+        } else {
+            $lacak = Lacak::where('ident', $unit->source_device_id)
+                ->where('timestamp', '>=', strtotime($jam_mulai))
+                ->where('timestamp', '<=', strtotime($jam_selesai))
+                ->orderBy('timestamp', 'ASC')
+                ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
+        }
         $list_lacak = [];
         foreach($lacak as $v){
             $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);

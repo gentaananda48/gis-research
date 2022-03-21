@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use App\Model\Unit;
 use App\Model\SystemConfiguration;
 use App\Model\Lacak;
+use App\Model\Lacak2;
 use App\Helper\GeofenceHelper;
 use App\Model\KoordinatLokasi;
 use App\Model\RencanaKerja;
@@ -184,7 +185,11 @@ class Kernel extends ConsoleKernel
         foreach($list_rk AS $rk) {
             ReportRencanaKerja::where('rencana_kerja_id', $rk->id)->delete();
             $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
-            $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+            if($rk->tgl>='2022-03-15') {
+                $list = Lacak2::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+            } else {
+                $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+            }
             $list2 = [];
             $i2 = 0;
             $list_kel = [];
@@ -292,7 +297,11 @@ class Kernel extends ConsoleKernel
             $aktivitas = Aktivitas::find($rk->aktivitas_id);
             $list_rs = ReportStatus::get();
             $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
-            $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+            if($rk->tgl>='2022-03-15') {
+                $list = Lacak2::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+            } else {   
+                $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+            }
             $is_started = false;
             $waktu_berhenti = 0;
             $ritase = 1;
