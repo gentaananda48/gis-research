@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\Log;
 use App\Model\Unit;
 use App\Model\VUnit;
 use App\Model\Lacak;
+use App\Model\SystemConfiguration;
 use App\Model\KoordinatLokasi;
 use App\Helper\GeofenceHelper;
 
 class UnitController extends Controller {
 
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['playback_view']]);
+        $this->middleware('auth:api', ['except' => ['tracking_view', 'playback_view', 'offline_data']]);
     }
 
     public function list(Request $request){
@@ -146,6 +147,47 @@ class UnitController extends Controller {
         ]);
     }
 
+    public function tracking_view(Request $request) {
+        $id = !empty($request->id) ? $request->id :0;
+        $unit = Unit::find($id);
+        $lacak = Lacak::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
+        $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
+        $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
+        $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
+        $unit->movement_status_desc     = !empty($unit->movement_status) ? 'moving': 'stopped';
+        $unit->gsm_signal_level         = $lacak != null ? $lacak->gsm_signal_level : 0;
+        $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
+        $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
+        $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
+        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
+        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
+
+        $geofenceHelper = new GeofenceHelper;
+        $list_polygon = $geofenceHelper->createListPolygon();
+        $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
+        $unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
+
+        $list = KoordinatLokasi::orderBy('lokasi', 'ASC')
+            ->orderBy('bagian', 'ASC')
+            ->orderBy('posnr', 'ASC')
+            ->get();
+        $list_lokasi = [];
+        $list_polygon = [];
+        foreach($list as $v){
+            $idx = $v->lokasi.'_'.$v->bagian;
+            if(array_key_exists($idx, $list_lokasi)){
+                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+            } else {
+                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            }
+        }
+        $list_lokasi = array_values($list_lokasi);
+        return view('api.unit.tracking', [
+            'list_lokasi'   => json_encode($list_lokasi),
+            'unit'          => $unit
+        ]);
+    }
+
     public function playback_view(Request $request) {
         $id = !empty($request->id) ? $request->id :0;
         $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
@@ -254,11 +296,13 @@ class UnitController extends Controller {
             'latitude'              => $geoloc[$i]['latitude'],
             'longitude'             => $geoloc[$i]['longitude'],
             'speed'                 => rand(0,10),
-            'tank_level'            => rand(0,10),
-            'temperature_right'     => rand(0,50),
-            'temperature_left'      => rand(0,50),
+            'tank_level'            => rand(0,6),
+            'temperature_right'     => rand(20,60),
+            'temperature_left'      => rand(20,60),
             'flow_meter_right'      => $flow_meter_right,
             'flow_meter_left'       => $flow_meter_left,
+            'wing_level_right'     => rand(0,6),
+            'wing_level_left'      => rand(0,6),
             'pump_switch_main'      => true,
             'pump_switch_left'      => $flow_meter_left > 0,
             'pump_switch_right'     => $flow_meter_left > 0
@@ -266,11 +310,7 @@ class UnitController extends Controller {
         $i++;
         $sysconf->value = ''.$i;
         $sysconf->save();
-        return response()->json([
-            'status'    => true, 
-            'message'   => '', 
-            'data'      => $data
-        ]);
+        return response()->json($data);
     }
 
     public function guard(){

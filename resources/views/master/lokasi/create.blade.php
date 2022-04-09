@@ -37,9 +37,17 @@
 							<label for="lsnetto">Luas Netto</label>
 							{{ Form::text('lsnetto', Input::old('lsnetto'), array('placeholder' => 'Luas Netto', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
 						</div>
-						<div class="form-group">
+						<!-- <div class="form-group">
 							<label for="status">Status</label>
 							{{ Form::text('status', null, array('placeholder' => 'Status', 'class' => 'form-control')) }}
+						</div> -->
+						<div class="form-group">
+							<label for="map_topleft">Map Top-Left</label>
+							{{ Form::text('map_topleft', Input::old('map_topleft'), array('placeholder' => 'Map Top-left', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
+						</div>
+						<div class="form-group">
+							<label for="map_bottomright">Map Bottom-Right</label>
+							{{ Form::text('map_bottomright', Input::old('map_bottomright'), array('placeholder' => 'Map Bottom-Right', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
 						</div>
 					<div class="box-footer">
 						{{ Form::submit('Save', array('class' => 'btn btn-success'))}}

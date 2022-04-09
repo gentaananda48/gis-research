@@ -17,7 +17,7 @@ class CheckAppVersion
     public function handle($request, Closure $next)
     {
         $sysconf = SystemConfiguration::where('CODE', 'APP-VERSION')->first(['value']);
-        if(in_array($request->path(), ["api/unit/playback_view", "api/rencana_kerja/playback_view", "api/rencana_kerja/map_view"])) {
+        if(in_array($request->path(), ["api/unit/tracking_view", "api/unit/playback_view", "api/unit/offline_data", "api/rencana_kerja/playback_view", "api/rencana_kerja/map_view"])) {
             return $next($request);
         }
         $app_version = $request->header('APP-VERSION', '');

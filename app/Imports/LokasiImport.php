@@ -33,6 +33,8 @@ class LokasiImport implements ToCollection, WithHeadingRow
                 $wilayah        = $row["wilayah"];
                 $lsbruto        = $row["luas_bruto"];
                 $lsnetto        = $row["luas_netto"];
+                $map_topleft            = !empty($row["map_topleft"])? $row["map_topleft"] : null;
+                $map_bottomright        = !empty($row["map_bottomright"]) ? $row["map_bottomright"] : null;
                 $geofence       = $row["geofence"];
                 $lok = new Lokasi;
                 $lok->id            = $lokasi_id;
@@ -42,6 +44,8 @@ class LokasiImport implements ToCollection, WithHeadingRow
                 $lok->wilayah       = $wilayah;
                 $lok->lsbruto       = $lsbruto;
                 $lok->lsnetto       = $lsnetto;
+                $lok->map_topleft       = $map_topleft;
+                $lok->map_bottomright   = $map_bottomright;
                 $lok->status        = 'A';
                 $lok->save();
                 $lokasi_id++;

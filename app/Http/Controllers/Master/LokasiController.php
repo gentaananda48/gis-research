@@ -66,6 +66,8 @@ class LokasiController extends Controller {
             $lokasi->lsbruto    = $request->input('lsbruto'); 
             $lokasi->lsnetto    = $request->input('lsnetto');
             $lokasi->status     = $request->input('status');  
+            $lokasi->map_topleft        = $request->input('map_topleft'); 
+            $lokasi->map_bottomright    = $request->input('map_bottomright'); 
             $lokasi->save();
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
@@ -111,7 +113,9 @@ class LokasiController extends Controller {
             $lokasi->grup       = $request->input('grup'); 
             $lokasi->lsbruto    = $request->input('lsbruto'); 
             $lokasi->lsnetto    = $request->input('lsnetto');
-            $lokasi->status     = $request->input('status'); 
+            $lokasi->status     = $request->input('status');  
+            $lokasi->map_topleft        = $request->input('map_topleft'); 
+            $lokasi->map_bottomright    = $request->input('map_bottomright'); 
             $lokasi->save();
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());

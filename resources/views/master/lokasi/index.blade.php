@@ -75,6 +75,8 @@
                             <th data-column-id="wilayah">Wilayah</th>
                             <th data-column-id="lsbruto" data-header-css-class="nowrap">Luas Bruto</th>
                             <th data-column-id="lsnetto" data-header-css-class="nowrap">Luas Netto</th>
+                            <th data-column-id="map_topleft" data-header-css-class="nowrap">Map Top-Left</th>
+                            <th data-column-id="map_bottomright" data-header-css-class="nowrap">Map Bottom-Right</th>
                             <!-- <th data-column-id="status">Status</th> -->
                             <th data-column-id="commands" data-width="15%" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                         </tr>

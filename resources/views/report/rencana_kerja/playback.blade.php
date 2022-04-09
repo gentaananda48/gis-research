@@ -22,7 +22,63 @@
     <section class="content container-fluid">
     	<div class="box box-solid">
         	<div class="box-body">
-       		 	<div id="map" style="width: 100%; height: 400px;"></div>
+        		<div class="row">
+        			<div class="col-sm-7">
+       		 			<div id="map" style="width: 100%; height: 400px;"></div>	
+        			</div>
+        			<div class="col-sm-5">
+        				<div class="box">
+        					<div class="box-body">
+		        				<table class="table">
+			                    	<tbody>
+			                    		<tr>
+			                    			<td>Lokasi</td>
+			                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
+			                    			<td>Aktivitas</td>
+			                    			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
+			                    		</tr>
+			                    		<tr>
+			                    			<td>Nozzle</td>
+			                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
+			                    			<td>Volume</td>
+			                    			<td>: <span>{{$rk->volume}}</span></td>
+			                    		</tr>
+			                    		<tr>
+			                    			<td>Latitude</td>
+			                    			<td>: <span id="info-latitude"></span></td>
+			                    			<td>Kecepatan</td>
+			                    			<td>: <span id="info-kecepatan"></span> KM/Jam</td>
+			                    		</tr>
+			                    		<tr>
+			                    			<td>Longitude</td>
+			                    			<td>: <span id="info-longitude"></span></td>
+			                    			<td>Spray Kiri</td>
+			                    			<td>: <span id="info-nozzle-kanan"></span></td>
+			                    		</tr>
+			                    		<tr>
+			                    			<td>Altitude</td>
+			                    			<td>: <span id="info-altitude"></span></td>
+			                    			<td>Spray Kanan</td>
+			                    			<td>: <span id="info-nozzle-kiri"></span></td>
+			                    		</tr>
+			                    		<tr>
+			                    			<td>Timestamp</td>
+			                    			<td>: <span id="info-timestamp"></span></td>
+			                    			<td>Wing Level Kanan</td>
+			                    			<td>: <span id="info-wing-level-kanan"></span></td>
+			                    		</tr>
+			                    		<tr>
+			                    			<td></td>
+			                    			<td></td>
+			                    			<td>Wing Level Kiri</td>
+			                    			<td>: <span id="info-wing-level-kiri"></span></td>
+			                    		</tr>
+			                    	</tbody>
+			                    </table>
+        					</div>
+        				</div>
+        			</div>
+        		</div>
 		    	<div style="margin-top: 4px;">
 		    		<form style="margin-bottom: 2px;">
 		    			<div class="row">
@@ -76,20 +132,26 @@
                     		<tr>
                     			<td>Longitude</td>
                     			<td>: <span id="info-longitude"></span></td>
-                    			<td>Nozzle Kiri</td>
+                    			<td>Spray Kiri</td>
                     			<td>: <span id="info-nozzle-kanan"></span></td>
                     		</tr>
                     		<tr>
                     			<td>Altitude</td>
                     			<td>: <span id="info-altitude"></span></td>
-                    			<td>Nozzle Kanan</td>
+                    			<td>Spray Kanan</td>
                     			<td>: <span id="info-nozzle-kiri"></span></td>
                     		</tr>
                     		<tr>
                     			<td>Timestamp</td>
                     			<td>: <span id="info-timestamp"></span></td>
+                    			<td>Wing Level Kanan</td>
+                    			<td>: <span id="info-wing-level-kanan"></span></td>
+                    		</tr>
+                    		<tr>
                     			<td></td>
                     			<td></td>
+                    			<td>Wing Level Kiri</td>
+                    			<td>: <span id="info-wing-level-kiri"></span></td>
                     		</tr>
                     	</tbody>
                     </table>
@@ -242,6 +304,15 @@
 				     	$('.win-info').modal('show');
 					});
 				}
+				$("#info-latitude").text(lacak[i-1].position_latitude);
+		     	$("#info-longitude").text(lacak[i-1].position_longitude);
+		     	$("#info-altitude").text(lacak[i-1].position_altitude);
+		     	$("#info-kecepatan").text(lacak[i-1].position_speed);
+		     	$("#info-nozzle-kanan").text(lacak[i-1].din_3 == 1 && lacak[i-1].din_1==1?'On':'Off');
+		     	$("#info-nozzle-kiri").text(lacak[i-1].din_3 == 1 && lacak[i-1].din_2==1?'On':'Off');
+		     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
+		     	$("#info-wing-level-kanan").text(0);
+		     	$("#info-wing-level-kiri").text(0);
 			}
 			$("#lokasi_nama").text(lacak[i].lokasi);
 			$("#timestamp").text(lacak[i].timestamp_2);

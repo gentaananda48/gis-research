@@ -54,6 +54,10 @@ Route::group([
     Route::get('bahan/sync_down', 'MasterDataController@bahan_sync_down');
     Route::get('alasan_pending/sync_down', 'MasterDataController@alasan_pending_sync_down');
     Route::get('tindak_lanjut_pending/sync_down', 'MasterDataController@tindak_lanjut_pending_sync_down');
+    Route::get('lokasi/download_map', 'MasterDataController@lokasi_download_map');
+    Route::get('report_parameter_bobot/sync_down', 'MasterDataController@report_parameter_bobot_sync_down');
+    Route::get('report_parameter_standard/sync_down', 'MasterDataController@report_parameter_standard_sync_down');
+    Route::get('report_parameter_standard_detail/sync_down', 'MasterDataController@report_parameter_standard_detail_sync_down');
 });
 
 // UNIT
@@ -66,7 +70,9 @@ Route::group([
     Route::get('sync_down', 'UnitController@sync_down');
     Route::get('detail', 'UnitController@detail');
     Route::get('playback', 'UnitController@playback');
+    Route::get('tracking_view', 'UnitController@tracking_view');
     Route::get('playback_view', 'UnitController@playback_view');
+    Route::get('offline_data', 'UnitController@offline_data');
 });
 
 // LOKASI
