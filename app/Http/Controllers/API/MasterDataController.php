@@ -24,7 +24,7 @@ use App\Model\ReportParameterStandardDetail;
 
 class MasterDataController extends Controller {
     public function __construct() {
-        $this->middleware('auth:api', []);
+        $this->middleware('auth:api', ['except' => ['lokasi_download_map']]);
     }
 
     public function shift_sync_down(Request $request){
