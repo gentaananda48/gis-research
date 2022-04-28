@@ -301,8 +301,8 @@ class UnitController extends Controller {
             'temperature_left'      => rand(20,60),
             'flow_meter_right'      => $flow_meter_right,
             'flow_meter_left'       => $flow_meter_left,
-            'wing_level_right'     => rand(0,6),
-            'wing_level_left'      => rand(0,6),
+            'arm_height_left'       => rand(0,150),
+            'arm_height_right'      => rand(0,150),
             'pump_switch_main'      => true,
             'pump_switch_left'      => $flow_meter_left > 0,
             'pump_switch_right'     => $flow_meter_left > 0

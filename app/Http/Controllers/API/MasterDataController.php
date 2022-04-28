@@ -148,13 +148,14 @@ class MasterDataController extends Controller {
     }
 
     public function lokasi_download_map(Request $request){
-        $image_path = SystemConfiguration::where('code', 'MAP_NDVI_IMAGE_PATH')->first(['value'])->value;
+        $image_directory = SystemConfiguration::where('code', 'MAP_NDVI_IMAGE_PATH')->first(['value'])->value;
+        $image_name = $request->kode.".png";
         try {
-            $file = $image_path.$request->kode.".png";
+            $file = $image_directory.$request->kode.".png";
             $headers = array(
               'Content-Type: '. mime_content_type($file),
             );
-            return FacadeResponse::download($file, $request->kode, $headers);
+            return FacadeResponse::download($file, $image_name, $headers);
         } catch (Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
