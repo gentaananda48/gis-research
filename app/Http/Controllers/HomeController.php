@@ -128,7 +128,7 @@ class HomeController extends Controller
             if(!empty($request->kualitas)) {
                 $query->whereIn('kualitas', $request->kualitas);
             }
-        $res = $query->whereRaw("status_id = 4 and jam_laporan IS NOT NULL and kualitas IN ('Poor', 'Very Poor')")
+        $res = $query->whereRaw("status_id = 4 and jam_laporan IS NOT NULL")
             ->groupBy('unit_label')
             ->groupBy('kualitas')
             ->orderBy('report_status.id', 'DESC')

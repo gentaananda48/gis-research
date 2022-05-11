@@ -96,7 +96,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-7">
+      <div class="col-md-6">
         <div class="box box-success">
           <div class="box-header with-border">
             <h3 class="box-title">Poor Locations</h3>
@@ -139,7 +139,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-5">
+      <div class="col-md-6">
         <div class="box box-success">
           <div class="box-header with-border">
             <h3 class="box-title">Boom Sprayer</h3>
@@ -148,22 +148,27 @@
             <table class="table table-bordered">
               <tbody>
                 <tr>
-                  @foreach($list_data_unit_poor as $k=>$v)
-                    <td class="text-center" style="font-weight: bold; font-size: 15pt;">{{ empty($v['Very Poor'])? '0' : $v['Very Poor'] }}</td>
-                    <td class="text-center" style="font-weight: bold; font-size: 15pt;">{{ empty($v['Poor'])? '0' : $v['Poor'] }}</td>
-                  @endforeach
+                  <td class="text-center">Unit</td>
+                  <td class="text-center">Excellent</td>
+                  <td class="text-center">Very Good</td>
+                  <td class="text-center">Good</td>
+                  <td class="text-center">Average</td>
+                  <td class="text-center">Poor</td>
+                  <td class="text-center">Very Poor</td>
+                  <td class="text-center">-</td>
                 </tr>
+                @foreach($list_data_unit_poor as $k=>$v)
                 <tr>
-                  @foreach($list_data_unit_poor as $k=>$v)
-                    <td class="text-center">Very Poor</td>
-                    <td class="text-center">Poor</td>
-                  @endforeach
+                    <td class="text-center">{{$k}}</td>
+                    <td class="text-center">{{ !empty($v['Excellent']) ? $v['Excellent'] : 0 }}</td>
+                    <td class="text-center">{{ !empty($v['Very Good']) ? $v['Very Good'] : 0 }}</td>
+                    <td class="text-center">{{ !empty($v['Good']) ? $v['Good'] : 0 }}</td>
+                    <td class="text-center">{{ !empty($v['Average']) ? $v['Average'] : 0 }}</td>
+                    <td class="text-center">{{ !empty($v['Poor']) ? $v['Poor'] : 0 }}</td>
+                    <td class="text-center">{{ !empty($v['Very Poor']) ? $v['Very Poor'] : 0 }}</td>
+                    <td class="text-center">{{ !empty($v['-']) ? $v['-'] : 0 }}</td>
                 </tr>
-                <tr>
-                  @foreach($list_data_unit_poor as $k=>$v)
-                  <td colspan="2" class="text-center">{{$k}}</td>
-                  @endforeach
-                </tr>
+                @endforeach
               </tbody>
             </table>
           </div>
