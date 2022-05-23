@@ -27,7 +27,7 @@
 						</div>
 						<div class="form-group">
 							<label for="value">Value</label>
-							{{ Form::text('value', $data->value, array('placeholder' => 'Value', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
+							{{ Form::text('value', Input::old('value'), array('placeholder' => 'Value', 'class' => 'form-control', 'data-bv-message'=>'Required', 'required')) }}
 						</div>
 					</div>
 					<div class="box-footer">
