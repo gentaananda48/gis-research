@@ -155,7 +155,7 @@
                   <td class="text-center">Average</td>
                   <td class="text-center">Poor</td>
                   <td class="text-center">Very Poor</td>
-                  <td class="text-center">-</td>
+                  <td class="text-center">NR</td>
                 </tr>
                 @foreach($list_data_unit_poor as $k=>$v)
                 <tr>
