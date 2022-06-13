@@ -266,11 +266,9 @@ class Kernel extends ConsoleKernel
             } else {
                 $kualitas = '-';
             }
-            if($rk->kualitas!=$kualitas){
-                $rk->kualitas = $kualitas;
-                $rk->jam_laporan2 = date('Y-m-d H:i:s');
-                $rk->save();
-            }
+            $rk->kualitas = $kualitas;
+            $rk->jam_laporan2 = date('Y-m-d H:i:s');
+            $rk->save();
         }
         ini_set( 'memory_limit', $oldLimit );
     }
