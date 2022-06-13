@@ -68,7 +68,7 @@ class Kernel extends ConsoleKernel
             //whereRaw("status_id = 4 AND jam_laporan IS NOT NULL AND jam_laporan2 IS NULL AND (kualitas IS NULL OR kualitas = '')")
              whereRaw("status_id = 4 AND jam_laporan IS NOT NULL AND jam_laporan2 IS NULL")
             ->orderBy('id', 'ASC')
-            ->limit(10)
+            ->limit(100)
             ->get();
         foreach($list_rk AS $rk) {
             $list_rrk = VReportRencanaKerja::where('rencana_kerja_id', $rk->id)->get();
