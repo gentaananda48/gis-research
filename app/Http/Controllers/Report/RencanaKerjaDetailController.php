@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Model\VRencanaKerjaDetail;
+use App\Model\RencanaKerjaSummary;
 use App\Model\Lokasi;
 use App\Model\Shift;
 use App\Model\Aktivitas;
@@ -72,35 +73,37 @@ class RencanaKerjaDetailController extends Controller {
     public function get_list(Request $request){
         $user = $this->guard()->user();
         $kasie_id = $user->id;
-        $query = VRencanaKerjaDetail::
+        $query = RencanaKerjaSummary::select(['rencana_kerja_summary.*'])
+            ->join('rencana_kerja As rk', 'rk.id', '=', 'rencana_kerja_summary.rk_id')
             //where('kasie_id', $kasie_id)
-           	whereIn('lokasi_grup', explode(',', $user->area));
+           	->whereIn('rk.lokasi_grup', explode(',', $user->area))
+            ->orderBy('id', 'ASC');
         if(!empty($request->tgl)){
             $tgl = explode(' - ', $request->tgl);
             $tgl_1 = date('Y-m-d', strtotime($tgl[0]));
             $tgl_2 = date('Y-m-d', strtotime($tgl[1]));
-            $query->whereBetween('tgl', [$tgl_1, $tgl_2]);
+            $query->whereBetween('rk.tgl', [$tgl_1, $tgl_2]);
         }
         if(isset($request->shift)){
-            $query->whereIn('shift_id', $request->shift);
+            $query->whereIn('rk.shift_id', $request->shift);
         }
         if(isset($request->lokasi)){
-            $query->whereIn('lokasi_kode', $request->lokasi);
+            $query->whereIn('rk.lokasi_kode', $request->lokasi);
         }
         if(isset($request->aktivitas)){
-            $query->whereIn('aktivitas_kode', $request->aktivitas);
+            $query->whereIn('rk.aktivitas_kode', $request->aktivitas);
         }
         if(isset($request->unit)){
-            $query->whereIn('unit_id', $request->unit);
+            $query->whereIn('rk.unit_id', $request->unit);
         }
         if(isset($request->nozzle)){
-            $query->whereIn('nozzle_id', $request->nozzle);
+            $query->whereIn('rk.nozzle_id', $request->nozzle);
         }
         if(isset($request->volume)){
-            $query->whereIn('volume', $request->volume);
+            $query->whereIn('rk.volume', $request->volume);
         }
         if(isset($request->kualitas)){
-            $query->whereIn('kualitas', $request->kualitas);
+            $query->whereIn('rk.kualitas', $request->kualitas);
         }
         $data = new GridCenter($query, $_GET);
         echo json_encode($data->render(new ReportRencanaKerjaDetailTransformer()));

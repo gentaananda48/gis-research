@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Model\VRencanaKerjaDetail;
+use App\Model\RencanaKerjaSummary;
 use App\Model\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -23,42 +23,45 @@ class ReportRencanaKerjaDetailExport implements FromCollection, WithHeadings {
     	$request = $this->request;
         $kasie_id = $this->kasie_id;
         $kasie = User::find($kasie_id);
-    	$query = VRencanaKerjaDetail::selectRaw("id, tgl, shift_nama AS shift, lokasi_kode, lokasi_nama, lokasi_lsbruto, lokasi_lsnetto, aktivitas_kode, aktivitas_nama, nozzle_nama AS nozzle, volume, unit_id, unit_label, unit_source_device_id, operator_nama AS operator, driver_nama AS driver, kasie_nama AS kasie, kualitas, ritase, par_1, par_2, par_3, par_4, par_5, par_6, hasil, kualitas_detail");
+    	$query = RencanaKerjaSummary::selectRaw("rencana_kerja_summary.id, rencana_kerja_summary.rk_id, rencana_kerja_summary.parameter_nama, rencana_kerja_summary.standard, rencana_kerja_summary.realisasi, rencana_kerja_summary.nilai, rencana_kerja_summary.bobot, rencana_kerja_summary.nilai_bobot, rencana_kerja_summary.kualitas")
+            ->join('rencana_kerja As rk', 'rk.id', '=', 'rencana_kerja_summary.rk_id')
+            ->orderBy('id', 'ASC');
         if(!empty($kasie_id)){
             //$query->where('kasie_id', $kasie_id);
-    		$query->whereIn('lokasi_grup', explode(',', $kasie->area));
+    		$query->whereIn('rk.lokasi_grup', explode(',', $kasie->area));
         }
         if(!empty($request->tgl)){
             $tgl = explode(' - ', $request->tgl);
             $tgl_1 = date('Y-m-d', strtotime($tgl[0]));
             $tgl_2 = date('Y-m-d', strtotime($tgl[1]));
-            $query->whereBetween('tgl', [$tgl_1, $tgl_2]);
+            $query->whereBetween('rk.tgl', [$tgl_1, $tgl_2]);
         }
         if(isset($request->shift)){
-            $query->whereIn('shift_id', $request->shift);
+            $query->whereIn('rk.shift_id', $request->shift);
         }
         if(isset($request->lokasi)){
-            $query->whereIn('lokasi_kode', $request->lokasi);
+            $query->whereIn('rk.lokasi_kode', $request->lokasi);
         }
         if(isset($request->aktivitas)){
-            $query->whereIn('aktivitas_kode', $request->aktivitas);
+            $query->whereIn('rk.aktivitas_kode', $request->aktivitas);
         }
         if(isset($request->unit)){
-            $query->whereIn('unit_id', $request->unit);
+            $query->whereIn('rk.unit_id', $request->unit);
         }
         if(isset($request->nozzle)){
-            $query->whereIn('nozzle_id', $request->nozzle);
+            $query->whereIn('rk.nozzle_id', $request->nozzle);
         }
         if(isset($request->volume)){
-            $query->whereIn('volume', $request->volume);
+            $query->whereIn('rk.volume', $request->volume);
         }
         if(isset($request->kualitas)){
-            $query->whereIn('kualitas', $request->kualitas);
+            $query->whereIn('rk.kualitas', $request->kualitas);
         }
+        $query->orderBy('rencana_kerja_summary.id', 'ASC');
         return $query->get();
     }
 
     public function headings(): array {
-    	return ['ID','Tanggal','Shift','Kode Lokasi','Nama Lokasi','Luas Bruto','Luas Netto','Kode Aktivitas','Nama Aktivitas','Nozzle','Volume', 'Kode Unit', 'Nama Unit', 'Device ID Unit', 'Operator', 'Driver', 'Kasie', 'Kualitas', 'Ritase', 'Kecepatan Operasi (5.85 - 7.15)', 'Overlapping (<= 0.55)', 'Waktu Spray Per Ritase (8.865 - 10.835)', 'Ketepatan Dosis (0.8996 - 1)', 'Golden Time (16:00:00 - 11:00:00)', 'Wing Level (<= 1.43)', 'Hasil', 'Kualitas (Detail)'];
+    	return ['ID','Rencana Kerja ID','Parameter','Standard','Realisasi','Nilai','Bobot','Poin','Kualitas'];
     }
 }

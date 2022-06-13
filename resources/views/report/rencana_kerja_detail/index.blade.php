@@ -15,7 +15,7 @@
     <section class="content-header">
         <h1>
             <i class="fa fa-list"></i> 
-            Rencana Kerja
+            Rencana Kerja Detail
         </h1>
     </section>
     
@@ -28,32 +28,14 @@
                     <thead>
                         <tr>
                             <th data-column-id="id" data-type="numeric" data-identifier="true" data-visible="true">ID</th>
-                            <th data-column-id="tgl" data-width="20%">Tanggal</th>
-                            <th data-column-id="shift_nama">Shift</th>
-                            <th data-column-id="lokasi_kode">Kode Lokasi</th>
-                            <th data-column-id="lokasi_nama">Nama Lokasi</th>
-                            <th data-column-id="lokasi_lsbruto">Luas Bruto</th>
-                            <th data-column-id="lokasi_lsnetto">Luas Netto</th>
-                            <th data-column-id="lokasi_grup">PG</th>
-                            <th data-column-id="aktivitas_nama">Aktivitas</th>
-                            <th data-column-id="nozzle_nama">Nozzle</th>
-                            <th data-column-id="volume">Volume</th>
-                            <th data-column-id="unit_id">Kode Unit</th>
-                            <th data-column-id="unit_label">Nama Unit</th>
-                            <th data-column-id="unit_source_device_id">Device ID Unit</th>
-                            <th data-column-id="operator_nama">Operator</th>
-                            <th data-column-id="driver_nama">Driver</th>
-                            <th data-column-id="kasie_nama">Kasie</th> 
+                            <th data-column-id="rk_id">Rencana Kerja ID</th>
+                            <th data-column-id="parameter_nama">Parameter</th>
+                            <th data-column-id="standard">Standard</th>
+                            <th data-column-id="realisasi">Realisasi</th>
+                            <th data-column-id="nilai">Nilai</th>
+                            <th data-column-id="bobot">Bobot</th>
+                            <th data-column-id="nilai_bobot">Poin</th>
                             <th data-column-id="kualitas">Kualitas</th>
-                            <th data-column-id="ritase">Ritase</th>
-                            <th data-column-id="par_1">Kecepatan Operasi (5.85 - 7.15)</th>
-                            <th data-column-id="par_2">Overlapping (<= 0.55)</th>
-                            <th data-column-id="par_3">Waktu Spray Per Ritase (8.865 - 10.835)</th>
-                            <th data-column-id="par_4">Ketepatan Dosis (0.8996 - 1)</th>
-                            <th data-column-id="par_5">Golden Time (16:00:00 - 11:00:00)</th>
-                            <th data-column-id="par_6">Wing Level (<= 1.43)</th>
-                            <th data-column-id="hasil">Hasil</th>
-                            <th data-column-id="kualitas_detail">Kualitas (Detail)</th>
                         </tr>
                     </thead>
                 </table>
