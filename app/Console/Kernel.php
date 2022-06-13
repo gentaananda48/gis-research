@@ -65,7 +65,8 @@ class Kernel extends ConsoleKernel
         ini_set( 'memory_limit', '-1' );
         set_time_limit(0);
         $list_rk = RencanaKerja::
-            whereRaw("status_id = 4 AND jam_laporan IS NOT NULL AND jam_laporan2 IS NULL AND (kualitas IS NULL OR kualitas = '')")
+            //whereRaw("status_id = 4 AND jam_laporan IS NOT NULL AND jam_laporan2 IS NULL AND (kualitas IS NULL OR kualitas = '')")
+             whereRaw("status_id = 4 AND jam_laporan IS NOT NULL AND jam_laporan2 IS NULL")
             ->orderBy('id', 'ASC')
             ->limit(10)
             ->get();
