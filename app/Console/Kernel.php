@@ -21,6 +21,7 @@ use App\Model\ReportStatus;
 use App\Model\Aktivitas;
 use App\Model\ReportRencanaKerja;
 use App\Model\VReportRencanaKerja;
+use App\Model\VReportRencanaKerja2;
 
 class Kernel extends ConsoleKernel
 {
@@ -70,205 +71,133 @@ class Kernel extends ConsoleKernel
             ->orderBy('id', 'ASC')
             ->limit(100)
             ->get();
-        foreach($list_rk AS $rk) {
-            $list_rrk = VReportRencanaKerja::where('rencana_kerja_id', $rk->id)->get();
-            $kualitas = '';
-            if(count($list_rrk)>0) {
-                $aktivitas = Aktivitas::find($rk->aktivitas_id);
-                $kecepatan_operasi = 0;
-                $waktu_spray_per_ritase = 0;
-                foreach($list_rrk as $v){
-                    $kecepatan_operasi += $v->kecepatan_operasi;
-                    $waktu_spray_per_ritase += $v->waktu_spray_per_ritase;
-                }
-                $golden_time = $list_rrk[0]->golden_time;
-                $kecepatan_operasi = $kecepatan_operasi / count($list_rrk);
-                $waktu_spray_per_ritase = $waktu_spray_per_ritase / count($list_rrk);
-
-                $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
-                    ->where('d.report_parameter_id', 1)
-                    ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
-                    ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
-                    ->where('report_parameter_standard.volume_id', $rk->volume_id)
-                    ->orderByRaw("d.range_1*1 ASC")
-                    ->get(['d.*']);
-                $standard_kecepatan_operasi = '';
-                foreach($list_rps AS $rps){
-                    if($rps->point==1){
-                        $standard_kecepatan_operasi = $rps->range_1.' - '.$rps->range_2;
-                    }
-                }
-                $nilai_kecepatan_operasi = 0;
-                foreach($list_rps AS $rps){
-                    if(doubleval($rps->range_1) <= $kecepatan_operasi && $kecepatan_operasi <= doubleval($rps->range_2)){
-                        $nilai_kecepatan_operasi = $rps->point;
-                        break;
-                    }
-                }
-                $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
-                    ->where('report_parameter_id', 1)
-                    ->first();
-                $bobot_kecepatan_operasi = !empty($rpb->bobot) ? $rpb->bobot : 0;
-                $poin_kecepatan_operasi = $nilai_kecepatan_operasi * $bobot_kecepatan_operasi;
-
-                //
-                $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
-                    ->where('ritase', 999)
-                    ->where('parameter_id', 1)
-                    ->first();
-                if($rks==null){
-                    $rks = new RencanaKerjaSummary;
-                    $rks->rk_id = $rk->id;
-                    $rks->ritase = 999;
-                    $rks->parameter_id = 1;
-                    $rks->parameter_nama = 'Kecepatan Operasi';
-                }
-                $rks->standard      = $standard_kecepatan_operasi;
-                $rks->realisasi     = $kecepatan_operasi;
-                $rks->nilai         = $nilai_kecepatan_operasi;
-                $rks->bobot         = $bobot_kecepatan_operasi;
-                $rks->nilai_bobot   = $poin_kecepatan_operasi;
-                $rks->kualitas      = null;
-                $rks->save();
-                //
-
-                $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
-                    ->where('d.report_parameter_id', 2)
-                    ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
-                    ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
-                    ->where('report_parameter_standard.volume_id', $rk->volume_id)
-                    ->orderByRaw("d.range_1*1 ASC")
-                    ->get(['d.*']);
-                $standard_golden_time = '';
-                foreach($list_rps AS $rps){
-                    if($rps->point==1){
-                        $standard_golden_time = $rps->range_1.' - '.$rps->range_2;
-                    }
-                }
-                $nilai_golden_time = 0;
-                foreach($list_rps AS $rps){
-                    $dt_golden_time = date('Y-m-d '.$golden_time);
-                    $dt_range_1 = date('Y-m-d '.$rps->range_1);
-                    if($rps->range_1 > $rps->range_2) {
-                        if($dt_golden_time < $dt_range_1){
-                            $dt_golden_time = date('Y-m-d '.$golden_time,strtotime("+1 days"));
-                        }
-                        $dt_range_2 = date('Y-m-d '.$rps->range_2,strtotime("+1 days"));
-                    } else {
-                        $dt_range_2 = date('Y-m-d '.$rps->range_2);
-                    }
-                    if($dt_range_1 <= $dt_golden_time && $dt_golden_time <= $dt_range_2){
-                        $nilai_golden_time = $rps->point;
-                        break;
-                    }
-                }
-                $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
-                    ->where('report_parameter_id', 2)
-                    ->first();
-                $bobot_golden_time = !empty($rpb->bobot) ? $rpb->bobot : 0;
-                $poin_golden_time = $nilai_golden_time * $bobot_golden_time;
-                //
-                $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
-                    ->where('ritase', 999)
-                    ->where('parameter_id', 2)
-                    ->first();
-                if($rks==null){
-                    $rks = new RencanaKerjaSummary;
-                    $rks->rk_id = $rk->id;
-                    $rks->ritase = 999;
-                    $rks->parameter_id = 2;
-                    $rks->parameter_nama = 'Golden Time';
-                }
-                $rks->standard      = $standard_golden_time;
-                $rks->realisasi     = $golden_time;
-                $rks->nilai         = $nilai_golden_time;
-                $rks->bobot         = $bobot_golden_time;
-                $rks->nilai_bobot   = $poin_golden_time;
-                $rks->kualitas      = null;
-                $rks->save();
-                //
-
-                $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
-                    ->where('d.report_parameter_id', 3)
-                    ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
-                    ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
-                    ->where('report_parameter_standard.volume_id', $rk->volume_id)
-                    ->orderByRaw("d.range_1*1 ASC")
-                    ->get(['d.*']);
-                $standard_waktu_spray_per_ritase = '';
-                foreach($list_rps AS $rps){
-                    if($rps->point==1){
-                        $standard_waktu_spray_per_ritase = $rps->range_1.' - '.$rps->range_2;
-                    }
-                }
-                $nilai_waktu_spray_per_ritase = 0;
-                foreach($list_rps AS $rps){
-                    if(doubleval($rps->range_1) <= $waktu_spray_per_ritase && $waktu_spray_per_ritase <= doubleval($rps->range_2)){
-                        $nilai_waktu_spray_per_ritase = $rps->point;
-                        break;
-                    }
-                }
-                $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
-                    ->where('report_parameter_id', 3)
-                    ->first();
-                $bobot_waktu_spray_per_ritase = !empty($rpb->bobot) ? $rpb->bobot : 0;
-                $poin_waktu_spray_per_ritase = $nilai_waktu_spray_per_ritase * $bobot_waktu_spray_per_ritase;
-                //
-                $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
-                    ->where('ritase', 999)
-                    ->where('parameter_id', 3)
-                    ->first();
-                if($rks==null){
-                    $rks = new RencanaKerjaSummary;
-                    $rks->rk_id = $rk->id;
-                    $rks->ritase = 999;
-                    $rks->parameter_id = 3;
-                    $rks->parameter_nama = 'Waktu Spray';
-                }
-                $rks->standard      = $standard_waktu_spray_per_ritase;
-                $rks->realisasi     = $waktu_spray_per_ritase;
-                $rks->nilai         = $nilai_waktu_spray_per_ritase;
-                $rks->bobot         = $bobot_waktu_spray_per_ritase;
-                $rks->nilai_bobot   = $poin_waktu_spray_per_ritase;
-                $rks->kualitas      = null;
-                $rks->save();
-                //
-
-                $total_poin = $poin_kecepatan_operasi+$poin_golden_time+$poin_waktu_spray_per_ritase;
-                $list_rs = ReportStatus::get();
+        if(count($list_rk)>0){
+            $list_rp = ReportParameter::orderBy('id', 'ASC')->get();
+            $list_rs = ReportStatus::get();
+            foreach($list_rk AS $rk) {
+                $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get()->toArray();
                 $kualitas = '';
-                foreach($list_rs as $v){
-                    if(doubleval($v->range_1) <= $total_poin && $total_poin <= doubleval($v->range_2)){
-                        $kualitas = $v->status;
-                        break;
+                if(count($list_rrk)>0) {
+                    $aktivitas = Aktivitas::find($rk->aktivitas_id);
+                    $list_realisasi = [];
+                    foreach($list_rp as $rp){
+                        if($rp->id!=2){
+                            $list_realisasi[$rp->id] = 0;
+                        }
                     }
+                    foreach($list_rrk as $k=>$v){
+                        foreach($list_rp as $rp){
+                            if($rp->id!=2){
+                                $list_realisasi[$rp->id] += $v['parameter_'.$rp->id];
+                            }
+                        }
+                    }
+                    foreach($list_rp as $rp){
+                        if($rp->id==2){
+                            $list_realisasi[$rp->id] = $list_rrk[0]['parameter_'.$rp->id];
+                        } else {
+                            $list_realisasi[$rp->id] = $list_realisasi[$rp->id] / count($list_rrk);
+                        }
+                    }
+                    $total_poin = 0;
+                    foreach($list_rp as $rp){
+                        $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                            ->where('d.report_parameter_id', $rp->id)
+                            ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                            ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                            ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                            ->orderByRaw("d.range_1*1 ASC")
+                            ->get(['d.*']);
+                        $standard = '';
+                        foreach($list_rps AS $rps){
+                            if($rps->point==1){
+                                $standard = $rps->range_1.' - '.$rps->range_2;
+                            }
+                        }
+                        $realisasi = $list_realisasi[$rp->id];
+                        $nilai = 0;
+                        if($rp->id==2){
+                            foreach($list_rps AS $rps){
+                                $dt_nilai = date('Y-m-d '.$nilai);
+                                $dt_range_1 = date('Y-m-d '.$rps->range_1);
+                                if($rps->range_1 > $rps->range_2) {
+                                    if($dt_nilai < $dt_range_1){
+                                        $dt_nilai = date('Y-m-d '.$nilai,strtotime("+1 days"));
+                                    }
+                                    $dt_range_2 = date('Y-m-d '.$rps->range_2,strtotime("+1 days"));
+                                } else {
+                                    $dt_range_2 = date('Y-m-d '.$rps->range_2);
+                                }
+                                if($dt_range_1 <= $dt_nilai && $dt_nilai <= $dt_range_2){
+                                    $nilai = $rps->point;
+                                    break;
+                                }
+                            }
+                        } else {
+                            foreach($list_rps AS $rps){
+                                if(doubleval($rps->range_1) <= $realisasi && $realisasi <= doubleval($rps->range_2)){
+                                    $nilai = $rps->point;
+                                    break;
+                                }
+                            }
+                        }
+                        $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
+                            ->where('report_parameter_id', $rp->id)
+                            ->first();
+                        $bobot = !empty($rpb->bobot) ? $rpb->bobot : 0;
+                        $poin = $nilai * $bobot;
+                        $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                            ->where('ritase', 999)
+                            ->where('parameter_id', $rp->id)
+                            ->first();
+                        if($rks==null){
+                            $rks = new RencanaKerjaSummary;
+                            $rks->rk_id = $rk->id;
+                            $rks->ritase = 999;
+                            $rks->parameter_id = $rp->id;
+                            $rks->parameter_nama = $rp->nama;
+                        }
+                        $rks->standard      = $standard;
+                        $rks->realisasi     = $realisasi;
+                        $rks->nilai         = $nilai;
+                        $rks->bobot         = $bobot;
+                        $rks->nilai_bobot   = $poin;
+                        $rks->kualitas      = null;
+                        $rks->save();
+                        $total_poin += $poin;
+                    }
+                    $kualitas = '';
+                    foreach($list_rs as $v){
+                        if(doubleval($v->range_1) <= $total_poin && $total_poin <= doubleval($v->range_2)){
+                            $kualitas = $v->status;
+                            break;
+                        }
+                    }
+                    $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                        ->where('ritase', 999999)
+                        ->where('parameter_id', 999)
+                        ->first();
+                    if($rks==null){
+                        $rks = new RencanaKerjaSummary;
+                        $rks->rk_id = $rk->id;
+                        $rks->ritase = 999999;
+                        $rks->parameter_id = 999;
+                        $rks->parameter_nama = 'Total';
+                    }
+                    $rks->standard      = null;
+                    $rks->realisasi     = null;
+                    $rks->nilai         = null;
+                    $rks->bobot         = null;
+                    $rks->nilai_bobot   = $total_poin;
+                    $rks->kualitas      = $kualitas;
+                    $rks->save();
+                } else {
+                    $kualitas = '-';
                 }
-                //
-                $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
-                    ->where('ritase', 999999)
-                    ->where('parameter_id', 999)
-                    ->first();
-                if($rks==null){
-                    $rks = new RencanaKerjaSummary;
-                    $rks->rk_id = $rk->id;
-                    $rks->ritase = 999999;
-                    $rks->parameter_id = 999;
-                    $rks->parameter_nama = 'Total';
-                }
-                $rks->standard      = null;
-                $rks->realisasi     = null;
-                $rks->nilai         = null;
-                $rks->bobot         = null;
-                $rks->nilai_bobot   = $total_poin;
-                $rks->kualitas      = $kualitas;
-                $rks->save();
-                //
-            } else {
-                $kualitas = '-';
-            }
-            $rk->kualitas = $kualitas;
-            $rk->jam_laporan2 = date('Y-m-d H:i:s');
-            $rk->save();
+                $rk->kualitas = $kualitas;
+                $rk->jam_laporan2 = date('Y-m-d H:i:s');
+                $rk->save();
+            } 
         }
         ini_set( 'memory_limit', $oldLimit );
     }
@@ -379,6 +308,18 @@ class Kernel extends ConsoleKernel
                 $rrk->din_3 = $v->din_3;
                 $rrk->ritase = $v->ritase;
                 $rrk->overlapping = $is_overlap;
+                if(!empty($v->payload_text)){
+                    $payload_text = json_decode($v->payload_text);
+                    $rrk->arm_height_right = !empty($payload_text->arm_height_right)?$payload_text->arm_height_right:0;
+                    $rrk->arm_height_left = !empty($payload_text->arm_height_left)?$payload_text->arm_height_left:0;
+                    $rrk->temperature_right = !empty($payload_text->temperature_right)?$payload_text->temperature_right:0;
+                    $rrk->temperature_left = !empty($payload_text->temperature_left)?$payload_text->temperature_left:0;
+                } else {
+                    $rrk->arm_height_right = 0;
+                    $rrk->arm_height_left = 0;
+                    $rrk->temperature_right = 0;
+                    $rrk->temperature_left = 0;
+                }
                 $rrk->save();
             }
 

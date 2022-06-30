@@ -77,7 +77,9 @@ class RencanaKerjaDetailController extends Controller {
             ->join('rencana_kerja As rk', 'rk.id', '=', 'rencana_kerja_summary.rk_id')
             //where('kasie_id', $kasie_id)
            	->whereIn('rk.lokasi_grup', explode(',', $user->area))
-            ->orderBy('id', 'ASC');
+            ->orderBy('rk_id', 'ASC')
+            ->orderBy('ritase', 'ASC')
+            ->orderBy('parameter_id', 'ASC');
         if(!empty($request->tgl)){
             $tgl = explode(' - ', $request->tgl);
             $tgl_1 = date('Y-m-d', strtotime($tgl[0]));

@@ -66,37 +66,36 @@
 								<table class="table table-bordered">
 							        <tbody>
 								        <tr>
-									        <th>RITASE</th>
-									        <th>KECEPATAN OPERASI</th>
-									        <th>GOLDEN TIME</th>
-									        <th>WAKTU SPRAY PER RITASE</th>
+									        <th>Ritase</th>
+									        @foreach($summary->header as $v)
+									        <th>{{$v}}</th>
+									        @endforeach
 									        <th rowspan="{{count($summary->ritase) + 2}}"></th>
 								        </tr>
-							        @foreach($summary->ritase as $v)
+							        	@foreach($summary->ritase as $v)
 							            <tr>
-								            <td>{{$v->ritase}}</td>
-								            <td>{{$v->kecepatan_operasi}}</td>
-								            <td>{{$v->golden_time}}</td>
-								            <td>{{$v->waktu_spray_per_ritase}}</td>
+								            <td>{{$v['ritase']}}</td>
+								            @foreach($summary->header as $k2=>$v2)
+									        <th>{{$v['parameter_'.$k2]}}</th>
+									        @endforeach
 							            </tr>
-							        @endforeach
-							        <tr>
-								        <th>RATA-RATA</th>
-								        <th>{{$summary->rata2->kecepatan_operasi}}</th>
-								        <th>{{$summary->rata2->golden_time}}</th>
-								        <th>{{$summary->rata2->waktu_spray_per_ritase}}</th>
-							        </tr>
-							        <tr>
-								        <th>POIN</th>
-								        <th>{{$summary->poin->kecepatan_operasi}}</th>
-								        <th>{{$summary->poin->golden_time}}</th>
-								        <th>{{$summary->poin->waktu_spray_per_ritase}}</th>
-								        <th>{{$summary->poin->total_poin}}</th>
-							        </tr>
-							        <tr>
-								        <th colspan=4>KATEGORI</th>
-								        <th>{{$summary->kualitas}}</th>
-							        </tr>
+							        	@endforeach
+								        <tr>
+									        <th>Rata-rata</th>
+									        @foreach($summary->rata2 as $v)
+									        <th>{{$v}}</th>
+									        @endforeach
+								        </tr>
+								        <tr>
+									        <th>Poin</th>
+									        @foreach($summary->poin as $v)
+									        <th>{{$v}}</th>
+									        @endforeach
+								        </tr>
+								        <tr>
+									        <th colspan=4>Kategori</th>
+									        <th>{{$summary->kualitas}}</th>
+								        </tr>
 							        </tbody>
 						        </table>
 							</div>
