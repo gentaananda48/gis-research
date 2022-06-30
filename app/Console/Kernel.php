@@ -141,10 +141,18 @@ class Kernel extends ConsoleKernel
                                 }
                             }
                         }
-                        $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
-                            ->where('report_parameter_id', $rp->id)
-                            ->first();
-                        $bobot = !empty($rpb->bobot) ? $rpb->bobot : 0;
+                        $sysconf = SystemConfiguration::where('code', 'RPSD_NEW_UNIT')->first(['value']);
+                        $offline_unit = !empty($sysconf->value)? explode(',', $sysconf->value) : [];
+                        if(in_array($rk->unit_id, $offline_unit)){
+                            $sysconf = SystemConfiguration::where('code', 'RPSD_NEW_BOBOT')->first(['value']);
+                            $offline_bobot = !empty($sysconf->value)? explode(',', $sysconf->value) : [];
+                            $bobot = !empty($offline_bobot[$rp->id-1]) ? $offline_bobot[$rp->id-1] : 0;
+                        } else {
+                            $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
+                                ->where('report_parameter_id', $rp->id)
+                                ->first();
+                            $bobot = !empty($rpb->bobot) ? $rpb->bobot : 0;
+                        }
                         $poin = $nilai * $bobot;
                         $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
                             ->where('ritase', 999)
