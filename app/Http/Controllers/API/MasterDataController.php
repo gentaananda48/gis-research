@@ -83,7 +83,7 @@ class MasterDataController extends Controller {
                     $whereRaw .= "pg LIKE '%".$pg."%' ";
                 }
             }
-            $whereRaw = ")";
+            $whereRaw .= ")";
             $query->whereRaw($whereRaw);
         }
         $list = $query->get();
