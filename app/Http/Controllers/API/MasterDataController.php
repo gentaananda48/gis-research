@@ -78,9 +78,10 @@ class MasterDataController extends Controller {
             $whereRaw = "(";
             foreach($list_pg as $k=>$pg){
                 if($k>0){
-                    $whereRaw .= "pg LIKE '%".$pg."%'";
+                    $whereRaw .= "OR pg LIKE '%".$pg."%' ";
+                } else {
+                    $whereRaw .= "pg LIKE '%".$pg."%' ";
                 }
-                $whereRaw .= "OR pg LIKE '%".$pg."%'";
             }
             $whereRaw = ")";
             $query->whereRaw($whereRaw);
