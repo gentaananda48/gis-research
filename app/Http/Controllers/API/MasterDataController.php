@@ -38,8 +38,10 @@ class MasterDataController extends Controller {
     }
 
     public function lokasi_sync_down(Request $request){
+        $user = $this->guard()->user();
+        $list_pg = !empty($user->area) ? explode(',',$user->area) : [];
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
-    	$list = Lokasi::where('updated_at', '>', $updated_at)->get();
+    	$list = Lokasi::where('grup', $list_pg)->where('updated_at', '>', $updated_at)->get();
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 
@@ -68,8 +70,22 @@ class MasterDataController extends Controller {
     }
 
     public function standard_sync_down(Request $request){
+        $user = $this->guard()->user();
+        $list_pg = !empty($user->area) ? explode(',',$user->area) : [];
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
-        $list = VReportParameterStandard::where('updated_at', '>', $updated_at)->get();
+        $query = VReportParameterStandard::where('updated_at', '>', $updated_at);
+        if(!empty($list_pg)){
+            $whereRaw = "(";
+            foreach($list_pg as $k=>$pg){
+                if($k>0){
+                    $whereRaw .= "pg LIKE '%".$pg."%'";
+                }
+                $whereRaw .= "OR pg LIKE '%".$pg."%'";
+            }
+            $whereRaw = ")";
+            $query->whereRaw($whereRaw);
+        }
+        $list = $query->get();
         return response()->json([
             'status'    => true, 
             'message'   => 'success', 

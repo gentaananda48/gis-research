@@ -29,6 +29,10 @@
 							<label for="grup_id">Grup Aktivitas</label>
 							{{ Form::select('grup_id', $list_grup_aktivitas, Input::old('grup_id'), array('class' => 'form-control select2', 'required' => 'required')) }}
 						</div>
+						<div class="form-group">
+							<label for="pg">PG</label>
+							{{ Form::select('pg[]', $list_pg , Input::old('pg'), array('class' => 'form-control select2', 'multiple'=>'multiple')) }}
+						</div>
 					<div class="box-footer">
 						{{ Form::submit('Save', array('class' => 'btn btn-success'))}}
 						<a href="{{ url('/master/aktivitas') }}" class="btn btn-warning"> Back </a>

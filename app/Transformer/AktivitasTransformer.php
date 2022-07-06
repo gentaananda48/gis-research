@@ -11,6 +11,7 @@ class AktivitasTransformer extends TransformerAbstract {
             'nama'    		=> $model->nama,
             'grup_id'    	=> $model->grup_id,
             'grup_nama'    	=> $model->grup_nama,
+            'pg'            => $model->pg,
             'created_at'    => $model->created_at->format('Y-m-d H:i:s'),
             'created_by'    => $model->created_by,
             'updated_at'    => $model->updated_at->format('Y-m-d H:i:s'),

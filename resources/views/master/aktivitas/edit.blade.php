@@ -29,6 +29,10 @@
 							<label for="grup_id">Grup Aktivitas</label>
 							{{ Form::select('grup_id', $list_grup_aktivitas, $data->grup_id, array('class' => 'form-control select2', 'required' => 'required')) }}
 						</div>
+						<div class="form-group">
+							<label for="pg">PG</label>
+							{{ Form::select('pg[]', $list_pg , explode(',',$data->pg), array('class' => 'form-control select2', 'multiple'=>'multiple')) }}
+						</div>
 					</div>
 					<div class="box-footer">
 						{{ Form::submit('Update', array('class' => 'btn btn-success'))}}

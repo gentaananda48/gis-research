@@ -30,8 +30,14 @@ class AktivitasController extends Controller {
         foreach($res AS $v){
             $list_grup_aktivitas[$v->id] = $v->nama;
         }
+        $list_pg = [
+            'PG1'   => 'PG1',
+            'PG2'   => 'PG2',
+            'PG3'   => 'PG3'
+        ];
         return view('master.aktivitas.create', [
-            'list_grup_aktivitas' 	=> $list_grup_aktivitas
+            'list_grup_aktivitas' 	=> $list_grup_aktivitas,
+            'list_pg'               => $list_pg
         ]);
     }
 
@@ -51,6 +57,7 @@ class AktivitasController extends Controller {
             $aktivitas->kode 	= $request->input('kode'); 
             $aktivitas->nama 	= $request->input('nama'); 
             $aktivitas->grup_id = $request->input('grup_id');
+            $aktivitas->pg      = implode(",",$request->input('pg')); 
             $aktivitas->save();
         } catch(Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
@@ -66,9 +73,15 @@ class AktivitasController extends Controller {
         foreach($res AS $v){
             $list_grup_aktivitas[$v->id] = $v->nama;
         }
+        $list_pg = [
+            'PG1'   => 'PG1',
+            'PG2'   => 'PG2',
+            'PG3'   => 'PG3'
+        ];
         return view('master.aktivitas.edit', [
             'data' => $data,
-            'list_grup_aktivitas' 	=> $list_grup_aktivitas
+            'list_grup_aktivitas' 	=> $list_grup_aktivitas,
+            'list_pg'               => $list_pg
         ]);
     }
 
@@ -88,6 +101,7 @@ class AktivitasController extends Controller {
             $aktivitas->kode 	= $request->input('kode'); 
             $aktivitas->nama 	= $request->input('nama'); 
             $aktivitas->grup_id = $request->input('grup_id');
+            $aktivitas->pg      = implode(",",$request->input('pg')); 
             $aktivitas->save();
 
         } catch(Exception $e) {
