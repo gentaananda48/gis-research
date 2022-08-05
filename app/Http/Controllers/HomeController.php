@@ -7,6 +7,7 @@ use App\Model\User;
 use App\Center\GridCenter;
 use App\Model\Tracker;
 use App\Transformer\UserTransformer;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Helper\GeofenceHelper;
 use App\Model\KoordinatLokasi;
@@ -22,6 +23,8 @@ use App\Model\RencanaKerjaSummary;
 use App\Model\ReportStatus;
 use App\Model\Aktivitas;
 use App\Model\VReportRencanaKerja;
+use App\Model\VReportRencanaKerja2;
+use App\Model\SystemConfiguration;
 use App\Model\Log;
 
 class HomeController extends Controller
@@ -43,6 +46,8 @@ class HomeController extends Controller
      */
     
     public function index(Request $request){
+        $user = $this->guard()->user();
+        $list_pg = explode(',', $user->area);
         if(!empty($request->date_range)){
             $date_range = explode(' - ', $request->date_range);
             $date1 = date('Y-m-d', strtotime($date_range[0]));
@@ -53,6 +58,7 @@ class HomeController extends Controller
             $date2 = date('Y-m-d');
         }
         $query = RencanaKerja::groupBy('lokasi_grup')
+            ->whereIn('lokasi_grup', $list_pg)
             ->whereBetween('tgl', [$date1, $date2]);
             if(!empty($request->pg)) {
                 $query->whereIn('lokasi_grup', $request->pg);
@@ -82,6 +88,7 @@ class HomeController extends Controller
         $perc_rk_real = $total_rk == 0 ? 0 : number_format($total_real / $total_rk * 100, 2);
 
         $query = RencanaKerja::leftJoin('report_status', 'report_status.status', '=', 'rencana_kerja.kualitas')
+            ->whereIn('lokasi_grup', $list_pg)
             ->whereBetween('tgl', [$date1, $date2]);
             if(!empty($request->pg)) {
                 $query->whereIn('lokasi_grup', $request->pg);
@@ -93,6 +100,7 @@ class HomeController extends Controller
                 $query->whereIn('kualitas', $request->kualitas);
             }
         $res = $query->whereRaw("status_id = 4 and jam_laporan IS NOT NULL and kualitas IS NOT NULL and kualitas <> '-'")
+            ->whereIn('lokasi_grup', $list_pg)
             ->groupBy('kualitas')
             ->orderBy('report_status.id', 'ASC')
             ->selectRaw('kualitas, count(1) as jumlah')
@@ -104,6 +112,7 @@ class HomeController extends Controller
         }
 
         $query = RencanaKerja::whereRaw("status_id = 4 and jam_laporan IS NOT NULL and kualitas IN ('Poor', 'Very Poor')")
+            ->whereIn('lokasi_grup', $list_pg)
             ->whereBetween('tgl', [$date1, $date2]);
             if(!empty($request->pg)) {
                 $query->whereIn('lokasi_grup', $request->pg);
@@ -118,6 +127,7 @@ class HomeController extends Controller
             ->get(['id', 'tgl', 'lokasi_grup', 'lokasi_kode', 'aktivitas_nama', 'unit_label', 'kualitas']);
 
         $query = RencanaKerja::leftJoin('report_status', 'report_status.status', '=', 'rencana_kerja.kualitas')
+            ->whereIn('lokasi_grup', $list_pg)
             ->whereBetween('tgl', [$date1, $date2]);
             if(!empty($request->pg)) {
                 $query->whereIn('lokasi_grup', $request->pg);
@@ -129,6 +139,7 @@ class HomeController extends Controller
                 $query->whereIn('kualitas', $request->kualitas);
             }
         $res = $query->whereRaw("status_id = 4 and jam_laporan IS NOT NULL")
+            ->whereIn('lokasi_grup', $list_pg)
             ->groupBy('unit_label')
             ->groupBy('kualitas')
             ->orderBy('report_status.id', 'DESC')
@@ -586,53 +597,202 @@ class HomeController extends Controller
     }
 
     public function generate_report_v2(Request $request) {
-        set_time_limit(0);
-        $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '2021-12-27 00:00:00';
-        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '2021-12-27 23:59:59';
-        $list_lacak = Lacak::where('timestamp', '>=', strtotime($jam_mulai))->where('timestamp', '<=', strtotime($jam_selesai))->orderBy('timestamp', 'ASC')->get();
-        $list_key = [];
-        $list2 = [];
-        foreach($list_lacak AS $k=>$v) {
-            $v->is_spraying = !empty($v->din_3) && (!empty($v->din_1) || !empty($v->din_2)) ? 'Y' : 'N';
-            $key2 = $v->ident.'|'.$v->geofence;
-            if($k>0) {
-                $key1 = $list_lacak[$k-1]->ident.'|'.$list_lacak[$k-1]->geofence;
-                if($key1!=$key2) {
-                    if(array_key_exists($key2, $list_key)) {
-                        $list_key[$key2] += 1;
-                    } else {
-                        $list_key[$key2] = 0;
+        // $oldLimit = ini_get( 'memory_limit' );
+        // ini_set( 'memory_limit', '-1' );
+        // set_time_limit(0);
+        $list_rk = RencanaKerja::
+            //whereRaw("status_id = 4 AND jam_laporan IS NOT NULL AND jam_laporan2 IS NULL AND (kualitas IS NULL OR kualitas = '')")
+             // whereRaw("status_id = 4 AND jam_laporan IS NOT NULL AND jam_laporan2 IS NULL")
+            where('id', 284)
+            ->orderBy('id', 'ASC')
+            ->limit(100)
+            ->get();
+        if(count($list_rk)>0){
+            $list_rp = ReportParameter::orderBy('id', 'ASC')->get();
+            $list_rs = ReportStatus::get();
+            foreach($list_rk AS $rk) {
+                $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get()->toArray();
+                $kualitas = '';
+                if(count($list_rrk)>0) {
+                    $aktivitas = Aktivitas::find($rk->aktivitas_id);
+                    $list_realisasi = [];
+                    foreach($list_rp as $rp){
+                        if($rp->id!=2){
+                            $list_realisasi[$rp->id] = 0;
+                        }
                     }
+                    foreach($list_rrk as $k=>$v){
+                        foreach($list_rp as $rp){
+                            if($rp->id!=2){
+                                $list_realisasi[$rp->id] += $v['parameter_'.$rp->id];
+                            }
+                        }
+                    }
+                    foreach($list_rp as $rp){
+                        if($rp->id==2){
+                            $list_realisasi[$rp->id] = $list_rrk[0]['parameter_'.$rp->id];
+                        } else {
+                            $list_realisasi[$rp->id] = $list_realisasi[$rp->id] / count($list_rrk);
+                        }
+                    }
+                    $total_poin = 0;
+                    foreach($list_rp as $rp){
+                        $list_rps =  ReportParameterStandard::join('report_parameter_standard_detail AS d', 'd.report_parameter_standard_id', '=', 'report_parameter_standard.id')
+                            ->where('d.report_parameter_id', $rp->id)
+                            ->where('report_parameter_standard.aktivitas_id', $rk->aktivitas_id)
+                            ->where('report_parameter_standard.nozzle_id', $rk->nozzle_id)
+                            ->where('report_parameter_standard.volume_id', $rk->volume_id)
+                            ->orderByRaw("d.range_1*1 ASC")
+                            ->get(['d.*']);
+                        $standard = '';
+                        foreach($list_rps AS $rps){
+                            if($rps->point==1){
+                                $standard = $rps->range_1.' - '.$rps->range_2;
+                            }
+                        }
+                        $realisasi = $list_realisasi[$rp->id];
+                        $nilai = 0;
+                        if($rp->id==2){
+                            foreach($list_rps AS $rps){
+                                $dt_nilai = date('Y-m-d '.$nilai);
+                                $dt_range_1 = date('Y-m-d '.$rps->range_1);
+                                if($rps->range_1 > $rps->range_2) {
+                                    if($dt_nilai < $dt_range_1){
+                                        $dt_nilai = date('Y-m-d '.$nilai,strtotime("+1 days"));
+                                    }
+                                    $dt_range_2 = date('Y-m-d '.$rps->range_2,strtotime("+1 days"));
+                                } else {
+                                    $dt_range_2 = date('Y-m-d '.$rps->range_2);
+                                }
+                                if($dt_range_1 <= $dt_nilai && $dt_nilai <= $dt_range_2){
+                                    $nilai = $rps->point;
+                                    break;
+                                }
+                            }
+                        } else {
+                            foreach($list_rps AS $rps){
+                                if(doubleval($rps->range_1) <= $realisasi && $realisasi <= doubleval($rps->range_2)){
+                                    $nilai = $rps->point;
+                                    break;
+                                }
+                            }
+                        }
+                        $sysconf = SystemConfiguration::where('code', 'RPSD_NEW_UNIT')->first(['value']);
+                        $offline_unit = !empty($sysconf->value)? explode(',', $sysconf->value) : [];
+                        if(in_array($rk->unit_id, $offline_unit)){
+                            $sysconf = SystemConfiguration::where('code', 'RPSD_NEW_BOBOT')->first(['value']);
+                            $offline_bobot = !empty($sysconf->value)? explode(',', $sysconf->value) : [];
+                            $bobot = !empty($offline_bobot[$rp->id-1]) ? $offline_bobot[$rp->id-1] : 0;
+                        } else {
+                            $rpb = ReportParameterBobot::where('grup_aktivitas_id', $aktivitas->grup_id)
+                                ->where('report_parameter_id', $rp->id)
+                                ->first();
+                            $bobot = !empty($rpb->bobot) ? $rpb->bobot : 0;
+                        }
+                        $poin = $nilai * $bobot;
+                        echo "STANDARD: ".$standard.", REALISASI: ".$realisasi.", NILAI: ".$nilai.", BOBOT: ".$bobot.", POIN: ".$poin."<br/>";
+                        $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                            ->where('ritase', 999)
+                            ->where('parameter_id', $rp->id)
+                            ->first();
+                        if($rks==null){
+                            $rks = new RencanaKerjaSummary;
+                            $rks->rk_id = $rk->id;
+                            $rks->ritase = 999;
+                            $rks->parameter_id = $rp->id;
+                            $rks->parameter_nama = $rp->nama;
+                        }
+                        $rks->standard      = $standard;
+                        $rks->realisasi     = $realisasi;
+                        $rks->nilai         = $nilai;
+                        $rks->bobot         = $bobot;
+                        $rks->nilai_bobot   = $poin;
+                        $rks->kualitas      = null;
+                        $rks->save();
+                        $total_poin += $poin;
+                    }
+                    $kualitas = '';
+                    foreach($list_rs as $v){
+                        if(doubleval($v->range_1) <= $total_poin && $total_poin <= doubleval($v->range_2)){
+                            $kualitas = $v->status;
+                            break;
+                        }
+                    }
+                    echo "KUALITAS: ".$kualitas;
+                    $rks = RencanaKerjaSummary::where('rk_id', $rk->id)
+                        ->where('ritase', 999999)
+                        ->where('parameter_id', 999)
+                        ->first();
+                    if($rks==null){
+                        $rks = new RencanaKerjaSummary;
+                        $rks->rk_id = $rk->id;
+                        $rks->ritase = 999999;
+                        $rks->parameter_id = 999;
+                        $rks->parameter_nama = 'Total';
+                    }
+                    $rks->standard      = null;
+                    $rks->realisasi     = null;
+                    $rks->nilai         = null;
+                    $rks->bobot         = null;
+                    $rks->nilai_bobot   = $total_poin;
+                    $rks->kualitas      = $kualitas;
+                    $rks->save();
+                } else {
+                    $kualitas = '-';
                 }
-            } else {
-                $list_key[$key2] = 0;
-            }
-            $key =  $key2.'|'.$list_key[$key2];
-            if(array_key_exists($key, $list2)) {
-                $list2[$key][] = $v;
-            } else {
-                $list2[$key] = [$v];
-            }
+                $rk->kualitas = $kualitas;
+                $rk->jam_laporan2 = date('Y-m-d H:i:s');
+                $rk->save();
+            } 
         }
+        // ini_set( 'memory_limit', $oldLimit );
+        // set_time_limit(0);
+        // $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '2021-12-27 00:00:00';
+        // $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '2021-12-27 23:59:59';
+        // $list_lacak = Lacak::where('timestamp', '>=', strtotime($jam_mulai))->where('timestamp', '<=', strtotime($jam_selesai))->orderBy('timestamp', 'ASC')->get();
+        // $list_key = [];
+        // $list2 = [];
+        // foreach($list_lacak AS $k=>$v) {
+        //     $v->is_spraying = !empty($v->din_3) && (!empty($v->din_1) || !empty($v->din_2)) ? 'Y' : 'N';
+        //     $key2 = $v->ident.'|'.$v->geofence;
+        //     if($k>0) {
+        //         $key1 = $list_lacak[$k-1]->ident.'|'.$list_lacak[$k-1]->geofence;
+        //         if($key1!=$key2) {
+        //             if(array_key_exists($key2, $list_key)) {
+        //                 $list_key[$key2] += 1;
+        //             } else {
+        //                 $list_key[$key2] = 0;
+        //             }
+        //         }
+        //     } else {
+        //         $list_key[$key2] = 0;
+        //     }
+        //     $key =  $key2.'|'.$list_key[$key2];
+        //     if(array_key_exists($key, $list2)) {
+        //         $list2[$key][] = $v;
+        //     } else {
+        //         $list2[$key] = [$v];
+        //     }
+        // }
 
-        foreach($list2 AS $k=>$v) {
-            $key = explode('|', $k);
-            $unit_source_device_id = $key[0];
-            if($unit_source_device_id!='867648047208531') continue;
-            $geofence = $key[1];
-            $seq = $key[2];
-            $unit = Unit::where('source_device_id', $unit_source_device_id)->first();
-            $tgl = '2021-12-27';
-            $rencana_kerja = RencanaKerja::where('tgl', $tgl)
-                ->where('unit_source_device_id', $unit_source_device_id)
-                ->where('lokasi_kode', $geofence)
-                ->first();
-            $rencana_kerja_id = $rencana_kerja == null ? '*NOTFOUND*' : $rencana_kerja->id;
-            //echo 'UNIT '.$unit->label.'['.$unit->source_device_id."] di ".$geofence.$seq.", RK#".$rencana_kerja_id." : <br/>";
-            foreach($v AS $k2=>$v2) {
-                echo date('d-m-Y H:i:s', $v2->timestamp).', UNIT: '.$unit->label.', GEOFENCE: '.$geofence.', SPRAYING : '.$v2->is_spraying.", RKID: ".$rencana_kerja_id."<br/>";
-            }
-        }
+        // foreach($list2 AS $k=>$v) {
+        //     $key = explode('|', $k);
+        //     $unit_source_device_id = $key[0];
+        //     if($unit_source_device_id!='867648047208531') continue;
+        //     $geofence = $key[1];
+        //     $seq = $key[2];
+        //     $unit = Unit::where('source_device_id', $unit_source_device_id)->first();
+        //     $tgl = '2021-12-27';
+        //     $rencana_kerja = RencanaKerja::where('tgl', $tgl)
+        //         ->where('unit_source_device_id', $unit_source_device_id)
+        //         ->where('lokasi_kode', $geofence)
+        //         ->first();
+        //     $rencana_kerja_id = $rencana_kerja == null ? '*NOTFOUND*' : $rencana_kerja->id;
+        //     //echo 'UNIT '.$unit->label.'['.$unit->source_device_id."] di ".$geofence.$seq.", RK#".$rencana_kerja_id." : <br/>";
+        //     foreach($v AS $k2=>$v2) {
+        //         echo date('d-m-Y H:i:s', $v2->timestamp).', UNIT: '.$unit->label.', GEOFENCE: '.$geofence.', SPRAYING : '.$v2->is_spraying.", RKID: ".$rencana_kerja_id."<br/>";
+        //     }
+        // }
 
     }
 
@@ -873,5 +1033,9 @@ class HomeController extends Controller
             echo "NOT FOUND";
         }
     } 
+
+    protected function guard(){
+        return Auth::guard('web');
+    }
 
 }
