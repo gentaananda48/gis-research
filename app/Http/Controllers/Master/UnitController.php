@@ -71,22 +71,22 @@ class UnitController extends Controller {
 
     public function track(Request $request, $id) {
         $unit = Unit::find($id);
-        $lacak = Lacak::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
-        $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
-        $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
-        $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
-        $unit->movement_status_desc     = !empty($unit->movement_status) ? 'moving': 'stopped';
-        $unit->gsm_signal_level         = $lacak != null ? $lacak->gsm_signal_level : 0;
-        $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
-        $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
-        $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
-        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
-        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
-
-        $geofenceHelper = new GeofenceHelper;
-        $list_polygon = $geofenceHelper->createListPolygon();
-        $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
-        $unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
+        // $lacak = Lacak::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
+        // $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
+        // $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
+        // $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
+        // $unit->movement_status_desc     = !empty($unit->movement_status) ? 'moving': 'stopped';
+        // $unit->gsm_signal_level         = $lacak != null ? $lacak->gsm_signal_level : 0;
+        // $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
+        // $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
+        // $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
+        // $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
+        // $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
+        
+        // $geofenceHelper = new GeofenceHelper;
+        // $list_polygon = $geofenceHelper->createListPolygon();
+        // $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
+        //$unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
 
         return view('master.unit.track', [
             'unit'  => $unit
@@ -107,9 +107,9 @@ class UnitController extends Controller {
         $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
         $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
 
-        $geofenceHelper = new GeofenceHelper;
-        $list_polygon = $geofenceHelper->createListPolygon();
-        $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
+        // $geofenceHelper = new GeofenceHelper;
+        // $list_polygon = $geofenceHelper->createListPolygon();
+        // $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
         $unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
 
         echo json_encode($unit);

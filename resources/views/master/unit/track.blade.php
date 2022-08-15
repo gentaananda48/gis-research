@@ -89,45 +89,64 @@
             url: BASE_URL + '/master/unit/track_json/' + unit_id,
         }).then(function (data) {
             data = JSON.parse(data)
-			var icon = marker.getIcon();
-		    icon.rotation = data.position_direction;
-		    marker.setIcon(icon);
-		    var position = new google.maps.LatLng(data.position_latitude, data.position_longitude);
-			marker.setPosition(position);
-			map.setCenter(position);
-			$("#lokasi").text(data.lokasi);
-			$("#gsm_signal_level").text(data.gsm_signal_level);
-			$("#position_latitude").text(data.position_latitude);
-			$("#position_longitude").text(data.position_longitude);
-			$("#position_altitude").text(data.position_altitude);
-			$("#movement_status_desc").text(data.movement_status_desc);
-			$("#position_speed").text(data.position_speed);
-			$("#nozzle_kanan").text(data.nozzle_kanan);
-			$("#nozzle_kiri").text(data.nozzle_kiri);
+            if(data.position_longitude==0 && data.position_latitude==0){
+            	//
+            } else {
+	            if(marker==undefined){
+	            	marker = new google.maps.Marker({
+					    position: {lng: data.position_longitude, lat: data.position_latitude},
+					    //label: 'TEST',
+					    map: map,
+					    //animation: google.maps.Animation.DROP,
+					    icon: {
+					        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+					        scale: 4,
+					        strokeColor: '#00F',
+					        rotation: 0,
+					    }
+					});
+	            }
+				var icon = marker.getIcon();
+			    icon.rotation = data.position_direction;
+			    marker.setIcon(icon);
+			    var position = new google.maps.LatLng(data.position_latitude, data.position_longitude);
+				marker.setPosition(position);
+				map.setCenter(position);
+				$("#lokasi").text(data.lokasi);
+				$("#gsm_signal_level").text(data.gsm_signal_level);
+				$("#position_latitude").text(data.position_latitude);
+				$("#position_longitude").text(data.position_longitude);
+				$("#position_altitude").text(data.position_altitude);
+				$("#movement_status_desc").text(data.movement_status_desc);
+				$("#position_speed").text(data.position_speed);
+				$("#nozzle_kanan").text(data.nozzle_kanan);
+				$("#nozzle_kiri").text(data.nozzle_kiri);
+            }
         });
 	    setTimeout(updateLocation, 3 * 1000);
 	}
 
 	function initMap() {
+
   		var unit = {!! $unit !!}
 		map = new google.maps.Map(document.getElementById("map"), {
 		    zoom: 30,
-		    center: {lng: unit.position_longitude, lat: unit.position_latitude},
+		    center: {lng: 105.23214306963433, lat: -4.825439469539967},
 		    mapTypeId: "satellite",
 		});
 
-		marker = new google.maps.Marker({
-		    position: {lng: unit.position_longitude, lat: unit.position_latitude},
-		    //label: 'TEST',
-		    map: map,
-		    //animation: google.maps.Animation.DROP,
-		    icon: {
-		        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-		        scale: 4,
-		        strokeColor: '#00F',
-		        rotation: 0,
-		    }
-		});
+		// marker = new google.maps.Marker({
+		//     position: {lng: unit.position_longitude, lat: unit.position_latitude},
+		//     //label: 'TEST',
+		//     map: map,
+		//     //animation: google.maps.Animation.DROP,
+		//     icon: {
+		//         path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+		//         scale: 4,
+		//         strokeColor: '#00F',
+		//         rotation: 0,
+		//     }
+		// });
 
 	  // Define the LatLng coordinates for the polygon's path.
 	  // Construct the polygon.
