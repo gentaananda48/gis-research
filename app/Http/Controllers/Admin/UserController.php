@@ -15,6 +15,7 @@ use Auth;
 use File;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\UserImport;
+use App\Model\PG;
 
 class UserController extends Controller {
     public function index(Request $request) {
@@ -70,11 +71,11 @@ class UserController extends Controller {
         foreach($res as $o){
             $roles[$o->id] = $o->name;
         }
-        $list_area = [
-            'PG1'   => 'PG1',
-            'PG2'   => 'PG2',
-            'PG3'   => 'PG3'
-        ];
+        $list_area = [];
+        $res = PG::get(['id', 'nama']);
+        foreach($res as $o){
+            $list_area[$o->nama] = $o->nama;
+        }
         return view('admin.user.create', [
             'roles'     => $roles,
             'list_area' => $list_area
@@ -167,11 +168,11 @@ class UserController extends Controller {
         foreach($res as $o){
             $roles[$o->id] = $o->name;
         }
-        $list_area = [
-            'PG1'   => 'PG1',
-            'PG2'   => 'PG2',
-            'PG3'   => 'PG3'
-        ];
+        $list_area = [];
+        $res = PG::get(['id', 'nama']);
+        foreach($res as $o){
+            $list_area[$o->nama] = $o->nama;
+        }
         $list_status = ['active' => 'active', 'inactive' => 'inactive'];
         return view('admin.user.edit', [
             'user'      => $user, 
