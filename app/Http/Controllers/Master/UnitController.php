@@ -128,6 +128,9 @@ class UnitController extends Controller {
     }
 
     public function playback(Request $request, $id) {
+        $oldLimit = ini_get('memory_limit');
+        ini_set('memory_limit','512M');
+        set_time_limit(0);
         $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
         $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '00:00:00';
         $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '23:59:00';
@@ -175,6 +178,7 @@ class UnitController extends Controller {
             $v->timestamp_2 = date('H:i:s', $v->timestamp);
             $list_lacak[] = $v;
         }
+        ini_set('memory_limit', $oldLimit);
         return view('master.unit.playback', [
             'unit'          => $unit,
             'list_lacak'    => json_encode($list_lacak),
