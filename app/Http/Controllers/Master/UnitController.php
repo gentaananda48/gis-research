@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Model\Unit;
 use App\Model\Lacak;
+use App\Model\Lacak2;
 use App\Model\PG;
 use App\Model\KoordinatLokasi;
 use App\Model\SystemConfiguration;
@@ -95,7 +96,7 @@ class UnitController extends Controller {
 
     public function track_json(Request $request, $id) {
         $unit = Unit::find($id);
-        $lacak = Lacak::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
+        $lacak = Lacak2::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first(['position_latitude','position_longitude','movement_status','gsm_signal_level','position_altitude','position_direction','position_speed','din_1','din_2']);
         $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
         $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
         $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
@@ -160,7 +161,7 @@ class UnitController extends Controller {
         $tgl_jam_mulai = $tgl.' '.$jam_mulai;
         $tgl_jam_selesai = $tgl.' '.$jam_selesai;
         $durasi = strtotime($tgl_jam_selesai) - strtotime($tgl_jam_mulai) + 1;
-        $lacak = Lacak::where('ident', $unit->source_device_id)
+        $lacak = Lacak2::where('ident', $unit->source_device_id)
             ->where('timestamp', '>=', strtotime($tgl_jam_mulai))
             ->where('timestamp', '<=', strtotime($tgl_jam_selesai))
             ->orderBy('timestamp', 'ASC')
