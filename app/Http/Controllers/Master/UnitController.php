@@ -129,7 +129,7 @@ class UnitController extends Controller {
 
     public function playback(Request $request, $id) {
         $oldLimit = ini_get('memory_limit');
-        ini_set('memory_limit','512M');
+        ini_set('memory_limit','2048M');
         set_time_limit(0);
         $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
         $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '00:00:00';
