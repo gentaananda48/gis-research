@@ -178,7 +178,6 @@ class UnitController extends Controller {
             $v->timestamp_2 = date('H:i:s', $v->timestamp);
             $list_lacak[] = $v;
         }
-        ini_set('memory_limit', $oldLimit);
         return view('master.unit.playback', [
             'unit'          => $unit,
             'list_lacak'    => json_encode($list_lacak),
@@ -190,6 +189,7 @@ class UnitController extends Controller {
             'interval'      => $interval,
             'durasi'        => $durasi
         ]);
+        ini_set('memory_limit', $oldLimit);
     }
 
     protected function guard(){
