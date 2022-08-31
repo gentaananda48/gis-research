@@ -185,7 +185,7 @@ class UnitController extends Controller {
                 $v->timestamp_2 = date('H:i:s', $v->timestamp);
                 $list_lacak[] = $v;
             }
-            Redis::set($cache_key, json_encode($list_lacak), 'EX', 120);
+            Redis::set($cache_key, json_encode($list_lacak), 'EX', 86400);
         }
         return view('master.unit.playback', [
             'unit'          => $unit,
