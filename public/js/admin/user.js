@@ -13,7 +13,7 @@ $("#grid-data").bootgrid({
     url: BASE_URL + "/admin/user/get" + window.location.search,
     formatters: {
         commands: function(column, row) {
-            var ret = '<a href="/admin/user/edit/' + row.id + '" class ="btn btn-xs btn-info">' + ' <i class="fa fa-edit" aria-hidden="true"></i></a>';
+            var ret = '<a href="'+ BASE_URL + '/admin/user/edit/' + row.id + '" class ="btn btn-xs btn-info">' + ' <i class="fa fa-edit" aria-hidden="true"></i></a>';
             if(row.status=='inactive') {
                 ret += ' <a class="btn btn-xs btn-danger btn-delete" role="button" data-id="' + row.id + '">' + ' <i class="fa fa-trash"></i></a>';
             }

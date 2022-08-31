@@ -15,7 +15,7 @@ $("#grid-data").bootgrid({
     formatters: {
         commands: function(column, row) {
             var ret = '';
-            ret += '<a href="/transaction/order_material/show/' + row.id + '" class ="btn btn-xs btn-default">' + ' Detail</a>';
+            ret += '<a href="'+ BASE_URL + '/transaction/order_material/show/' + row.id + '" class ="btn btn-xs btn-default">' + ' Detail</a>';
             return ret;
         }
     }

@@ -15,8 +15,8 @@ $("#grid-data").bootgrid({
     formatters: {
         commands: function(column, row) {
             var ret = '';
-           	ret += '<a href="/report/rencana_kerja/summary/' + row.id + '" class ="btn btn-xs btn-default">' + ' Summary</a>';
-           	ret += ' <a href="/report/rencana_kerja/playback/' + row.id + '" class ="btn btn-xs btn-success">' + ' Playback</a>';
+           	ret += '<a href="'+ BASE_URL + '/report/rencana_kerja/summary/' + row.id + '" class ="btn btn-xs btn-default">' + ' Summary</a>';
+           	ret += ' <a href="'+ BASE_URL + '/report/rencana_kerja/playback/' + row.id + '" class ="btn btn-xs btn-success">' + ' Playback</a>';
             return ret;
         }
     }
