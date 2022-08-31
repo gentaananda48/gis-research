@@ -13,8 +13,8 @@ $("#grid-data").bootgrid({
     navigation: 2,
     formatters: {
         commands: function(column, row) {
-            var ret = '<a href="/master/unit/track/' + row.id + '" class ="btn btn-xs btn-info">' + ' Tracking</a>';
-            return ret += ' <a href="/master/unit/playback/' + row.id + '" class ="btn btn-xs btn-success">' + ' Playback</a>';
+            var ret = '<a href="'+ BASE_URL + '/master/unit/track/' + row.id + '" class ="btn btn-xs btn-info">' + ' Tracking</a>';
+            return ret += ' <a href="'+ BASE_URL + '/master/unit/playback/' + row.id + '" class ="btn btn-xs btn-success">' + ' Playback</a>';
         }
     }
 }).on("loaded.rs.jquery.bootgrid", function(a) {});

@@ -13,10 +13,10 @@ $("#grid-data").bootgrid({
     navigation: 2,
     formatters: {
         commands: function(a, t) {
-            var e = '<a href="/master/lokasi/edit/' + t.id + '" class ="btn btn-xs btn-info">' + ' <i class="fa fa-edit" aria-hidden="true"></i></a>' +
+            var e = '<a href="'+ BASE_URL + '/master/lokasi/edit/' + t.id + '" class ="btn btn-xs btn-info">' + ' <i class="fa fa-edit" aria-hidden="true"></i></a>' +
                 ' <a class="btn btn-xs btn-danger btn-delete" role="button" data-id="' + t.id + '">' + ' <i class="fa fa-trash"></i></a>' +
-                ' <a href="/master/lokasi/koordinat/' + t.id + '" class ="btn btn-xs btn-primary">' + ' Koordinat</a>'
-            return e += ' <a href="/master/lokasi/map/' + t.id + '" class ="btn btn-xs btn-success">' + ' Maps</a>';
+                ' <a href="'+ BASE_URL + '/master/lokasi/koordinat/' + t.id + '" class ="btn btn-xs btn-primary">' + ' Koordinat</a>'
+            return e += ' <a href="'+ BASE_URL + '/master/lokasi/map/' + t.id + '" class ="btn btn-xs btn-success">' + ' Maps</a>';
         }
     }
 }).on("loaded.rs.jquery.bootgrid", function(a) {
