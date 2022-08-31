@@ -141,13 +141,21 @@ class UnitController extends Controller {
         for($i=1; $i<=10; $i++){
             $list_interval[$i*100] = ($i/10).' Detik';
         }
-        $list = KoordinatLokasi::orderBy('lokasi', 'ASC')
-            ->orderBy('bagian', 'ASC')
-            ->orderBy('posnr', 'ASC')
-            ->get();
+        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
+        $cached = Redis::get($cache_key);
+        $list_koordinat_lokasi = [];
+        if(isset($cached)) {
+            $list_koordinat_lokasi = json_decode($cached, FALSE);
+        } else {
+            $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
+                ->orderBy('bagian', 'ASC')
+                ->orderBy('posnr', 'ASC')
+                ->get();
+            Redis::set($cache_key, json_encode($list_koordinat_lokasi), 'EX', 86400);
+        }
         $list_lokasi = [];
         $list_polygon = [];
-        foreach($list as $v){
+        foreach($list_koordinat_lokasi as $v){
             $idx = $v->lokasi.'_'.$v->bagian;
             if(array_key_exists($idx, $list_lokasi)){
                 $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
