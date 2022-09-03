@@ -151,7 +151,7 @@ class UnitController extends Controller {
                 ->orderBy('bagian', 'ASC')
                 ->orderBy('posnr', 'ASC')
                 ->get();
-            Redis::set($cache_key, json_encode($list_koordinat_lokasi), 'EX', -1);
+            Redis::set($cache_key, json_encode($list_koordinat_lokasi));
         }
         $list_lokasi = [];
         $list_polygon = [];
