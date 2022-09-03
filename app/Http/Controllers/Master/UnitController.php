@@ -134,7 +134,7 @@ class UnitController extends Controller {
         set_time_limit(0);
         $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
         $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '00:00:00';
-        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '23:59:00';
+        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : date('H:i:s');
         $interval = !empty($request->interval) ? $request->interval : 1000;
         $unit = Unit::find($id);
         $list_interval = [];
@@ -151,7 +151,7 @@ class UnitController extends Controller {
                 ->orderBy('bagian', 'ASC')
                 ->orderBy('posnr', 'ASC')
                 ->get();
-            Redis::set($cache_key, json_encode($list_koordinat_lokasi), 'EX', 86400);
+            Redis::set($cache_key, json_encode($list_koordinat_lokasi), 'EX', -1);
         }
         $list_lokasi = [];
         $list_polygon = [];
@@ -173,31 +173,31 @@ class UnitController extends Controller {
         $tgl_jam_mulai = $tgl.' '.$jam_mulai;
         $tgl_jam_selesai = $tgl.' '.$jam_selesai;
         $durasi = strtotime($tgl_jam_selesai) - strtotime($tgl_jam_mulai) + 1;
-        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id.'_'.strtotime($tgl_jam_mulai).'_'.strtotime($tgl_jam_selesai).'_'.$interval;
+        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id.'_'.strtotime($tgl_jam_mulai).'_'.strtotime($tgl_jam_selesai);
         $cached = Redis::get($cache_key);
         $list_lacak = [];
         if(isset($cached)) {
             $list_lacak = json_decode($cached, FALSE);
         } else {
-            $lacak = Lacak2::where('ident', $unit->source_device_id)
+            $list_lacak = Lacak2::where('ident', $unit->source_device_id)
                 ->where('timestamp', '>=', strtotime($tgl_jam_mulai))
                 ->where('timestamp', '<=', strtotime($tgl_jam_selesai))
                 ->orderBy('timestamp', 'ASC')
-                ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'din_1', 'din_2', 'din_3', 'timestamp']);
-            $list_lacak = [];
-            foreach($lacak as $v){
-                $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
-                $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
-                $v->progress_time = doubleval($v->timestamp) - strtotime($tgl_jam_mulai);
-                $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
-                $v->timestamp_2 = date('H:i:s', $v->timestamp);
-                $list_lacak[] = $v;
-            }
+                ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 86400);
+        }
+        $list_lacak2 = [];
+        foreach($list_lacak as $v){
+            $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+            $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
+            $v->progress_time = doubleval($v->timestamp) - strtotime($tgl_jam_mulai);
+            $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
+            $v->timestamp_2 = date('H:i:s', $v->timestamp);
+            $list_lacak2[] = $v;
         }
         return view('master.unit.playback', [
             'unit'          => $unit,
-            'list_lacak'    => json_encode($list_lacak),
+            'list_lacak'    => json_encode($list_lacak2),
             'list_lokasi'   => json_encode($list_lokasi),
             'tgl'           => $tgl,
             'jam_mulai'     => $jam_mulai,
@@ -215,7 +215,7 @@ class UnitController extends Controller {
         set_time_limit(0);
         $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
         $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '00:00:00';
-        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '23:59:00';
+        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : date('H:i:s');
         $interval = !empty($request->interval) ? $request->interval : 1000;
         $unit = Unit::find($id);
         $list_interval = [];
