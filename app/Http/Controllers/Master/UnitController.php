@@ -173,27 +173,34 @@ class UnitController extends Controller {
         $tgl_jam_mulai = $tgl.' '.$jam_mulai;
         $tgl_jam_selesai = $tgl.' '.$jam_selesai;
         $durasi = strtotime($tgl_jam_selesai) - strtotime($tgl_jam_mulai) + 1;
-        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id.'_'.strtotime($tgl_jam_mulai).'_'.strtotime($tgl_jam_selesai);
+        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id.'_'.$tgl;
+        if($tgl >= date('Y-m-d')) {
+            $cache_key .= '_'.$jam_selesai;
+        }
         $cached = Redis::get($cache_key);
         $list_lacak = [];
         if(isset($cached)) {
             $list_lacak = json_decode($cached, FALSE);
         } else {
+            $timestamp_1 = $tgl >= date('Y-m-d') ? strtotime($tgl_jam_mulai) : strtotime($tgl.' 00:00:00');
+            $timestamp_2 = $tgl >= date('Y-m-d') ? strtotime($tgl_jam_selesai) : strtotime($tgl.' 23:59:59');
             $list_lacak = Lacak2::where('ident', $unit->source_device_id)
-                ->where('timestamp', '>=', strtotime($tgl_jam_mulai))
-                ->where('timestamp', '<=', strtotime($tgl_jam_selesai))
+                ->where('timestamp', '>=', $timestamp_1)
+                ->where('timestamp', '<=', $timestamp_2)
                 ->orderBy('timestamp', 'ASC')
                 ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 86400);
         }
         $list_lacak2 = [];
         foreach($list_lacak as $v){
-            $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
-            $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
-            $v->progress_time = doubleval($v->timestamp) - strtotime($tgl_jam_mulai);
-            $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
-            $v->timestamp_2 = date('H:i:s', $v->timestamp);
-            $list_lacak2[] = $v;
+            if(strtotime($tgl.' 00:00:00') <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($tgl.' 23:59:59')) {
+                $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+                $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
+                $v->progress_time = doubleval($v->timestamp) - strtotime($tgl_jam_mulai);
+                $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
+                $v->timestamp_2 = date('H:i:s', $v->timestamp);
+                $list_lacak2[] = $v;
+            }
         }
         return view('master.unit.playback', [
             'unit'          => $unit,
