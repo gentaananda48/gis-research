@@ -151,11 +151,13 @@ class RencanaKerjaController extends Controller {
         }
         $list_lokasi = [];
         foreach($list_koordinat_lokasi as $v){
-            $idx = $v->lokasi.'_'.$v->bagian;
-            if(array_key_exists($idx, $list_lokasi)){
-                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
-            } else {
-                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            if($v->lokasi==$rk->lokasi_kode){
+                $idx = $v->lokasi.'_'.$v->bagian;
+                if(array_key_exists($idx, $list_lokasi)){
+                    $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+                } else {
+                    $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+                }
             }
         }
         $list_lokasi = array_values($list_lokasi);
@@ -173,19 +175,14 @@ class RencanaKerjaController extends Controller {
                     ->where('timestamp', '>=', $timestamp_1)
                     ->where('timestamp', '<=', $timestamp_2)
                     ->orderBy('timestamp', 'ASC')
-                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
+                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
             } else {
                 $list_lacak = Lacak::where('ident', $unit->source_device_id)
                     ->where('timestamp', '>=', $timestamp_1)
                     ->where('timestamp', '<=', $timestamp_2)
                     ->orderBy('timestamp', 'ASC')
-                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
+                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
             }
-            $list_lacak = Lacak2::where('ident', $unit->source_device_id)
-                ->where('timestamp', '>=', $timestamp_1)
-                ->where('timestamp', '<=', $timestamp_2)
-                ->orderBy('timestamp', 'ASC')
-                ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 86400);
         }
 
@@ -230,13 +227,21 @@ class RencanaKerjaController extends Controller {
         for($i=1; $i<=10; $i++){
             $list_interval[$i*100] = ($i/10).' Detik';
         }
-        $list = KoordinatLokasi::orderBy('lokasi', 'ASC')
-            ->orderBy('bagian', 'ASC')
-            ->orderBy('posnr', 'ASC')
-            ->get();
+        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
+        $cached = Redis::get($cache_key);
+        $list_koordinat_lokasi = [];
+        if(isset($cached)) {
+            $list_koordinat_lokasi = json_decode($cached, FALSE);
+        } else {
+            $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
+                ->orderBy('bagian', 'ASC')
+                ->orderBy('posnr', 'ASC')
+                ->get();
+            Redis::set($cache_key, json_encode($list_koordinat_lokasi));
+        }
         $list_lokasi = [];
         $list_polygon = [];
-        foreach($list as $v){
+        foreach($list_koordinat_lokasi as $v){
             $idx = $v->lokasi.'_'.$v->bagian;
             if(array_key_exists($idx, $list_lokasi)){
                 $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
@@ -252,32 +257,44 @@ class RencanaKerjaController extends Controller {
         $list_lokasi = array_values($list_lokasi);
         $geofenceHelper = new GeofenceHelper;
         $durasi = strtotime($jam_selesai) - strtotime($jam_mulai) + 1;
-        if($rk->tgl>='2022-03-15') {
-            $lacak = Lacak2::where('ident', $unit->source_device_id)
-                ->where('timestamp', '>=', strtotime($jam_mulai))
-                ->where('timestamp', '<=', strtotime($jam_selesai))
-                ->orderBy('timestamp', 'ASC')
-                ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
-        } else {
-            $lacak = Lacak::where('ident', $unit->source_device_id)
-                ->where('timestamp', '>=', strtotime($jam_mulai))
-                ->where('timestamp', '<=', strtotime($jam_selesai))
-                ->orderBy('timestamp', 'ASC')
-                ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
-        }
+
+        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id.'_'.$rk->tgl;
+        $cache_key = $rk->tgl >= date('Y-m-d') ? $cache_key.'_'.$jam_selesai : $cache_key.'_'.$rk->tgl;
+        $cached = Redis::get($cache_key);
         $list_lacak = [];
-        foreach($lacak as $v){
+        if(isset($cached)) {
+            $list_lacak = json_decode($cached, FALSE);
+        } else {
+            $timestamp_1 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_mulai) : strtotime($rk->tgl.' 00:00:00');
+            $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
+            if($rk->tgl>='2022-03-15') {
+                $list_lacak = Lacak2::where('ident', $unit->source_device_id)
+                    ->where('timestamp', '>=', $timestamp_1)
+                    ->where('timestamp', '<=', $timestamp_2)
+                    ->orderBy('timestamp', 'ASC')
+                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+            } else {
+                $list_lacak = Lacak::where('ident', $unit->source_device_id)
+                    ->where('timestamp', '>=', $timestamp_1)
+                    ->where('timestamp', '<=', $timestamp_2)
+                    ->orderBy('timestamp', 'ASC')
+                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+            }
+            Redis::set($cache_key, json_encode($list_lacak), 'EX', 86400);
+        }
+        $list_lacak2 = [];
+        foreach($list_lacak as $v){
             $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
             $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
             $v->progress_time = doubleval($v->timestamp) - strtotime($jam_mulai);
             $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
             $v->timestamp_2 = date('H:i:s', $v->timestamp);
-            $list_lacak[] = $v;
+            $list_lacak2[] = $v;
         }
         return view('report.rencana_kerja.playback', [
             'rk'            => $rk, 
             'unit'          => $unit,
-            'list_lacak'    => json_encode($list_lacak),
+            'list_lacak'    => json_encode($list_lacak2),
             'list_lokasi'   => json_encode($list_lokasi),
             'list_interval' => $list_interval,
             'interval'      => $interval,
