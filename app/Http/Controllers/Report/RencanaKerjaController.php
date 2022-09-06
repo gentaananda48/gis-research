@@ -258,7 +258,7 @@ class RencanaKerjaController extends Controller {
         $geofenceHelper = new GeofenceHelper;
         $durasi = strtotime($jam_selesai) - strtotime($jam_mulai) + 1;
 
-        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id.'_'.$rk->tgl;
+        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id;
         $cache_key = $rk->tgl >= date('Y-m-d') ? $cache_key.'_'.$jam_selesai : $cache_key.'_'.$rk->tgl;
         $cached = Redis::get($cache_key);
         $list_lacak = [];
