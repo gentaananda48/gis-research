@@ -132,9 +132,31 @@ class UnitController extends Controller {
         $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
         $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
 
-        // $geofenceHelper = new GeofenceHelper;
-        // $list_polygon = $geofenceHelper->createListPolygon();
-        // $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
+        $geofenceHelper = new GeofenceHelper;
+        //$list_polygon = $geofenceHelper->createListPolygon();
+        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
+        $cached = Redis::get($cache_key);
+        $list_koordinat_lokasi = [];
+        if(isset($cached)) {
+            $list_koordinat_lokasi = json_decode($cached, FALSE);
+        } else {
+            $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
+                ->orderBy('bagian', 'ASC')
+                ->orderBy('posnr', 'ASC')
+                ->get();
+            Redis::set($cache_key, json_encode($list_koordinat_lokasi));
+        }
+        $list_polygon = [];
+        foreach($list_koordinat_lokasi as $v){
+            $idx = $v->lokasi.'_'.$v->bagian;
+            if(array_key_exists($idx, $list_polygon)){
+                $list_polygon[$idx][] = $v->latd." ".$v->long;
+            } else {
+                $list_polygon[$idx] = [$v->latd." ".$v->long];
+            }
+        }
+        
+        $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
         $unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
 
         echo json_encode($unit);
