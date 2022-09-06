@@ -162,7 +162,24 @@ class RencanaKerjaController extends Controller {
         }
         $list_lokasi = array_values($list_lokasi);
         $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id;
-        $cache_key = $rk->tgl >= date('Y-m-d') ? $cache_key.'_'.$jam_selesai : $cache_key.'_'.$rk->tgl;
+        if($rk->tgl >= date('Y-m-d')) {
+            $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$rk->tgl.'*');
+            $cache_key = $cache_key.'_'.$jam_selesai;
+            if(count($redis_scan_result[1])>0){
+                rsort($redis_scan_result[1]);
+                $last_key = $redis_scan_result[1][0];
+                if($cache_key<$last_key){
+                    $cache_key = $last_key;
+                }
+                foreach($redis_scan_result[1] as $key){
+                    if($key!=$cache_key){
+                        Redis::del($key);
+                    }
+                }
+            }
+        } else {
+            $cache_key = $cache_key.'_'.$rk->tgl;
+        }
         $cached = Redis::get($cache_key);
         $list_lacak = [];
         if(isset($cached)) {
@@ -264,7 +281,24 @@ class RencanaKerjaController extends Controller {
         $durasi = strtotime($jam_selesai) - strtotime($jam_mulai) + 1;
 
         $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id;
-        $cache_key = $rk->tgl >= date('Y-m-d') ? $cache_key.'_'.$jam_selesai : $cache_key.'_'.$rk->tgl;
+        if($rk->tgl >= date('Y-m-d')) {
+            $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$rk->tgl.'*');
+            $cache_key = $cache_key.'_'.$jam_selesai;
+            if(count($redis_scan_result[1])>0){
+                rsort($redis_scan_result[1]);
+                $last_key = $redis_scan_result[1][0];
+                if($cache_key<$last_key){
+                    $cache_key = $last_key;
+                }
+                foreach($redis_scan_result[1] as $key){
+                    if($key!=$cache_key){
+                        Redis::del($key);
+                    }
+                }
+            }
+        } else {
+            $cache_key = $cache_key.'_'.$rk->tgl;
+        }
         $cached = Redis::get($cache_key);
         $list_lacak = [];
         if(isset($cached)) {
