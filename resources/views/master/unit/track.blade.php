@@ -135,6 +135,31 @@
 		    mapTypeId: "satellite",
 		});
 
+        var list_lokasi = {!! $list_lokasi !!} || []
+        list_lokasi.forEach(function(lokasi) {
+            const polygon = new google.maps.Polygon({
+                paths: lokasi.koordinat,
+                strokeColor: '#964B00',
+                strokeOpacity: 0.9,
+                strokeWeight: 2,
+                fillColor: '#964B00',
+                fillOpacity: 0.4,
+            });
+            polygon.infoWindow = new google.maps.InfoWindow({
+                content: lokasi.nama
+            });
+            polygon.setMap(map);
+            google.maps.event.addListener(polygon, "mouseover", function(event){
+                this.setOptions({fillColor: "#00FF00"});
+                polygon.infoWindow.setPosition(event.latLng);
+                polygon.infoWindow.open({ map, shouldFocus: false});
+            }); 
+            google.maps.event.addListener(polygon, "mouseout", function(event){
+                this.setOptions({fillColor: '#964B00'});
+                polygon.infoWindow.close();
+            });
+        });
+
 		// marker = new google.maps.Marker({
 		//     position: {lng: unit.position_longitude, lat: unit.position_latitude},
 		//     //label: 'TEST',
