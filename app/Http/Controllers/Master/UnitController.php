@@ -101,6 +101,16 @@ class UnitController extends Controller {
                 ->get();
             Redis::set($cache_key, json_encode($list_koordinat_lokasi));
         }
+        $list_lokasi = [];
+        foreach($list_koordinat_lokasi as $v){
+            $idx = $v->lokasi.'_'.$v->bagian;
+            if(array_key_exists($idx, $list_lokasi)){
+                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+            } else {
+                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            }
+        }
+        $list_lokasi = array_values($list_lokasi);
 
         return view('master.unit.track', [
             'unit'          => $unit,
