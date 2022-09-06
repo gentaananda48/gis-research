@@ -185,7 +185,12 @@ class RencanaKerjaController extends Controller {
             }
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 86400);
         }
-
+        $list_lacak2 = [];
+        foreach($list_lacak as $v){
+            if(strtotime($jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($jam_selesai)) {
+                $list_lacak2[] = $v;
+            }
+        }
         $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
         $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
         $header = [];
@@ -212,7 +217,7 @@ class RencanaKerjaController extends Controller {
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
             'summary'       => $summary,
-            'list_lacak'    => json_encode($list_lacak),
+            'list_lacak'    => json_encode($list_lacak2),
             'list_lokasi'   => json_encode($list_lokasi)
         ]);
     }
@@ -284,12 +289,14 @@ class RencanaKerjaController extends Controller {
         }
         $list_lacak2 = [];
         foreach($list_lacak as $v){
-            $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
-            $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
-            $v->progress_time = doubleval($v->timestamp) - strtotime($jam_mulai);
-            $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
-            $v->timestamp_2 = date('H:i:s', $v->timestamp);
-            $list_lacak2[] = $v;
+            if(strtotime($jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($jam_selesai)) {
+                $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+                $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
+                $v->progress_time = doubleval($v->timestamp) - strtotime($jam_mulai);
+                $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
+                $v->timestamp_2 = date('H:i:s', $v->timestamp);
+                $list_lacak2[] = $v;
+            }
         }
         return view('report.rencana_kerja.playback', [
             'rk'            => $rk, 

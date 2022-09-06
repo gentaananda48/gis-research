@@ -193,7 +193,7 @@ class UnitController extends Controller {
         }
         $list_lacak2 = [];
         foreach($list_lacak as $v){
-            if(strtotime($tgl.' 00:00:00') <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($tgl.' 23:59:59')) {
+            if(strtotime($tgl_jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($tgl_jam_selesai)) {
                 $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
                 $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
                 $v->progress_time = doubleval($v->timestamp) - strtotime($tgl_jam_mulai);
