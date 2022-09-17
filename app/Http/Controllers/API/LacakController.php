@@ -16,7 +16,7 @@ use App\Model\Lacak;
 
 class LacakController extends Controller {
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['create2']]);
+        $this->middleware('auth:api', ['except' => ['create2', 'create3']]);
     }
 
     public function create(Request $request){
@@ -246,6 +246,57 @@ class LacakController extends Controller {
             'data'      => $list
           ]);
     }
+
+    public function create3(Request $request){
+		if ($auth = $this->guard()->attempt(['username' => $request->header('USERNAME'), 'password' => $request->header('PASSWORD')])) {
+		    DB::beginTransaction();
+		    try {
+		    	// DB::insert('insert into lacak_867648047841752 (latitude, longitude, speed, altitude, arm_height_left, arm_height_right, temperature_left, temperature_right, pump_switch_main, pump_switch_left, pump_switch_right, utc_timestamp) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [$request->latitude, $request->longitude, $request->speed, $request->altitude, $request->arm_height_left, $request->arm_height_right, $request->temperature_left, $request->temperature_right, $request->pump_switch_main, $request->pump_switch_left, $request->pump_switch_right, $request->utc_timestamp]);
+			    DB::table('lacak_867648047841752')->insert([
+						'latitude'				=> $request->latitude,
+						'longitude'				=> $request->longitude,
+						'speed'					=> $request->speed,
+						'altitude'				=> $request->altitude,
+						'arm_height_left'		=> $request->arm_height_left,
+						'arm_height_right'		=> $request->arm_height_right,
+						'temperature_left'		=> $request->temperature_left,
+						'temperature_right'		=> $request->temperature_right,
+						'pump_switch_main'		=> $request->pump_switch_main,
+						'pump_switch_left'		=> $request->pump_switch_left,
+						'pump_switch_right'		=> $request->pump_switch_right,
+						'flow_meter_left'		=> $request->flow_meter_left,
+						'flow_meter_right'		=> $request->flow_meter_right,
+						'tank_level'			=> $request->tank_level,
+						'oil'					=> $request->oil,
+						'gas'					=> $request->gas,
+						'homogenity'			=> $request->homogenity,
+						'microcontroller_id'	=> $request->microcontroller_id,
+						'utc_timestamp'			=> $request->utc_timestamp,
+					   	'created_at'			=> DB::raw('NOW()')
+					]);
+
+		    	DB::commit();
+		      	return response()->json([
+		        	'status' 	=> true, 
+		        	'message' 	=> 'Created successfully', 
+		        	'data' 		=> null
+		      	]);
+		    } catch(Exception $e){
+		      	DB::rollback(); 
+		      	return response()->json([
+		        	'status' 	=> false, 
+		        	'message' 	=> $e->getMessage(), 
+		        	'data' 		=> null
+		      	]);
+		    }
+		} else {
+	      return response()->json([
+	          'STATUS' => false, 
+	          'MESSAGE' => 'Invalid credentials', 
+	          'DATA' => null
+	      ]);
+	    }  
+	}
 
     public function guard(){
         return Auth::guard('api');

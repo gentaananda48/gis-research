@@ -151,6 +151,7 @@ Route::group([
 ], function ($router) {
     Route::post('create', 'LacakController@create');
     Route::post('create2', 'LacakController@create2');
+    Route::post('create3', 'LacakController@create3');
     Route::get('sync_down', 'LacakController@sync_down');
 });
 
