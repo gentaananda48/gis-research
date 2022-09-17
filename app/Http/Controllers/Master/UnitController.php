@@ -247,7 +247,7 @@ class UnitController extends Controller {
                 ->where('timestamp', '<=', $timestamp_2)
                 ->orderBy('timestamp', 'ASC')
                 ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
-            Redis::set($cache_key, json_encode($list_lacak), 'EX', 86400);
+            Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
         }
         $list_lacak2 = [];
         foreach($list_lacak as $v){
