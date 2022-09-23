@@ -194,7 +194,7 @@ class RencanaKerjaController extends Controller {
         if(isset($cached)) {
             $list_lacak = json_decode($cached, FALSE);
         } else {
-            $timestamp_1 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_mulai) : strtotime($rk->tgl.' 00:00:00');
+            $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
             $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
             //
             if(in_array($unit->source_device_id, $offline_units)){
@@ -307,7 +307,6 @@ class RencanaKerjaController extends Controller {
         if(in_array($unit->source_device_id, $offline_units)){
             $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$unit->source_device_id;
         }
-
         if($rk->tgl >= date('Y-m-d')) {
             $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$rk->tgl.'*');
             $cache_key = $cache_key.'_'.$jam_selesai;
@@ -331,7 +330,7 @@ class RencanaKerjaController extends Controller {
         if(isset($cached)) {
             $list_lacak = json_decode($cached, FALSE);
         } else {
-            $timestamp_1 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_mulai) : strtotime($rk->tgl.' 00:00:00');
+            $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
             $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
 
             //
