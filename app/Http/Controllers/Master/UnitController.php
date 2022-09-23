@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use App\Model\Unit;
 use App\Model\Lacak;
 use App\Model\Lacak2;
@@ -61,6 +63,32 @@ class UnitController extends Controller {
                     $unit->pg = $pg->nama;
                 }
                 $unit->save();
+                $table_name = "lacak_".$unit->source_device_id;
+                if (!Schema::hasTable($table_name)) {
+                    Schema::create($table_name, function (Blueprint $table) {
+                        $table->bigIncrements('id');
+                        $table->double('latitude')->nullable();
+                        $table->double('longitude')->nullable();
+                        $table->double('speed')->nullable();
+                        $table->double('altitude')->nullable();
+                        $table->double('arm_height_left')->nullable();
+                        $table->double('arm_height_right')->nullable();
+                        $table->double('temperature_left')->nullable();
+                        $table->double('temperature_right')->nullable();
+                        $table->tinyInteger('pump_switch_main')->nullable();
+                        $table->tinyInteger('pump_switch_left')->nullable();
+                        $table->tinyInteger('pump_switch_right')->nullable();
+                        $table->double('flow_meter_left')->nullable();
+                        $table->double('flow_meter_right')->nullable();
+                        $table->double('tank_level')->nullable();
+                        $table->double('oil')->nullable();
+                        $table->double('gas')->nullable();
+                        $table->double('homogenity')->nullable();
+                        $table->string('microcontroller_id', 30)->nullable();
+                        $table->double('utc_timestamp')->unique()->nullable();
+                        $table->dateTime('created_at')->nullable();
+                    });
+                }
             }
             DB::commit();
         } catch (\Exception $e) {

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File; 
 use Illuminate\Support\Facades\Response as FacadeResponse;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Response;
 use GuzzleHttp\Client;
 use App\Model\Lacak;
@@ -250,31 +251,17 @@ class LacakController extends Controller {
     public function create3(Request $request){
 		DB::beginTransaction();
 	    try {
-	    	DB::insert('insert into lacak_867648047841752 (latitude, longitude, speed, altitude, arm_height_left, arm_height_right, temperature_left, temperature_right, pump_switch_main, pump_switch_left, pump_switch_right, flow_meter_left, flow_meter_right, tank_level, oil, gas, homogenity, microcontroller_id, `utc_timestamp`, created_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE `utc_timestamp` = ?', [$request->latitude, $request->longitude, $request->speed, $request->altitude, $request->arm_height_left, $request->arm_height_right, $request->temperature_left, $request->temperature_right, $request->pump_switch_main, $request->pump_switch_left, $request->pump_switch_right, $request->flow_meter_left, $request->flow_meter_right, $request->tank_level, $request->oil, $request->gas, $request->homogenity, $request->microcontroller_id, $request->utc_timestamp, $request->utc_timestamp]);
-		  //   DB::table('lacak_867648047841752')
-		  //   	->insert([
-				// 	'latitude'				=> $request->latitude,
-				// 	'longitude'				=> $request->longitude,
-				// 	'speed'					=> $request->speed,
-				// 	'altitude'				=> $request->altitude,
-				// 	'arm_height_left'		=> $request->arm_height_left,
-				// 	'arm_height_right'		=> $request->arm_height_right,
-				// 	'temperature_left'		=> $request->temperature_left,
-				// 	'temperature_right'		=> $request->temperature_right,
-				// 	'pump_switch_main'		=> $request->pump_switch_main,
-				// 	'pump_switch_left'		=> $request->pump_switch_left,
-				// 	'pump_switch_right'		=> $request->pump_switch_right,
-				// 	'flow_meter_left'		=> $request->flow_meter_left,
-				// 	'flow_meter_right'		=> $request->flow_meter_right,
-				// 	'tank_level'			=> $request->tank_level,
-				// 	'oil'					=> $request->oil,
-				// 	'gas'					=> $request->gas,
-				// 	'homogenity'			=> $request->homogenity,
-				// 	'microcontroller_id'	=> $request->microcontroller_id,
-				// 	'utc_timestamp'			=> $request->utc_timestamp,
-				//    	'created_at'			=> DB::raw('NOW()')
-				// ]);
-
+	    	$source_device_id = !empty($request->source_device_id) ? $request->source_device_id : '';
+	    	$table_name = 'lacak_'.$source_device_id;
+	    	if (Schema::hasTable($table_name)) {
+	    		DB::insert('insert into lacak_'.$source_device_id.' (latitude, longitude, speed, altitude, arm_height_left, arm_height_right, temperature_left, temperature_right, pump_switch_main, pump_switch_left, pump_switch_right, flow_meter_left, flow_meter_right, tank_level, oil, gas, homogenity, microcontroller_id, `utc_timestamp`, created_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE `utc_timestamp` = ?', [$request->latitude, $request->longitude, $request->speed, $request->altitude, $request->arm_height_left, $request->arm_height_right, $request->temperature_left, $request->temperature_right, $request->pump_switch_main, $request->pump_switch_left, $request->pump_switch_right, $request->flow_meter_left, $request->flow_meter_right, $request->tank_level, $request->oil, $request->gas, $request->homogenity, $request->microcontroller_id, $request->utc_timestamp, $request->utc_timestamp]);
+	    	} else {
+		      	return response()->json([
+		        	'status' 	=> false, 
+		        	'message' 	=> 'Table '.$table_name.' Not Found', 
+		        	'data' 		=> null
+		      	]);
+	    	}
 	    	DB::commit();
 	      	return response()->json([
 	        	'status' 	=> true, 

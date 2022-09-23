@@ -292,20 +292,25 @@ class UnitController extends Controller {
         $flow_meter_right = rand(0,50);
         $flow_meter_left = rand(0,50);
         $data = [
-            'utc_timestamp'         => strtotime(gmdate("Y-m-d\TH:i:s\Z")),
+            'id'                    => "1000000071fc7625",
             'latitude'              => $geoloc[$i]['latitude'],
             'longitude'             => $geoloc[$i]['longitude'],
+            'altitude'              => 100,
             'speed'                 => rand(0,10),
-            'tank_level'            => rand(0,6),
-            'temperature_right'     => rand(20,60),
-            'temperature_left'      => rand(20,60),
-            'flow_meter_right'      => $flow_meter_right,
-            'flow_meter_left'       => $flow_meter_left,
             'arm_height_left'       => rand(0,150),
             'arm_height_right'      => rand(0,150),
+            'temperature_right'     => rand(20,60),
+            'temperature_left'      => rand(20,60),
             'pump_switch_main'      => true,
             'pump_switch_left'      => $flow_meter_left > 0,
-            'pump_switch_right'     => $flow_meter_left > 0
+            'pump_switch_right'     => $flow_meter_left > 0,
+            'flow_meter_right'      => $flow_meter_right,
+            'flow_meter_left'       => $flow_meter_left,
+            'tank_level'            => rand(0,6),
+            'oil'                   => rand(0,6),
+            'gas'                   => rand(0,6),
+            'homogenity'            => rand(0,6),
+            'utc_timestamp'         => strtotime(gmdate("Y-m-d\TH:i:s\Z"))
         ];
         $i++;
         $sysconf->value = ''.$i;

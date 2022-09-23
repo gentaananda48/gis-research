@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use App\Model\Unit;
 use App\Model\SystemConfiguration;
@@ -224,11 +225,25 @@ class Kernel extends ConsoleKernel
         foreach($list_rk AS $rk) {
             ReportRencanaKerja::where('rencana_kerja_id', $rk->id)->delete();
             $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
-            if($rk->tgl>='2022-03-15') {
-                $list = Lacak2::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+
+            $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
+            $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
+            if(in_array($unit->source_device_id, $offline_units)){
+                $table_name = 'lacak_'.$rk->unit_source_device_id;
+                $list_lacak = DB::table($table_name)
+                    ->where('utc_timestamp', '>=', strtotime($rk->jam_mulai))
+                    ->where('utc_timestamp', '<=', strtotime($rk->jam_selesai))
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp")
+                    ->get();
             } else {
-                $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+                if($rk->tgl>='2022-03-15') {
+                    $list = Lacak2::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+                } else {
+                    $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+                }
             }
+
             $list2 = [];
             $i2 = 0;
             $list_kel = [];

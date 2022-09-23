@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Model\RencanaKerja;
 use App\Model\RencanaKerjaSummary;
+use App\Model\SystemConfiguration;
 use App\Model\Lokasi;
 use App\Model\Shift;
 use App\Model\Aktivitas;
@@ -161,7 +163,14 @@ class RencanaKerjaController extends Controller {
             }
         }
         $list_lokasi = array_values($list_lokasi);
+
+        $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
+        $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
         $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id;
+        if(in_array($unit->source_device_id, $offline_units)){
+            $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$unit->source_device_id;
+        }
+
         if($rk->tgl >= date('Y-m-d')) {
             $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$rk->tgl.'*');
             $cache_key = $cache_key.'_'.$jam_selesai;
@@ -187,19 +196,31 @@ class RencanaKerjaController extends Controller {
         } else {
             $timestamp_1 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_mulai) : strtotime($rk->tgl.' 00:00:00');
             $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
-            if($rk->tgl>='2022-03-15') {
-                $list_lacak = Lacak2::where('ident', $unit->source_device_id)
-                    ->where('timestamp', '>=', $timestamp_1)
-                    ->where('timestamp', '<=', $timestamp_2)
-                    ->orderBy('timestamp', 'ASC')
-                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+            //
+            if(in_array($unit->source_device_id, $offline_units)){
+                $table_name = 'lacak_'.$unit->source_device_id;
+                $list_lacak = DB::table($table_name)
+                    ->where('utc_timestamp', '>=', $timestamp_1)
+                    ->where('utc_timestamp', '<=', $timestamp_2)
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp")
+                    ->get();
             } else {
-                $list_lacak = Lacak::where('ident', $unit->source_device_id)
-                    ->where('timestamp', '>=', $timestamp_1)
-                    ->where('timestamp', '<=', $timestamp_2)
-                    ->orderBy('timestamp', 'ASC')
-                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+                if($rk->tgl>='2022-03-15') {
+                    $list_lacak = Lacak2::where('ident', $unit->source_device_id)
+                        ->where('timestamp', '>=', $timestamp_1)
+                        ->where('timestamp', '<=', $timestamp_2)
+                        ->orderBy('timestamp', 'ASC')
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+                } else {
+                    $list_lacak = Lacak::where('ident', $unit->source_device_id)
+                        ->where('timestamp', '>=', $timestamp_1)
+                        ->where('timestamp', '<=', $timestamp_2)
+                        ->orderBy('timestamp', 'ASC')
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+                }
             }
+            //
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
         }
         $list_lacak2 = [];
@@ -280,7 +301,13 @@ class RencanaKerjaController extends Controller {
         $geofenceHelper = new GeofenceHelper;
         $durasi = strtotime($jam_selesai) - strtotime($jam_mulai) + 1;
 
+        $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
+        $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
         $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id;
+        if(in_array($unit->source_device_id, $offline_units)){
+            $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$unit->source_device_id;
+        }
+
         if($rk->tgl >= date('Y-m-d')) {
             $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$rk->tgl.'*');
             $cache_key = $cache_key.'_'.$jam_selesai;
@@ -306,19 +333,33 @@ class RencanaKerjaController extends Controller {
         } else {
             $timestamp_1 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_mulai) : strtotime($rk->tgl.' 00:00:00');
             $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
-            if($rk->tgl>='2022-03-15') {
-                $list_lacak = Lacak2::where('ident', $unit->source_device_id)
-                    ->where('timestamp', '>=', $timestamp_1)
-                    ->where('timestamp', '<=', $timestamp_2)
-                    ->orderBy('timestamp', 'ASC')
-                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+
+            //
+            if(in_array($unit->source_device_id, $offline_units)){
+                $table_name = 'lacak_'.$unit->source_device_id;
+                $list_lacak = DB::table($table_name)
+                    ->where('utc_timestamp', '>=', $timestamp_1)
+                    ->where('utc_timestamp', '<=', $timestamp_2)
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp")
+                    ->get();
             } else {
-                $list_lacak = Lacak::where('ident', $unit->source_device_id)
-                    ->where('timestamp', '>=', $timestamp_1)
-                    ->where('timestamp', '<=', $timestamp_2)
-                    ->orderBy('timestamp', 'ASC')
-                    ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+                if($rk->tgl>='2022-03-15') {
+                    $list_lacak = Lacak2::where('ident', $unit->source_device_id)
+                        ->where('timestamp', '>=', $timestamp_1)
+                        ->where('timestamp', '<=', $timestamp_2)
+                        ->orderBy('timestamp', 'ASC')
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+                } else {
+                    $list_lacak = Lacak::where('ident', $unit->source_device_id)
+                        ->where('timestamp', '>=', $timestamp_1)
+                        ->where('timestamp', '<=', $timestamp_2)
+                        ->orderBy('timestamp', 'ASC')
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+                }
             }
+            //
+
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
         }
         $list_lacak2 = [];
