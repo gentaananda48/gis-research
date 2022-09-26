@@ -200,8 +200,8 @@ class RencanaKerjaController extends Controller {
             if(in_array($unit->source_device_id, $offline_units)){
                 $table_name = 'lacak_'.$unit->source_device_id;
                 $list_lacak = DB::table($table_name)
-                    ->where('utc_timestamp', '>=', $timestamp_1)
-                    ->where('utc_timestamp', '<=', $timestamp_2)
+                    ->where('utc_timestamp', '>=', $timestamp_1-3600)
+                    ->where('utc_timestamp', '<=', $timestamp_2-3600)
                     ->orderBy('utc_timestamp', 'ASC')
                     ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp")
                     ->get();
@@ -337,8 +337,8 @@ class RencanaKerjaController extends Controller {
             if(in_array($unit->source_device_id, $offline_units)){
                 $table_name = 'lacak_'.$unit->source_device_id;
                 $list_lacak = DB::table($table_name)
-                    ->where('utc_timestamp', '>=', $timestamp_1)
-                    ->where('utc_timestamp', '<=', $timestamp_2)
+                    ->where('utc_timestamp', '>=', $timestamp_1-3600)
+                    ->where('utc_timestamp', '<=', $timestamp_2-3600)
                     ->orderBy('utc_timestamp', 'ASC')
                     ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp")
                     ->get();
