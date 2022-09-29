@@ -166,9 +166,9 @@ class RencanaKerjaController extends Controller {
 
         $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
         $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
-        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id;
-        if(in_array($unit->source_device_id, $offline_units)){
-            $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$unit->source_device_id;
+        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$rk->unit_source_device_id;
+        if(in_array($rk->unit_source_device_id, $offline_units)){
+            $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$rk->unit_source_device_id;
         }
 
         if($rk->tgl >= date('Y-m-d')) {
@@ -197,8 +197,8 @@ class RencanaKerjaController extends Controller {
             $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
             $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
             //
-            if(in_array($unit->source_device_id, $offline_units)){
-                $table_name = 'lacak_'.$unit->source_device_id;
+            if(in_array($rk->unit_source_device_id, $offline_units)){
+                $table_name = 'lacak_'.$rk->unit_source_device_id;
                 $list_lacak = DB::table($table_name)
                     ->where('utc_timestamp', '>=', $timestamp_1-3600)
                     ->where('utc_timestamp', '<=', $timestamp_2-3600)
@@ -207,13 +207,13 @@ class RencanaKerjaController extends Controller {
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {
-                    $list_lacak = Lacak2::where('ident', $unit->source_device_id)
+                    $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
                         ->where('timestamp', '>=', $timestamp_1)
                         ->where('timestamp', '<=', $timestamp_2)
                         ->orderBy('timestamp', 'ASC')
                         ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
                 } else {
-                    $list_lacak = Lacak::where('ident', $unit->source_device_id)
+                    $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
                         ->where('timestamp', '>=', $timestamp_1)
                         ->where('timestamp', '<=', $timestamp_2)
                         ->orderBy('timestamp', 'ASC')
@@ -303,9 +303,9 @@ class RencanaKerjaController extends Controller {
 
         $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
         $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
-        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$unit->source_device_id;
-        if(in_array($unit->source_device_id, $offline_units)){
-            $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$unit->source_device_id;
+        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$rk->unit_source_device_id;
+        if(in_array($rk->unit_source_device_id, $offline_units)){
+            $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$rk->unit_source_device_id;
         }
         if($rk->tgl >= date('Y-m-d')) {
             $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$rk->tgl.'*');
@@ -334,8 +334,8 @@ class RencanaKerjaController extends Controller {
             $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
 
             //
-            if(in_array($unit->source_device_id, $offline_units)){
-                $table_name = 'lacak_'.$unit->source_device_id;
+            if(in_array($rk->unit_source_device_id, $offline_units)){
+                $table_name = 'lacak_'.$rk->unit_source_device_id;
                 $list_lacak = DB::table($table_name)
                     ->where('utc_timestamp', '>=', $timestamp_1-3600)
                     ->where('utc_timestamp', '<=', $timestamp_2-3600)
@@ -344,13 +344,13 @@ class RencanaKerjaController extends Controller {
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {
-                    $list_lacak = Lacak2::where('ident', $unit->source_device_id)
+                    $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
                         ->where('timestamp', '>=', $timestamp_1)
                         ->where('timestamp', '<=', $timestamp_2)
                         ->orderBy('timestamp', 'ASC')
                         ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
                 } else {
-                    $list_lacak = Lacak::where('ident', $unit->source_device_id)
+                    $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
                         ->where('timestamp', '>=', $timestamp_1)
                         ->where('timestamp', '<=', $timestamp_2)
                         ->orderBy('timestamp', 'ASC')
