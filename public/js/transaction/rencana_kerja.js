@@ -16,7 +16,7 @@ $("#grid-data").bootgrid({
         commands: function(column, row) {
             var ret = '';
             if(row.status_id==4) {
-                ret += '<a href="'+ BASE_URL + '/transaction/rencana_kerja/playback/' + row.id + '" class ="btn btn-xs btn-success">' + ' Playback</a>';
+                ret += '<a href="'+ BASE_URL + '/report/rencana_kerja/playback/' + row.id + '" class ="btn btn-xs btn-success">' + ' Playback</a>';
             }
             return ret;
         }
