@@ -280,6 +280,8 @@
 				     	$("#info-nozzle-kanan").text(lacak[i-1].din_1==1?'On':'Off');
 				     	$("#info-nozzle-kiri").text(lacak[i-1].din_2==1?'On':'Off');
 				     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
+				     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
+				     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
 				     	$('.win-info').modal('show');
 					});
 				} else {
@@ -301,6 +303,8 @@
 				     	$("#info-nozzle-kiri").text('Off');
 				     	$("#info-nozzle-kanan").text('Off');
 				     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
+				     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
+				     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
 				     	$('.win-info').modal('show');
 					});
 				}
@@ -311,8 +315,8 @@
 		     	$("#info-nozzle-kanan").text(lacak[i-1].din_3 == 1 && lacak[i-1].din_1==1?'On':'Off');
 		     	$("#info-nozzle-kiri").text(lacak[i-1].din_3 == 1 && lacak[i-1].din_2==1?'On':'Off');
 		     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
-		     	$("#info-wing-level-kanan").text(0);
-		     	$("#info-wing-level-kiri").text(0);
+		     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
+		     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
 			}
 			$("#lokasi_nama").text(lacak[i].lokasi);
 			$("#timestamp").text(lacak[i].timestamp_2);

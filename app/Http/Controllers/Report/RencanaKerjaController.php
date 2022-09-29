@@ -203,7 +203,7 @@ class RencanaKerjaController extends Controller {
                     ->where('utc_timestamp', '>=', $timestamp_1-3600)
                     ->where('utc_timestamp', '<=', $timestamp_2-3600)
                     ->orderBy('utc_timestamp', 'ASC')
-                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp`+3600 AS timestamp")
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, arm_height_right, arm_height_left, '' AS payload_text, `utc_timestamp`+3600 AS timestamp")
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {
@@ -340,7 +340,7 @@ class RencanaKerjaController extends Controller {
                     ->where('utc_timestamp', '>=', $timestamp_1-3600)
                     ->where('utc_timestamp', '<=', $timestamp_2-3600)
                     ->orderBy('utc_timestamp', 'ASC')
-                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp`+3600 AS timestamp")
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, arm_height_right, arm_height_left, '' AS payload_text, `utc_timestamp`+3600 AS timestamp")
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {
