@@ -84,7 +84,7 @@ class UnitController extends Controller {
                         $table->double('oil')->nullable();
                         $table->double('gas')->nullable();
                         $table->double('homogenity')->nullable();
-                        $table->integer('bearing')->nullable();
+                        $table->double('bearing')->nullable();
                         $table->string('microcontroller_id', 30)->nullable();
                         $table->double('utc_timestamp')->unique()->nullable();
                         $table->dateTime('created_at')->nullable();

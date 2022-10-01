@@ -310,6 +310,7 @@ class UnitController extends Controller {
             'oil'                   => rand(0,6),
             'gas'                   => rand(0,6),
             'homogenity'            => rand(0,6),
+            'bearing'               => rand(0,360),
             'utc_timestamp'         => strtotime(gmdate("Y-m-d\TH:i:s\Z")) - 3600
         ];
         $i++;
