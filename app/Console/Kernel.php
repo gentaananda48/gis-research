@@ -228,7 +228,7 @@ class Kernel extends ConsoleKernel
 
             $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
             $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
-            if(in_array($unit->source_device_id, $offline_units)){
+            if(in_array($rk->unit_source_device_id, $offline_units)){
                 $table_name = 'lacak_'.$rk->unit_source_device_id;
                 $list_lacak = DB::table($table_name)
                     ->where('utc_timestamp', '>=', strtotime($rk->jam_mulai)-3600)
