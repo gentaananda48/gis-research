@@ -230,7 +230,7 @@ class Kernel extends ConsoleKernel
             $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
             if(in_array($rk->unit_source_device_id, $offline_units)){
                 $table_name = 'lacak_'.$rk->unit_source_device_id;
-                $list_lacak = DB::table($table_name)
+                $list = DB::table($table_name)
                     ->where('utc_timestamp', '>=', strtotime($rk->jam_mulai)-3600)
                     ->where('utc_timestamp', '<=', strtotime($rk->jam_selesai)-3600)
                     ->orderBy('utc_timestamp', 'ASC')
