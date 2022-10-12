@@ -53,13 +53,13 @@
 			                    			<td>Longitude</td>
 			                    			<td>: <span id="info-longitude"></span></td>
 			                    			<td>Spray Kiri</td>
-			                    			<td>: <span id="info-nozzle-kanan"></span></td>
+			                    			<td>: <span id="info-nozzle-kiri"></span></td>
 			                    		</tr>
 			                    		<tr>
 			                    			<td>Altitude</td>
 			                    			<td>: <span id="info-altitude"></span></td>
 			                    			<td>Spray Kanan</td>
-			                    			<td>: <span id="info-nozzle-kiri"></span></td>
+			                    			<td>: <span id="info-nozzle-kanan"></span></td>
 			                    		</tr>
 			                    		<tr>
 			                    			<td>Timestamp</td>
