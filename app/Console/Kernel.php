@@ -325,7 +325,7 @@ class Kernel extends ConsoleKernel
                 $rrk->gsm_signal_level = !empty($v->gsm_signal_level) ? $v->gsm_signal_level : null;
                 $rrk->timestamp = date('Y-m-d H:i:s', $v->timestamp);
                 $rrk->position_speed = $v->position_speed;
-                $rrk->din = $v->din;
+                $rrk->din = !empty($v->din) ? $v->din : null;
                 $rrk->din_1 = $v->din_1;
                 $rrk->din_2 = $v->din_2;
                 $rrk->din_3 = $v->din_3;
