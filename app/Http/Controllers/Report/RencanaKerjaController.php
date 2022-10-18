@@ -340,7 +340,7 @@ class RencanaKerjaController extends Controller {
                     ->where('utc_timestamp', '>=', $timestamp_1-3600)
                     ->where('utc_timestamp', '<=', $timestamp_2-3600)
                     ->orderBy('utc_timestamp', 'ASC')
-                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, 0 AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, arm_height_right, arm_height_left, '' AS payload_text, `utc_timestamp`+3600 AS timestamp")
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp`+3600 AS timestamp")
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {
@@ -348,29 +348,60 @@ class RencanaKerjaController extends Controller {
                         ->where('timestamp', '>=', $timestamp_1)
                         ->where('timestamp', '<=', $timestamp_2)
                         ->orderBy('timestamp', 'ASC')
-                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
                 } else {
                     $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
                         ->where('timestamp', '>=', $timestamp_1)
                         ->where('timestamp', '<=', $timestamp_2)
                         ->orderBy('timestamp', 'ASC')
-                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
                 }
             }
             //
 
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
         }
-        $list_lacak2 = [];
+        $list_by_timestamp = [];
         foreach($list_lacak as $v){
             if(strtotime($jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($jam_selesai)) {
                 $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
                 $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
-                $v->progress_time = doubleval($v->timestamp) - strtotime($jam_mulai);
-                $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
-                $v->timestamp_2 = date('H:i:s', $v->timestamp);
-                $list_lacak2[] = $v;
+                $list_by_timestamp[$v->timestamp] = $v;
             }
+        }
+        $start = strtotime($jam_mulai);
+        $finish = strtotime($jam_selesai);
+        $duration = $finish - $start;
+        $interval = 1000;
+        $last = (object) ['timestamp' => 0, 'position_latitude' => 0, 'position_longitude' => 0, 'position_altitude' => 0, 'position_direction' => 0, 'position_speed' => 0, 'pump_switch_right' => 0, 'pump_switch_left' => 0, 'pump_switch_main' => 0, 'arm_height_right' => 0, 'arm_height_left' => 0];
+        $list_lacak2 = [];
+        for($i=$start; $i<=$finish; $i++){
+            if(!empty($list_by_timestamp[$i])) {
+                $obj = $list_by_timestamp[$i];
+                $last = $list_by_timestamp[$i];
+            } else {
+                $obj = $last;
+                $obj->timestamp = $i;
+            }
+            $obj->timestamp_2 = date('H:i:s', $obj->timestamp);
+            $obj->progress_time = doubleval($obj->timestamp) - $start;
+            $obj->progress_time_pers = ($obj->progress_time / $duration) * 100;
+            $list_lacak2[] = (object) [
+                'position_latitude'         => $obj->position_latitude, 
+                'position_longitude'        => $obj->position_longitude, 
+                'position_altitude'         => !empty($obj->position_altitude) ? $obj->position_altitude : 0, 
+                'position_direction'        => !empty($obj->position_direction) ? $obj->position_direction : 0, 
+                'position_speed'            => !empty($obj->position_speed) ? $obj->position_speed : 0, 
+                'pump_switch_right'         => !empty($obj->pump_switch_right) ? $obj->pump_switch_right : 0, 
+                'pump_switch_left'          => !empty($obj->pump_switch_left) ? $obj->pump_switch_left : 0, 
+                'pump_switch_main'          => !empty($obj->pump_switch_main) ? $obj->pump_switch_main: 0, 
+                'arm_height_right'          => !empty($obj->arm_height_right) ? $obj->arm_height_right : 0, 
+                'arm_height_left'           => !empty($obj->arm_height_left) ? $obj->arm_height_left : 0, 
+                'timestamp'                 => $obj->timestamp,
+                'timestamp_2'               => $obj->timestamp_2, 
+                'progress_time'             => $obj->progress_time, 
+                'progress_time_pers'        => $obj->progress_time_pers
+            ];
         }
         return view('report.rencana_kerja.playback', [
             'rk'            => $rk, 

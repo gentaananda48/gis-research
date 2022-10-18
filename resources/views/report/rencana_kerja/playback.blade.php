@@ -80,22 +80,9 @@
         			</div>
         		</div>
 		    	<div style="margin-top: 4px;">
-		    		<form style="margin-bottom: 2px;">
-		    			<div class="row">
-			    			<div class="col-sm-2">
-			    				{{ Form::select('interval', $list_interval , $interval, array('class' => 'form-control select2')) }}
-			    			</div>
-			    			<div class="col-sm-1">
-				            	<button type="submit" class="btn btn-info"><i class="fa fa-search"></i></button>
-			    			</div>
-			    		</div>
-			     	</form>
-			    	<div class="progress" style="margin-bottom: 0px;">
-			            <div class="progress-bar progress-bar-aqua" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="{{$durasi}}" style="width: 0%">
-			            	<span class="sr-only"></span>
-			            </div>
-		          	</div>
-		    		<span class="text-bold" id="timestamp"></span>
+		    		<input type="range" id="js-progress-bar" min="0" max="{{$durasi}}" value="90" step="1">
+		    		<button type="button" class="btn btn-pause"><i class="fa fa-pause"></i></button>
+		    		<span class="text-bold pull-right" id="timestamp"></span>
 		    	</div>
         	</div>
         </div>
@@ -179,6 +166,9 @@
 	var lacak = {!! $list_lacak !!};
 	var i = 0;
 	var interval = {!! $interval !!};
+	var idx_2 = 0;
+	var pause = false;
+	var list_polyline = []; 
 
 	function setLokasi(latitude, loagitude){
         $.ajax({
@@ -248,7 +238,7 @@
 	      		polygon.infoWindow.close();
 	    	});
 		});
-		async function taskUpdateLocation(i) { // 3
+		function taskUpdateLocation(i) { // 3
 	  		var icon = marker.getIcon();
 			icon.rotation = lacak[i].position_direction;
 	    	marker.setIcon(icon);
@@ -259,9 +249,9 @@
 			// var path = poly.getPath();
 			// path.push(position);
 			if(i>0){
-				if(lacak[i-1].din_3 == 1 && (lacak[i-1].din_1==1 || lacak[i-1].din_2==1)) {
-					var strokeColor = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? "#00FF00" : lacak[i-1].din_1==1 && lacak[i-1].din_2==0 ? "#FFA500" : "#FFFF00";
-					var strokeWeight = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? 12 : 7;
+				if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
+					var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#00FF00" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#FFA500" : "#FFFF00";
+					var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
 					var poly = new google.maps.Polyline({
 					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
 					    geodesic: true,
@@ -271,14 +261,15 @@
 			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
+	    			list_polyline.push(poly);
 					google.maps.event.addListener(poly, 'click', function(h) {
 				     	var latlng=h.latLng;
 				     	$("#info-latitude").text(lacak[i-1].position_latitude);
 				     	$("#info-longitude").text(lacak[i-1].position_longitude);
 				     	$("#info-altitude").text(lacak[i-1].position_altitude);
 				     	$("#info-kecepatan").text(lacak[i-1].position_speed);
-				     	$("#info-nozzle-kanan").text(lacak[i-1].din_1==1?'On':'Off');
-				     	$("#info-nozzle-kiri").text(lacak[i-1].din_2==1?'On':'Off');
+				     	$("#info-nozzle-kanan").text(lacak[i-1].pump_switch_right==1?'On':'Off');
+				     	$("#info-nozzle-kiri").text(lacak[i-1].pump_switch_left==1?'On':'Off');
 				     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
 				     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
 				     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
@@ -294,6 +285,7 @@
 			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
+	    			list_polyline.push(poly);
 					google.maps.event.addListener(poly, 'click', function(h) {
 				     	var latlng=h.latLng;
 				     	$("#info-latitude").text(lacak[i-1].position_latitude);
@@ -312,25 +304,53 @@
 		     	$("#info-longitude").text(lacak[i-1].position_longitude);
 		     	$("#info-altitude").text(lacak[i-1].position_altitude);
 		     	$("#info-kecepatan").text(lacak[i-1].position_speed);
-		     	$("#info-nozzle-kanan").text(lacak[i-1].din_3 == 1 && lacak[i-1].din_1==1?'On':'Off');
-		     	$("#info-nozzle-kiri").text(lacak[i-1].din_3 == 1 && lacak[i-1].din_2==1?'On':'Off');
+		     	$("#info-nozzle-kanan").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_right==1?'On':'Off');
+		     	$("#info-nozzle-kiri").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_left==1?'On':'Off');
 		     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
 		     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
 		     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
 			}
 			$("#lokasi_nama").text(lacak[i].lokasi);
 			$("#timestamp").text(lacak[i].timestamp_2);
-			$(".progress-bar-aqua").attr('aria-valuenow', lacak[i].progress_time);
-			$(".progress-bar-aqua").css("width", lacak[i].progress_time_pers + "%");
-			//setLokasi(lacak[i].position_latitude, lacak[i].position_longitude)
-		  	await timer(interval);
+			$('#js-progress-bar').val(lacak[i].progress_time);
 		}
-		async function updateLocation() {
-			for (var i = 0, len = lacak.length; i < len; i += 1) {
-			    await taskUpdateLocation(i);
+		async function updateLocation(idx) {
+			idx_2 = idx;
+			for (var i = 0, len = idx; i < idx; i += 1) {
+			    taskUpdateLocation(i);
+			}
+			i=idx;
+			while (i < lacak.length && !pause) {
+				taskUpdateLocation(i);
+				await timer(interval);
+				idx_2 = i;
+				i++;
 			}
 		}
-		updateLocation();
+		function deletePolyline(){
+			for (i=0; i<list_polyline.length; i++) {                           
+				list_polyline[i].setMap(null); 
+			}
+		}
+		updateLocation(0);
+		$(".btn-pause").on('click', function(){
+			pause = !pause;
+			if(pause) {
+				$(this).html('<i class="fa fa-play"></i>');
+			} else {
+				$(this).html('<i class="fa fa-pause"></i>');
+				updateLocation(idx_2);
+			}
+		});
+		$('#js-progress-bar').on('change', function(){
+			var val = $(this).val();
+			if(pause){
+				deletePolyline()
+				updateLocation(val)
+			} else {
+				alert('Please pause first')
+			}
+		});
 		function timer(ms) { return new Promise(res => setTimeout(res, ms)); }
 	}
 </script>
