@@ -72,6 +72,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/unit/playback/{id}', array('uses' => 'Master\UnitController@playback', 'as' => 'master.playback'));
     Route::get('/master/unit/playback2/{id}', array('uses' => 'Master\UnitController@playback2', 'as' => 'master.playback2'));
     Route::get('/master/unit/lokasi', array('uses' => 'Master\UnitController@lokasi', 'as' => 'master.lokasi'));
+    Route::get('/master/unit/edit/{id}', array('uses' => 'Master\UnitController@edit', 'as' => 'master.unit.edit'));
+    Route::put('/master/unit/update/{id}', array('uses' => 'Master\UnitController@update', 'as' => 'master.unit.update'));
 
     // LOKASI
     Route::get('/master/lokasi', array('uses' => 'Master\LokasiController@index', 'as' => 'master.lokasi'));

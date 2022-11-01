@@ -88,6 +88,41 @@ class UnitController extends Controller {
                         $table->string('microcontroller_id', 30)->nullable();
                         $table->double('utc_timestamp')->unique()->nullable();
                         $table->dateTime('created_at')->nullable();
+                        $table->string('box_id', 20)->nullable();
+                        $table->string('unit_label', 30)->nullable();
+                        $table->tinyInteger('processed')->nullable();
+                    });
+                }
+                $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($unit->label)));
+                if (!Schema::hasTable($table_name)) {
+                    Schema::create($table_name, function (Blueprint $table) {
+                        $table->bigIncrements('id');
+                        $table->double('latitude')->nullable();
+                        $table->double('longitude')->nullable();
+                        $table->double('speed')->nullable();
+                        $table->double('altitude')->nullable();
+                        $table->double('arm_height_left')->nullable();
+                        $table->double('arm_height_right')->nullable();
+                        $table->double('temperature_left')->nullable();
+                        $table->double('temperature_right')->nullable();
+                        $table->tinyInteger('pump_switch_main')->nullable();
+                        $table->tinyInteger('pump_switch_left')->nullable();
+                        $table->tinyInteger('pump_switch_right')->nullable();
+                        $table->double('flow_meter_left')->nullable();
+                        $table->double('flow_meter_right')->nullable();
+                        $table->double('tank_level')->nullable();
+                        $table->double('oil')->nullable();
+                        $table->double('gas')->nullable();
+                        $table->double('homogenity')->nullable();
+                        $table->double('bearing')->nullable();
+                        $table->string('microcontroller_id', 30)->nullable();
+                        $table->double('utc_timestamp')->unique()->nullable();
+                        $table->dateTime('created_at')->nullable();
+                        $table->string('box_id', 20)->nullable();
+                        $table->string('unit_label', 30)->nullable();
+                        $table->string('source_device_id', 20)->nullable();
+                        $table->string('lokasi_kode', 10)->nullable();
+                        $table->tinyInteger('processed')->nullable();
                     });
                 }
             }
@@ -149,7 +184,7 @@ class UnitController extends Controller {
 
     public function track_json(Request $request, $id) {
         $unit = Unit::find($id);
-        $lacak = Lacak2::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first(['position_latitude','position_longitude','movement_status','gsm_signal_level','position_altitude','position_direction','position_speed','din_1','din_2']);
+        $lacak = Lacak2::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first(['position_latitude','position_longitude','movement_status','gsm_signal_level','position_altitude','position_direction','position_speed','din_2','din_3']);
         $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
         $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
         $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
@@ -158,8 +193,8 @@ class UnitController extends Controller {
         $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
         $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
         $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
-        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
-        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
+        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
+        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_3) ? 'On' : 'Off';
 
         $geofenceHelper = new GeofenceHelper;
         //$list_polygon = $geofenceHelper->createListPolygon();
@@ -275,7 +310,7 @@ class UnitController extends Controller {
                 ->where('timestamp', '>=', $timestamp_1)
                 ->where('timestamp', '<=', $timestamp_2)
                 ->orderBy('timestamp', 'ASC')
-                ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+                ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_2 AS pump_switch_right', 'din_3 AS pump_switch_left', 'din_4 AS pump_switch_main', 'payload_text', 'timestamp']);
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
         }
         $list_lacak2 = [];
@@ -344,7 +379,7 @@ class UnitController extends Controller {
             ->where('timestamp', '>=', strtotime($tgl_jam_mulai))
             ->where('timestamp', '<=', strtotime($tgl_jam_selesai))
             ->orderBy('timestamp', 'ASC')
-            ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'din_1', 'din_2', 'din_3', 'payload_text', 'timestamp']);
+            ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'din_2 AS pump_switch_right', 'din_3 AS pump_switch_left', 'din_4 AS pump_switch_main', 'payload_text', 'timestamp']);
         $list_lacak = [];
         foreach($lacak as $v){
             $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
@@ -366,6 +401,30 @@ class UnitController extends Controller {
             'interval'      => $interval,
             'durasi'        => $durasi
         ]);
+    }
+
+    public function edit($id) {
+        $data = Unit::find($id);
+        return view('master.unit.edit', ['data' => $data]);
+
+    }
+
+    public function update(Request $request, $id) {
+        $post = $request->all();
+        // VALIDATE
+        $validated_fields = ['box_id' => 'required'];
+        $valid = Validator::make($post,$validated_fields);
+        if($valid->fails()){
+            return redirect()->back()->withInput($request->input())->withErrors($valid->errors());
+        }
+        try {
+            $unit = Unit::find($id);
+            $unit->box_id   = $request->box_id; 
+            $unit->save();
+        } catch(Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+        return redirect('master/unit')->with('message', 'Saved successfully');
     }
 
     protected function guard(){
