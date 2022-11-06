@@ -36,6 +36,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
+        Commands\ProcessLacakIMEI::class,
+        Commands\ProcessRencanaKerja::class,
     ];
 
     /**

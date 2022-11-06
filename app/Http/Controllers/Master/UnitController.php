@@ -91,6 +91,7 @@ class UnitController extends Controller {
                         $table->string('box_id', 20)->nullable();
                         $table->string('unit_label', 30)->nullable();
                         $table->tinyInteger('processed')->nullable();
+                        $table->index('processed');
                     });
                 }
                 $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($unit->label)));
@@ -123,6 +124,7 @@ class UnitController extends Controller {
                         $table->string('source_device_id', 20)->nullable();
                         $table->string('lokasi_kode', 10)->nullable();
                         $table->tinyInteger('processed')->nullable();
+                        $table->index('processed');
                     });
                 }
             }
