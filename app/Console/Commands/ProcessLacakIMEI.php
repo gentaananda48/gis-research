@@ -72,7 +72,7 @@ class ProcessLacakIMEI extends Command
                 ->where('processed', '=', 0)
                 ->whereNotNull('unit_label')
                 ->orderBy('utc_timestamp', 'ASC')
-                ->limit(100)
+                ->limit(500)
                 ->get();
             foreach($list_lacak as $v){
                 $lokasi_kode = $geofenceHelper->checkLocation($list_polygon, $v->latitude, $v->longitude);
