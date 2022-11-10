@@ -70,6 +70,7 @@ class ProcessLacakIMEI extends Command
             $table_name = 'lacak_'.$source_device_id;
             $list_lacak = DB::table($table_name)
                 ->where('processed', '=', 0)
+                ->whereNotNull('unit_label')
                 ->orderBy('utc_timestamp', 'ASC')
                 ->limit(100)
                 ->get();
