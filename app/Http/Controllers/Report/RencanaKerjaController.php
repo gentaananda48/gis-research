@@ -373,7 +373,19 @@ class RencanaKerjaController extends Controller {
         $finish = strtotime($jam_selesai);
         $duration = $finish - $start;
         $interval = 1000;
-        $last = (object) ['timestamp' => 0, 'position_latitude' => 0, 'position_longitude' => 0, 'position_altitude' => 0, 'position_direction' => 0, 'position_speed' => 0, 'pump_switch_right' => 0, 'pump_switch_left' => 0, 'pump_switch_main' => 0, 'arm_height_right' => 0, 'arm_height_left' => 0];
+        $last = (object) [
+            'timestamp'             => 0, 
+            'position_latitude'     => count($list_lacak) > 0 ? $list_lacak[0]->position_latitude : 0, 
+            'position_longitude'    => count($list_lacak) > 0 ? $list_lacak[0]->position_longitude : 0, 
+            'position_altitude'     => 0, 
+            'position_direction'    => 0, 
+            'position_speed'        => 0, 
+            'pump_switch_right'     => 0, 
+            'pump_switch_left'      => 0, 
+            'pump_switch_main'      => 0, 
+            'arm_height_right'      => 0, 
+            'arm_height_left'       => 0
+        ];
         $list_lacak2 = [];
         for($i=$start; $i<=$finish; $i++){
             if(!empty($list_by_timestamp[$i])) {
