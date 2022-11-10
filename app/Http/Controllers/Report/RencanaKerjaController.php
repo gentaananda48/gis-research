@@ -369,14 +369,21 @@ class RencanaKerjaController extends Controller {
                 $list_by_timestamp[$v->timestamp] = $v;
             }
         }
+        $position_latitude_0 = 0;
+        $position_longitude_0 = 0;
+        foreach($list_by_timestamp as $v){
+            $position_latitude_0 = $v->position_latitude;
+            $position_longitude_0 = $v->position_longitude;
+            break;
+        }
         $start = strtotime($jam_mulai);
         $finish = strtotime($jam_selesai);
         $duration = $finish - $start;
         $interval = 1000;
         $last = (object) [
             'timestamp'             => 0, 
-            'position_latitude'     => count($list_lacak) > 0 ? $list_lacak[0]->position_latitude : 0, 
-            'position_longitude'    => count($list_lacak) > 0 ? $list_lacak[0]->position_longitude : 0, 
+            'position_latitude'     => $position_latitude_0, 
+            'position_longitude'    => $position_longitude_0, 
             'position_altitude'     => 0, 
             'position_direction'    => 0, 
             'position_speed'        => 0, 
