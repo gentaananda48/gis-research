@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Helper\GeofenceHelper;
 use Illuminate\Support\Facades\Redis;
 use App\Model\Unit;
+use App\Model\KoordinatLokasi;
 
 class ProcessLacakIMEI extends Command
 {
