@@ -236,7 +236,7 @@ class Kernel extends ConsoleKernel
                     ->where('utc_timestamp', '>=', strtotime($rk->jam_mulai)-3600)
                     ->where('utc_timestamp', '<=', strtotime($rk->jam_selesai)-3600)
                     ->orderBy('utc_timestamp', 'ASC')
-                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp`+3600 AS timestamp")
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp")
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {

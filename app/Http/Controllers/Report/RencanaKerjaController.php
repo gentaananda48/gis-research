@@ -203,7 +203,7 @@ class RencanaKerjaController extends Controller {
                     ->where('utc_timestamp', '>=', $timestamp_1-3600)
                     ->where('utc_timestamp', '<=', $timestamp_2-3600)
                     ->orderBy('utc_timestamp', 'ASC')
-                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp`+3600 AS timestamp")
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {
@@ -340,7 +340,7 @@ class RencanaKerjaController extends Controller {
                     ->where('utc_timestamp', '>=', $timestamp_1-3600)
                     ->where('utc_timestamp', '<=', $timestamp_2-3600)
                     ->orderBy('utc_timestamp', 'ASC')
-                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp`+3600 AS timestamp")
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {
