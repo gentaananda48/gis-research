@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Model\RencanaKerja;
 use App\Model\ReportRencanaKerja2;
+use App\Model\SystemConfiguration;
 
 class ProcessRencanaKerja extends Command
 {
@@ -15,7 +16,7 @@ class ProcessRencanaKerja extends Command
      *
      * @var string
      */
-    protected $signature = 'process:rencana-kerja';
+    protected $signature = 'process:rencana-kerja {tgl}';
 
     /**
      * The console command description.
@@ -40,8 +41,10 @@ class ProcessRencanaKerja extends Command
      * @return mixed
      */
     public function handle() {
-        $tgl = '2022-11-04';
-        $list_unit = ['BSC - 34'];
+        $tgl = $this->argument('tgl');
+        $tgl = !empty($tgl) ? $tgl : date('Y-m-d',strtotime('-1 days'));
+        $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT_2')->first(['value']);
+        $list_unit = !empty($sysconf->value)? explode(',', $sysconf->value) : [];
         DB::beginTransaction();
         try {
             $list_rk = RencanaKerja::where('tgl', $tgl)->whereIn('unit_label', $list_unit)->get();
@@ -54,7 +57,13 @@ class ProcessRencanaKerja extends Command
                     ->where('utc_timestamp', '<=', strtotime($rk->tgl.' 23:59:59'))
                     ->orderBy('utc_timestamp', 'ASC')
                     ->get();
-                foreach($list_lacak as $lacak){
+                $jam_mulai = null;
+                $jam_selesai = null;
+                foreach($list_lacak as $idx=>$lacak){
+                    if($idx==0) {
+                        $jam_mulai = date('Y-m-d H:i:s', $lacak->utc_timestamp);
+                    }
+                    $jam_selesai = date('Y-m-d H:i:s', $lacak->utc_timestamp);
                     $rrk = ReportRencanaKerja2::where('unit_label', $unit_label)->where('utc_timestamp', $lacak->utc_timestamp)->first();
                     if($rrk==null){
                         $rrk = new ReportRencanaKerja2;
@@ -105,6 +114,16 @@ class ProcessRencanaKerja extends Command
                     $rrk->save();
 
                     DB::table($table_name)->where('id', '=', $lacak->id)->update(['processed'=>1]);
+                }
+                if(!empty($jam_mulai) && !empty($jam_selesai)) {
+                    $rk->jam_mulai      = $jam_mulai;
+                    $rk->jam_selesai    = $jam_selesai;
+                    //$rk->jam_laporan    = date('Y-m-d H:i:s');
+                    $rk->status_id = 4;
+                    $rk->status_nama = 'Selesai';
+                    $rk->status_urutan = 4;
+                    $rk->status_color = '#008000';
+                    $rk->save();
                 }
             }
             DB::commit();
