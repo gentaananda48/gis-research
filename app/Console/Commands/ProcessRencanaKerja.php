@@ -57,13 +57,10 @@ class ProcessRencanaKerja extends Command
                     ->where('utc_timestamp', '<=', strtotime($rk->tgl.' 23:59:59'))
                     ->orderBy('utc_timestamp', 'ASC')
                     ->get();
-                $jam_mulai = null;
-                $jam_selesai = null;
+                $count_list_lacak = count($list_lacak);
+                $jam_mulai = $count_list_lacak > 0 ? date('Y-m-d H:i:s', $list_lacak[0]->utc_timestamp) : null;
+                $jam_selesai = $count_list_lacak > 0 ? date('Y-m-d H:i:s', $list_lacak[$count_list_lacak-1]->utc_timestamp) : null;
                 foreach($list_lacak as $idx=>$lacak){
-                    if($idx==0) {
-                        $jam_mulai = date('Y-m-d H:i:s', $lacak->utc_timestamp);
-                    }
-                    $jam_selesai = date('Y-m-d H:i:s', $lacak->utc_timestamp);
                     $rrk = ReportRencanaKerja2::where('unit_label', $unit_label)->where('utc_timestamp', $lacak->utc_timestamp)->first();
                     if($rrk==null){
                         $rrk = new ReportRencanaKerja2;
@@ -88,8 +85,8 @@ class ProcessRencanaKerja extends Command
                     $rrk->driver = $rk->driver_nama;
                     $rrk->kasie = $rk->kasie_nama;
                     $rrk->status = $rk->status_nama;
-                    $rrk->jam_mulai = $rk->jam_mulai;
-                    $rrk->jam_selesai = $rk->jam_selesai;
+                    $rrk->jam_mulai = $jam_mulai;
+                    $rrk->jam_selesai = $jam_selesai;
 
                     $rrk->latitude = $lacak->latitude;
                     $rrk->longitude = $lacak->longitude;
