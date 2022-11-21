@@ -17,9 +17,10 @@ class LokasiImport implements ToCollection, WithHeadingRow
     function __construct() {}
 
     public function collection(Collection $rows) {
-        $oldLimit = ini_get( 'memory_limit' );
-        ini_set( 'memory_limit', '-1' );
-        set_time_limit(0);
+        $prev_memory_limit = ini_get('memory_limit');
+        $prev_max_execution_time = ini_get('max_execution_time');
+        ini_set('memory_limit', '-1' );
+        ini_set('max_execution_time', -1);
         DB::beginTransaction();
         // lokasi::query()->truncate();
         // Koordinatlokasi::query()->truncate();
@@ -91,6 +92,7 @@ class LokasiImport implements ToCollection, WithHeadingRow
         } catch(Exception $e){
             DB::rollback(); 
         }
-        ini_set( 'memory_limit', $oldLimit );
+        ini_set('memory_limit', $prev_memory_limit);
+        ini_set('max_execution_time', $prev_max_execution_time);
     }
 }
