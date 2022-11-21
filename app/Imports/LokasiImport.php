@@ -20,7 +20,7 @@ class LokasiImport implements ToCollection, WithHeadingRow
         $prev_memory_limit = ini_get('memory_limit');
         $prev_max_execution_time = ini_get('max_execution_time');
         ini_set('memory_limit', '-1' );
-        ini_set('max_execution_time', -1);
+        ini_set('max_execution_time', '0');
         DB::beginTransaction();
         // lokasi::query()->truncate();
         // Koordinatlokasi::query()->truncate();
