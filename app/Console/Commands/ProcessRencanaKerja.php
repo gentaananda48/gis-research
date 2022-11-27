@@ -53,7 +53,7 @@ class ProcessRencanaKerja extends Command
                 $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', $unit_label));
                 $list_lacak = DB::table($table_name)
                     ->where('unit_label', $unit_label)
-                    ->where('lokasi_kode', '<>', '')
+                    ->where('lokasi_kode', $rk->lokasi_kode)
                     ->where('utc_timestamp', '>=', strtotime($rk->tgl.' 00:00:00'))
                     ->where('utc_timestamp', '<=', strtotime($rk->tgl.' 23:59:59'))
                     ->orderBy('utc_timestamp', 'ASC')
