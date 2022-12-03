@@ -69,7 +69,8 @@ class UnitController extends Controller {
                         $table->bigIncrements('id');
                         $table->double('latitude')->nullable();
                         $table->double('longitude')->nullable();
-                        $table->double('speed')->nullable();
+                        //$table->double('speed')->nullable();
+                        $table->decimal('speed', 18, 2)->nullable();
                         $table->double('altitude')->nullable();
                         $table->double('arm_height_left')->nullable();
                         $table->double('arm_height_right')->nullable();
@@ -100,7 +101,8 @@ class UnitController extends Controller {
                         $table->bigIncrements('id');
                         $table->double('latitude')->nullable();
                         $table->double('longitude')->nullable();
-                        $table->double('speed')->nullable();
+                        //$table->double('speed')->nullable();
+                        $table->decimal('speed', 18, 2)->nullable();
                         $table->double('altitude')->nullable();
                         $table->double('arm_height_left')->nullable();
                         $table->double('arm_height_right')->nullable();
