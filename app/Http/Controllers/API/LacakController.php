@@ -279,6 +279,44 @@ class LacakController extends Controller {
 	    }
 	}
 
+	public function create4(Request $request){
+		DB::beginTransaction();
+	    try {
+	    	$list = !empty($request->list) ? $request->list : [];
+	    	if($list>0){
+	    		$rec = (object) $list[0];
+	    		$source_device_id = $rec->source_device_id;
+		    	$table_name = 'lacak_'.$source_device_id;
+		    	if (Schema::hasTable($table_name)) {
+		    		foreach($list as $v){
+		                $v = (object) $v;
+			    		$speed = !empty($v->speed) ? round($v->speed,2) : 0;
+			    		DB::insert('insert into lacak_'.$source_device_id.' (latitude, longitude, speed, altitude, arm_height_left, arm_height_right, temperature_left, temperature_right, pump_switch_main, pump_switch_left, pump_switch_right, flow_meter_left, flow_meter_right, tank_level, oil, gas, homogenity, bearing, microcontroller_id, `utc_timestamp`, created_at, box_id, unit_label, processed) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, 0) ON DUPLICATE KEY UPDATE `utc_timestamp` = ?', [$v->latitude, $v->longitude, $speed, $v->altitude, $v->arm_height_left, $v->arm_height_right, $v->temperature_left, $v->temperature_right, $v->pump_switch_main, $v->pump_switch_left, $v->pump_switch_right, $v->flow_meter_left, $v->flow_meter_right, $v->tank_level, $v->oil, $v->gas, $v->homogenity, $v->bearing, $v->microcontroller_id, $v->utc_timestamp, $v->box_id, $v->unit_label, $v->utc_timestamp]);
+		            }
+		    	} else {
+			      	return response()->json([
+			        	'status' 	=> false, 
+			        	'message' 	=> 'Table '.$table_name.' Not Found', 
+			        	'data' 		=> null
+			      	]);
+		    	}
+	    	}
+	    	DB::commit();
+	      	return response()->json([
+	        	'status' 	=> true, 
+	        	'message' 	=> 'Created successfully', 
+	        	'data' 		=> null
+	      	]);
+	    } catch(Exception $e){
+	      	DB::rollback(); 
+	      	return response()->json([
+	        	'status' 	=> false, 
+	        	'message' 	=> $e->getMessage(), 
+	        	'data' 		=> null
+	      	]);
+	    }
+	}
+
     public function guard(){
         return Auth::guard('api');
     }
