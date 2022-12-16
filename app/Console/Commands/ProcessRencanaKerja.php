@@ -54,8 +54,9 @@ class ProcessRencanaKerja extends Command
                 $list_lacak = DB::table($table_name)
                     ->where('unit_label', $unit_label)
                     ->where('lokasi_kode', $rk->lokasi_kode)
-                    ->where('utc_timestamp', '>=', strtotime($rk->tgl.' 00:00:00'))
-                    ->where('utc_timestamp', '<=', strtotime($rk->tgl.' 23:59:59'))
+                    //->where('utc_timestamp', '>=', strtotime($rk->tgl.' 00:00:00'))
+                    //->where('utc_timestamp', '<=', strtotime($rk->tgl.' 23:59:59'))
+                    ->where('report_date', $rk->tgl)
                     ->orderBy('utc_timestamp', 'ASC')
                     ->get();
                 $count_list_lacak = count($list_lacak);
@@ -116,11 +117,24 @@ class ProcessRencanaKerja extends Command
                 if(!empty($jam_mulai) && !empty($jam_selesai)) {
                     $rk->jam_mulai      = $jam_mulai;
                     $rk->jam_selesai    = $jam_selesai;
-                    //$rk->jam_laporan    = date('Y-m-d H:i:s');
-                    $rk->status_id = 4;
-                    $rk->status_nama = 'Selesai';
-                    $rk->status_urutan = 4;
-                    $rk->status_color = '#008000';
+                    $rk->status_id      = 4;
+                    $rk->status_nama    = 'Selesai';
+                    $rk->status_urutan  = 4;
+                    $rk->status_color   = '#008000';
+                    $rk->jam_laporan    = null;
+                    $rk->jam_laporan2   = null;
+                    $rk->kualitas       = null;
+                    $rk->save();
+                } else {
+                    $rk->jam_mulai      = null;
+                    $rk->jam_selesai    = null;
+                    $rk->status_id      = 1;
+                    $rk->status_nama    = 'Belum Dikerjakan';
+                    $rk->status_urutan  = 1;
+                    $rk->status_color   = '#FF0000';
+                    $rk->jam_laporan    = null;
+                    $rk->jam_laporan2   = null;
+                    $rk->kualitas       = null;
                     $rk->save();
                 }
             }
