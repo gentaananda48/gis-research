@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Log;
 use App\Model\RencanaKerja;
 use App\Model\ReportRencanaKerja2;
 use App\Model\SystemConfiguration;
+use App\Model\CronLog;
+use App\Helper\CronLogHelper;
 
 class ProcessRencanaKerja extends Command
 {
@@ -41,8 +43,10 @@ class ProcessRencanaKerja extends Command
      * @return mixed
      */
     public function handle() {
+        $cron_helper = new CronLogHelper;
         $tgl = $this->argument('tgl');
         $tgl = !empty($tgl) ? $tgl : date('Y-m-d',strtotime('-1 days'));
+        $cron_helper->create('process:rencana-kerja', 'RUNNING', 'ReportDate : '.$tgl);
         $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT_2')->first(['value']);
         $list_unit = !empty($sysconf->value)? explode(',', $sysconf->value) : [];
         DB::beginTransaction();
@@ -139,9 +143,11 @@ class ProcessRencanaKerja extends Command
                 }
             }
             DB::commit();
+            $cron_helper->create('process:rencana-kerja', 'STOPPED', 'Finished Successfully');
         } catch (\Exception $e) {
             DB::rollback(); 
             Log::error($e->getMessage());
+            $cron_helper->create('process:rencana-kerja', 'STOPPED', 'ERROR: '.$e->getMessage());
         }
     }
 }

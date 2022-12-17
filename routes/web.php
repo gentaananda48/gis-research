@@ -54,7 +54,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/admin/system_configuration/update/{id}', array('uses' => 'Admin\SystemConfigurationController@update', 'as' => 'admin.system_configuration.update'));
     Route::delete('/admin/system_configuration/delete/{id}', array('uses' => 'Admin\SystemConfigurationController@destroy', 'as' => 'admin.system_configuration.destroy'));
 
-
+    // CRON LOG
+    Route::get('/admin/cron_log', array('uses' => 'Admin\CronLogController@index', 'as' => 'admin.cron_log'));
+    Route::get('/admin/cron_log/get', array('uses' => 'Admin\CronLogController@get_list', 'as' => 'admin.cron_log.get'));
 
     Route::get('/myprofile', array('uses' => 'Admin\UserController@myprofile', 'as' => 'myprofile'));
     Route::get('/', 'HomeController@index')->name('home');

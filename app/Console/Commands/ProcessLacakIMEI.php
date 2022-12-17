@@ -10,6 +10,8 @@ use App\Helper\GeofenceHelper;
 use Illuminate\Support\Facades\Redis;
 use App\Model\Unit;
 use App\Model\KoordinatLokasi;
+use App\Model\CronLog;
+use App\Helper\CronLogHelper;
 
 class ProcessLacakIMEI extends Command
 {
@@ -43,31 +45,33 @@ class ProcessLacakIMEI extends Command
      * @return mixed
      */
     public function handle() {
+        $cron_helper = new CronLogHelper;
         $source_device_id = $this->argument('imei');
-        $geofenceHelper = new GeofenceHelper;
-        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
-        $cached = Redis::get($cache_key);
-        $list_koordinat_lokasi = [];
-        if(isset($cached)) {
-            $list_koordinat_lokasi = json_decode($cached, FALSE);
-        } else {
-            $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
-                ->orderBy('bagian', 'ASC')
-                ->orderBy('posnr', 'ASC')
-                ->get();
-            Redis::set($cache_key, json_encode($list_koordinat_lokasi));
-        }
-        $list_polygon = [];
-        foreach($list_koordinat_lokasi as $v){
-            $idx = $v->lokasi.'_'.$v->bagian;
-            if(array_key_exists($idx, $list_polygon)){
-                $list_polygon[$idx][] = $v->latd." ".$v->long;
-            } else {
-                $list_polygon[$idx] = [$v->latd." ".$v->long];
-            }
-        }
+        $cron_helper->create('process:lacak-imei', 'RUNNING', 'SourceDeviceID : '.$source_device_id);
         DB::beginTransaction();
         try {
+            $geofenceHelper = new GeofenceHelper;
+            $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
+            $cached = Redis::get($cache_key);
+            $list_koordinat_lokasi = [];
+            if(isset($cached)) {
+                $list_koordinat_lokasi = json_decode($cached, FALSE);
+            } else {
+                $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
+                    ->orderBy('bagian', 'ASC')
+                    ->orderBy('posnr', 'ASC')
+                    ->get();
+                Redis::set($cache_key, json_encode($list_koordinat_lokasi));
+            }
+            $list_polygon = [];
+            foreach($list_koordinat_lokasi as $v){
+                $idx = $v->lokasi.'_'.$v->bagian;
+                if(array_key_exists($idx, $list_polygon)){
+                    $list_polygon[$idx][] = $v->latd." ".$v->long;
+                } else {
+                    $list_polygon[$idx] = [$v->latd." ".$v->long];
+                }
+            }
             $table_name = 'lacak_'.$source_device_id;
             $list_lacak = DB::table($table_name)
                 ->where('processed', '=', 0)
@@ -86,9 +90,11 @@ class ProcessLacakIMEI extends Command
             }
             //echo count($list_lacak)."\n";
             DB::commit();
+            $cron_helper->create('process:lacak-imei', 'STOPPED', 'Finished Successfully');
         } catch (\Exception $e) {
             DB::rollback(); 
             Log::error($e->getMessage());
+            $cron_helper->create('process:lacak-imei', 'STOPPED', 'ERROR: '.$e->getMessage());
         }
     }
 }
