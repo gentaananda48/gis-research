@@ -23,8 +23,9 @@ class CronLogController extends Controller {
         	'process:rencana-kerja' => 'process:rencana-kerja'
         ];
         $list_status = [
-        	'RUNNING' 	=> 'RUNNING',
-        	'STOPPED' 	=> 'STOPPED'
+        	'RUNNING' 		=> 'RUNNING',
+        	'FINISHED' 		=> 'FINISHED',
+        	'STOPPED' 		=> 'STOPPED'
         ];
         return view('admin.cron_log.index', [
         	'name' 			=> $request->name,

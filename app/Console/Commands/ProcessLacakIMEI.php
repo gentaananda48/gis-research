@@ -90,7 +90,7 @@ class ProcessLacakIMEI extends Command
             }
             //echo count($list_lacak)."\n";
             DB::commit();
-            $cron_helper->create('process:lacak-imei', 'STOPPED', 'SourceDeviceID: '.$source_device_id.'. Finished Successfully');
+            $cron_helper->create('process:lacak-imei', 'FINISHED', 'SourceDeviceID: '.$source_device_id.'. Finished Successfully');
         } catch (\Exception $e) {
             DB::rollback(); 
             Log::error($e->getMessage());

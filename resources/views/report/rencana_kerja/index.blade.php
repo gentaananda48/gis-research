@@ -68,31 +68,31 @@
                             <div class="form-group">
                                 <label for="tgl" class="col-sm-4">Tanggal</label>
                                 <div class="col-sm-8">
-                                    {{ Form::text('tgl', null, array('id' => 'tgl', 'class' => 'form-control', 'autocomplete'=>'off')) }}
+                                    {{ Form::text('tgl', $tgl, array('id' => 'tgl', 'class' => 'form-control', 'autocomplete'=>'off')) }}
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="shift" class="col-sm-4">Shift</label>
                                 <div class="col-sm-8">
-                                    {{ Form::select('shift[]', $list_shift , null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                    {{ Form::select('shift[]', $list_shift , !empty($shift)?$shift:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="lokasi" class="col-sm-4">Lokasi</label>
                                 <div class="col-sm-8">
-                                    {{ Form::select('lokasi[]', $list_lokasi, null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                    {{ Form::select('lokasi[]', $list_lokasi, !empty($lokasi)?$lokasi:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
                             </div>  
                             <div class="form-group">
                                 <label for="aktivitas" class="col-sm-4">Aktivitas</label>
                                 <div class="col-sm-8">
-                                    {{ Form::select('aktivitas[]', $list_aktivitas, null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                    {{ Form::select('aktivitas[]', $list_aktivitas, !empty($aktivitas)?$aktivitas:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
                             </div>    
                             <div class="form-group">
                                 <label for="unit" class="col-sm-4">Unit</label>
                                 <div class="col-sm-8">
-                                    {{ Form::select('unit[]', $list_unit , null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                    {{ Form::select('unit[]', $list_unit , !empty($unit)?$unit:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
                             </div>             
                         </div>
@@ -100,25 +100,25 @@
                             <div class="form-group">
                                 <label for="nozzle" class="col-sm-4">Nozzle</label>
                                 <div class="col-sm-8">
-                                    {{ Form::select('nozzle[]', $list_nozzle , null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                    {{ Form::select('nozzle[]', $list_nozzle , !empty($nozzle)?$nozzle:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
                             </div> 
                             <div class="form-group">
                                 <label for="volume" class="col-sm-4">Volume</label>
                                 <div class="col-sm-8">
-                                    {{ Form::select('volume[]', $list_volume , null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                    {{ Form::select('volume[]', $list_volume , !empty($volume)?$volume:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="status" class="col-sm-4">Status</label>
                                 <div class="col-sm-8">
-                                    {{ Form::select('status[]', $list_status , null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                    {{ Form::select('status[]', $list_status , !empty($status)?$status:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
                             </div>   
                             <div class="form-group">
                                 <label for="kualitas" class="col-sm-4">Kualitas</label>
                                 <div class="col-sm-8">
-                                    {{ Form::select('kualitas[]', $list_report_status , null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                    {{ Form::select('kualitas[]', $list_report_status , !empty($kualitas)?$kualitas:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
                             </div>        
                         </div>

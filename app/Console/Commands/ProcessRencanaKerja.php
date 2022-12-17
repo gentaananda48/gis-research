@@ -143,7 +143,7 @@ class ProcessRencanaKerja extends Command
                 }
             }
             DB::commit();
-            $cron_helper->create('process:rencana-kerja', 'STOPPED', 'ReportDate: '.$tgl.'. Finished Successfully');
+            $cron_helper->create('process:rencana-kerja', 'FINISHED', 'ReportDate: '.$tgl.'. Finished Successfully');
         } catch (\Exception $e) {
             DB::rollback(); 
             Log::error($e->getMessage());

@@ -74,7 +74,6 @@ class RencanaKerjaController extends Controller {
             $list_status[$v->id] = $v->nama;
         }
         return view('transaction.rencana_kerja.index', [
-            'tgl'               => $request->tgl,
             'is_able_to_import' => $is_able_to_import,
             'list_shift'        => $list_shift,
             'list_lokasi'       => $list_lokasi,
@@ -82,7 +81,15 @@ class RencanaKerjaController extends Controller {
             'list_unit'         => $list_unit,
             'list_nozzle'       => $list_nozzle,
             'list_volume'       => $list_volume,
-            'list_status'       => $list_status
+            'list_status'       => $list_status,
+            'tgl'               => $request->tgl,
+            'shift'             => $request->shift,
+            'lokasi'            => $request->lokasi,
+            'aktivitas'         => $request->aktivitas,
+            'unit'              => $request->unit,
+            'nozzle'            => $request->nozzle,
+            'volume'            => $request->volume,
+            'status'            => $request->status
         ]);
     }
 

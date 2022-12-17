@@ -35,7 +35,8 @@ use App\Helper\GeofenceHelper;
 use Illuminate\Support\Facades\Redis;
 
 class RencanaKerjaController extends Controller {
-    public function index() {
+    public function index(Request $request) {
+        $user = $this->guard()->user();
         $list_shift = [];
         $list_lokasi = [];
         $list_aktivitas = [];
@@ -76,6 +77,10 @@ class RencanaKerjaController extends Controller {
         foreach($res AS $v){
             $list_report_status[$v->status] = $v->status;
         }
+        if(empty($request->tgl)){
+            $tgl = date('m/01/Y').' - '.date('m/t/Y');
+            return redirect()->route('report.rencana_kerja', ['tgl' => $tgl]);
+        }
         return view('report.rencana_kerja.index', [
             'list_shift'        => $list_shift,
             'list_lokasi'       => $list_lokasi,
@@ -84,7 +89,16 @@ class RencanaKerjaController extends Controller {
             'list_nozzle'       => $list_nozzle,
             'list_volume'       => $list_volume,
             'list_status'       => $list_status,
-            'list_report_status'    => $list_report_status
+            'list_report_status'    => $list_report_status,
+            'tgl'               => $request->tgl,
+            'shift'             => $request->shift,
+            'lokasi'            => $request->lokasi,
+            'aktivitas'         => $request->aktivitas,
+            'unit'              => $request->unit,
+            'nozzle'            => $request->nozzle,
+            'volume'            => $request->volume,
+            'status'            => $request->status,
+            'kualitas'          => $request->kualitas
         ]);
     }
 
