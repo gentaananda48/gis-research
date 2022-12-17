@@ -47,7 +47,7 @@ class ProcessLacakIMEI extends Command
     public function handle() {
         $cron_helper = new CronLogHelper;
         $source_device_id = $this->argument('imei');
-        $cron_helper->create('process:lacak-imei', 'RUNNING', 'SourceDeviceID : '.$source_device_id);
+        $cron_helper->create('process:lacak-imei', 'RUNNING', 'SourceDeviceID: '.$source_device_id);
         DB::beginTransaction();
         try {
             $geofenceHelper = new GeofenceHelper;
@@ -90,11 +90,11 @@ class ProcessLacakIMEI extends Command
             }
             //echo count($list_lacak)."\n";
             DB::commit();
-            $cron_helper->create('process:lacak-imei', 'STOPPED', 'Finished Successfully');
+            $cron_helper->create('process:lacak-imei', 'STOPPED', 'SourceDeviceID: '.$source_device_id.'. Finished Successfully');
         } catch (\Exception $e) {
             DB::rollback(); 
             Log::error($e->getMessage());
-            $cron_helper->create('process:lacak-imei', 'STOPPED', 'ERROR: '.$e->getMessage());
+            $cron_helper->create('process:lacak-imei', 'STOPPED', 'SourceDeviceID: '.$source_device_id.'. ERROR: '.$e->getMessage());
         }
     }
 }

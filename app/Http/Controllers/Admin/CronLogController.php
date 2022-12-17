@@ -18,15 +18,34 @@ class CronLogController extends Controller {
             $tgl = date('m/01/Y').' - '.date('m/t/Y');
             return redirect()->route('admin.cron_log', ['tgl' => $tgl]);
         }
+        $list_name = [
+        	'process:lacak-imei' 	=> 'process:lacak-imei',
+        	'process:rencana-kerja' => 'process:rencana-kerja'
+        ];
+        $list_status = [
+        	'RUNNING' 	=> 'RUNNING',
+        	'STOPPED' 	=> 'STOPPED'
+        ];
         return view('admin.cron_log.index', [
-        	'tgl' => $request->tgl
+        	'name' 			=> $request->name,
+        	'status'  		=> $request->status,
+        	'remarks' 	 	=> $request->remarks,
+        	'tgl' 			=> $request->tgl,
+        	'list_name'		=> $list_name,
+        	'list_status'	=> $list_status
         ]);
     }
 
     public function get_list(Request $request){
         $query = CronLog::select();
-        if(!empty($_GET['name'])){
-            $query->where('users.name', 'like', '%'.$request->name.'%');
+        if(isset($request->name)){
+            $query->whereIn('name', $request->name);
+        }
+        if(isset($request->status)){
+            $query->whereIn('status', $request->status);
+        }
+        if(!empty($_GET['remarks'])){
+            $query->where('remarks', 'like', '%'.$request->remarks.'%');
         }
         if(!empty($request->tgl)){
             $tgl = explode(' - ', $request->tgl);

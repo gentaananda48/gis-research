@@ -55,15 +55,27 @@
                             <div class="form-group">
                                 <label for="name" class="col-sm-4">Name</label>
                                 <div class="col-sm-8">
-                                    {{ Form::text('name', null, array('class' => 'form-control', 'autocomplete'=>'off')) }}
+                                    {{ Form::select('name[]', $list_name , !empty($name)?$name:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
                                 </div>
-                            </div>    
+                            </div>
+                            <div class="form-group">
+                                <label for="status" class="col-sm-4">Status</label>
+                                <div class="col-sm-8">
+                                    {{ Form::select('status[]', $list_status , !empty($status)?$status:null, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
+                                </div>
+                            </div>      
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="tgl" class="col-sm-4">Date</label>
                                 <div class="col-sm-8">
                                     {{ Form::text('tgl', $tgl, array('id' => 'tgl', 'class' => 'form-control', 'autocomplete'=>'off')) }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="remarks" class="col-sm-4">Remarks</label>
+                                <div class="col-sm-8">
+                                    {{ Form::text('remarks', !empty($remarks)?$remarks:null, array('class' => 'form-control', 'autocomplete'=>'off')) }}
                                 </div>
                             </div>
                         </div>

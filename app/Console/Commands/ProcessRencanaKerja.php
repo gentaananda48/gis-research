@@ -46,7 +46,7 @@ class ProcessRencanaKerja extends Command
         $cron_helper = new CronLogHelper;
         $tgl = $this->argument('tgl');
         $tgl = !empty($tgl) ? $tgl : date('Y-m-d',strtotime('-1 days'));
-        $cron_helper->create('process:rencana-kerja', 'RUNNING', 'ReportDate : '.$tgl);
+        $cron_helper->create('process:rencana-kerja', 'RUNNING', 'ReportDate: '.$tgl);
         $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT_2')->first(['value']);
         $list_unit = !empty($sysconf->value)? explode(',', $sysconf->value) : [];
         DB::beginTransaction();
@@ -143,11 +143,11 @@ class ProcessRencanaKerja extends Command
                 }
             }
             DB::commit();
-            $cron_helper->create('process:rencana-kerja', 'STOPPED', 'Finished Successfully');
+            $cron_helper->create('process:rencana-kerja', 'STOPPED', 'ReportDate: '.$tgl.'. Finished Successfully');
         } catch (\Exception $e) {
             DB::rollback(); 
             Log::error($e->getMessage());
-            $cron_helper->create('process:rencana-kerja', 'STOPPED', 'ERROR: '.$e->getMessage());
+            $cron_helper->create('process:rencana-kerja', 'STOPPED', 'ReportDate: '.$tgl.'. ERROR: '.$e->getMessage());
         }
     }
 }
