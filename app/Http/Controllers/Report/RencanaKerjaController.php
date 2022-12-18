@@ -284,20 +284,19 @@ class RencanaKerjaController extends Controller {
         for($i=1; $i<=10; $i++){
             $list_interval[$i*100] = ($i/10).' Detik';
         }
-        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
+        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT_'.$rk->lokasi_kode;
         $cached = Redis::get($cache_key);
         $list_koordinat_lokasi = [];
         if(isset($cached)) {
             $list_koordinat_lokasi = json_decode($cached, FALSE);
         } else {
-            $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
+            $list_koordinat_lokasi = KoordinatLokasi::where('lokasi', $rk->lokasi_kode)
                 ->orderBy('bagian', 'ASC')
                 ->orderBy('posnr', 'ASC')
                 ->get();
             Redis::set($cache_key, json_encode($list_koordinat_lokasi));
         }
         $list_lokasi = [];
-        $list_polygon = [];
         foreach($list_koordinat_lokasi as $v){
             $idx = $v->lokasi.'_'.$v->bagian;
             if(array_key_exists($idx, $list_lokasi)){
@@ -305,14 +304,8 @@ class RencanaKerjaController extends Controller {
             } else {
                 $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
             }
-            if(array_key_exists($idx, $list_polygon)){
-                $list_polygon[$idx][] = $v->latd." ".$v->long;
-            } else {
-                $list_polygon[$idx] = [$v->latd." ".$v->long];
-            }
         }
         $list_lokasi = array_values($list_lokasi);
-        $geofenceHelper = new GeofenceHelper;
         $durasi = strtotime($jam_selesai) - strtotime($jam_mulai) + 1;
 
         $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
@@ -378,8 +371,6 @@ class RencanaKerjaController extends Controller {
         $list_by_timestamp = [];
         foreach($list_lacak as $v){
             if(strtotime($jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($jam_selesai)) {
-                $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
-                $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
                 $list_by_timestamp[$v->timestamp] = $v;
             }
         }
