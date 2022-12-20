@@ -184,9 +184,9 @@ class RencanaKerjaController extends Controller {
         if(in_array($rk->unit_source_device_id, $offline_units)){
             $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$rk->unit_source_device_id;
         }
-
-        if($rk->tgl >= date('Y-m-d')) {
-            $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$rk->tgl.'*');
+        $tgl = date('Y-m-d', strtotime($rk->jam_mulai));
+        if($tgl >= date('Y-m-d')) {
+            $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$tgl.'*');
             $cache_key = $cache_key.'_'.$jam_selesai;
             if(count($redis_scan_result[1])>0){
                 rsort($redis_scan_result[1]);
@@ -201,7 +201,7 @@ class RencanaKerjaController extends Controller {
                 }
             }
         } else {
-            $cache_key = $cache_key.'_'.$rk->tgl;
+            $cache_key = $cache_key.'_'.$tgl;
         }
         $cached = Redis::get($cache_key);
         $list_lacak = [];
