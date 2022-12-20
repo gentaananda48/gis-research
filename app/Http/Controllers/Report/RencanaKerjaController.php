@@ -252,7 +252,7 @@ class RencanaKerjaController extends Controller {
         foreach($list_rks as $rks) {
             if($rks->ritase==999){
                 $header[$rks->parameter_id] = $rks->parameter_nama;
-                $rata2[$rks->parameter_id] = $rks->realisasi;
+                $rata2[$rks->parameter_id] = $rks->parameter_id!=2 ? number_format($rks->realisasi,2) : $rks->realisasi;
                 $poin[$rks->parameter_id] = $rks->nilai_bobot;
             } else if($rks->ritase==999999){
                 $poin[999] = $rks->nilai_bobot;
