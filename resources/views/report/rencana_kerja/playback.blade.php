@@ -355,22 +355,24 @@
 		     	$("#info-nozzle-kanan").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_right==1?'On':'Off');
 		     	$("#info-nozzle-kiri").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_left==1?'On':'Off');
 		     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
+		     	var arm_height_left = lacak[i-1].arm_height_left != null ? lacak[i-1].arm_height_left / 100 : 0;
 		     	var html_arm_height_left = ""
-		     	if(lacak[i-1].arm_height_left>standard.arm_height_left_range_2){
-		     		html_arm_height_left = "<span style='color: orange'>"+lacak[i-1].arm_height_left+"</span>"
-		     	} else if(lacak[i-1].arm_height_left<standard.arm_height_left_range_1){
-		     		html_arm_height_left = "<span style='color: red'>"+lacak[i-1].arm_height_left+"</span>"
+		     	if(arm_height_left>standard.arm_height_left_range_2){
+		     		html_arm_height_left = "<span style='color: orange'>"+arm_height_left+"</span>"
+		     	} else if(arm_height_left<standard.arm_height_left_range_1){
+		     		html_arm_height_left = "<span style='color: red'>"+arm_height_left+"</span>"
 		     	} else {
-		     		html_arm_height_left = "<span style='color: green'>"+lacak[i-1].arm_height_left+"</span>"
+		     		html_arm_height_left = "<span style='color: green'>"+arm_height_left+"</span>"
 		     	}
 		     	$("#info-wing-level-kiri").html(html_arm_height_left);
+		     	var arm_height_right = lacak[i-1].arm_height_right != null ? lacak[i-1].arm_height_right / 100 : 0;
 		     	var html_arm_height_right = ""
-		     	if(lacak[i-1].arm_height_right>standard.arm_height_right_range_2){
-		     		html_arm_height_right = "<span style='color: orange'>"+lacak[i-1].arm_height_right+"</span>"
-		     	} else if(lacak[i-1].arm_height_right<standard.arm_height_right_range_1){
-		     		html_arm_height_right = "<span style='color: red'>"+lacak[i-1].arm_height_right+"</span>"
+		     	if(arm_height_right>standard.arm_height_right_range_2){
+		     		html_arm_height_right = "<span style='color: orange'>"+arm_height_right+"</span>"
+		     	} else if(arm_height_right<standard.arm_height_right_range_1){
+		     		html_arm_height_right = "<span style='color: red'>"+arm_height_right+"</span>"
 		     	} else {
-		     		html_arm_height_right = "<span style='color: green'>"+lacak[i-1].arm_height_right+"</span>"
+		     		html_arm_height_right = "<span style='color: green'>"+arm_height_right+"</span>"
 		     	}
 		     	$("#info-wing-level-kanan").html(html_arm_height_right);
 			}
