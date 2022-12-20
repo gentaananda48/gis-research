@@ -65,7 +65,7 @@ class UnitController extends Controller {
             ]);
         }
 
-        $lacak = Lacak2::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
+        $lacak = Lacak2::where('ident', $unit->source_device_id)->whereNotNull('position_altitude')->orderBy('timestamp', 'DESC')->limit(1)->first();
         $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
         $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
         $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
