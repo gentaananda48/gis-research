@@ -24,6 +24,7 @@ use App\Model\Lacak;
 use App\Model\Lacak2;
 use App\Model\ReportRencanaKerja;
 use App\Model\ReportParameterStandard;
+use App\Model\ReportParameterStandardDetail;
 use App\Model\ReportParameterBobot;
 use App\Model\VReportRencanaKerja;
 use App\Model\VReportRencanaKerja2;
@@ -428,14 +429,82 @@ class RencanaKerjaController extends Controller {
                 'progress_time_pers'        => $obj->progress_time_pers
             ];
         }
+        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
+        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
+        $header = [];
+        $rata2 = [];
+        $poin = [];
+        $kualitas = '-';
+        foreach($list_rks as $rks) {
+            if($rks->ritase==999){
+                $header[$rks->parameter_id] = $rks->parameter_nama;
+                $rata2[$rks->parameter_id] = $rks->parameter_id!=2 ? number_format($rks->realisasi,2) : $rks->realisasi;
+                $poin[$rks->parameter_id] = $rks->nilai_bobot;
+            } else if($rks->ritase==999999){
+                $poin[999] = $rks->nilai_bobot;
+                $kualitas = $rks->kualitas;
+            }
+        }
+        $summary = (object) [
+            'header'    => $header,
+            'ritase'    => $list_rrk,
+            'rata2'     => $rata2,
+            'poin'      => $poin,
+            'kualitas'  => $kualitas
+        ];
+
+        $standard = [
+            'speed_range_1'     => -999999,
+            'speed_range_2'     => 999999,
+            'arm_height_left_range_1'  => -999999,
+            'arm_height_left_range_2'  => 999999,
+            'arm_height_right_range_1' => -999999,
+            'arm_height_right_range_2' => 999999
+        ];
+
+        $rpsd_speed = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+            ->where('rps.aktivitas_id', $rk->aktivitas_id)
+            ->where('rps.nozzle_id', $rk->nozzle_id)
+            ->where('rps.volume_id', $rk->volume_id)
+            ->where('report_parameter_standard_detail.report_parameter_id', 1)
+            ->where('report_parameter_standard_detail.point', 1)
+            ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+        if($rpsd_speed!=null){
+            $standard['speed_range_1'] = doubleval($rpsd_speed->range_1);
+            $standard['speed_range_2'] = doubleval($rpsd_speed->range_2);
+        }
+        $rpsd_arm_height_left = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+            ->where('rps.aktivitas_id', $rk->aktivitas_id)
+            ->where('rps.nozzle_id', $rk->nozzle_id)
+            ->where('rps.volume_id', $rk->volume_id)
+            ->where('report_parameter_standard_detail.report_parameter_id', 4)
+            ->where('report_parameter_standard_detail.point', 1)
+            ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+        if($rpsd_arm_height_left!=null){
+            $standard['arm_height_left_range_1'] = doubleval($rpsd_arm_height_left->range_1);
+            $standard['arm_height_left_range_2'] = doubleval($rpsd_arm_height_left->range_2);
+        }
+        $rpsd_arm_height_right = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+            ->where('rps.aktivitas_id', $rk->aktivitas_id)
+            ->where('rps.nozzle_id', $rk->nozzle_id)
+            ->where('rps.volume_id', $rk->volume_id)
+            ->where('report_parameter_standard_detail.report_parameter_id', 5)
+            ->where('report_parameter_standard_detail.point', 1)
+            ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+        if($rpsd_arm_height_right!=null){
+            $standard['arm_height_right_range_1'] = doubleval($rpsd_arm_height_right->range_1);
+            $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
+        }
         return view('report.rencana_kerja.playback', [
             'rk'            => $rk, 
+            'summary'       => $summary,
             'unit'          => $unit,
             'list_lacak'    => json_encode($list_lacak2),
             'list_lokasi'   => json_encode($list_lokasi),
             'list_interval' => $list_interval,
             'interval'      => $interval,
-            'durasi'        => $durasi
+            'durasi'        => $durasi,
+            'standard'      => json_encode((object) $standard)
         ]);
     }
 

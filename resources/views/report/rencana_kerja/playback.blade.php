@@ -47,7 +47,7 @@
 			                    			<td>Nozzle</td>
 			                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
 			                    			<td>Kecepatan</td>
-			                    			<td>: <span id="info-kecepatan"></span> KM/Jam</td>
+			                    			<td>: <span id="info-kecepatan"></span></td>
 			                    		</tr>
 			                    		<tr>
 			                    			<td>Latitude</td>
@@ -86,6 +86,45 @@
 		    	</div>
         	</div>
         </div>
+        <div class="box box-default box-solid">
+			<div class="box-body">
+				<table class="table table-bordered">
+			        <tbody>
+				        <tr>
+					        <th>Ritase</th>
+					        @foreach($summary->header as $v)
+					        <th>{{$v}}</th>
+					        @endforeach
+					        <th rowspan="{{count($summary->ritase) + 2}}"></th>
+				        </tr>
+			        	@foreach($summary->ritase as $v)
+			            <tr>
+				            <td>{{$v['ritase']}}</td>
+				            @foreach($summary->header as $k2=>$v2)
+					        <th>{{$v['parameter_'.$k2]}}</th>
+					        @endforeach
+			            </tr>
+			        	@endforeach
+				        <tr>
+					        <th>Rata-rata</th>
+					        @foreach($summary->rata2 as $v)
+					        <th>{{$v}}</th>
+					        @endforeach
+				        </tr>
+				        <tr>
+					        <th>Poin</th>
+					        @foreach($summary->poin as $v)
+					        <th>{{$v}}</th>
+					        @endforeach
+				        </tr>
+				        <tr>
+					        <th colspan=4>Kategori</th>
+					        <th>{{$summary->kualitas}}</th>
+				        </tr>
+			        </tbody>
+		        </table>
+			</div>
+		</div>
     </section>
 <div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -169,6 +208,7 @@
 	var idx_2 = 0;
 	var pause = false;
 	var list_polyline = []; 
+	var standard = {!! $standard !!};
 
 	function setLokasi(latitude, loagitude){
         $.ajax({
@@ -271,7 +311,7 @@
 				     	$("#info-nozzle-kanan").text(lacak[i-1].pump_switch_right==1?'On':'Off');
 				     	$("#info-nozzle-kiri").text(lacak[i-1].pump_switch_left==1?'On':'Off');
 				     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
-				     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
+				     	$("#info-wing-level-kanan").html(lacak[i-1].arm_height_right);
 				     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
 				     	$('.win-info').modal('show');
 					});
@@ -303,12 +343,36 @@
 				$("#info-latitude").text(lacak[i-1].position_latitude);
 		     	$("#info-longitude").text(lacak[i-1].position_longitude);
 		     	$("#info-altitude").text(lacak[i-1].position_altitude);
-		     	$("#info-kecepatan").text(lacak[i-1].position_speed);
+		     	var html_speed = ""
+		     	if(lacak[i-1].position_speed>standard.speed_range_2){
+		     		html_speed = "<span style='color: orange'>"+lacak[i-1].position_speed+" KM/Jam</span>"
+		     	} else if(lacak[i-1].position_speed<standard.speed_range_1){
+		     		html_speed = "<span style='color: red'>"+lacak[i-1].position_speed+" KM/Jam</span>"
+		     	} else {
+		     		html_speed = "<span style='color: green'>"+lacak[i-1].position_speed+" KM/Jam</span>"
+		     	}
+		     	$("#info-kecepatan").html(html_speed);
 		     	$("#info-nozzle-kanan").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_right==1?'On':'Off');
 		     	$("#info-nozzle-kiri").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_left==1?'On':'Off');
 		     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
-		     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
-		     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
+		     	var html_arm_height_left = ""
+		     	if(lacak[i-1].arm_height_left>standard.arm_height_left_range_2){
+		     		html_arm_height_left = "<span style='color: orange'>"+lacak[i-1].arm_height_left+"</span>"
+		     	} else if(lacak[i-1].arm_height_left<standard.arm_height_left_range_1){
+		     		html_arm_height_left = "<span style='color: red'>"+lacak[i-1].arm_height_left+"</span>"
+		     	} else {
+		     		html_arm_height_left = "<span style='color: green'>"+lacak[i-1].arm_height_left+"</span>"
+		     	}
+		     	$("#info-wing-level-kiri").html(html_arm_height_left);
+		     	var html_arm_height_right = ""
+		     	if(lacak[i-1].arm_height_right>standard.arm_height_right_range_2){
+		     		html_arm_height_right = "<span style='color: orange'>"+lacak[i-1].arm_height_right+"</span>"
+		     	} else if(lacak[i-1].arm_height_right<standard.arm_height_right_range_1){
+		     		html_arm_height_right = "<span style='color: red'>"+lacak[i-1].arm_height_right+"</span>"
+		     	} else {
+		     		html_arm_height_right = "<span style='color: green'>"+lacak[i-1].arm_height_right+"</span>"
+		     	}
+		     	$("#info-wing-level-kanan").html(html_arm_height_right);
 			}
 			$("#lokasi_nama").text(lacak[i].lokasi);
 			$("#timestamp").text(lacak[i].timestamp_2);
