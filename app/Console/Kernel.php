@@ -236,7 +236,7 @@ class Kernel extends ConsoleKernel
                     ->where('utc_timestamp', '>=', strtotime($rk->jam_mulai))
                     ->where('utc_timestamp', '<=', strtotime($rk->jam_selesai))
                     ->orderBy('utc_timestamp', 'ASC')
-                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp")
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp, arm_height_right, arm_height_left, temperature_right, temperature_left")
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {
@@ -333,18 +333,10 @@ class Kernel extends ConsoleKernel
                 $rrk->din_3 = $v->din_3;
                 $rrk->ritase = $v->ritase;
                 $rrk->overlapping = $is_overlap;
-                if(!empty($v->payload_text)){
-                    $payload_text = json_decode($v->payload_text);
-                    $rrk->arm_height_right = !empty($payload_text->arm_height_right)?$payload_text->arm_height_right:0;
-                    $rrk->arm_height_left = !empty($payload_text->arm_height_left)?$payload_text->arm_height_left:0;
-                    $rrk->temperature_right = !empty($payload_text->temperature_right)?$payload_text->temperature_right:0;
-                    $rrk->temperature_left = !empty($payload_text->temperature_left)?$payload_text->temperature_left:0;
-                } else {
-                    $rrk->arm_height_right = 0;
-                    $rrk->arm_height_left = 0;
-                    $rrk->temperature_right = 0;
-                    $rrk->temperature_left = 0;
-                }
+                $rrk->arm_height_right = !empty($v->arm_height_right)?$v->arm_height_right:0;
+                $rrk->arm_height_left = !empty($v->arm_height_left)?$v->arm_height_left:0;
+                $rrk->temperature_right = !empty($v->temperature_right)?$v->temperature_right:0;
+                $rrk->temperature_left = !empty($v->temperature_left)?$v->temperature_left:0;
                 $rrk->save();
             }
 

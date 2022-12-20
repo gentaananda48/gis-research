@@ -99,44 +99,44 @@
                     <table class="table">
                     	<tbody>
                     		<tr>
-                    			<td>Lokasi</td>
-                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
+                    			<td>Unit</td>
+                    			<td>: <span>{{$rk->unit_label}}</span></td>
                     			<td>Aktivitas</td>
                     			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
                     		</tr>
                     		<tr>
-                    			<td>Nozzle</td>
-                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
+                    			<td>Lokasi</td>
+                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
                     			<td>Volume</td>
                     			<td>: <span>{{$rk->volume}}</span></td>
                     		</tr>
                     		<tr>
-                    			<td>Latitude</td>
-                    			<td>: <span id="info-latitude"></span></td>
+                    			<td>Nozzle</td>
+                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
                     			<td>Kecepatan</td>
                     			<td>: <span id="info-kecepatan"></span> KM/Jam</td>
                     		</tr>
                     		<tr>
-                    			<td>Longitude</td>
-                    			<td>: <span id="info-longitude"></span></td>
+                    			<td>Latitude</td>
+                    			<td>: <span id="info-latitude"></span></td>
                     			<td>Spray Kiri</td>
                     			<td>: <span id="info-nozzle-kanan"></span></td>
                     		</tr>
                     		<tr>
-                    			<td>Altitude</td>
-                    			<td>: <span id="info-altitude"></span></td>
+                    			<td>Longitude</td>
+                    			<td>: <span id="info-longitude"></span></td>
                     			<td>Spray Kanan</td>
                     			<td>: <span id="info-nozzle-kiri"></span></td>
                     		</tr>
                     		<tr>
-                    			<td>Timestamp</td>
-                    			<td>: <span id="info-timestamp"></span></td>
+                    			<td>Altitude</td>
+                    			<td>: <span id="info-altitude"></span></td>
                     			<td>Wing Level Kanan</td>
                     			<td>: <span id="info-wing-level-kanan"></span></td>
                     		</tr>
                     		<tr>
-                    			<td></td>
-                    			<td></td>
+                    			<td>Timestamp</td>
+                    			<td>: <span id="info-timestamp"></span></td>
                     			<td>Wing Level Kiri</td>
                     			<td>: <span id="info-wing-level-kiri"></span></td>
                     		</tr>
