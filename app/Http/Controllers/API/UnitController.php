@@ -76,10 +76,10 @@ class UnitController extends Controller {
         $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_1) ? 'On' : 'Off';
         $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_2) ? 'On' : 'Off';
 
-        $geofenceHelper = new GeofenceHelper;
-        $list_polygon = $geofenceHelper->createListPolygon();
-        $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
-        $unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
+        //$geofenceHelper = new GeofenceHelper;
+        //$list_polygon = $geofenceHelper->createListPolygon();
+        //$unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
+        //$unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
         return response()->json([
             'status'    => true, 
             'message'   => '', 
