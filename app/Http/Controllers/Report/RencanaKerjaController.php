@@ -338,8 +338,8 @@ class RencanaKerjaController extends Controller {
         if(isset($cached)) {
             $list_lacak = json_decode($cached, FALSE);
         } else {
-            $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
-            $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
+            $timestamp_1 = strtotime($tgl.' 00:00:00');
+            $timestamp_2 = $tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($tgl.' 23:59:59');
 
             //
             if(in_array($rk->unit_source_device_id, $offline_units)){
