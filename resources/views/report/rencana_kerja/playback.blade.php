@@ -99,7 +99,7 @@
                     <table class="table">
                     	<tbody>
                     		<tr>
-                    			<td>Unit</td>
+                    			<td>Unit Label</td>
                     			<td>: <span>{{$rk->unit_label}}</span></td>
                     			<td>Aktivitas</td>
                     			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
