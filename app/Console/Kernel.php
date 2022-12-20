@@ -166,8 +166,8 @@ class Kernel extends ConsoleKernel
                             $rks->rk_id = $rk->id;
                             $rks->ritase = 999;
                             $rks->parameter_id = $rp->id;
-                            $rks->parameter_nama = $rp->nama;
                         }
+                        $rks->parameter_nama = $rp->nama;
                         $rks->standard      = $standard;
                         $rks->realisasi     = $realisasi;
                         $rks->nilai         = $nilai;
