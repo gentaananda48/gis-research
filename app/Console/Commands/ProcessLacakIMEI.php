@@ -47,7 +47,7 @@ class ProcessLacakIMEI extends Command
     public function handle() {
         $cron_helper = new CronLogHelper;
         $source_device_id = $this->argument('imei');
-        $cron_helper->create('process:lacak-imei', 'RUNNING', 'SourceDeviceID: '.$source_device_id);
+        $cron_helper->create('process:lacak-imei', 'STARTED', 'SourceDeviceID: '.$source_device_id);
         DB::beginTransaction();
         try {
             $geofenceHelper = new GeofenceHelper;

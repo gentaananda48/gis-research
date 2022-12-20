@@ -46,7 +46,7 @@ class ProcessRencanaKerja extends Command
         $cron_helper = new CronLogHelper;
         $tgl = $this->argument('tgl');
         $tgl = !empty($tgl) ? $tgl : date('Y-m-d',strtotime('-1 days'));
-        $cron_helper->create('process:rencana-kerja', 'RUNNING', 'ReportDate: '.$tgl);
+        $cron_helper->create('process:rencana-kerja', 'STARTED', 'ReportDate: '.$tgl);
         $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT_2')->first(['value']);
         $list_unit = !empty($sysconf->value)? explode(',', $sysconf->value) : [];
         DB::beginTransaction();
