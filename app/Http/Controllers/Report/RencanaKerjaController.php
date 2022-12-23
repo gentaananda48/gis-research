@@ -185,7 +185,7 @@ class RencanaKerjaController extends Controller {
         if(in_array($rk->unit_source_device_id, $offline_units)){
             $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$rk->unit_source_device_id;
         }
-        $tgl = date('Y-m-d', strtotime($rk->jam_mulai));
+        $tgl = $rk->tgl;
         if($tgl >= date('Y-m-d')) {
             $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$tgl.'*');
             $cache_key = $cache_key.'_'.$jam_selesai;
@@ -215,8 +215,9 @@ class RencanaKerjaController extends Controller {
             if(in_array($rk->unit_source_device_id, $offline_units)){
                 $table_name = 'lacak_'.$rk->unit_source_device_id;
                 $list_lacak = DB::table($table_name)
-                    ->where('utc_timestamp', '>=', $timestamp_1)
-                    ->where('utc_timestamp', '<=', $timestamp_2)
+                    ->where('report_date', $tgl)
+                    //->where('utc_timestamp', '>=', $timestamp_1)
+                    //->where('utc_timestamp', '<=', $timestamp_2)
                     ->orderBy('utc_timestamp', 'ASC')
                     ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
                     ->get();
@@ -315,7 +316,7 @@ class RencanaKerjaController extends Controller {
         if(in_array($rk->unit_source_device_id, $offline_units)){
             $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$rk->unit_source_device_id;
         }
-        $tgl = date('Y-m-d', strtotime($rk->jam_mulai));
+        $tgl = $rk->tgl;
         if($tgl >= date('Y-m-d')) {
             $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$tgl.'*');
             $cache_key = $cache_key.'_'.$jam_selesai;
@@ -346,8 +347,9 @@ class RencanaKerjaController extends Controller {
             if(in_array($rk->unit_source_device_id, $offline_units)){
                 $table_name = 'lacak_'.$rk->unit_source_device_id;
                 $list_lacak = DB::table($table_name)
-                    ->where('utc_timestamp', '>=', $timestamp_1)
-                    ->where('utc_timestamp', '<=', $timestamp_2)
+                    ->where('report_date', $tgl)
+                    //->where('utc_timestamp', '>=', $timestamp_1)
+                    //->where('utc_timestamp', '<=', $timestamp_2)
                     ->orderBy('utc_timestamp', 'ASC')
                     ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
                     ->get();
