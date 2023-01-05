@@ -46,8 +46,9 @@ class ProcessLacakIMEI extends Command
      */
     public function handle() {
         $cron_helper = new CronLogHelper;
-        $source_device_id = $this->argument('imei');
-        $cron_helper->create('process:lacak-imei', 'STARTED', 'SourceDeviceID: '.$source_device_id);
+        $imei = $this->argument('imei');
+        $cron_helper->create('process:lacak-imei', 'STARTED', 'SourceDeviceID: '.$imei);
+        $list_source_device_id = explode(',',$imei);
         DB::beginTransaction();
         try {
             $geofenceHelper = new GeofenceHelper;
@@ -72,29 +73,28 @@ class ProcessLacakIMEI extends Command
                     $list_polygon[$idx] = [$v->latd." ".$v->long];
                 }
             }
-            $table_name = 'lacak_'.$source_device_id;
-            $list_lacak = DB::table($table_name)
-                ->where('processed', '=', 0)
-                ->whereNotNull('unit_label')
-                ->orderBy('utc_timestamp', 'ASC')
-                ->limit(500)
-                ->get();
-            foreach($list_lacak as $v){
-                $lokasi_kode = $geofenceHelper->checkLocation($list_polygon, $v->latitude, $v->longitude);
-                $lokasi_kode = !empty($lokasi_kode) ? substr($lokasi_kode,0,strlen($lokasi_kode)-2) : '';
-                $table_name2 = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($v->unit_label)));
-                //echo $table_name2.'=>'.$v->latitude.",".$v->longitude." : ".$lokasi_kode."\n";
-
-                DB::insert('insert into '.$table_name2.' (latitude, longitude, speed, altitude, arm_height_left, arm_height_right, temperature_left, temperature_right, pump_switch_main, pump_switch_left, pump_switch_right, flow_meter_left, flow_meter_right, tank_level, oil, gas, homogenity, bearing, microcontroller_id, `utc_timestamp`, created_at, box_id, unit_label, source_device_id, lokasi_kode, processed, report_date) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, 0, ?) ON DUPLICATE KEY UPDATE `utc_timestamp` = ?', [$v->latitude, $v->longitude, $v->speed, $v->altitude, $v->arm_height_left, $v->arm_height_right, $v->temperature_left, $v->temperature_right, $v->pump_switch_main, $v->pump_switch_left, $v->pump_switch_right, $v->flow_meter_left, $v->flow_meter_right, $v->tank_level, $v->oil, $v->gas, $v->homogenity, $v->bearing, $v->microcontroller_id, $v->utc_timestamp, $v->box_id, $v->unit_label, $source_device_id,  $lokasi_kode, $v->report_date, $v->utc_timestamp]);
-                DB::table($table_name)->where('id', '=', $v->id)->update(['processed'=>1]);
+            foreach($list_source_device_id as $source_device_id) {
+                $table_name = 'lacak_'.$source_device_id;
+                $list_lacak = DB::table($table_name)
+                    ->where('processed', '=', 0)
+                    ->whereNotNull('unit_label')
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->limit(500)
+                    ->get();
+                foreach($list_lacak as $v){
+                    $lokasi_kode = $geofenceHelper->checkLocation($list_polygon, $v->latitude, $v->longitude);
+                    $lokasi_kode = !empty($lokasi_kode) ? substr($lokasi_kode,0,strlen($lokasi_kode)-2) : '';
+                    $table_name2 = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($v->unit_label)));
+                    DB::insert('insert into '.$table_name2.' (latitude, longitude, speed, altitude, arm_height_left, arm_height_right, temperature_left, temperature_right, pump_switch_main, pump_switch_left, pump_switch_right, flow_meter_left, flow_meter_right, tank_level, oil, gas, homogenity, bearing, microcontroller_id, `utc_timestamp`, created_at, box_id, unit_label, source_device_id, lokasi_kode, processed, report_date) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, 0, ?) ON DUPLICATE KEY UPDATE `utc_timestamp` = ?', [$v->latitude, $v->longitude, $v->speed, $v->altitude, $v->arm_height_left, $v->arm_height_right, $v->temperature_left, $v->temperature_right, $v->pump_switch_main, $v->pump_switch_left, $v->pump_switch_right, $v->flow_meter_left, $v->flow_meter_right, $v->tank_level, $v->oil, $v->gas, $v->homogenity, $v->bearing, $v->microcontroller_id, $v->utc_timestamp, $v->box_id, $v->unit_label, $source_device_id,  $lokasi_kode, $v->report_date, $v->utc_timestamp]);
+                    DB::table($table_name)->where('id', '=', $v->id)->update(['processed'=>1]);
+                }
             }
-            //echo count($list_lacak)."\n";
             DB::commit();
-            $cron_helper->create('process:lacak-imei', 'FINISHED', 'SourceDeviceID: '.$source_device_id.'. Finished Successfully');
+            $cron_helper->create('process:lacak-imei', 'FINISHED', 'SourceDeviceID: '.$imei.'. Finished Successfully');
         } catch (\Exception $e) {
             DB::rollback(); 
             Log::error($e->getMessage());
-            $cron_helper->create('process:lacak-imei', 'STOPPED', 'SourceDeviceID: '.$source_device_id.'. ERROR: '.$e->getMessage());
+            $cron_helper->create('process:lacak-imei', 'STOPPED', 'SourceDeviceID: '.$imei.'. ERROR: '.$e->getMessage());
         }
     }
 }
