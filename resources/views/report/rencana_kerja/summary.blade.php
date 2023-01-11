@@ -100,6 +100,59 @@
 						        </table>
 							</div>
 						</div>
+						<div class="box box-default box-solid">
+							<div class="box-body table-responsive">
+								<table class="table table-bordered">
+							        <thead>
+							            <tr>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Speed</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kanan</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kiri</th>
+								            <th rowspan="2" style="vertical-align: middle; text-align: center;">Suhu</th>
+							            </tr>
+							            <tr>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+							            </tr>
+							        </thead>
+							        <tbody>
+							        	@foreach($list_percentage as $v)
+							            <tr>
+								            <td>{{$v->std_speed}}</td>
+								            <td>{{$v->avg_speed}}</td>
+								            <td>{{$v->prc_speed_under_standard}}</td>
+								            <td>{{$v->prc_speed_standard}}</td>
+								            <td>{{$v->prc_speed_upper_standard}}</td>
+								            <td>{{$v->std_arm_height_right}}</td>
+								            <td>{{$v->avg_arm_height_right}}</td>
+								            <td>{{$v->prc_arm_height_right_under_standard}}</td>
+								            <td>{{$v->prc_arm_height_right_standard}}</td>
+								            <td>{{$v->prc_arm_height_right_upper_standard}}</td>
+								            <td>{{$v->std_arm_height_left}}</td>
+								            <td>{{$v->avg_arm_height_left}}</td>
+								            <td>{{$v->prc_arm_height_left_under_standard}}</td>
+								            <td>{{$v->prc_arm_height_left_standard}}</td>
+								            <td>{{$v->prc_arm_height_left_upper_standard}}</td>
+								            <td>{{$v->avg_temperature_right}}</td>
+							            </tr>
+							        	@endforeach
+							        </tbody>
+						        </table>
+							</div>
+						</div>
 					</div>
 					<div class="box-footer">
 						<a href="{{ url('/report/rencana_kerja') }}" class="btn btn-warning"> Back </a>

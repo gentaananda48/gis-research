@@ -268,11 +268,13 @@ class RencanaKerjaController extends Controller {
             'poin'      => $poin,
             'kualitas'  => $kualitas
         ];
+        $list_percentage = DB::select("CALL get_report_percentage(".$id.",5,8,50,175,142,175)");
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
             'summary'       => $summary,
             'list_lacak'    => json_encode($list_lacak2),
-            'list_lokasi'   => json_encode($list_lokasi)
+            'list_lokasi'   => json_encode($list_lokasi),
+            'list_percentage'   => $list_percentage
         ]);
     }
 
@@ -497,6 +499,7 @@ class RencanaKerjaController extends Controller {
             $standard['arm_height_right_range_1'] = doubleval($rpsd_arm_height_right->range_1);
             $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
         }
+        $list_percentage = DB::select("CALL get_report_percentage(".$id.",5,8,50,175,142,175)");
         return view('report.rencana_kerja.playback', [
             'rk'            => $rk, 
             'summary'       => $summary,
@@ -506,7 +509,8 @@ class RencanaKerjaController extends Controller {
             'list_interval' => $list_interval,
             'interval'      => $interval,
             'durasi'        => $durasi,
-            'standard'      => json_encode((object) $standard)
+            'standard'      => json_encode((object) $standard),
+            'list_percentage'   => $list_percentage
         ]);
     }
 
