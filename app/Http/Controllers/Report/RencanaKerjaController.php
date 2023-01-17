@@ -268,7 +268,48 @@ class RencanaKerjaController extends Controller {
             'poin'      => $poin,
             'kualitas'  => $kualitas
         ];
-        $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",5,8,50,175,142,175)");
+        $standard = [
+            'speed_range_1'             => -999999,
+            'speed_range_2'             => 999999,
+            'arm_height_left_range_1'   => -999999,
+            'arm_height_left_range_2'   => 999999,
+            'arm_height_right_range_1'  => -999999,
+            'arm_height_right_range_2'  => 999999
+        ];
+        $rpsd_speed = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+            ->where('rps.aktivitas_id', $rk->aktivitas_id)
+            ->where('rps.nozzle_id', $rk->nozzle_id)
+            ->where('rps.volume_id', $rk->volume_id)
+            ->where('report_parameter_standard_detail.report_parameter_id', 1)
+            ->where('report_parameter_standard_detail.point', 1)
+            ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+        if($rpsd_speed!=null){
+            $standard['speed_range_1'] = doubleval($rpsd_speed->range_1);
+            $standard['speed_range_2'] = doubleval($rpsd_speed->range_2);
+        }
+        $rpsd_arm_height_left = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+            ->where('rps.aktivitas_id', $rk->aktivitas_id)
+            ->where('rps.nozzle_id', $rk->nozzle_id)
+            ->where('rps.volume_id', $rk->volume_id)
+            ->where('report_parameter_standard_detail.report_parameter_id', 4)
+            ->where('report_parameter_standard_detail.point', 1)
+            ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+        if($rpsd_arm_height_left!=null){
+            $standard['arm_height_left_range_1'] = doubleval($rpsd_arm_height_left->range_1);
+            $standard['arm_height_left_range_2'] = doubleval($rpsd_arm_height_left->range_2);
+        }
+        $rpsd_arm_height_right = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+            ->where('rps.aktivitas_id', $rk->aktivitas_id)
+            ->where('rps.nozzle_id', $rk->nozzle_id)
+            ->where('rps.volume_id', $rk->volume_id)
+            ->where('report_parameter_standard_detail.report_parameter_id', 5)
+            ->where('report_parameter_standard_detail.point', 1)
+            ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+        if($rpsd_arm_height_right!=null){
+            $standard['arm_height_right_range_1'] = doubleval($rpsd_arm_height_right->range_1);
+            $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
+        }
+        $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",".$standard['speed_range_1'].",".$standard['speed_range_2'].",".$standard['arm_height_right_range_1'].",".$standard['arm_height_right_range_2'].",".$standard['arm_height_left_range_1'].",".$standard['arm_height_left_range_2'].")");
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
             'summary'       => $summary,
@@ -458,14 +499,13 @@ class RencanaKerjaController extends Controller {
         ];
 
         $standard = [
-            'speed_range_1'     => -999999,
-            'speed_range_2'     => 999999,
-            'arm_height_left_range_1'  => -999999,
-            'arm_height_left_range_2'  => 999999,
-            'arm_height_right_range_1' => -999999,
-            'arm_height_right_range_2' => 999999
+            'speed_range_1'             => -999999,
+            'speed_range_2'             => 999999,
+            'arm_height_left_range_1'   => -999999,
+            'arm_height_left_range_2'   => 999999,
+            'arm_height_right_range_1'  => -999999,
+            'arm_height_right_range_2'  => 999999
         ];
-
         $rpsd_speed = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
             ->where('rps.aktivitas_id', $rk->aktivitas_id)
             ->where('rps.nozzle_id', $rk->nozzle_id)
@@ -499,7 +539,7 @@ class RencanaKerjaController extends Controller {
             $standard['arm_height_right_range_1'] = doubleval($rpsd_arm_height_right->range_1);
             $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
         }
-        $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",5,8,50,175,142,175)");
+        $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",".$standard['speed_range_1'].",".$standard['speed_range_2'].",".$standard['arm_height_right_range_1'].",".$standard['arm_height_right_range_2'].",".$standard['arm_height_left_range_1'].",".$standard['arm_height_left_range_2'].")");
         return view('report.rencana_kerja.playback', [
             'rk'            => $rk, 
             'summary'       => $summary,
