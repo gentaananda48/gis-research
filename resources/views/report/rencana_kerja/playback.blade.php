@@ -134,6 +134,7 @@
 				<table class="table table-bordered">
 			        <thead>
 			            <tr>
+				            <th rowspan="2" style="vertical-align: middle; text-align: center;">Ritase</th>
 				            <th colspan="5" style="vertical-align: middle; text-align: center;">Speed</th>
 				            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kanan</th>
 				            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kiri</th>
@@ -160,6 +161,7 @@
 			        <tbody>
 			        	@foreach($list_percentage as $v)
 			            <tr>
+				            <td>{{$v->std_speed}}</td>
 				            <td>{{$v->std_speed}}</td>
 				            <td>{{$v->avg_speed}}</td>
 				            <td>{{$v->prc_speed_under_standard}}</td>

@@ -268,7 +268,7 @@ class RencanaKerjaController extends Controller {
             'poin'      => $poin,
             'kualitas'  => $kualitas
         ];
-        $list_percentage = DB::select("CALL get_report_percentage(".$id.",5,8,50,175,142,175)");
+        $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",5,8,50,175,142,175)");
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
             'summary'       => $summary,
@@ -499,7 +499,7 @@ class RencanaKerjaController extends Controller {
             $standard['arm_height_right_range_1'] = doubleval($rpsd_arm_height_right->range_1);
             $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
         }
-        $list_percentage = DB::select("CALL get_report_percentage(".$id.",5,8,50,175,142,175)");
+        $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",5,8,50,175,142,175)");
         return view('report.rencana_kerja.playback', [
             'rk'            => $rk, 
             'summary'       => $summary,
