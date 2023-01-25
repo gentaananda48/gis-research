@@ -76,14 +76,22 @@
 							            <tr>
 								            <td>{{$v['ritase']}}</td>
 								            @foreach($summary->header as $k2=>$v2)
+								            @if($k2==4 || $rk==5)
+									        <th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A': $v['parameter_'.$k2] }}</th>
+								            @else
 									        <th>{{$v['parameter_'.$k2]}}</th>
+									        @endif
 									        @endforeach
 							            </tr>
 							        	@endforeach
 								        <tr>
 									        <th>Rata-rata</th>
-									        @foreach($summary->rata2 as $v)
+									        @foreach($summary->rata2 as $k=>$v)
+									        @if($k==4 || $rk==5)
+									        <th>{{ doubleval($v) <= 2 ? 'N/A': $v }}</th>
+								            @else
 									        <th>{{$v}}</th>
+									        @endif
 									        @endforeach
 								        </tr>
 								        <tr>
