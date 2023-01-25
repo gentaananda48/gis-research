@@ -114,7 +114,7 @@
 			        	@endforeach
 				        <tr>
 					        <th>Rata-rata</th>
-					        @foreach($summary->rata2 as $v)
+					        @foreach($summary->rata2 as $k=>$v)
 					        @if($k==4 || $k==5)
 					        <th>{{ doubleval($v) <= 2 ? 'N/A': $v }}</th>
 				            @else
