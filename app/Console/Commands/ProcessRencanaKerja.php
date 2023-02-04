@@ -45,6 +45,7 @@ class ProcessRencanaKerja extends Command
     public function handle() {
         $cron_helper = new CronLogHelper;
         $tgl = $this->argument('tgl');
+        $redo = !empty($tgl) ? true : false;
         $tgl = !empty($tgl) ? $tgl : date('Y-m-d',strtotime('-1 days'));
         $cron_helper->create('process:rencana-kerja', 'STARTED', 'ReportDate: '.$tgl);
         $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT_2')->first(['value']);
@@ -55,6 +56,16 @@ class ProcessRencanaKerja extends Command
             foreach($list_rk as $rk) {
                 $unit_label = trim($rk->unit_label);
                 $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', $unit_label));
+                if(!$redo){
+                    $count_lacak = DB::table($table_name)
+                        ->where('unit_label', $unit_label)
+                        ->where('lokasi_kode', $rk->lokasi_kode)
+                        ->where('report_date', $rk->tgl)
+                        ->count('id');
+                    if($count_lacak==0){
+                        continue;
+                    }
+                }
                 $list_lacak = DB::table($table_name)
                     ->where('unit_label', $unit_label)
                     ->where('lokasi_kode', $rk->lokasi_kode)
