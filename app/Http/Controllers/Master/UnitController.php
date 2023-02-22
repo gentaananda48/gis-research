@@ -48,11 +48,14 @@ class UnitController extends Controller {
                 ]
             ]);
             $body = json_decode($res->getBody());
-            DB::table('unit')->delete();
+            //DB::table('unit')->delete();
             foreach($body->list AS $v) {
-                $unit = new Unit;
+                $unit = Unit::where('label', $v->label)->first();
+                if($unit==null) {
+                    $unit           = new Unit;
+                    $unit->label    = $v->label;
+                }
                 $unit->id               = $v->id;
-                $unit->label            = $v->label;
                 $unit->group_id         = $v->group_id;
                 $unit->source_id        = $v->source->id;
                 $unit->source_device_id = $v->source->device_id;
