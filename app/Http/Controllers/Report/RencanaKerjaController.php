@@ -218,47 +218,47 @@ class RencanaKerjaController extends Controller {
         } else {
             $cache_key = $cache_key.'_'.$tgl;
         }
-        // $cached = Redis::get($cache_key);
+        $cached = Redis::get($cache_key);
         $list_lacak = [];
-        // if(isset($cached)) {
-        //     $list_lacak = json_decode($cached, FALSE);
-        // } else {
-        //     $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
-        //     $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
-        //     //
-        //     if(in_array($rk->unit_source_device_id, $offline_units)){
-        //         $table_name = 'lacak_'.$rk->unit_source_device_id;
-        //         $list_lacak = DB::table($table_name)
-        //             ->where('report_date', $tgl)
-        //             //->where('utc_timestamp', '>=', $timestamp_1)
-        //             //->where('utc_timestamp', '<=', $timestamp_2)
-        //             ->orderBy('utc_timestamp', 'ASC')
-        //             ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
-        //             ->get();
-        //     } else {
-        //         if($rk->tgl>='2022-03-15') {
-        //             $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
-        //                 ->where('timestamp', '>=', $timestamp_1)
-        //                 ->where('timestamp', '<=', $timestamp_2)
-        //                 ->orderBy('timestamp', 'ASC')
-        //                 ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
-        //         } else {
-        //             $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
-        //                 ->where('timestamp', '>=', $timestamp_1)
-        //                 ->where('timestamp', '<=', $timestamp_2)
-        //                 ->orderBy('timestamp', 'ASC')
-        //                 ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
-        //         }
-        //     }
-        //     //
-        //     Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
-        // }
-        $list_lacak2 = [];
-        foreach($list_lacak as $v){
-            if(strtotime($jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($jam_selesai)) {
-                $list_lacak2[] = $v;
+        if(isset($cached)) {
+            $list_lacak = json_decode($cached, FALSE);
+        } else {
+            $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
+            $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
+            //
+            if(in_array($rk->unit_source_device_id, $offline_units)){
+                $table_name = 'lacak_'.$rk->unit_source_device_id;
+                $list_lacak = DB::table($table_name)
+                    ->where('report_date', $tgl)
+                    //->where('utc_timestamp', '>=', $timestamp_1)
+                    //->where('utc_timestamp', '<=', $timestamp_2)
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
+                    ->get();
+            } else {
+                if($rk->tgl>='2022-03-15') {
+                    $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
+                        ->where('timestamp', '>=', $timestamp_1)
+                        ->where('timestamp', '<=', $timestamp_2)
+                        ->orderBy('timestamp', 'ASC')
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
+                } else {
+                    $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
+                        ->where('timestamp', '>=', $timestamp_1)
+                        ->where('timestamp', '<=', $timestamp_2)
+                        ->orderBy('timestamp', 'ASC')
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
+                }
             }
+            //
+            Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
         }
+        $list_lacak2 = [];
+        // foreach($list_lacak as $v){
+        //     if(strtotime($jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($jam_selesai)) {
+        //         $list_lacak2[] = $v;
+        //     }
+        // }
         $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
         $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
         $header = [];
