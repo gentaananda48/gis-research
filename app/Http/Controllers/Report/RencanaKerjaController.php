@@ -154,18 +154,32 @@ class RencanaKerjaController extends Controller {
         $jam_mulai = $rk->jam_mulai;
         $jam_selesai = $rk->jam_selesai;
         $unit = Unit::find($rk->unit_id);
-        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
+        // $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
+        // $cached = Redis::get($cache_key);
+        // $list_koordinat_lokasi = [];
+        // if(isset($cached)) {
+        //     $list_koordinat_lokasi = json_decode($cached, FALSE);
+        // } else {
+        //     $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
+        //         ->orderBy('bagian', 'ASC')
+        //         ->orderBy('posnr', 'ASC')
+        //         ->get();
+        //     Redis::set($cache_key, json_encode($list_koordinat_lokasi));
+        // }
+
+        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT_'.$rk->lokasi_kode;
         $cached = Redis::get($cache_key);
         $list_koordinat_lokasi = [];
         if(isset($cached)) {
             $list_koordinat_lokasi = json_decode($cached, FALSE);
         } else {
-            $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
+            $list_koordinat_lokasi = KoordinatLokasi::where('lokasi', $rk->lokasi_kode)
                 ->orderBy('bagian', 'ASC')
                 ->orderBy('posnr', 'ASC')
                 ->get();
             Redis::set($cache_key, json_encode($list_koordinat_lokasi));
         }
+        
         $list_lokasi = [];
         foreach($list_koordinat_lokasi as $v){
             if($v->lokasi==$rk->lokasi_kode){
