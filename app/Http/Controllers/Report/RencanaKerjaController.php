@@ -150,6 +150,10 @@ class RencanaKerjaController extends Controller {
     }
 
     public function summary($id) {
+        $prev_memory_limit = ini_get('memory_limit');
+        $prev_max_execution_time = ini_get('max_execution_time');
+        ini_set('memory_limit', '-1' );
+        ini_set('max_execution_time', 0);
         $rk = RencanaKerja::find($id);
         $jam_mulai = $rk->jam_mulai;
         $jam_selesai = $rk->jam_selesai;
@@ -179,7 +183,7 @@ class RencanaKerjaController extends Controller {
                 ->get();
             Redis::set($cache_key, json_encode($list_koordinat_lokasi));
         }
-        
+
         $list_lokasi = [];
         foreach($list_koordinat_lokasi as $v){
             if($v->lokasi==$rk->lokasi_kode){
@@ -324,6 +328,8 @@ class RencanaKerjaController extends Controller {
             $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
         }
         $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",".$standard['speed_range_1'].",".$standard['speed_range_2'].",".$standard['arm_height_right_range_1'].",".$standard['arm_height_right_range_2'].",".$standard['arm_height_left_range_1'].",".$standard['arm_height_left_range_2'].")");
+        ini_set('memory_limit', $prev_memory_limit);
+        ini_set('max_execution_time', $prev_max_execution_time);
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
             'summary'       => $summary,
