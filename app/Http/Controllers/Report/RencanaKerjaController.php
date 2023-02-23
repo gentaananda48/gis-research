@@ -327,7 +327,9 @@ class RencanaKerjaController extends Controller {
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
             'summary'       => $summary,
-            'list_lacak'    => json_encode($list_lacak2),
+            'timestamp_jam_mulai'   => strtotime($jam_mulai),
+            'timestamp_jam_selesai' => strtotime($jam_selesai),
+            'list_lacak'    => json_encode($list_lacak),
             'list_lokasi'   => json_encode($list_lokasi),
             'list_percentage'   => $list_percentage
         ]);

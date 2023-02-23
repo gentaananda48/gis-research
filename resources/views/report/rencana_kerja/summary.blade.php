@@ -238,6 +238,8 @@
 	var marker;
 	var poly;
 	var lacak = {!! $list_lacak !!};
+	var timestamp_jam_mulai = {!! $timestamp_jam_mulai !!};
+	var timestamp_jam_selesai = {!! $timestamp_jam_selesai !!};
 	var i = 0;
 
 	function initMap() {
@@ -287,6 +289,9 @@
 		  	map.setCenter(polygon.my_getBounds().getCenter());
 		});
 		for (var i = 0, len = lacak.length; i < len; i += 1) {
+			if(timestamp_jam_mulai > lacak[i].timestamp || lacak[i].timestamp > timestamp_jam_selesai) {
+				continue;
+			}
 		    var icon = marker.getIcon();
 			icon.rotation = lacak[i].position_direction;
 	    	marker.setIcon(icon);
