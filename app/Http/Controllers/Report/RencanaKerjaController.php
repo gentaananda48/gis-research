@@ -150,10 +150,6 @@ class RencanaKerjaController extends Controller {
     }
 
     public function summary($id) {
-        $prev_memory_limit = ini_get('memory_limit');
-        $prev_max_execution_time = ini_get('max_execution_time');
-        ini_set('memory_limit', '-1' );
-        ini_set('max_execution_time', 0);
         $rk = RencanaKerja::find($id);
         $jam_mulai = $rk->jam_mulai;
         $jam_selesai = $rk->jam_selesai;
@@ -222,41 +218,41 @@ class RencanaKerjaController extends Controller {
         } else {
             $cache_key = $cache_key.'_'.$tgl;
         }
-        $cached = Redis::get($cache_key);
+        // $cached = Redis::get($cache_key);
         $list_lacak = [];
-        if(isset($cached)) {
-            $list_lacak = json_decode($cached, FALSE);
-        } else {
-            $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
-            $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
-            //
-            if(in_array($rk->unit_source_device_id, $offline_units)){
-                $table_name = 'lacak_'.$rk->unit_source_device_id;
-                $list_lacak = DB::table($table_name)
-                    ->where('report_date', $tgl)
-                    //->where('utc_timestamp', '>=', $timestamp_1)
-                    //->where('utc_timestamp', '<=', $timestamp_2)
-                    ->orderBy('utc_timestamp', 'ASC')
-                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
-                    ->get();
-            } else {
-                if($rk->tgl>='2022-03-15') {
-                    $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
-                        ->where('timestamp', '>=', $timestamp_1)
-                        ->where('timestamp', '<=', $timestamp_2)
-                        ->orderBy('timestamp', 'ASC')
-                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
-                } else {
-                    $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
-                        ->where('timestamp', '>=', $timestamp_1)
-                        ->where('timestamp', '<=', $timestamp_2)
-                        ->orderBy('timestamp', 'ASC')
-                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
-                }
-            }
-            //
-            Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
-        }
+        // if(isset($cached)) {
+        //     $list_lacak = json_decode($cached, FALSE);
+        // } else {
+        //     $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
+        //     $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
+        //     //
+        //     if(in_array($rk->unit_source_device_id, $offline_units)){
+        //         $table_name = 'lacak_'.$rk->unit_source_device_id;
+        //         $list_lacak = DB::table($table_name)
+        //             ->where('report_date', $tgl)
+        //             //->where('utc_timestamp', '>=', $timestamp_1)
+        //             //->where('utc_timestamp', '<=', $timestamp_2)
+        //             ->orderBy('utc_timestamp', 'ASC')
+        //             ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
+        //             ->get();
+        //     } else {
+        //         if($rk->tgl>='2022-03-15') {
+        //             $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
+        //                 ->where('timestamp', '>=', $timestamp_1)
+        //                 ->where('timestamp', '<=', $timestamp_2)
+        //                 ->orderBy('timestamp', 'ASC')
+        //                 ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
+        //         } else {
+        //             $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
+        //                 ->where('timestamp', '>=', $timestamp_1)
+        //                 ->where('timestamp', '<=', $timestamp_2)
+        //                 ->orderBy('timestamp', 'ASC')
+        //                 ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
+        //         }
+        //     }
+        //     //
+        //     Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
+        // }
         $list_lacak2 = [];
         foreach($list_lacak as $v){
             if(strtotime($jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($jam_selesai)) {
@@ -328,8 +324,6 @@ class RencanaKerjaController extends Controller {
             $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
         }
         $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",".$standard['speed_range_1'].",".$standard['speed_range_2'].",".$standard['arm_height_right_range_1'].",".$standard['arm_height_right_range_2'].",".$standard['arm_height_left_range_1'].",".$standard['arm_height_left_range_2'].")");
-        ini_set('memory_limit', $prev_memory_limit);
-        ini_set('max_execution_time', $prev_max_execution_time);
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
             'summary'       => $summary,
