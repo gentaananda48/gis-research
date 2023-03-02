@@ -38,6 +38,7 @@ class Kernel extends ConsoleKernel
         //
         Commands\ProcessLacakIMEI::class,
         Commands\ProcessRencanaKerja::class,
+        Commands\ProcessSummaryOperational::class,
     ];
 
     /**
