@@ -75,7 +75,7 @@ class ProcessSummaryOperational extends Command
             foreach($list_lacak as $v){
                 $lokasi_kode = $geofenceHelper->checkLocation($list_polygon, $v->latitude, $v->longitude);
                 $lokasi_kode = !empty($lokasi_kode) ? substr($lokasi_kode,0,strlen($lokasi_kode)-2) : '';
-                DB::insert('insert into summary_operational (`timestamp`, unit, speed, latitude, longitude, pump_switch_main, pump_switch_left, pump_switch_right, lokasi, status, creatd_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?) ON DUPLICATE KEY UPDATE `timestamp` = ? AND unit = ?', [$v->timestamp, $v->unit, $v->speed, $v->latitude, $v->longitude, $v->pump_switch_main, $v->pump_switch_left, $v->pump_switch_right, $lokasi_kode, $v->status, $v->timestamp, $v->unit]);
+                DB::insert('insert into summary_operational (`timestamp`, unit, speed, latitude, longitude, pump_switch_main, pump_switch_left, pump_switch_right, lokasi, status, created_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE `timestamp` = ? AND unit = ?', [$v->timestamp, $v->unit, $v->speed, $v->latitude, $v->longitude, $v->pump_switch_main, $v->pump_switch_left, $v->pump_switch_right, $lokasi_kode, $v->status, $v->timestamp, $v->unit]);
             }
             DB::commit();
         } catch (\Exception $e) {
