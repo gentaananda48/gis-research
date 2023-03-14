@@ -21,6 +21,7 @@ use App\Model\ReportParameterBobot;
 use App\Model\ReportParameterDefault;
 use App\Model\ReportParameterStandard;
 use App\Model\ReportParameterStandardDetail;
+use App\Model\KonfigurasiUnit;
 
 class MasterDataController extends Controller {
     public function __construct() {
@@ -176,6 +177,16 @@ class MasterDataController extends Controller {
         } catch (Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
+    }
+
+    public function konfigurasi_unit_sync_down(Request $request){
+        $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
+        $list = KonfigurasiUnit::where('updated_at', '>', $updated_at)->get();
+        return response()->json([
+            'status'    => true, 
+            'message'   => 'success', 
+            'data'      => $list
+          ]);
     }
 
     public function guard(){

@@ -185,6 +185,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/master/volume_air/update/{id}', array('uses' => 'Master\VolumeAirController@update', 'as' => 'master.volume_air.update'));
     Route::delete('/master/volume_air/delete/{id}', array('uses' => 'Master\VolumeAirController@destroy', 'as' => 'master.volume_air.destroy')); 
 
+    // KONFIGURASI UNIT
+    Route::get('/master/konfigurasi_unit', array('uses' => 'Master\KonfigurasiUnitController@index', 'as' => 'master.konfigurasi_unit'));
+    Route::get('/master/konfigurasi_unit/get', array('uses' => 'Master\KonfigurasiUnitController@get_list', 'as' => 'master.konfigurasi_unit.get'));
+    Route::get('/master/konfigurasi_unit/create', array('uses' => 'Master\KonfigurasiUnitController@create', 'as' => 'master.konfigurasi_unit.create'));
+    Route::post('/master/konfigurasi_unit', array('uses' => 'Master\KonfigurasiUnitController@store', 'as' => 'master.konfigurasi_unit.store'));
+    Route::get('/master/konfigurasi_unit/edit/{id}', array('uses' => 'Master\KonfigurasiUnitController@edit', 'as' => 'master.konfigurasi_unit.edit'));
+    Route::put('/master/konfigurasi_unit/update/{id}', array('uses' => 'Master\KonfigurasiUnitController@update', 'as' => 'master.konfigurasi_unit.update'));
+    Route::delete('/master/konfigurasi_unit/delete/{id}', array('uses' => 'Master\KonfigurasiUnitController@destroy', 'as' => 'master.konfigurasi_unit.destroy')); 
+
     // ------------------------------- TRANSACTION -------------------------------- //
     // RENCANA KERJA
     Route::get('/transaction/rencana_kerja', array('uses' => 'Transaction\RencanaKerjaController@index', 'as' => 'transaction.rencana_kerja'));
