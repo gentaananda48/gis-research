@@ -15,6 +15,9 @@
         margin: 0;
         padding: 0;
       }
+      .table-responsive .table th, .table-responsive .table td {
+	        white-space: nowrap !important;
+	    }
     </style>
 @stop
 
@@ -32,44 +35,44 @@
 		        				<table class="table">
 			                    	<tbody>
 			                    		<tr>
-			                    			<td>Lokasi</td>
-			                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
+			                    			<td>Unit</td>
+			                    			<td>: <span>{{$rk->unit_label}}</span></td>
 			                    			<td>Aktivitas</td>
 			                    			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
 			                    		</tr>
 			                    		<tr>
-			                    			<td>Nozzle</td>
-			                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
+			                    			<td>Lokasi</td>
+			                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
 			                    			<td>Volume</td>
 			                    			<td>: <span>{{$rk->volume}}</span></td>
 			                    		</tr>
 			                    		<tr>
-			                    			<td>Latitude</td>
-			                    			<td>: <span id="info-latitude"></span></td>
+			                    			<td>Nozzle</td>
+			                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
 			                    			<td>Kecepatan</td>
-			                    			<td>: <span id="info-kecepatan"></span> KM/Jam</td>
+			                    			<td>: <span id="info-kecepatan"></span></td>
 			                    		</tr>
 			                    		<tr>
-			                    			<td>Longitude</td>
-			                    			<td>: <span id="info-longitude"></span></td>
+			                    			<td>Latitude</td>
+			                    			<td>: <span id="info-latitude"></span></td>
 			                    			<td>Spray Kiri</td>
 			                    			<td>: <span id="info-nozzle-kiri"></span></td>
 			                    		</tr>
 			                    		<tr>
-			                    			<td>Altitude</td>
-			                    			<td>: <span id="info-altitude"></span></td>
+			                    			<td>Longitude</td>
+			                    			<td>: <span id="info-longitude"></span></td>
 			                    			<td>Spray Kanan</td>
 			                    			<td>: <span id="info-nozzle-kanan"></span></td>
 			                    		</tr>
 			                    		<tr>
-			                    			<td>Timestamp</td>
-			                    			<td>: <span id="info-timestamp"></span></td>
+			                    			<td>Altitude</td>
+			                    			<td>: <span id="info-altitude"></span></td>
 			                    			<td>Wing Level Kanan</td>
 			                    			<td>: <span id="info-wing-level-kanan"></span></td>
 			                    		</tr>
 			                    		<tr>
-			                    			<td></td>
-			                    			<td></td>
+			                    			<td>Timestamp</td>
+			                    			<td>: <span id="info-timestamp"></span></td>
 			                    			<td>Wing Level Kiri</td>
 			                    			<td>: <span id="info-wing-level-kiri"></span></td>
 			                    		</tr>
@@ -86,6 +89,109 @@
 		    	</div>
         	</div>
         </div>
+        <div class="box box-default box-solid">
+			<div class="box-body">
+				<table class="table table-bordered">
+			        <tbody>
+				        <tr>
+					        <th>Ritase</th>
+					        @foreach($summary->header as $v)
+					        <th>{{$v}}</th>
+					        @endforeach
+					        <th rowspan="{{count($summary->ritase) + 2}}"></th>
+				        </tr>
+			        	@foreach($summary->ritase as $v)
+			            <tr>
+				            <td>{{$v['ritase']}}</td>
+				            @foreach($summary->header as $k2=>$v2)
+					        @if($k2==4 || $k2==5)
+					        <th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A': $v['parameter_'.$k2] }}</th>
+				            @else
+					        <th>{{$v['parameter_'.$k2]}}</th>
+					        @endif
+					        @endforeach
+			            </tr>
+			        	@endforeach
+				        <tr>
+					        <th>Rata-rata</th>
+					        @foreach($summary->rata2 as $k=>$v)
+					        @if($k==4 || $k==5)
+					        <th>{{ doubleval($v) <= 2 ? 'N/A': $v }}</th>
+				            @else
+					        <th>{{$v}}</th>
+					        @endif
+					        @endforeach
+				        </tr>
+				        <tr>
+					        <th>Poin</th>
+					        @foreach($summary->poin as $v)
+					        <th>{{$v}}</th>
+					        @endforeach
+				        </tr>
+				        <tr>
+					        <th colspan=4>Kategori</th>
+					        <th>{{$summary->kualitas}}</th>
+				        </tr>
+			        </tbody>
+		        </table>
+			</div>
+		</div>
+
+		<div class="box box-default box-solid">
+			<div class="box-body table-responsive">
+				<table class="table table-bordered">
+			        <thead>
+			            <tr>
+				            <th rowspan="2" style="vertical-align: middle; text-align: center;">Ritase</th>
+				            <th colspan="5" style="vertical-align: middle; text-align: center;">Speed</th>
+				            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kanan</th>
+				            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kiri</th>
+				            <th rowspan="2" style="vertical-align: middle; text-align: center;">Suhu</th>
+			            </tr>
+			            <tr>
+				            <th style="vertical-align: middle; text-align: center;">Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Average</th>
+				            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Average</th>
+				            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Average</th>
+				            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+			            </tr>
+			        </thead>
+			        <tbody>
+			        	@foreach($list_percentage as $v)
+			            <tr>
+				            <td>{{$v->std_speed}}</td>
+				            <td>{{$v->std_speed}}</td>
+				            <td>{{$v->avg_speed}}</td>
+				            <td>{{$v->prc_speed_under_standard}}</td>
+				            <td>{{$v->prc_speed_standard}}</td>
+				            <td>{{$v->prc_speed_upper_standard}}</td>
+				            <td>{{$v->std_arm_height_right}}</td>
+				            <td>{{$v->avg_arm_height_right}}</td>
+				            <td>{{$v->prc_arm_height_right_under_standard}}</td>
+				            <td>{{$v->prc_arm_height_right_standard}}</td>
+				            <td>{{$v->prc_arm_height_right_upper_standard}}</td>
+				            <td>{{$v->std_arm_height_left}}</td>
+				            <td>{{$v->avg_arm_height_left}}</td>
+				            <td>{{$v->prc_arm_height_left_under_standard}}</td>
+				            <td>{{$v->prc_arm_height_left_standard}}</td>
+				            <td>{{$v->prc_arm_height_left_upper_standard}}</td>
+				            <td>{{$v->avg_temperature_right}}</td>
+			            </tr>
+			        	@endforeach
+			        </tbody>
+		        </table>
+			</div>
+		</div>
     </section>
 <div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -99,44 +205,44 @@
                     <table class="table">
                     	<tbody>
                     		<tr>
-                    			<td>Lokasi</td>
-                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
+                    			<td>Unit</td>
+                    			<td>: <span>{{$rk->unit_label}}</span></td>
                     			<td>Aktivitas</td>
                     			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
                     		</tr>
                     		<tr>
-                    			<td>Nozzle</td>
-                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
+                    			<td>Lokasi</td>
+                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
                     			<td>Volume</td>
                     			<td>: <span>{{$rk->volume}}</span></td>
                     		</tr>
                     		<tr>
-                    			<td>Latitude</td>
-                    			<td>: <span id="info-latitude"></span></td>
+                    			<td>Nozzle</td>
+                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
                     			<td>Kecepatan</td>
                     			<td>: <span id="info-kecepatan"></span> KM/Jam</td>
                     		</tr>
                     		<tr>
-                    			<td>Longitude</td>
-                    			<td>: <span id="info-longitude"></span></td>
+                    			<td>Latitude</td>
+                    			<td>: <span id="info-latitude"></span></td>
                     			<td>Spray Kiri</td>
                     			<td>: <span id="info-nozzle-kanan"></span></td>
                     		</tr>
                     		<tr>
-                    			<td>Altitude</td>
-                    			<td>: <span id="info-altitude"></span></td>
+                    			<td>Longitude</td>
+                    			<td>: <span id="info-longitude"></span></td>
                     			<td>Spray Kanan</td>
                     			<td>: <span id="info-nozzle-kiri"></span></td>
                     		</tr>
                     		<tr>
-                    			<td>Timestamp</td>
-                    			<td>: <span id="info-timestamp"></span></td>
+                    			<td>Altitude</td>
+                    			<td>: <span id="info-altitude"></span></td>
                     			<td>Wing Level Kanan</td>
                     			<td>: <span id="info-wing-level-kanan"></span></td>
                     		</tr>
                     		<tr>
-                    			<td></td>
-                    			<td></td>
+                    			<td>Timestamp</td>
+                    			<td>: <span id="info-timestamp"></span></td>
                     			<td>Wing Level Kiri</td>
                     			<td>: <span id="info-wing-level-kiri"></span></td>
                     		</tr>
@@ -169,6 +275,7 @@
 	var idx_2 = 0;
 	var pause = false;
 	var list_polyline = []; 
+	var standard = {!! $standard !!};
 
 	function setLokasi(latitude, loagitude){
         $.ajax({
@@ -271,7 +378,7 @@
 				     	$("#info-nozzle-kanan").text(lacak[i-1].pump_switch_right==1?'On':'Off');
 				     	$("#info-nozzle-kiri").text(lacak[i-1].pump_switch_left==1?'On':'Off');
 				     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
-				     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
+				     	$("#info-wing-level-kanan").html(lacak[i-1].arm_height_right);
 				     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
 				     	$('.win-info').modal('show');
 					});
@@ -303,12 +410,38 @@
 				$("#info-latitude").text(lacak[i-1].position_latitude);
 		     	$("#info-longitude").text(lacak[i-1].position_longitude);
 		     	$("#info-altitude").text(lacak[i-1].position_altitude);
-		     	$("#info-kecepatan").text(lacak[i-1].position_speed);
+		     	var html_speed = ""
+		     	if(lacak[i-1].position_speed>standard.speed_range_2){
+		     		html_speed = "<span style='color: orange'>"+lacak[i-1].position_speed+" KM/Jam</span>"
+		     	} else if(lacak[i-1].position_speed<standard.speed_range_1){
+		     		html_speed = "<span style='color: red'>"+lacak[i-1].position_speed+" KM/Jam</span>"
+		     	} else {
+		     		html_speed = "<span style='color: green'>"+lacak[i-1].position_speed+" KM/Jam</span>"
+		     	}
+		     	$("#info-kecepatan").html(html_speed);
 		     	$("#info-nozzle-kanan").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_right==1?'On':'Off');
 		     	$("#info-nozzle-kiri").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_left==1?'On':'Off');
 		     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
-		     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
-		     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
+		     	var arm_height_left = lacak[i-1].arm_height_left != null ? lacak[i-1].arm_height_left / 100 : 0;
+		     	var html_arm_height_left = ""
+		     	if(arm_height_left>standard.arm_height_left_range_2){
+		     		html_arm_height_left = "<span style='color: orange'>"+arm_height_left+"</span>"
+		     	} else if(arm_height_left<standard.arm_height_left_range_1){
+		     		html_arm_height_left = "<span style='color: red'>"+arm_height_left+"</span>"
+		     	} else {
+		     		html_arm_height_left = "<span style='color: green'>"+arm_height_left+"</span>"
+		     	}
+		     	$("#info-wing-level-kiri").html(html_arm_height_left);
+		     	var arm_height_right = lacak[i-1].arm_height_right != null ? lacak[i-1].arm_height_right / 100 : 0;
+		     	var html_arm_height_right = ""
+		     	if(arm_height_right>standard.arm_height_right_range_2){
+		     		html_arm_height_right = "<span style='color: orange'>"+arm_height_right+"</span>"
+		     	} else if(arm_height_right<standard.arm_height_right_range_1){
+		     		html_arm_height_right = "<span style='color: red'>"+arm_height_right+"</span>"
+		     	} else {
+		     		html_arm_height_right = "<span style='color: green'>"+arm_height_right+"</span>"
+		     	}
+		     	$("#info-wing-level-kanan").html(html_arm_height_right);
 			}
 			$("#lokasi_nama").text(lacak[i].lokasi);
 			$("#timestamp").text(lacak[i].timestamp_2);

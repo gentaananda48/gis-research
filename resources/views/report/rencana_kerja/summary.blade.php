@@ -76,14 +76,22 @@
 							            <tr>
 								            <td>{{$v['ritase']}}</td>
 								            @foreach($summary->header as $k2=>$v2)
+								            @if($k2==4 || $k2==5)
+									        <th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A': $v['parameter_'.$k2] }}</th>
+								            @else
 									        <th>{{$v['parameter_'.$k2]}}</th>
+									        @endif
 									        @endforeach
 							            </tr>
 							        	@endforeach
 								        <tr>
 									        <th>Rata-rata</th>
-									        @foreach($summary->rata2 as $v)
+									        @foreach($summary->rata2 as $k=>$v)
+									        @if($k==4 || $k==5)
+									        <th>{{ doubleval($v) <= 2 ? 'N/A': $v }}</th>
+								            @else
 									        <th>{{$v}}</th>
+									        @endif
 									        @endforeach
 								        </tr>
 								        <tr>
@@ -96,6 +104,61 @@
 									        <th colspan=4>Kategori</th>
 									        <th>{{$summary->kualitas}}</th>
 								        </tr>
+							        </tbody>
+						        </table>
+							</div>
+						</div>
+						<div class="box box-default box-solid">
+							<div class="box-body table-responsive">
+								<table class="table table-bordered">
+							        <thead>
+							            <tr>
+								            <th rowspan="2" style="vertical-align: middle; text-align: center;">Ritase</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Speed</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kanan</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kiri</th>
+								            <th rowspan="2" style="vertical-align: middle; text-align: center;">Suhu</th>
+							            </tr>
+							            <tr>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+							            </tr>
+							        </thead>
+							        <tbody>
+							        	@foreach($list_percentage as $v)
+							            <tr>
+								            <td>{{$v->ritase}}</td>
+								            <td>{{$v->std_speed}}</td>
+								            <td>{{$v->avg_speed}}</td>
+								            <td>{{$v->prc_speed_under_standard}}</td>
+								            <td>{{$v->prc_speed_standard}}</td>
+								            <td>{{$v->prc_speed_upper_standard}}</td>
+								            <td>{{$v->std_arm_height_right}}</td>
+								            <td>{{$v->avg_arm_height_right}}</td>
+								            <td>{{$v->prc_arm_height_right_under_standard}}</td>
+								            <td>{{$v->prc_arm_height_right_standard}}</td>
+								            <td>{{$v->prc_arm_height_right_upper_standard}}</td>
+								            <td>{{$v->std_arm_height_left}}</td>
+								            <td>{{$v->avg_arm_height_left}}</td>
+								            <td>{{$v->prc_arm_height_left_under_standard}}</td>
+								            <td>{{$v->prc_arm_height_left_standard}}</td>
+								            <td>{{$v->prc_arm_height_left_upper_standard}}</td>
+								            <td>{{$v->avg_temperature_right}}</td>
+							            </tr>
+							        	@endforeach
 							        </tbody>
 						        </table>
 							</div>
@@ -175,6 +238,8 @@
 	var marker;
 	var poly;
 	var lacak = {!! $list_lacak !!};
+	var timestamp_jam_mulai = {!! $timestamp_jam_mulai !!};
+	var timestamp_jam_selesai = {!! $timestamp_jam_selesai !!};
 	var i = 0;
 
 	function initMap() {
@@ -224,6 +289,9 @@
 		  	map.setCenter(polygon.my_getBounds().getCenter());
 		});
 		for (var i = 0, len = lacak.length; i < len; i += 1) {
+			if(timestamp_jam_mulai > lacak[i].timestamp || lacak[i].timestamp > timestamp_jam_selesai) {
+				continue;
+			}
 		    var icon = marker.getIcon();
 			icon.rotation = lacak[i].position_direction;
 	    	marker.setIcon(icon);

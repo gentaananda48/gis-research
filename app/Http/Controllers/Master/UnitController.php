@@ -48,11 +48,14 @@ class UnitController extends Controller {
                 ]
             ]);
             $body = json_decode($res->getBody());
-            DB::table('unit')->delete();
+            //DB::table('unit')->delete();
             foreach($body->list AS $v) {
-                $unit = new Unit;
+                $unit = Unit::where('label', $v->label)->first();
+                if($unit==null) {
+                    $unit           = new Unit;
+                    $unit->label    = $v->label;
+                }
                 $unit->id               = $v->id;
-                $unit->label            = $v->label;
                 $unit->group_id         = $v->group_id;
                 $unit->source_id        = $v->source->id;
                 $unit->source_device_id = $v->source->device_id;
@@ -69,7 +72,8 @@ class UnitController extends Controller {
                         $table->bigIncrements('id');
                         $table->double('latitude')->nullable();
                         $table->double('longitude')->nullable();
-                        $table->double('speed')->nullable();
+                        //$table->double('speed')->nullable();
+                        $table->decimal('speed', 18, 2)->nullable();
                         $table->double('altitude')->nullable();
                         $table->double('arm_height_left')->nullable();
                         $table->double('arm_height_right')->nullable();
@@ -91,7 +95,9 @@ class UnitController extends Controller {
                         $table->string('box_id', 20)->nullable();
                         $table->string('unit_label', 30)->nullable();
                         $table->tinyInteger('processed')->nullable();
+                        $table->date('report_date')->nullable();
                         $table->index('processed');
+                        $table->index('report_date');
                     });
                 }
                 $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($unit->label)));
@@ -100,7 +106,8 @@ class UnitController extends Controller {
                         $table->bigIncrements('id');
                         $table->double('latitude')->nullable();
                         $table->double('longitude')->nullable();
-                        $table->double('speed')->nullable();
+                        //$table->double('speed')->nullable();
+                        $table->decimal('speed', 18, 2)->nullable();
                         $table->double('altitude')->nullable();
                         $table->double('arm_height_left')->nullable();
                         $table->double('arm_height_right')->nullable();
@@ -124,7 +131,9 @@ class UnitController extends Controller {
                         $table->string('source_device_id', 20)->nullable();
                         $table->string('lokasi_kode', 10)->nullable();
                         $table->tinyInteger('processed')->nullable();
+                        $table->date('report_date')->nullable();
                         $table->index('processed');
+                        $table->index('report_date');
                     });
                 }
             }

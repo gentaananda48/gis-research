@@ -58,6 +58,7 @@ Route::group([
     Route::get('report_parameter_bobot/sync_down', 'MasterDataController@report_parameter_bobot_sync_down');
     Route::get('report_parameter_standard/sync_down', 'MasterDataController@report_parameter_standard_sync_down');
     Route::get('report_parameter_standard_detail/sync_down', 'MasterDataController@report_parameter_standard_detail_sync_down');
+    Route::get('konfigurasi_unit/sync_down', 'MasterDataController@konfigurasi_unit_sync_down');
 });
 
 // UNIT
@@ -152,6 +153,7 @@ Route::group([
     Route::post('create', 'LacakController@create');
     Route::post('create2', 'LacakController@create2');
     Route::post('create3', 'LacakController@create3');
+    Route::post('create4', 'LacakController@create4');
     Route::get('sync_down', 'LacakController@sync_down');
 });
 

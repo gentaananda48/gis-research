@@ -77,7 +77,7 @@
       <div class="col-md-6">
         <div class="box box-success">
           <div class="box-header with-border">
-            <h3 class="box-title">Rencana Kerja vs Realisasi</h3>
+            <h3 class="box-title">Data yang di input vs Data Ter-Record</h3>
           </div>
           <div class="box-body">
             <canvas id="barChart1" style="height:230px; background-color: white; padding: 5px;"></canvas>

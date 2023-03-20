@@ -93,8 +93,14 @@ class RencanaKerjaController extends Controller {
     public function sync_down(Request $request){
     	$user = $this->guard()->user();
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
-        $list_rk = RencanaKerja::whereRaw("(operator_id = ".$user->id." OR mixing_operator_id = ".$user->id." OR driver_id = ".$user->id." OR kasie_id = ".$user->id.")")
-        	->where('updated_at', '>', $updated_at)->get();
+        $query = RencanaKerja::select();
+        if($user->hasAccess('mobile.rencana_kerja.sync_by_pg')){
+        	$list_pg = explode(',', $user->area);
+            $query->whereIn('lokasi_grup', $list_pg);
+        } else {
+        	$query->whereRaw("(operator_id = ".$user->id." OR mixing_operator_id = ".$user->id." OR driver_id = ".$user->id." OR kasie_id = ".$user->id.")");
+        }
+        $list_rk = $query->where('updated_at', '>', $updated_at)->get();
         $list = [];
         foreach ($list_rk as $k=>$v) {
         	$v->deleted = 'N';
