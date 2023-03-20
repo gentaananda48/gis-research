@@ -198,3 +198,12 @@ Route::group([
     Route::post('finish', 'OrderMaterialController@finish');
 
 });
+
+// Upload Sqlite
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+    'prefix'        => 'microcontroller'
+], function ($router) {
+    Route::post('db', 'MicroController@upload');
+});
