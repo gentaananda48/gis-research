@@ -153,7 +153,9 @@ class MicroController extends Controller {
             // \Log::info($getData);
             if ($getData) {
                 foreach ($getData as $data) {
-                    if ($data->source_device_id != "860264058610701") {
+                    //ganti ke table bsc 35 = lacak_860264050863753
+                    //bsc 11 = lacak_860264058610701
+                    if ($data->source_device_id != "860264050863753") {
                        continue;
                     }
                     
@@ -190,7 +192,7 @@ class MicroController extends Controller {
                     $temp['report_date'] = $report_date;
 
                     // \DB::table("lacak_".$data->source_device_id)->insert($temp);
-                    \DB::table("lacak_860264058610701")->insert($temp);
+                    \DB::table("lacak_860264050863753")->insert($temp);
                     
                 }
             }
