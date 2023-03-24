@@ -206,4 +206,5 @@ Route::group([
     'prefix'        => 'microcontroller'
 ], function ($router) {
     Route::post('db', 'MicroController@upload');
+    Route::post('json', 'MicroController@uploadJson');
 });
