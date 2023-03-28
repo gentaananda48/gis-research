@@ -155,7 +155,7 @@ class MicroController extends Controller {
                 foreach ($getData as $data) {
                     //ganti ke table bsc 35 = lacak_860264050863753
                     //bsc 11 = lacak_860264058610701
-                    if ($data->source_device_id != "860264050863753") {
+                    if ($data->source_device_id != "860264050863753" || $data->source_device_id != "867648047826969" || $data->source_device_id != "867648046910707") {
                        continue;
                     }
                     
@@ -191,8 +191,18 @@ class MicroController extends Controller {
                     $report_date = date('His', $data->utc_timestamp) <= '050000' ? date('Y-m-d', strtotime("-1 day", $data->utc_timestamp)) : date('Y-m-d', $data->utc_timestamp);
                     $temp['report_date'] = $report_date;
 
-                    // \DB::table("lacak_".$data->source_device_id)->insert($temp);
-                    \DB::table("lacak_860264050863753")->insert($temp);
+                    \DB::table("lacak_".$data->source_device_id)->insert($temp); 
+                    //lacak_867648047826969 - BSC08
+                    //lacak_867648046910707 - BSC 05
+                    // \DB::table("lacak_867648047826969")->insert($temp);
+                    // \DB::table("lacak_867648046910707")->insert($temp);
+                    // \DB::table("lacak_860264050863753")->insert($temp);
+
+                    // DB::transaction(function () use ($temp) {
+                    // DB::table('lacak_867648047826969')->insert($temp);
+                    // DB::table('lacak_867648046910707')->insert($temp);
+                    // DB::table('lacak_860264050863753')->insert($temp);
+                    // });
                     
                 }
             }
