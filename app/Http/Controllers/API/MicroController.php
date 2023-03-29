@@ -155,10 +155,10 @@ class MicroController extends Controller {
                 foreach ($getData as $data) {
                     //ganti ke table bsc 35 = lacak_860264050863753
                     //bsc 11 = lacak_860264058610701
-                    if ($data->source_device_id != "860264050863753" || $data->source_device_id != "867648047826969" || $data->source_device_id != "867648046910707") {
+                    if ($data->source_device_id != "860264058610701" || $data->source_device_id != "860264050863753" || $data->source_device_id != "867648047826969" || $data->source_device_id != "867648046910707") {
                        continue;
                     }
-                    
+
                     $cekTable = \DB::table("lacak_".$data->source_device_id)->where('utc_timestamp',$data->utc_timestamp)->first();
                     if($cekTable){
                             continue;
