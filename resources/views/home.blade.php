@@ -40,7 +40,17 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-4 col-sm-6 col-xs-12">
+
+      <div class="col-md-3">
+        <div class="info-box">
+          <span class="info-box-icon bg-primary"><i class="fa fa-download"></i></span>
+          <div class="info-box-content">
+            <a href="{{ route('download') }}">Download APK Boom</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
         <div class="info-box">
           <span class="info-box-icon bg-aqua"><i class="fa fa-file-text-o"></i></span>
           <div class="info-box-content">
@@ -50,7 +60,7 @@
         </div>
       </div>
 
-      <div class="col-md-4 col-sm-6 col-xs-12">
+      <div class="col-md-3">
         <div class="info-box">
           <span class="info-box-icon bg-green"><i class="fa fa-truck"></i></span>
           <div class="info-box-content">
@@ -62,7 +72,7 @@
 
 
       <div class="clearfix visible-sm-block"></div>
-      <div class="col-md-4 col-sm-6 col-xs-12">
+      <div class="col-md-3">
         <div class="info-box">
           <span class="info-box-icon bg-yellow"><i class="fa fa-bar-chart"></i></span>
           <div class="info-box-content">

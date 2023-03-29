@@ -63,6 +63,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', 'HomeController@home')->name('home');
     Route::get('/generate_report', 'HomeController@generate_report');
 
+    //download file apk
+    Route::get('/download', 'HomeController@download')->name('download');
+
 
     // ------------------------------- MASTER -------------------------------- // 
     // UNIT
