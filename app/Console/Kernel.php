@@ -64,7 +64,7 @@ class Kernel extends ConsoleKernel
 
         //save file json to db
         $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));;
-        // \Log::info($schedule." output cron");// 
+        \Log::info($schedule." output cron");// 
 
         // $schedule->call(function () {
         //     $this->pull_data_lacak();

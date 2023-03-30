@@ -74,7 +74,7 @@
       </div>
 
     </div>
-    @elseif (env('APP_CODE') === 'VAT_BOOM_DEV ')
+    @elseif (env('APP_CODE') === 'VAT_BOOM_DEV')
       <div class="row">
 
       <div class="col-md-3">
