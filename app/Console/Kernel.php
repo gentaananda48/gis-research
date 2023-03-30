@@ -39,6 +39,7 @@ class Kernel extends ConsoleKernel
         Commands\ProcessLacakIMEI::class,
         Commands\ProcessRencanaKerja::class,
         Commands\ProcessSummaryOperational::class,
+        Commands\SaveJsonFile::class,
     ];
 
     /**
@@ -60,6 +61,9 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $this->update_kualitas_rencana_kerja();
         })->everyMinute();
+
+        //save file json to db
+        $schedule->command('save:jsonfile')->everyMinute();
         // $schedule->call(function () {
         //     $this->pull_data_lacak();
         // })->everyMinute();
