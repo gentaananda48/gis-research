@@ -18,7 +18,7 @@ class MicroController extends Controller {
         // \Log::info($request->all());
         if ($request->file('file_attachment')) {
              
-            $path = public_path('upload/database');
+            $path = public_path('upload/db');
 
             if (!file_exists($path)) {
                 mkdir($path, 0777, true);
@@ -28,10 +28,10 @@ class MicroController extends Controller {
             $filename = time() . '.' . $request->file('file_attachment')->getClientOriginalExtension();
             $file->move($path, $filename);
 
-            $pathname = public_path('upload/database/').$filename;
+            $pathname = public_path('upload/db/').$filename;
             \Config::set('database.connections.sqlite.database', $pathname);
             $sqliteDbConnection = \DB::connection('sqlite');
-            $getData = $sqliteDbConnection->table("microcontroller_data_v5")->where('posted','N')->get();
+            $getData = $sqliteDbConnection->table("microcontroller_data_v5")->get();
             // \Log::info($getData);
             if ($getData) {
                 // $table_name = "microcontroller_data_".time();
@@ -68,8 +68,12 @@ class MicroController extends Controller {
                 // });
 
                 foreach ($getData as $data) {
-                    if ($data->source_device_id != "860264058610701") {
-                       continue;
+                    // if ($data->source_device_id != "860264058610701") {
+                    //    continue;
+                    // }
+                    $cekTable = \DB::table("lacak_".$data->source_device_id)->where('utc_timestamp',$data->utc_timestamp)->first();
+                    if($cekTable){
+                        continue;
                     }
 
                     $temp['utc_timestamp'] = $data->utc_timestamp ? $data->utc_timestamp:null;
@@ -96,8 +100,8 @@ class MicroController extends Controller {
                     $temp['unit_label'] = $data->unit_label ? $data->unit_label:null;
                     $temp['created_at'] = date('Y-m-d H:i:s');
 
-                    // \DB::table("lacak_".$data->source_device_id)->insert($temp);
-                    \DB::table("lacak_860264058610701")->insert($temp);
+                    \DB::table("lacak_".$data->source_device_id)->insert($temp);
+                    // \DB::table("lacak_860264058610701")->insert($temp);
                     
                 }
             }
@@ -120,94 +124,103 @@ class MicroController extends Controller {
 
     public function uploadJson(Request $request){
         \Log::info($request->all());
-        if ($request->file('file_attachment')) {
+        try {
+            if ($request->file('file_attachment')) {
              
-            $path = public_path('upload/database');
-
-            if (!file_exists($path)) {
-                mkdir($path, 0777, true);
-            }
-            
-            $file = $request->file('file_attachment');
-
-            // size
-            $size = $request->file('file_attachment')->getSize();
-            \Log::info($size." bytes");// in bytes
-
-            $filename = $request->file('file_attachment')->getClientOriginalName();
-            $file->move($path, $filename);
-
-            $getData = json_decode(file_get_contents($path.'/'. $filename));
-            // for testing
-            // checksum
-            if ($request->checksum != null) {
-                $laravelHash = sha1(file_get_contents($path.'/'. $filename));
-                // \Log::info($laravelHash);
-                if ($laravelHash == $request->checksum) {
-                    \Log::info("checksum match");
-                }else{
-                    \Log::info("checksum not match");
+                $path = public_path('upload/database');
+    
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
                 }
+                
+                $file = $request->file('file_attachment');
+    
+                // size
+                $size = $request->file('file_attachment')->getSize();
+                \Log::info($size." bytes");// in bytes
+    
+                $filename = $request->file('file_attachment')->getClientOriginalName();
+                $file->move($path, $filename);
+    
+                $getData = json_decode(file_get_contents($path.'/'. $filename));
+                // for testing
+                // checksum
+                if ($request->checksum != null) {
+                    $laravelHash = sha1(file_get_contents($path.'/'. $filename));
+                    // \Log::info($laravelHash);
+                    if ($laravelHash == $request->checksum) {
+                        \Log::info("checksum match");
+                    }else{
+                        \Log::info("checksum not match");
+                    }
+                }
+    
+                // \Log::info($getData);
+                // if ($getData) {
+                //     foreach ($getData as $data) {
+                //         if ($data->source_device_id != "860264058610701") {
+                //            continue;
+                //         }
+                        
+                //         $cekTable = \DB::table("lacak_".$data->source_device_id)->where('utc_timestamp',$data->utc_timestamp)->first();
+                //         if($cekTable){
+                //                 continue;
+                //         }
+    
+                //         $temp['utc_timestamp'] = $data->utc_timestamp ? $data->utc_timestamp:null;
+                //         $temp['microcontroller_id'] = $data->microcontroller_id ? $data->microcontroller_id:null;
+                //         $temp['latitude'] = $data->latitude ? $data->latitude:null;
+                //         $temp['longitude'] = $data->longitude ? $data->longitude:null;
+                //         $temp['speed'] = $data->speed ? $data->speed:null;
+                //         $temp['altitude'] = $data->altitude ? $data->altitude:null;
+                //         $temp['arm_height_left'] = $data->arm_height_left ? $data->arm_height_left:null;
+                //         $temp['arm_height_right'] = $data->arm_height_right ? $data->arm_height_right:null;
+                //         $temp['temperature_left'] = $data->temperature_left ? $data->temperature_left:null;
+                //         $temp['temperature_right'] = $data->temperature_right ? $data->temperature_right:null;
+                //         $temp['pump_switch_left'] = $data->pump_switch_left ? $data->pump_switch_left:null;
+                //         $temp['pump_switch_right'] = $data->pump_switch_right ? $data->pump_switch_right:null;
+                //         $temp['pump_switch_main'] = $data->pump_switch_main ? $data->pump_switch_main:null;
+                //         $temp['flow_meter_left'] = $data->flow_meter_left ? $data->flow_meter_left:null;
+                //         $temp['flow_meter_right'] = $data->flow_meter_right ? $data->flow_meter_right:null;
+                //         $temp['tank_level'] = $data->tank_level ? $data->tank_level:null;
+                //         $temp['oil'] = $data->oil ? $data->oil:null;
+                //         $temp['gas'] = $data->gas ? $data->gas:null;
+                //         $temp['homogenity'] = $data->homogenity ? $data->homogenity:null;
+                //         $temp['bearing'] = $data->bearing ? $data->bearing:null;
+                //         $temp['box_id'] = $data->box_id ? $data->box_id:null;
+                //         $temp['unit_label'] = $data->unit_label ? $data->unit_label:null;
+                //         $temp['created_at'] = date('Y-m-d H:i:s');
+                //         $temp['processed'] = 0;
+                //         $report_date = date('His', $data->utc_timestamp) <= '050000' ? date('Y-m-d', strtotime("-1 day", $data->utc_timestamp)) : date('Y-m-d', $data->utc_timestamp);
+                //         $temp['report_date'] = $report_date;
+    
+                //         // \DB::table("lacak_".$data->source_device_id)->insert($temp);
+                //         \DB::table("lacak_860264058610701")->insert($temp);
+                        
+                //     }
+                // }
+                
+                return response()->json([
+                    "status" => true,
+                    "message" => "File successfully uploaded",
+                    "data" => array()
+                ]);
+      
             }
-
-            // \Log::info($getData);
-            // if ($getData) {
-            //     foreach ($getData as $data) {
-            //         if ($data->source_device_id != "860264058610701") {
-            //            continue;
-            //         }
-                    
-            //         $cekTable = \DB::table("lacak_".$data->source_device_id)->where('utc_timestamp',$data->utc_timestamp)->first();
-            //         if($cekTable){
-            //                 continue;
-            //         }
-
-            //         $temp['utc_timestamp'] = $data->utc_timestamp ? $data->utc_timestamp:null;
-            //         $temp['microcontroller_id'] = $data->microcontroller_id ? $data->microcontroller_id:null;
-            //         $temp['latitude'] = $data->latitude ? $data->latitude:null;
-            //         $temp['longitude'] = $data->longitude ? $data->longitude:null;
-            //         $temp['speed'] = $data->speed ? $data->speed:null;
-            //         $temp['altitude'] = $data->altitude ? $data->altitude:null;
-            //         $temp['arm_height_left'] = $data->arm_height_left ? $data->arm_height_left:null;
-            //         $temp['arm_height_right'] = $data->arm_height_right ? $data->arm_height_right:null;
-            //         $temp['temperature_left'] = $data->temperature_left ? $data->temperature_left:null;
-            //         $temp['temperature_right'] = $data->temperature_right ? $data->temperature_right:null;
-            //         $temp['pump_switch_left'] = $data->pump_switch_left ? $data->pump_switch_left:null;
-            //         $temp['pump_switch_right'] = $data->pump_switch_right ? $data->pump_switch_right:null;
-            //         $temp['pump_switch_main'] = $data->pump_switch_main ? $data->pump_switch_main:null;
-            //         $temp['flow_meter_left'] = $data->flow_meter_left ? $data->flow_meter_left:null;
-            //         $temp['flow_meter_right'] = $data->flow_meter_right ? $data->flow_meter_right:null;
-            //         $temp['tank_level'] = $data->tank_level ? $data->tank_level:null;
-            //         $temp['oil'] = $data->oil ? $data->oil:null;
-            //         $temp['gas'] = $data->gas ? $data->gas:null;
-            //         $temp['homogenity'] = $data->homogenity ? $data->homogenity:null;
-            //         $temp['bearing'] = $data->bearing ? $data->bearing:null;
-            //         $temp['box_id'] = $data->box_id ? $data->box_id:null;
-            //         $temp['unit_label'] = $data->unit_label ? $data->unit_label:null;
-            //         $temp['created_at'] = date('Y-m-d H:i:s');
-            //         $temp['processed'] = 0;
-            //         $report_date = date('His', $data->utc_timestamp) <= '050000' ? date('Y-m-d', strtotime("-1 day", $data->utc_timestamp)) : date('Y-m-d', $data->utc_timestamp);
-            //         $temp['report_date'] = $report_date;
-
-            //         // \DB::table("lacak_".$data->source_device_id)->insert($temp);
-            //         \DB::table("lacak_860264058610701")->insert($temp);
-                    
-            //     }
-            // }
-            
+    
             return response()->json([
-                "status" => true,
-                "message" => "File successfully uploaded",
-                "data" => array()
+                'status'    => false, 
+                'message'   => 'gagal simpan data', 
+                'data'      => array()
             ]);
-  
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status'    => false, 
+                'message'   => $th->getMessage(), 
+                'data'      => array()
+            ]);
         }
-
-        return response()->json([
-            'status'    => false, 
-            'message'   => 'gagal simpan data', 
-            'data'      => array()
-        ]);
+        
     }
 
     public function guard(){
