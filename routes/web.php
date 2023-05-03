@@ -14,6 +14,7 @@
 Auth::routes();
 
 Route::get('/test', 'HomeController@test');
+Route::get('/phpinfo', 'HomeController@phpinfo');
 Route::get('/generate_geofence', 'HomeController@generate_geofence');
 Route::get('/generate_report_v2', 'HomeController@generate_report_v2');
 Route::get('/update_rk', 'HomeController@update_rk');

@@ -1050,6 +1050,10 @@ class HomeController extends Controller
         }
     } 
 
+    public function phpinfo(){
+        phpinfo();
+    }
+
     protected function guard(){
         return Auth::guard('web');
     }
