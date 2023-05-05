@@ -164,29 +164,28 @@ class UnitController extends Controller {
         // $list_polygon = $geofenceHelper->createListPolygon();
         // $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
         //$unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
-        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
+        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT2';
         $cached = Redis::get($cache_key);
-        $list_koordinat_lokasi = [];
+        $list_lokasi = [];
         if(isset($cached)) {
-            $list_koordinat_lokasi = json_decode($cached, FALSE);
+            $list_lokasi = $cached;
         } else {
             $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
                 ->orderBy('bagian', 'ASC')
                 ->orderBy('posnr', 'ASC')
                 ->get();
-            Redis::set($cache_key, json_encode($list_koordinat_lokasi));
-        }
-        $list_lokasi = [];
-        foreach($list_koordinat_lokasi as $v){
-            $idx = $v->lokasi.'_'.$v->bagian;
-            if(array_key_exists($idx, $list_lokasi)){
-                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
-            } else {
-                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            foreach($list_koordinat_lokasi as $v){
+                $idx = $v->lokasi.'_'.$v->bagian;
+                if(array_key_exists($idx, $list_lokasi)){
+                    $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+                } else {
+                    $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+                }
             }
+            $list_lokasi = array_values($list_lokasi);
+            $list_lokasi = json_encode($list_lokasi);
+            Redis::set($cache_key, $list_lokasi);
         }
-        $list_lokasi = array_values($list_lokasi);
-
         return view('master.unit.track', [
             'unit'          => $unit,
             'list_lokasi'   => json_encode($list_lokasi)
