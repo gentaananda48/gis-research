@@ -188,7 +188,7 @@ class UnitController extends Controller {
         }
         return view('master.unit.track', [
             'unit'          => $unit,
-            'list_lokasi'   => json_encode($list_lokasi)
+            'list_lokasi'   => $list_lokasi
         ]);
     }
 
