@@ -80,9 +80,9 @@ class SaveJsonFile extends Command
                             $temp['arm_height_right'] = $data->arm_height_right ? $data->arm_height_right:null;
                             $temp['temperature_left'] = $data->temperature_left ? $data->temperature_left:null;
                             $temp['temperature_right'] = $data->temperature_right ? $data->temperature_right:null;
-                            $temp['pump_switch_left'] = $data->pump_switch_left ? $data->pump_switch_left:null;
-                            $temp['pump_switch_right'] = $data->pump_switch_right ? $data->pump_switch_right:null;
-                            $temp['pump_switch_main'] = $data->pump_switch_main ? $data->pump_switch_main:null;
+                            $temp['pump_switch_left'] = $data->pump_switch_left ? $data->pump_switch_left:0;
+                            $temp['pump_switch_right'] = $data->pump_switch_right ? $data->pump_switch_right:0;
+                            $temp['pump_switch_main'] = $data->pump_switch_main ? $data->pump_switch_main:0;
                             $temp['flow_meter_left'] = $data->flow_meter_left ? $data->flow_meter_left:null;
                             $temp['flow_meter_right'] = $data->flow_meter_right ? $data->flow_meter_right:null;
                             $temp['tank_level'] = $data->tank_level ? $data->tank_level:null;
