@@ -138,8 +138,13 @@ class LokasiController extends Controller {
         $this->validate($request, [
             'file' => 'required|mimes:xls,xlsx'
         ]);
-
+        $prev_memory_limit = ini_get('memory_limit');
+        $prev_max_execution_time = ini_get('max_execution_time');
+        ini_set('memory_limit', '-1' );
+        ini_set('max_execution_time', 0);
         $import = Excel::import(new LokasiImport,request()->file('file'));
+        ini_set('memory_limit', $prev_memory_limit);
+        ini_set('max_execution_time', $prev_max_execution_time);
         if($import) {
             //redirect
             return redirect()->route('master.lokasi')->with(['success' => 'Data Berhasil Diimport!']);

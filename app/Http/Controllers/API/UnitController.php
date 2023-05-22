@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Model\Unit;
 use App\Model\VUnit;
 use App\Model\Lacak;
+use App\Model\Lacak2;
 use App\Model\SystemConfiguration;
 use App\Model\KoordinatLokasi;
 use App\Helper\GeofenceHelper;
@@ -64,7 +65,7 @@ class UnitController extends Controller {
             ]);
         }
 
-        $lacak = Lacak::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
+        $lacak = Lacak2::where('ident', $unit->source_device_id)->whereNotNull('position_altitude')->orderBy('timestamp', 'DESC')->limit(1)->first();
         $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
         $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
         $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
@@ -76,10 +77,10 @@ class UnitController extends Controller {
         $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_1) ? 'On' : 'Off';
         $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_2) ? 'On' : 'Off';
 
-        $geofenceHelper = new GeofenceHelper;
-        $list_polygon = $geofenceHelper->createListPolygon();
-        $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
-        $unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
+        //$geofenceHelper = new GeofenceHelper;
+        //$list_polygon = $geofenceHelper->createListPolygon();
+        //$unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
+        //$unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
         return response()->json([
             'status'    => true, 
             'message'   => '', 
@@ -292,20 +293,26 @@ class UnitController extends Controller {
         $flow_meter_right = rand(0,50);
         $flow_meter_left = rand(0,50);
         $data = [
-            'utc_timestamp'         => strtotime(gmdate("Y-m-d\TH:i:s\Z")),
+            'id'                    => "1000000071fc7625",
             'latitude'              => $geoloc[$i]['latitude'],
             'longitude'             => $geoloc[$i]['longitude'],
+            'altitude'              => 100,
             'speed'                 => rand(0,10),
-            'tank_level'            => rand(0,6),
-            'temperature_right'     => rand(20,60),
-            'temperature_left'      => rand(20,60),
-            'flow_meter_right'      => $flow_meter_right,
-            'flow_meter_left'       => $flow_meter_left,
             'arm_height_left'       => rand(0,150),
             'arm_height_right'      => rand(0,150),
+            'temperature_right'     => rand(20,60),
+            'temperature_left'      => rand(20,60),
             'pump_switch_main'      => true,
             'pump_switch_left'      => $flow_meter_left > 0,
-            'pump_switch_right'     => $flow_meter_left > 0
+            'pump_switch_right'     => $flow_meter_left > 0,
+            'flow_meter_right'      => $flow_meter_right,
+            'flow_meter_left'       => $flow_meter_left,
+            'tank_level'            => rand(0,6),
+            'oil'                   => rand(0,6),
+            'gas'                   => rand(0,6),
+            'homogenity'            => rand(0,6),
+            'bearing'               => rand(0,360),
+            'utc_timestamp'         => strtotime(gmdate("Y-m-d\TH:i:s\Z"))
         ];
         $i++;
         $sysconf->value = ''.$i;

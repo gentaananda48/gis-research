@@ -37,6 +37,15 @@ class AuthController extends Controller
           $user = $this->guard()->user();
           VUser::find($user->id);
           $user_profile = VUser::find($user->id);
+          $permission = Permission::join('role_permission AS rp', 'rp.permission_id', '=', 'permissions.id')
+            ->where('rp.role_id', $user->role_id)
+            ->where('permissions.group_id', 5)
+            ->get(['permissions.code']);
+          $list_permission = [];
+          foreach($permission as $v){
+            $list_permission[] = $v->code;
+          }
+          $user_profile->permissions = implode(',',$list_permission);
           $data = [
             'user_info'     => $user_profile,
             'token'  => [

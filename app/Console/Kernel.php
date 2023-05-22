@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use App\Model\Unit;
 use App\Model\SystemConfiguration;
@@ -35,6 +36,10 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
+        Commands\ProcessLacakIMEI::class,
+        Commands\ProcessRencanaKerja::class,
+        Commands\ProcessSummaryOperational::class,
+        Commands\SaveJsonFile::class,
     ];
 
     /**
@@ -56,6 +61,11 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $this->update_kualitas_rencana_kerja();
         })->everyMinute();
+
+        //save file json to db
+        $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));
+        // \Log::info($schedule);
+
         // $schedule->call(function () {
         //     $this->pull_data_lacak();
         // })->everyMinute();
@@ -163,8 +173,8 @@ class Kernel extends ConsoleKernel
                             $rks->rk_id = $rk->id;
                             $rks->ritase = 999;
                             $rks->parameter_id = $rp->id;
-                            $rks->parameter_nama = $rp->nama;
                         }
+                        $rks->parameter_nama = $rp->nama;
                         $rks->standard      = $standard;
                         $rks->realisasi     = $realisasi;
                         $rks->nilai         = $nilai;
@@ -224,11 +234,25 @@ class Kernel extends ConsoleKernel
         foreach($list_rk AS $rk) {
             ReportRencanaKerja::where('rencana_kerja_id', $rk->id)->delete();
             $list_polygon = $geofenceHelper->createListPolygon('L', $rk->lokasi_kode);
-            if($rk->tgl>='2022-03-15') {
-                $list = Lacak2::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+
+            $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
+            $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
+            if(in_array($rk->unit_source_device_id, $offline_units)){
+                $table_name = 'lacak_'.$rk->unit_source_device_id;
+                $list = DB::table($table_name)
+                    ->where('utc_timestamp', '>=', strtotime($rk->jam_mulai))
+                    ->where('utc_timestamp', '<=', strtotime($rk->jam_selesai))
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp, arm_height_right, arm_height_left, temperature_right, temperature_left")
+                    ->get();
             } else {
-                $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+                if($rk->tgl>='2022-03-15') {
+                    $list = Lacak2::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+                } else {
+                    $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+                }
             }
+
             $list2 = [];
             $i2 = 0;
             $list_kel = [];
@@ -307,27 +331,19 @@ class Kernel extends ConsoleKernel
                 $rrk->latitude = $v->position_latitude;
                 $rrk->longitude = $v->position_longitude;
                 $rrk->position_direction = $v->position_direction;
-                $rrk->gsm_signal_level = $v->gsm_signal_level;
+                $rrk->gsm_signal_level = !empty($v->gsm_signal_level) ? $v->gsm_signal_level : null;
                 $rrk->timestamp = date('Y-m-d H:i:s', $v->timestamp);
                 $rrk->position_speed = $v->position_speed;
-                $rrk->din = $v->din;
+                $rrk->din = !empty($v->din) ? $v->din : null;
                 $rrk->din_1 = $v->din_1;
                 $rrk->din_2 = $v->din_2;
                 $rrk->din_3 = $v->din_3;
                 $rrk->ritase = $v->ritase;
                 $rrk->overlapping = $is_overlap;
-                if(!empty($v->payload_text)){
-                    $payload_text = json_decode($v->payload_text);
-                    $rrk->arm_height_right = !empty($payload_text->arm_height_right)?$payload_text->arm_height_right:0;
-                    $rrk->arm_height_left = !empty($payload_text->arm_height_left)?$payload_text->arm_height_left:0;
-                    $rrk->temperature_right = !empty($payload_text->temperature_right)?$payload_text->temperature_right:0;
-                    $rrk->temperature_left = !empty($payload_text->temperature_left)?$payload_text->temperature_left:0;
-                } else {
-                    $rrk->arm_height_right = 0;
-                    $rrk->arm_height_left = 0;
-                    $rrk->temperature_right = 0;
-                    $rrk->temperature_left = 0;
-                }
+                $rrk->arm_height_right = !empty($v->arm_height_right)?$v->arm_height_right:0;
+                $rrk->arm_height_left = !empty($v->arm_height_left)?$v->arm_height_left:0;
+                $rrk->temperature_right = !empty($v->temperature_right)?$v->temperature_right:0;
+                $rrk->temperature_left = !empty($v->temperature_left)?$v->temperature_left:0;
                 $rrk->save();
             }
 

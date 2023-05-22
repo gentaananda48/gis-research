@@ -15,6 +15,9 @@
         margin: 0;
         padding: 0;
       }
+      .table-responsive .table th, .table-responsive .table td {
+	        white-space: nowrap !important;
+	    }
     </style>
 @stop
 
@@ -32,44 +35,44 @@
 		        				<table class="table">
 			                    	<tbody>
 			                    		<tr>
-			                    			<td>Lokasi</td>
-			                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
+			                    			<td>Unit</td>
+			                    			<td>: <span>{{$rk->unit_label}}</span></td>
 			                    			<td>Aktivitas</td>
 			                    			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
 			                    		</tr>
 			                    		<tr>
-			                    			<td>Nozzle</td>
-			                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
+			                    			<td>Lokasi</td>
+			                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
 			                    			<td>Volume</td>
 			                    			<td>: <span>{{$rk->volume}}</span></td>
 			                    		</tr>
 			                    		<tr>
+			                    			<td>Nozzle</td>
+			                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
+			                    			<td>Kecepatan</td>
+			                    			<td>: <span id="info-kecepatan"></span></td>
+			                    		</tr>
+			                    		<tr>
 			                    			<td>Latitude</td>
 			                    			<td>: <span id="info-latitude"></span></td>
-			                    			<td>Kecepatan</td>
-			                    			<td>: <span id="info-kecepatan"></span> KM/Jam</td>
+			                    			<td>Spray Kiri</td>
+			                    			<td>: <span id="info-nozzle-kiri"></span></td>
 			                    		</tr>
 			                    		<tr>
 			                    			<td>Longitude</td>
 			                    			<td>: <span id="info-longitude"></span></td>
-			                    			<td>Spray Kiri</td>
+			                    			<td>Spray Kanan</td>
 			                    			<td>: <span id="info-nozzle-kanan"></span></td>
 			                    		</tr>
 			                    		<tr>
 			                    			<td>Altitude</td>
 			                    			<td>: <span id="info-altitude"></span></td>
-			                    			<td>Spray Kanan</td>
-			                    			<td>: <span id="info-nozzle-kiri"></span></td>
-			                    		</tr>
-			                    		<tr>
-			                    			<td>Timestamp</td>
-			                    			<td>: <span id="info-timestamp"></span></td>
 			                    			<td>Wing Level Kanan</td>
 			                    			<td>: <span id="info-wing-level-kanan"></span></td>
 			                    		</tr>
 			                    		<tr>
-			                    			<td></td>
-			                    			<td></td>
+			                    			<td>Timestamp</td>
+			                    			<td>: <span id="info-timestamp"></span></td>
 			                    			<td>Wing Level Kiri</td>
 			                    			<td>: <span id="info-wing-level-kiri"></span></td>
 			                    		</tr>
@@ -80,25 +83,115 @@
         			</div>
         		</div>
 		    	<div style="margin-top: 4px;">
-		    		<form style="margin-bottom: 2px;">
-		    			<div class="row">
-			    			<div class="col-sm-2">
-			    				{{ Form::select('interval', $list_interval , $interval, array('class' => 'form-control select2')) }}
-			    			</div>
-			    			<div class="col-sm-1">
-				            	<button type="submit" class="btn btn-info"><i class="fa fa-search"></i></button>
-			    			</div>
-			    		</div>
-			     	</form>
-			    	<div class="progress" style="margin-bottom: 0px;">
-			            <div class="progress-bar progress-bar-aqua" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="{{$durasi}}" style="width: 0%">
-			            	<span class="sr-only"></span>
-			            </div>
-		          	</div>
-		    		<span class="text-bold" id="timestamp"></span>
+		    		<input type="range" id="js-progress-bar" min="0" max="{{$durasi}}" value="90" step="1">
+		    		<button type="button" class="btn btn-pause"><i class="fa fa-pause"></i></button>
+		    		<span class="text-bold pull-right" id="timestamp"></span>
 		    	</div>
         	</div>
         </div>
+        <div class="box box-default box-solid">
+			<div class="box-body">
+				<table class="table table-bordered">
+			        <tbody>
+				        <tr>
+					        <th>Ritase</th>
+					        @foreach($summary->header as $v)
+					        <th>{{$v}}</th>
+					        @endforeach
+					        <th rowspan="{{count($summary->ritase) + 2}}"></th>
+				        </tr>
+			        	@foreach($summary->ritase as $v)
+			            <tr>
+				            <td>{{$v['ritase']}}</td>
+				            @foreach($summary->header as $k2=>$v2)
+					        @if($k2==4 || $k2==5)
+					        <th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A': $v['parameter_'.$k2] }}</th>
+				            @else
+					        <th>{{$v['parameter_'.$k2]}}</th>
+					        @endif
+					        @endforeach
+			            </tr>
+			        	@endforeach
+				        <tr>
+					        <th>Rata-rata</th>
+					        @foreach($summary->rata2 as $k=>$v)
+					        @if($k==4 || $k==5)
+					        <th>{{ doubleval($v) <= 2 ? 'N/A': $v }}</th>
+				            @else
+					        <th>{{$v}}</th>
+					        @endif
+					        @endforeach
+				        </tr>
+				        <tr>
+					        <th>Poin</th>
+					        @foreach($summary->poin as $v)
+					        <th>{{$v}}</th>
+					        @endforeach
+				        </tr>
+				        <tr>
+					        <th colspan=4>Kategori</th>
+					        <th>{{$summary->kualitas}}</th>
+				        </tr>
+			        </tbody>
+		        </table>
+			</div>
+		</div>
+
+		<div class="box box-default box-solid">
+			<div class="box-body table-responsive">
+				<table class="table table-bordered">
+			        <thead>
+			            <tr>
+				            <th rowspan="2" style="vertical-align: middle; text-align: center;">Ritase</th>
+				            <th colspan="5" style="vertical-align: middle; text-align: center;">Speed</th>
+				            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kanan</th>
+				            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kiri</th>
+				            <th rowspan="2" style="vertical-align: middle; text-align: center;">Suhu</th>
+			            </tr>
+			            <tr>
+				            <th style="vertical-align: middle; text-align: center;">Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Average</th>
+				            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Average</th>
+				            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Average</th>
+				            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+				            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+			            </tr>
+			        </thead>
+			        <tbody>
+			        	@foreach($list_percentage as $v)
+			            <tr>
+				            <td>{{$v->std_speed}}</td>
+				            <td>{{$v->std_speed}}</td>
+				            <td>{{$v->avg_speed}}</td>
+				            <td>{{$v->prc_speed_under_standard}}</td>
+				            <td>{{$v->prc_speed_standard}}</td>
+				            <td>{{$v->prc_speed_upper_standard}}</td>
+				            <td>{{$v->std_arm_height_right}}</td>
+				            <td>{{$v->avg_arm_height_right}}</td>
+				            <td>{{$v->prc_arm_height_right_under_standard}}</td>
+				            <td>{{$v->prc_arm_height_right_standard}}</td>
+				            <td>{{$v->prc_arm_height_right_upper_standard}}</td>
+				            <td>{{$v->std_arm_height_left}}</td>
+				            <td>{{$v->avg_arm_height_left}}</td>
+				            <td>{{$v->prc_arm_height_left_under_standard}}</td>
+				            <td>{{$v->prc_arm_height_left_standard}}</td>
+				            <td>{{$v->prc_arm_height_left_upper_standard}}</td>
+				            <td>{{$v->avg_temperature_right}}</td>
+			            </tr>
+			        	@endforeach
+			        </tbody>
+		        </table>
+			</div>
+		</div>
     </section>
 <div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -112,44 +205,44 @@
                     <table class="table">
                     	<tbody>
                     		<tr>
-                    			<td>Lokasi</td>
-                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
+                    			<td>Unit</td>
+                    			<td>: <span>{{$rk->unit_label}}</span></td>
                     			<td>Aktivitas</td>
                     			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
                     		</tr>
                     		<tr>
-                    			<td>Nozzle</td>
-                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
+                    			<td>Lokasi</td>
+                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
                     			<td>Volume</td>
                     			<td>: <span>{{$rk->volume}}</span></td>
                     		</tr>
                     		<tr>
-                    			<td>Latitude</td>
-                    			<td>: <span id="info-latitude"></span></td>
+                    			<td>Nozzle</td>
+                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
                     			<td>Kecepatan</td>
                     			<td>: <span id="info-kecepatan"></span> KM/Jam</td>
                     		</tr>
                     		<tr>
-                    			<td>Longitude</td>
-                    			<td>: <span id="info-longitude"></span></td>
+                    			<td>Latitude</td>
+                    			<td>: <span id="info-latitude"></span></td>
                     			<td>Spray Kiri</td>
                     			<td>: <span id="info-nozzle-kanan"></span></td>
                     		</tr>
                     		<tr>
-                    			<td>Altitude</td>
-                    			<td>: <span id="info-altitude"></span></td>
+                    			<td>Longitude</td>
+                    			<td>: <span id="info-longitude"></span></td>
                     			<td>Spray Kanan</td>
                     			<td>: <span id="info-nozzle-kiri"></span></td>
                     		</tr>
                     		<tr>
-                    			<td>Timestamp</td>
-                    			<td>: <span id="info-timestamp"></span></td>
+                    			<td>Altitude</td>
+                    			<td>: <span id="info-altitude"></span></td>
                     			<td>Wing Level Kanan</td>
                     			<td>: <span id="info-wing-level-kanan"></span></td>
                     		</tr>
                     		<tr>
-                    			<td></td>
-                    			<td></td>
+                    			<td>Timestamp</td>
+                    			<td>: <span id="info-timestamp"></span></td>
                     			<td>Wing Level Kiri</td>
                     			<td>: <span id="info-wing-level-kiri"></span></td>
                     		</tr>
@@ -179,6 +272,10 @@
 	var lacak = {!! $list_lacak !!};
 	var i = 0;
 	var interval = {!! $interval !!};
+	var idx_2 = 0;
+	var pause = false;
+	var list_polyline = []; 
+	var standard = {!! $standard !!};
 
 	function setLokasi(latitude, loagitude){
         $.ajax({
@@ -248,7 +345,7 @@
 	      		polygon.infoWindow.close();
 	    	});
 		});
-		async function taskUpdateLocation(i) { // 3
+		function taskUpdateLocation(i) { // 3
 	  		var icon = marker.getIcon();
 			icon.rotation = lacak[i].position_direction;
 	    	marker.setIcon(icon);
@@ -259,9 +356,9 @@
 			// var path = poly.getPath();
 			// path.push(position);
 			if(i>0){
-				if(lacak[i-1].din_3 == 1 && (lacak[i-1].din_1==1 || lacak[i-1].din_2==1)) {
-					var strokeColor = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? "#00FF00" : lacak[i-1].din_1==1 && lacak[i-1].din_2==0 ? "#FFA500" : "#FFFF00";
-					var strokeWeight = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? 12 : 7;
+				if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
+					var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#00FF00" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#FFA500" : "#FFFF00";
+					var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
 					var poly = new google.maps.Polyline({
 					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
 					    geodesic: true,
@@ -271,15 +368,18 @@
 			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
+	    			list_polyline.push(poly);
 					google.maps.event.addListener(poly, 'click', function(h) {
 				     	var latlng=h.latLng;
 				     	$("#info-latitude").text(lacak[i-1].position_latitude);
 				     	$("#info-longitude").text(lacak[i-1].position_longitude);
 				     	$("#info-altitude").text(lacak[i-1].position_altitude);
 				     	$("#info-kecepatan").text(lacak[i-1].position_speed);
-				     	$("#info-nozzle-kanan").text(lacak[i-1].din_1==1?'On':'Off');
-				     	$("#info-nozzle-kiri").text(lacak[i-1].din_2==1?'On':'Off');
+				     	$("#info-nozzle-kanan").text(lacak[i-1].pump_switch_right==1?'On':'Off');
+				     	$("#info-nozzle-kiri").text(lacak[i-1].pump_switch_left==1?'On':'Off');
 				     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
+				     	$("#info-wing-level-kanan").html(lacak[i-1].arm_height_right);
+				     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
 				     	$('.win-info').modal('show');
 					});
 				} else {
@@ -292,6 +392,7 @@
 			    		zIndex: 999999,
 					});
 			    	poly.setMap(map);
+	    			list_polyline.push(poly);
 					google.maps.event.addListener(poly, 'click', function(h) {
 				     	var latlng=h.latLng;
 				     	$("#info-latitude").text(lacak[i-1].position_latitude);
@@ -301,32 +402,88 @@
 				     	$("#info-nozzle-kiri").text('Off');
 				     	$("#info-nozzle-kanan").text('Off');
 				     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
+				     	$("#info-wing-level-kanan").text(lacak[i-1].arm_height_right);
+				     	$("#info-wing-level-kiri").text(lacak[i-1].arm_height_left);
 				     	$('.win-info').modal('show');
 					});
 				}
 				$("#info-latitude").text(lacak[i-1].position_latitude);
 		     	$("#info-longitude").text(lacak[i-1].position_longitude);
 		     	$("#info-altitude").text(lacak[i-1].position_altitude);
-		     	$("#info-kecepatan").text(lacak[i-1].position_speed);
-		     	$("#info-nozzle-kanan").text(lacak[i-1].din_3 == 1 && lacak[i-1].din_1==1?'On':'Off');
-		     	$("#info-nozzle-kiri").text(lacak[i-1].din_3 == 1 && lacak[i-1].din_2==1?'On':'Off');
+		     	var html_speed = ""
+		     	if(lacak[i-1].position_speed>standard.speed_range_2){
+		     		html_speed = "<span style='color: orange'>"+lacak[i-1].position_speed+" KM/Jam</span>"
+		     	} else if(lacak[i-1].position_speed<standard.speed_range_1){
+		     		html_speed = "<span style='color: red'>"+lacak[i-1].position_speed+" KM/Jam</span>"
+		     	} else {
+		     		html_speed = "<span style='color: green'>"+lacak[i-1].position_speed+" KM/Jam</span>"
+		     	}
+		     	$("#info-kecepatan").html(html_speed);
+		     	$("#info-nozzle-kanan").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_right==1?'On':'Off');
+		     	$("#info-nozzle-kiri").text(lacak[i-1].pump_switch_main == 1 && lacak[i-1].pump_switch_left==1?'On':'Off');
 		     	$("#info-timestamp").text(lacak[i-1].timestamp_2);
-		     	$("#info-wing-level-kanan").text(0);
-		     	$("#info-wing-level-kiri").text(0);
+		     	var arm_height_left = lacak[i-1].arm_height_left != null ? lacak[i-1].arm_height_left / 100 : 0;
+		     	var html_arm_height_left = ""
+		     	if(arm_height_left>standard.arm_height_left_range_2){
+		     		html_arm_height_left = "<span style='color: orange'>"+arm_height_left+"</span>"
+		     	} else if(arm_height_left<standard.arm_height_left_range_1){
+		     		html_arm_height_left = "<span style='color: red'>"+arm_height_left+"</span>"
+		     	} else {
+		     		html_arm_height_left = "<span style='color: green'>"+arm_height_left+"</span>"
+		     	}
+		     	$("#info-wing-level-kiri").html(html_arm_height_left);
+		     	var arm_height_right = lacak[i-1].arm_height_right != null ? lacak[i-1].arm_height_right / 100 : 0;
+		     	var html_arm_height_right = ""
+		     	if(arm_height_right>standard.arm_height_right_range_2){
+		     		html_arm_height_right = "<span style='color: orange'>"+arm_height_right+"</span>"
+		     	} else if(arm_height_right<standard.arm_height_right_range_1){
+		     		html_arm_height_right = "<span style='color: red'>"+arm_height_right+"</span>"
+		     	} else {
+		     		html_arm_height_right = "<span style='color: green'>"+arm_height_right+"</span>"
+		     	}
+		     	$("#info-wing-level-kanan").html(html_arm_height_right);
 			}
 			$("#lokasi_nama").text(lacak[i].lokasi);
 			$("#timestamp").text(lacak[i].timestamp_2);
-			$(".progress-bar-aqua").attr('aria-valuenow', lacak[i].progress_time);
-			$(".progress-bar-aqua").css("width", lacak[i].progress_time_pers + "%");
-			//setLokasi(lacak[i].position_latitude, lacak[i].position_longitude)
-		  	await timer(interval);
+			$('#js-progress-bar').val(lacak[i].progress_time);
 		}
-		async function updateLocation() {
-			for (var i = 0, len = lacak.length; i < len; i += 1) {
-			    await taskUpdateLocation(i);
+		async function updateLocation(idx) {
+			idx_2 = idx;
+			for (var i = 0, len = idx; i < idx; i += 1) {
+			    taskUpdateLocation(i);
+			}
+			i=idx;
+			while (i < lacak.length && !pause) {
+				taskUpdateLocation(i);
+				await timer(interval);
+				idx_2 = i;
+				i++;
 			}
 		}
-		updateLocation();
+		function deletePolyline(){
+			for (i=0; i<list_polyline.length; i++) {                           
+				list_polyline[i].setMap(null); 
+			}
+		}
+		updateLocation(0);
+		$(".btn-pause").on('click', function(){
+			pause = !pause;
+			if(pause) {
+				$(this).html('<i class="fa fa-play"></i>');
+			} else {
+				$(this).html('<i class="fa fa-pause"></i>');
+				updateLocation(idx_2);
+			}
+		});
+		$('#js-progress-bar').on('change', function(){
+			var val = $(this).val();
+			if(pause){
+				deletePolyline()
+				updateLocation(val)
+			} else {
+				alert('Please pause first')
+			}
+		});
 		function timer(ms) { return new Promise(res => setTimeout(res, ms)); }
 	}
 </script>

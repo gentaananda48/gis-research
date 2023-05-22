@@ -44,6 +44,22 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function download(){ 
+        // try {
+        //     $myFile = storage_path("downloads\app-release.apk");
+        //     return respond()->download($myFile);
+        // } catch (\Throwable $th) {
+        //     throw $th;
+        // }   
+            $path = public_path('downloads/app-release.apk');
+            
+            return response()->file($path ,[
+            'Content-Type'=>'application/vnd.android.package-archive',
+            'Content-Disposition'=> 'attachment; filename="android.apk"',
+        ]);
+
+    }
     
     public function index(Request $request){
         $user = $this->guard()->user();
@@ -1033,6 +1049,10 @@ class HomeController extends Controller
             echo "NOT FOUND";
         }
     } 
+
+    public function phpinfo(){
+        phpinfo();
+    }
 
     protected function guard(){
         return Auth::guard('web');

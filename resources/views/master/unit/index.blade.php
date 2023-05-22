@@ -32,12 +32,13 @@
                         <tr>
                             <th data-column-id="id" data-order="asc" data-type="numeric" data-identifier="true" data-visible="true">ID</th>
                             <th data-column-id="label" data-width="20%">Label</th>
-                            <th data-column-id="group_id">Group ID</th>
+                            <th data-column-id="group_id">GroupID</th>
                             <th data-column-id="pg" data-header-css-class="nowrap">PG</th>
-                            <th data-column-id="source_id" data-header-css-class="nowrap">Source ID</th>
-                            <th data-column-id="source_device_id" data-header-css-class="nowrap">Source Device ID</th>
-                            <th data-column-id="source_model" data-header-css-class="nowrap">Source Model</th>
-                            <th data-column-id="source_phone" data-header-css-class="nowrap">Source Phone</th>
+                            <th data-column-id="box_id" data-header-css-class="nowrap">BoxID</th>
+                            <th data-column-id="source_id" data-header-css-class="nowrap">SourceID</th>
+                            <th data-column-id="source_device_id" data-header-css-class="nowrap">SourceDeviceID</th>
+                            <th data-column-id="source_model" data-header-css-class="nowrap">SourceModel</th>
+                            <th data-column-id="source_phone" data-header-css-class="nowrap">SourcePhone</th>
                             <th data-column-id="commands" data-width="15%" data-formatter="commands" data-align="center" data-header-align="center" data-sortable="false">Action</th>
                         </tr>
                     </thead>

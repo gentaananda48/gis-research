@@ -61,7 +61,7 @@
 								</table>
 							</div>
 						</div>
-						<div class="box box-default box-solid">
+						{{-- <div class="box box-default box-solid">
 							<div class="box-body">
 								<table class="table table-bordered">
 							        <tbody>
@@ -76,14 +76,22 @@
 							            <tr>
 								            <td>{{$v['ritase']}}</td>
 								            @foreach($summary->header as $k2=>$v2)
+								            @if($k2==4 || $k2==5)
+									        <th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A': $v['parameter_'.$k2] }}</th>
+								            @else
 									        <th>{{$v['parameter_'.$k2]}}</th>
+									        @endif
 									        @endforeach
 							            </tr>
 							        	@endforeach
 								        <tr>
 									        <th>Rata-rata</th>
-									        @foreach($summary->rata2 as $v)
+									        @foreach($summary->rata2 as $k=>$v)
+									        @if($k==4 || $k==5)
+									        <th>{{ doubleval($v) <= 2 ? 'N/A': $v }}</th>
+								            @else
 									        <th>{{$v}}</th>
+									        @endif
 									        @endforeach
 								        </tr>
 								        <tr>
@@ -99,7 +107,62 @@
 							        </tbody>
 						        </table>
 							</div>
-						</div>
+						</div> --}}
+						{{-- <div class="box box-default box-solid">
+							<div class="box-body table-responsive">
+								<table class="table table-bordered">
+							        <thead>
+							            <tr>
+								            <th rowspan="2" style="vertical-align: middle; text-align: center;">Ritase</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Speed</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kanan</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kiri</th>
+								            <th rowspan="2" style="vertical-align: middle; text-align: center;">Suhu</th>
+							            </tr>
+							            <tr>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+							            </tr>
+							        </thead>
+							        <tbody>
+							        	@foreach($list_percentage as $v)
+							            <tr>
+								            <td>{{$v->ritase}}</td>
+								            <td>{{$v->std_speed}}</td>
+								            <td>{{$v->avg_speed}}</td>
+								            <td>{{$v->prc_speed_under_standard}}</td>
+								            <td>{{$v->prc_speed_standard}}</td>
+								            <td>{{$v->prc_speed_upper_standard}}</td>
+								            <td>{{$v->std_arm_height_right}}</td>
+								            <td>{{$v->avg_arm_height_right}}</td>
+								            <td>{{$v->prc_arm_height_right_under_standard}}</td>
+								            <td>{{$v->prc_arm_height_right_standard}}</td>
+								            <td>{{$v->prc_arm_height_right_upper_standard}}</td>
+								            <td>{{$v->std_arm_height_left}}</td>
+								            <td>{{$v->avg_arm_height_left}}</td>
+								            <td>{{$v->prc_arm_height_left_under_standard}}</td>
+								            <td>{{$v->prc_arm_height_left_standard}}</td>
+								            <td>{{$v->prc_arm_height_left_upper_standard}}</td>
+								            <td>{{$v->avg_temperature_right}}</td>
+							            </tr>
+							        	@endforeach
+							        </tbody>
+						        </table>
+							</div>
+						</div> --}}
 					</div>
 					<div class="box-footer">
 						<a href="{{ url('/report/rencana_kerja') }}" class="btn btn-warning"> Back </a>
@@ -110,7 +173,7 @@
 		</div>
 	</section>
 
-<div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
+	{{-- <div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form class="form-horizontal">
@@ -160,7 +223,7 @@
             </form>
         </div>
     </div>
-</div>
+</div> --}}
 @stop
 
 @section("script")
@@ -175,6 +238,8 @@
 	var marker;
 	var poly;
 	var lacak = {!! $list_lacak !!};
+	var timestamp_jam_mulai = {!! $timestamp_jam_mulai !!};
+	var timestamp_jam_selesai = {!! $timestamp_jam_selesai !!};
 	var i = 0;
 
 	function initMap() {
@@ -224,15 +289,18 @@
 		  	map.setCenter(polygon.my_getBounds().getCenter());
 		});
 		for (var i = 0, len = lacak.length; i < len; i += 1) {
+			if(timestamp_jam_mulai > lacak[i].timestamp || lacak[i].timestamp > timestamp_jam_selesai) {
+				continue;
+			}
 		    var icon = marker.getIcon();
 			icon.rotation = lacak[i].position_direction;
 	    	marker.setIcon(icon);
 	    	var position = new google.maps.LatLng(lacak[i].position_latitude, lacak[i].position_longitude);
 			marker.setPosition(position);
 			if(i>0){
-				if(lacak[i-1].din_3 == 1 && (lacak[i-1].din_1==1 || lacak[i-1].din_2==1)) {
-					var strokeColor = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? "#00FF00" : lacak[i-1].din_1==1 && lacak[i-1].din_2==0 ? "#FFA500" : "#FFFF00";
-					var strokeWeight = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? 12 : 7;
+				if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
+					var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#00FF00" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#FFA500" : "#FFFF00";
+					var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
 					var poly = new google.maps.Polyline({
 					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
 					    geodesic: true,

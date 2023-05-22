@@ -39,6 +39,8 @@
         </div>
       </div>
     </div>
+
+    @if (env('APP_CODE') === 'VAT_BOOM') 
     <div class="row">
       <div class="col-md-4 col-sm-6 col-xs-12">
         <div class="info-box">
@@ -60,7 +62,6 @@
         </div>
       </div>
 
-
       <div class="clearfix visible-sm-block"></div>
       <div class="col-md-4 col-sm-6 col-xs-12">
         <div class="info-box">
@@ -73,11 +74,57 @@
       </div>
 
     </div>
+    @elseif (env('APP_CODE') === 'VAT_BOOM_DEV')
+      <div class="row">
+
+      <div class="col-md-3">
+        <div class="info-box">
+          <span class="info-box-icon bg-primary"><i class="fa fa-download"></i></span>
+          <div class="info-box-content">
+            <a href="{{ route('download') }}">Download APK Boom</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="info-box">
+          <span class="info-box-icon bg-aqua"><i class="fa fa-file-text-o"></i></span>
+          <div class="info-box-content">
+            <span>Input Data VAT</span>
+            <span class="info-box-number">{{ $total_rk }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="info-box">
+          <span class="info-box-icon bg-green"><i class="fa fa-truck"></i></span>
+          <div class="info-box-content">
+            <span>Record Data VAT</span>
+            <span class="info-box-number">{{ $total_real }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearfix visible-sm-block"></div>
+      <div class="col-md-3">
+        <div class="info-box">
+          <span class="info-box-icon bg-yellow"><i class="fa fa-bar-chart"></i></span>
+          <div class="info-box-content">
+            <span>Input Data VAT VS Record Data VAT</span>
+            <span class="info-box-number">{{ $perc_rk_real }}<small>%</small></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    @endif
+
   	<div class="row">
       <div class="col-md-6">
         <div class="box box-success">
           <div class="box-header with-border">
-            <h3 class="box-title">Rencana Kerja vs Realisasi</h3>
+            <h3 class="box-title">Data yang di input vs Data Ter-Record</h3>
           </div>
           <div class="box-body">
             <canvas id="barChart1" style="height:230px; background-color: white; padding: 5px;"></canvas>

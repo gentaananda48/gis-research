@@ -14,6 +14,7 @@
 Auth::routes();
 
 Route::get('/test', 'HomeController@test');
+Route::get('/phpinfo', 'HomeController@phpinfo');
 Route::get('/generate_geofence', 'HomeController@generate_geofence');
 Route::get('/generate_report_v2', 'HomeController@generate_report_v2');
 Route::get('/update_rk', 'HomeController@update_rk');
@@ -54,12 +55,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/admin/system_configuration/update/{id}', array('uses' => 'Admin\SystemConfigurationController@update', 'as' => 'admin.system_configuration.update'));
     Route::delete('/admin/system_configuration/delete/{id}', array('uses' => 'Admin\SystemConfigurationController@destroy', 'as' => 'admin.system_configuration.destroy'));
 
-
+    // CRON LOG
+    Route::get('/admin/cron_log', array('uses' => 'Admin\CronLogController@index', 'as' => 'admin.cron_log'));
+    Route::get('/admin/cron_log/get', array('uses' => 'Admin\CronLogController@get_list', 'as' => 'admin.cron_log.get'));
 
     Route::get('/myprofile', array('uses' => 'Admin\UserController@myprofile', 'as' => 'myprofile'));
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/home', 'HomeController@home')->name('home');
     Route::get('/generate_report', 'HomeController@generate_report');
+
+    //download file apk
+    Route::get('/download', 'HomeController@download')->name('download');
 
 
     // ------------------------------- MASTER -------------------------------- // 
@@ -72,6 +78,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/unit/playback/{id}', array('uses' => 'Master\UnitController@playback', 'as' => 'master.playback'));
     Route::get('/master/unit/playback2/{id}', array('uses' => 'Master\UnitController@playback2', 'as' => 'master.playback2'));
     Route::get('/master/unit/lokasi', array('uses' => 'Master\UnitController@lokasi', 'as' => 'master.lokasi'));
+    Route::get('/master/unit/edit/{id}', array('uses' => 'Master\UnitController@edit', 'as' => 'master.unit.edit'));
+    Route::put('/master/unit/update/{id}', array('uses' => 'Master\UnitController@update', 'as' => 'master.unit.update'));
 
     // LOKASI
     Route::get('/master/lokasi', array('uses' => 'Master\LokasiController@index', 'as' => 'master.lokasi'));
@@ -180,6 +188,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/volume_air/edit/{id}', array('uses' => 'Master\VolumeAirController@edit', 'as' => 'master.volume_air.edit'));
     Route::put('/master/volume_air/update/{id}', array('uses' => 'Master\VolumeAirController@update', 'as' => 'master.volume_air.update'));
     Route::delete('/master/volume_air/delete/{id}', array('uses' => 'Master\VolumeAirController@destroy', 'as' => 'master.volume_air.destroy')); 
+
+    // KONFIGURASI UNIT
+    Route::get('/master/konfigurasi_unit', array('uses' => 'Master\KonfigurasiUnitController@index', 'as' => 'master.konfigurasi_unit'));
+    Route::get('/master/konfigurasi_unit/get', array('uses' => 'Master\KonfigurasiUnitController@get_list', 'as' => 'master.konfigurasi_unit.get'));
+    Route::get('/master/konfigurasi_unit/create', array('uses' => 'Master\KonfigurasiUnitController@create', 'as' => 'master.konfigurasi_unit.create'));
+    Route::post('/master/konfigurasi_unit', array('uses' => 'Master\KonfigurasiUnitController@store', 'as' => 'master.konfigurasi_unit.store'));
+    Route::get('/master/konfigurasi_unit/edit/{id}', array('uses' => 'Master\KonfigurasiUnitController@edit', 'as' => 'master.konfigurasi_unit.edit'));
+    Route::put('/master/konfigurasi_unit/update/{id}', array('uses' => 'Master\KonfigurasiUnitController@update', 'as' => 'master.konfigurasi_unit.update'));
+    Route::delete('/master/konfigurasi_unit/delete/{id}', array('uses' => 'Master\KonfigurasiUnitController@destroy', 'as' => 'master.konfigurasi_unit.destroy')); 
 
     // ------------------------------- TRANSACTION -------------------------------- //
     // RENCANA KERJA

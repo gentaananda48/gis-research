@@ -10,13 +10,13 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class LokasiImport implements ToCollection, WithHeadingRow
 {
     function __construct() {}
 
     public function collection(Collection $rows) {
-        set_time_limit(0);
         DB::beginTransaction();
         // lokasi::query()->truncate();
         // Koordinatlokasi::query()->truncate();
@@ -78,6 +78,12 @@ class LokasiImport implements ToCollection, WithHeadingRow
                     $koordinat_lokasi_id++;
                 }
             }
+            $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
+                ->orderBy('bagian', 'ASC')
+                ->orderBy('posnr', 'ASC')
+                ->get();
+            $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
+            Redis::set($cache_key, json_encode($list_koordinat_lokasi));
             DB::commit();
         } catch(Exception $e){
             DB::rollback(); 

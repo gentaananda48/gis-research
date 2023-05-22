@@ -9,6 +9,7 @@ class UnitTransformer extends TransformerAbstract {
             'id'                    => $model->id,
             'label'                 => $model->label,
             'group_id'              => $model->group_id,
+            'box_id'                => $model->box_id,
             'source_id'             => $model->source_id,
             'source_device_id'      => $model->source_device_id,
             'source_model'          => $model->source_model,
