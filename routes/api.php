@@ -208,3 +208,12 @@ Route::group([
     Route::post('db', 'MicroController@upload');
     Route::post('json', 'MicroController@uploadJson');
 });
+
+// report segment
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+    'prefix'        => 'report_segment'
+], function ($router) {
+    Route::get('all', 'ReportSegmentController@all');
+});
