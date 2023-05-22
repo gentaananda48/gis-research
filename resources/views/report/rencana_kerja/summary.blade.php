@@ -61,7 +61,7 @@
 								</table>
 							</div>
 						</div>
-						<div class="box box-default box-solid">
+						{{-- <div class="box box-default box-solid">
 							<div class="box-body">
 								<table class="table table-bordered">
 							        <tbody>
@@ -107,8 +107,8 @@
 							        </tbody>
 						        </table>
 							</div>
-						</div>
-						<div class="box box-default box-solid">
+						</div> --}}
+						{{-- <div class="box box-default box-solid">
 							<div class="box-body table-responsive">
 								<table class="table table-bordered">
 							        <thead>
@@ -162,7 +162,7 @@
 							        </tbody>
 						        </table>
 							</div>
-						</div>
+						</div> --}}
 					</div>
 					<div class="box-footer">
 						<a href="{{ url('/report/rencana_kerja') }}" class="btn btn-warning"> Back </a>
@@ -173,7 +173,7 @@
 		</div>
 	</section>
 
-<div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
+	{{-- <div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form class="form-horizontal">
@@ -223,7 +223,7 @@
             </form>
         </div>
     </div>
-</div>
+</div> --}}
 @stop
 
 @section("script")
