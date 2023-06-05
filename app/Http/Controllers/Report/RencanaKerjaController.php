@@ -254,36 +254,68 @@ class RencanaKerjaController extends Controller {
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
         }
 
-        //ADJUSTMENT CODE TO CRON AND AJAX 
-        // $list_lacak2 = [];
-        // foreach($list_lacak as $v){
-        //     if(strtotime($jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($jam_selesai)) {
-        //         $list_lacak2[] = $v;
-        //     }
+         // ADJUSTMENT CODE SUMMARY FROM REDIS
+        $cacheKey = env('APP_CODE') . ':RK_SUMMARY_' . $rk->id;
+        $summary = Redis::get($cacheKey);
+
+        if ($summary === null) {
+        // Data not found in Redis, retrieve from the database
+        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
+        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
+        $header = [];
+        $rata2 = [];
+        $poin = [];
+        $kualitas = '-';
+
+        foreach ($list_rks as $rks) {
+            if ($rks->ritase == 999) {
+                $header[$rks->parameter_id] = $rks->parameter_nama;
+                $rata2[$rks->parameter_id] = $rks->parameter_id != 2 ? number_format($rks->realisasi, 2) : $rks->realisasi;
+                $poin[$rks->parameter_id] = $rks->nilai_bobot;
+            } else if ($rks->ritase == 999999) {
+                $poin[999] = $rks->nilai_bobot;
+                $kualitas = $rks->kualitas;
+            }
+        }
+
+        $summary = (object) [
+            'header' => $header,
+            'ritase' => $list_rrk,
+            'rata2' => $rata2,
+            'poin' => $poin,
+            'kualitas' => $kualitas,
+        ];
+
+        // Store the retrieved data in Redis
+        Redis::set($cacheKey, json_encode($summary), 'EX', 2592000);
+        } else {
+            // Data found in Redis, retrieve it
+            $decodedSummary = json_decode($summary, true);
+
+            if ($decodedSummary !== null) {
+                // Decoding was successful
+                $summary = (object) $decodedSummary;
+                // Access the properties
+                $header = $summary->header;
+                $ritase = $summary->ritase;
+
+                // Proceed with rendering the view or any other necessary operations
+                // ...
+            } else {
+                // Decoding failed, handle the error
+                // ...
+            }
+        }
+
+        // Store the retrieved data in the database table
+        // Replace 'YourModel' with the appropriate model for your table
+        // $yourModel = YourModel::where('rk_id', $rk->id)->first();
+        // if ($yourModel) {
+        //     $yourModel->summary = json_encode($summary);
+        //     $yourModel->save();
         // }
-        // $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
-        // $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
-        // $header = [];
-        // $rata2 = [];
-        // $poin = [];
-        // $kualitas = '-';
-        // foreach($list_rks as $rks) {
-        //     if($rks->ritase==999){
-        //         $header[$rks->parameter_id] = $rks->parameter_nama;
-        //         $rata2[$rks->parameter_id] = $rks->parameter_id!=2 ? number_format($rks->realisasi,2) : $rks->realisasi;
-        //         $poin[$rks->parameter_id] = $rks->nilai_bobot;
-        //     } else if($rks->ritase==999999){
-        //         $poin[999] = $rks->nilai_bobot;
-        //         $kualitas = $rks->kualitas;
-        //     }
-        // }
-        // $summary = (object) [
-        //     'header'    => $header,
-        //     'ritase'    => $list_rrk,
-        //     'rata2'     => $rata2,
-        //     'poin'      => $poin,
-        //     'kualitas'  => $kualitas
-        // ];
+
+
         // $standard = [
         //     'speed_range_1'             => -999999,
         //     'speed_range_2'             => 999999,
@@ -328,7 +360,7 @@ class RencanaKerjaController extends Controller {
         // $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",".$standard['speed_range_1'].",".$standard['speed_range_2'].",".$standard['arm_height_right_range_1'].",".$standard['arm_height_right_range_2'].",".$standard['arm_height_left_range_1'].",".$standard['arm_height_left_range_2'].")");
         return view('report.rencana_kerja.summary', [
             'rk'            => $rk, 
-            // 'summary'       => $summary,
+            'summary'       => $summary,
             'timestamp_jam_mulai'   => strtotime($jam_mulai),
             'timestamp_jam_selesai' => strtotime($jam_selesai),
             'list_lacak'    => json_encode($list_lacak),
