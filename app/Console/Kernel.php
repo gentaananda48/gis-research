@@ -24,6 +24,7 @@ use App\Model\ReportRencanaKerja;
 use App\Model\VReportRencanaKerja;
 use App\Model\VReportRencanaKerja2;
 
+
 class Kernel extends ConsoleKernel
 {
 
@@ -39,6 +40,7 @@ class Kernel extends ConsoleKernel
         Commands\ProcessLacakIMEI::class,
         Commands\ProcessRencanaKerja::class,
         Commands\ProcessSummaryOperational::class,
+        Commands\ReportSummaryVat::class,
         Commands\SaveJsonFile::class,
     ];
 
@@ -54,6 +56,7 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
         // $this->base_url = SystemConfiguration::where('code', 'LACAK_API_URL')->first(['value'])->value;
         // $this->hash = SystemConfiguration::where('code', 'LACAK_API_HASH')->first(['value'])->value;
+
         $schedule->call(function () {
             //$this->generate_rencana_kerja_summary();
             $this->generate_rencana_kerja_report();
@@ -62,8 +65,10 @@ class Kernel extends ConsoleKernel
             $this->update_kualitas_rencana_kerja();
         })->everyMinute();
 
+        $schedule->command('summary:report')->everyMinute();
+
         //save file json to db
-        $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));
+        // $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));
         // \Log::info($schedule);
 
         // $schedule->call(function () {

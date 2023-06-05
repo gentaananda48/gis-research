@@ -61,53 +61,72 @@
 								</table>
 							</div>
 						</div>
-						{{-- <div class="box box-default box-solid">
+						<div class="box box-default box-solid">
 							<div class="box-body">
 								<table class="table table-bordered">
-							        <tbody>
-								        <tr>
-									        <th>Ritase</th>
-									        @foreach($summary->header as $v)
-									        <th>{{$v}}</th>
-									        @endforeach
-									        <th rowspan="{{count($summary->ritase) + 2}}"></th>
-								        </tr>
-							        	@foreach($summary->ritase as $v)
-							            <tr>
-								            <td>{{$v['ritase']}}</td>
-								            @foreach($summary->header as $k2=>$v2)
-								            @if($k2==4 || $k2==5)
-									        <th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A': $v['parameter_'.$k2] }}</th>
-								            @else
-									        <th>{{$v['parameter_'.$k2]}}</th>
-									        @endif
-									        @endforeach
-							            </tr>
-							        	@endforeach
-								        <tr>
-									        <th>Rata-rata</th>
-									        @foreach($summary->rata2 as $k=>$v)
-									        @if($k==4 || $k==5)
-									        <th>{{ doubleval($v) <= 2 ? 'N/A': $v }}</th>
-								            @else
-									        <th>{{$v}}</th>
-									        @endif
-									        @endforeach
-								        </tr>
-								        <tr>
-									        <th>Poin</th>
-									        @foreach($summary->poin as $v)
-									        <th>{{$v}}</th>
-									        @endforeach
-								        </tr>
-								        <tr>
-									        <th colspan=4>Kategori</th>
-									        <th>{{$summary->kualitas}}</th>
-								        </tr>
-							        </tbody>
-						        </table>
+									<tbody>
+											<tr>
+											@if (!empty($summary->ritase))
+													<th>Ritase</th>
+													@foreach($summary->header as $v)
+															<th>{{ $v }}</th>
+													@endforeach
+													<th rowspan="{{ count($summary->ritase) + 2 }}"></th>
+													</tr>
+													@foreach($summary->ritase as $v)
+															<tr>
+																	<td>{{ $v['ritase'] }}</td>
+																	@foreach($summary->header as $k2 => $v2)
+																			@if ($k2 == 4 || $k2 == 5)
+																					<th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A' : $v['parameter_'.$k2] }}</th>
+																			@else
+																					<th>{{ $v['parameter_'.$k2] }}</th>
+																			@endif
+																	@endforeach
+															</tr>
+													@endforeach
+											@else
+													<th>Ritase</th>
+													@foreach($summary->header as $v)
+															<th>{{ $v }}</th>
+													@endforeach
+													<th rowspan="{{ count($summary->ritase) + 2 }}"></th>
+													</tr>
+													<tr>
+															<td>{{ $summary->ritase[0]['ritase'] }}</td>
+															@foreach($summary->header as $k2 => $v2)
+																	@if ($k2 == 4 || $k2 == 5)
+																			<th>{{ doubleval($summary->ritase[0]['parameter_'.$k2]) <= 2 ? 'N/A' : $summary->ritase[0]['parameter_'.$k2] }}</th>
+																	@else
+																			<th>{{ $summary->ritase[0]['parameter_'.$k2] }}</th>
+																	@endif
+															@endforeach
+													</tr>
+											@endif
+											<tr>
+													<th>Rata-rata</th>
+													@foreach($summary->rata2 as $k=>$v)
+													@if($k==4 || $k==5)
+													<th>{{ doubleval($v) <= 2 ? 'N/A': $v }}</th>
+													@else
+													<th>{{$v}}</th>
+													@endif
+													@endforeach
+											</tr>
+											<tr>
+													<th>Poin</th>
+													@foreach($summary->poin as $v)
+													<th>{{$v}}</th>
+													@endforeach
+											</tr>
+											<tr>
+													<th colspan=4>Kategori</th>
+													<th>{{$summary->kualitas}}</th>
+											</tr>
+									</tbody>
+							</table>
 							</div>
-						</div> --}}
+						</div>
 						{{-- <div class="box box-default box-solid">
 							<div class="box-body table-responsive">
 								<table class="table table-bordered">
