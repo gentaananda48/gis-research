@@ -70,6 +70,7 @@ class ReportSummaryVat extends Command
         $today = date('Y-m-d');
         $endDate = date('Y-m-d', strtotime('-7 days'));
 
+        //get data for 7 days
         $list_rks = RencanaKerjaSummary::whereBetween('created_at', [$endDate, $startDate])->get();
 
         // if ($list_rks->isEmpty()) {
