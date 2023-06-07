@@ -524,29 +524,59 @@ class RencanaKerjaController extends Controller {
                 'progress_time_pers'        => $obj->progress_time_pers
             ];
         }
+
+        // ADJUSTMENT CODE SUMMARY FROM REDIS
+        $cacheKey = env('APP_CODE') . ':RK_SUMMARY_' . $rk->id;
+        $summary = Redis::get($cacheKey);
+
+        if ($summary === null) {
+        // Data not found in Redis, retrieve from the database
         $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
         $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
         $header = [];
         $rata2 = [];
         $poin = [];
         $kualitas = '-';
-        foreach($list_rks as $rks) {
-            if($rks->ritase==999){
+
+        foreach ($list_rks as $rks) {
+            if ($rks->ritase == 999) {
                 $header[$rks->parameter_id] = $rks->parameter_nama;
-                $rata2[$rks->parameter_id] = $rks->parameter_id!=2 ? number_format($rks->realisasi,2) : $rks->realisasi;
+                $rata2[$rks->parameter_id] = $rks->parameter_id != 2 ? number_format($rks->realisasi, 2) : $rks->realisasi;
                 $poin[$rks->parameter_id] = $rks->nilai_bobot;
-            } else if($rks->ritase==999999){
+            } else if ($rks->ritase == 999999) {
                 $poin[999] = $rks->nilai_bobot;
                 $kualitas = $rks->kualitas;
             }
         }
+
         $summary = (object) [
-            'header'    => $header,
-            'ritase'    => $list_rrk,
-            'rata2'     => $rata2,
-            'poin'      => $poin,
-            'kualitas'  => $kualitas
+            'header' => $header,
+            'ritase' => $list_rrk,
+            'rata2' => $rata2,
+            'poin' => $poin,
+            'kualitas' => $kualitas,
         ];
+
+        // Store the retrieved data in Redis
+        Redis::set($cacheKey, json_encode($summary), 'EX', 2592000);
+        } else {
+            // Data found in Redis, retrieve it
+            $decodedSummary = json_decode($summary, true);
+
+            if ($decodedSummary !== null) {
+                // Decoding was successful
+                $summary = (object) $decodedSummary;
+                // Access the properties
+                $header = $summary->header;
+                $ritase = $summary->ritase;
+
+                // Proceed with rendering the view or any other necessary operations
+                // ...
+            } else {
+                // Decoding failed, handle the error
+                // ...
+            }
+        }
 
         $standard = [
             'speed_range_1'             => -999999,
@@ -556,40 +586,40 @@ class RencanaKerjaController extends Controller {
             'arm_height_right_range_1'  => -999999,
             'arm_height_right_range_2'  => 999999
         ];
-        $rpsd_speed = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
-            ->where('rps.aktivitas_id', $rk->aktivitas_id)
-            ->where('rps.nozzle_id', $rk->nozzle_id)
-            ->where('rps.volume_id', $rk->volume_id)
-            ->where('report_parameter_standard_detail.report_parameter_id', 1)
-            ->where('report_parameter_standard_detail.point', 1)
-            ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
-        if($rpsd_speed!=null){
-            $standard['speed_range_1'] = doubleval($rpsd_speed->range_1);
-            $standard['speed_range_2'] = doubleval($rpsd_speed->range_2);
-        }
-        $rpsd_arm_height_left = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
-            ->where('rps.aktivitas_id', $rk->aktivitas_id)
-            ->where('rps.nozzle_id', $rk->nozzle_id)
-            ->where('rps.volume_id', $rk->volume_id)
-            ->where('report_parameter_standard_detail.report_parameter_id', 4)
-            ->where('report_parameter_standard_detail.point', 1)
-            ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
-        if($rpsd_arm_height_left!=null){
-            $standard['arm_height_left_range_1'] = doubleval($rpsd_arm_height_left->range_1);
-            $standard['arm_height_left_range_2'] = doubleval($rpsd_arm_height_left->range_2);
-        }
-        $rpsd_arm_height_right = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
-            ->where('rps.aktivitas_id', $rk->aktivitas_id)
-            ->where('rps.nozzle_id', $rk->nozzle_id)
-            ->where('rps.volume_id', $rk->volume_id)
-            ->where('report_parameter_standard_detail.report_parameter_id', 5)
-            ->where('report_parameter_standard_detail.point', 1)
-            ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
-        if($rpsd_arm_height_right!=null){
-            $standard['arm_height_right_range_1'] = doubleval($rpsd_arm_height_right->range_1);
-            $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
-        }
-        $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",".$standard['speed_range_1'].",".$standard['speed_range_2'].",".$standard['arm_height_right_range_1'].",".$standard['arm_height_right_range_2'].",".$standard['arm_height_left_range_1'].",".$standard['arm_height_left_range_2'].")");
+        // $rpsd_speed = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+        //     ->where('rps.aktivitas_id', $rk->aktivitas_id)
+        //     ->where('rps.nozzle_id', $rk->nozzle_id)
+        //     ->where('rps.volume_id', $rk->volume_id)
+        //     ->where('report_parameter_standard_detail.report_parameter_id', 1)
+        //     ->where('report_parameter_standard_detail.point', 1)
+        //     ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+        // if($rpsd_speed!=null){
+        //     $standard['speed_range_1'] = doubleval($rpsd_speed->range_1);
+        //     $standard['speed_range_2'] = doubleval($rpsd_speed->range_2);
+        // }
+        // $rpsd_arm_height_left = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+        //     ->where('rps.aktivitas_id', $rk->aktivitas_id)
+        //     ->where('rps.nozzle_id', $rk->nozzle_id)
+        //     ->where('rps.volume_id', $rk->volume_id)
+        //     ->where('report_parameter_standard_detail.report_parameter_id', 4)
+        //     ->where('report_parameter_standard_detail.point', 1)
+        //     ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+        // if($rpsd_arm_height_left!=null){
+        //     $standard['arm_height_left_range_1'] = doubleval($rpsd_arm_height_left->range_1);
+        //     $standard['arm_height_left_range_2'] = doubleval($rpsd_arm_height_left->range_2);
+        // }
+        // $rpsd_arm_height_right = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+        //     ->where('rps.aktivitas_id', $rk->aktivitas_id)
+        //     ->where('rps.nozzle_id', $rk->nozzle_id)
+        //     ->where('rps.volume_id', $rk->volume_id)
+        //     ->where('report_parameter_standard_detail.report_parameter_id', 5)
+        //     ->where('report_parameter_standard_detail.point', 1)
+        //     ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+        // if($rpsd_arm_height_right!=null){
+        //     $standard['arm_height_right_range_1'] = doubleval($rpsd_arm_height_right->range_1);
+        //     $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
+        // }
+        // $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",".$standard['speed_range_1'].",".$standard['speed_range_2'].",".$standard['arm_height_right_range_1'].",".$standard['arm_height_right_range_2'].",".$standard['arm_height_left_range_1'].",".$standard['arm_height_left_range_2'].")");
         return view('report.rencana_kerja.playback', [
             'rk'            => $rk, 
             'summary'       => $summary,
@@ -600,7 +630,7 @@ class RencanaKerjaController extends Controller {
             'interval'      => $interval,
             'durasi'        => $durasi,
             'standard'      => json_encode((object) $standard),
-            'list_percentage'   => $list_percentage
+            // 'list_percentage'   => $list_percentage
         ]);
     }
 

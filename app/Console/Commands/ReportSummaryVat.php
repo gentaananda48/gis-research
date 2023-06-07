@@ -68,15 +68,12 @@ class ReportSummaryVat extends Command
         set_time_limit(0);
 
         $today = date('Y-m-d');
-        $endDate = date('Y-m-d', strtotime('-7 days'));
+        $list_rks = RencanaKerjaSummary::whereDate('created_at', $today)->get();
 
-        //get data for 7 days
-        $list_rks = RencanaKerjaSummary::whereBetween('created_at', [$endDate, $startDate])->get();
-
-        // if ($list_rks->isEmpty()) {
-        //     $yesterday = date('Y-m-d', strtotime('-1 day'));
-        //     $list_rks = RencanaKerjaSummary::whereDate('created_at', $yesterday)->get();
-        // }
+        if ($list_rks->isEmpty()) {
+            $yesterday = date('Y-m-d', strtotime('-1 day'));
+            $list_rks = RencanaKerjaSummary::whereDate('created_at', $yesterday)->get();
+        }
 
         foreach ($list_rks as $rks) {
             $cache_key = env('APP_CODE') . ':RK_SUMMARY_' . $rks->rk_id;
