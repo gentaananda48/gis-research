@@ -71,7 +71,10 @@ class SaveJsonFile extends Command
                             }
     
                             $temp['utc_timestamp'] = $data->utc_timestamp ? $data->utc_timestamp:null;
-                            $temp['device_timestamp'] = $data->utc_timestamp_tablet ? $data->utc_timestamp_tablet:null;
+                            if ($data->has('utc_timestamp_tablet')) {
+                                $temp['device_timestamp'] = $data->utc_timestamp_tablet ? $data->utc_timestamp_tablet:null;
+                            }
+
                             $temp['microcontroller_id'] = $data->microcontroller_id ? $data->microcontroller_id:null;
                             $temp['latitude'] = $data->latitude ? $data->latitude:null;
                             $temp['longitude'] = $data->longitude ? $data->longitude:null;
