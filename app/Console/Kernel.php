@@ -65,7 +65,7 @@ class Kernel extends ConsoleKernel
             $this->update_kualitas_rencana_kerja();
         })->everyMinute();
 
-        $schedule->command('summary:report')->everyMinute();
+        // $schedule->command('summary:report')->daily();
 
         //save file json to db
         // $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));
