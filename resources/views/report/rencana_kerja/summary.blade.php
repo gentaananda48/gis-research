@@ -66,7 +66,7 @@
 								<table class="table table-bordered">
 									<tbody>
 											<tr>
-											@if (!empty($summary->ritase))
+											@if ($summary->ritase)
 													<th>Ritase</th>
 													@foreach($summary->header as $v)
 															<th>{{ $v }}</th>
@@ -85,23 +85,25 @@
 																	@endforeach
 															</tr>
 													@endforeach
-											@else
-													<th>Ritase</th>
+													@else
+													 	<th>Ritase</th>
 													@foreach($summary->header as $v)
-															<th>{{ $v }}</th>
+														<th>{{$v}}</th>
 													@endforeach
-													<th rowspan="{{ count($summary->ritase) + 2 }}"></th>
+														<th rowspan="{{count($summary->ritase) + 2}}"></th>
+														</tr>
+													@foreach($summary->ritase as $v)
+														<tr>
+															<td>{{$v['ritase']}}</td>
+														@foreach($summary->header as $k2=>$v2)
+														@if($k2==4 || $k2==5)
+															<th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A': $v['parameter_'.$k2] }}</th>
+														@else
+															<th>{{$v['parameter_'.$k2]}}</th>
+													@endif
+													@endforeach
 													</tr>
-													<tr>
-															<td>{{ $summary->ritase[0]['ritase'] }}</td>
-															@foreach($summary->header as $k2 => $v2)
-																	@if ($k2 == 4 || $k2 == 5)
-																			<th>{{ doubleval($summary->ritase[0]['parameter_'.$k2]) <= 2 ? 'N/A' : $summary->ritase[0]['parameter_'.$k2] }}</th>
-																	@else
-																			<th>{{ $summary->ritase[0]['parameter_'.$k2] }}</th>
-																	@endif
-															@endforeach
-													</tr>
+													@endforeach
 											@endif
 											<tr>
 													<th>Rata-rata</th>
