@@ -14,7 +14,7 @@ class SummarySegmentLuasan extends Model
         'pg_nama',
         'lokasi_kode',
         'unit_label',
-        'luasan_m2',
+        // 'luasan_m2',
         'total_luasan_m2',
         'waktu_spray',
         'speed_standard',

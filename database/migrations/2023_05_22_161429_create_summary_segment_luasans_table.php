@@ -20,7 +20,6 @@ class CreateSummarySegmentLuasansTable extends Migration
             $table->string('pg_nama')->nullable();
             $table->string('lokasi_kode')->nullable();
             $table->string('unit_label')->nullable();
-            $table->double('luasan_m2')->nullable();
             $table->double('total_luasan_m2')->nullable();
             $table->datetime('waktu_spray')->nullable();
             $table->double('speed_standard')->nullable();

@@ -33,6 +33,7 @@ class CreateLacakSegmentBscTable extends Migration
                 $table->string('overlapping_route');
                 $table->string('overlapping_left');
                 $table->string('overlapping_right');
+                $table->double('luasan_m2')->nullable();
                 $table->timestamps();
             });
         }

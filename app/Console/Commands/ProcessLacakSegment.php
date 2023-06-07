@@ -63,14 +63,16 @@ class ProcessLacakSegment extends Command
                     array_push($list_unit_table, $table_name2);
                 }
 
-                $iteration_segment = 0;
+                $iteration_segment = 1;
+                $final_segment = 1;
+                $luasan = 0;
                 $label_unit = array_count_values($list_unit_table);
                 
                 if (count(array_keys($label_unit)) > 0) {
 
                     foreach (array_keys($label_unit) as $unit_table) {
                         $lokasi_kode_unit = DB::table($unit_table)
-                        ->select('lokasi_kode','id', 'unit_label', 'pump_switch_main', 'pump_switch_left', 'pump_switch_right', 'lokasi_kode', 'created_at')
+                        ->select('lokasi_kode','id', 'unit_label', 'pump_switch_main', 'pump_switch_left', 'pump_switch_right', 'lokasi_kode', 'created_at','speed')
                         ->where('lokasi_kode', '!=', '')
                         // ->groupBy('lokasi_kode')
                         // ->limit(10)
@@ -89,22 +91,55 @@ class ProcessLacakSegment extends Command
                             //     ->get();
 
                             // foreach ($list_by_lokasi_kode as $by_lokasi) {
-                                DB::insert("INSERT INTO {$table_segment_label} (lacak_bsc_id, kode_lokasi, segment, overlapping_route, overlapping_left, overlapping_right, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)", [
-                                    $by_lokasi->id,
-                                    $by_lokasi->lokasi_kode,
-                                    $iteration_segment++,
-                                    0, 0, 0,
-                                    $by_lokasi->created_at
-                                ]);
+                            
+                            // hitung luasan
+                            $left = 0;
+                            $right = 0;
+                            if ($by_lokasi->pump_switch_main == 1) {
+                                if ($by_lokasi->pump_switch_left == 1) {
+                                    $left = 18;
+                                }
+
+                                if ($by_lokasi->pump_switch_right == 1) {
+                                    $right = 18;
+                                }
+                            }
+
+                            if ($by_lokasi->speed > 0) {
+                                $luasan =  ($by_lokasi->speed/3.6) * ($left + $right);
+                            }
+                            // end hitung luasan
+                            
+                            // hitung segment
+                            $segment_data = DB::table("{$table_segment_label}")->orderBy('id','desc')->first();
+                            if ($segment_data) {
+                                if ($segment_data->kode_lokasi == $by_lokasi->lokasi_kode) {
+                                    $final_segment = $iteration_segment;
+                                }else{
+                                    $iteration_segment = $iteration_segment + 1;
+                                    $final_segment = $iteration_segment;
+                                }
+                            }
+                            // end hitung segment
+
+                            DB::insert("INSERT INTO {$table_segment_label} (lacak_bsc_id, kode_lokasi, segment, overlapping_route, overlapping_left, overlapping_right,luasan_m2, created_at) VALUES (?, ?, ?, ?, ?, ?, ?,?)", [
+                                $by_lokasi->id,
+                                $by_lokasi->lokasi_kode,
+                                $final_segment,
+                                0, 0, 0,
+                                round($luasan,2),
+                                $by_lokasi->created_at
+                            ]);
                             // }
 
+                            DB::commit();
                             $this->info('Success inputting data to table segment: '.$table_segment_label);
                             // print_r("Success inputting data to table segment: {$table_segment_label}");
                         }
                     }
                 }
             }
-            DB::commit();
+            
             // $cron_helper->create('process:lacak-segment', 'FINISHED', 'SourceDeviceID: '.$unit.'. Finished Successfully');
         } catch (\Exception $e) {
             dd($e->getMessage());
