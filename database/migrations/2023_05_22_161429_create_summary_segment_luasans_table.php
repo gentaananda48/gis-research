@@ -51,6 +51,6 @@ class CreateSummarySegmentLuasansTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('summary_segment_luasan');
+        // Schema::dropIfExists('summary_segment_luasan');
     }
 }
