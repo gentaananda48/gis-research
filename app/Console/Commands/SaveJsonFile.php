@@ -71,7 +71,7 @@ class SaveJsonFile extends Command
                             }
     
                             $temp['utc_timestamp'] = $data->utc_timestamp ? $data->utc_timestamp:null;
-                            if ($data->has('utc_timestamp_tablet')) {
+                            if (isset($data->utc_timestamp_tablet)) {
                                 $temp['device_timestamp'] = $data->utc_timestamp_tablet ? $data->utc_timestamp_tablet:null;
                             }
 
