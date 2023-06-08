@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Model\SummarySegmentLuasan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Hash;
@@ -16,32 +17,47 @@ class ReportSegmentController extends Controller {
 
     public function all(Request $request){
         $data = array();
+        $segment_luasan = SummarySegmentLuasan::get();
 
         try {
-            $data['tgl'] = date('Y-m-d H:s');
-            $data['pg_nama'] = "PG1";
-            $data['lokasi_kode'] = "572B";
-            $data['unit_label'] = "BSC - 03";
-            $data['luasan_m2'] = rand(0, 10) / 10;
-            $data['total_luasan_m2'] = rand(0, 10) / 10;
-            $data['waktu_spray'] = date('Y-m-d H:s');
-            $data['speed_standard'] = rand(0, 10) / 10;
-            $data['speed_dibawah_standard'] = rand(0, 10) / 10;
-            $data['speed_diatas_standard'] = rand(0, 10) / 10;
-            $data['avg_speed'] = rand(0, 10) / 10;
-            $data['arm_height_left_standard'] = rand(0, 10) / 10;
-            $data['arm_height_left_dibawah_standard'] = rand(0, 10) / 10;
-            $data['arm_height_left_diatas_standard'] = rand(0, 10) / 10;
-            $data['avg_height_left'] = rand(0, 10) / 10;
-            $data['arm_height_right_standard'] = rand(0, 10) / 10;
-            $data['arm_height_right_dibawah_standard'] = rand(0, 10) / 10;
-            $data['arm_height_right_diatas_standard'] = rand(0, 10) / 10;
-            $data['avg_arm_height_right'] = rand(0, 10) / 10;
-            $data['temperature_standard'] = rand(0, 10) / 10;
-            $data['temperature_not_standard'] = rand(0, 10) / 10;
-            $data['gloden_time_good'] = rand(0, 10) / 10;
-            $data['gloden_time_poor'] = rand(0, 10) / 10;
-            $data['ritase'] = rand(0,1);
+            foreach ($segment_luasan as $key => $value) {
+                $data[$key]['tanggal_aktifitas'] = $value['tanggal_aktifitas'];
+                $data[$key]['pg'] = $value['pg'];
+                $data[$key]['lokasi'] = $value['lokasi'];
+                $data[$key]['wilayah'] = $value['wilayah'];
+                $data[$key]['unit'] = $value['unit'];
+                $data[$key]['aktifitas'] = $value['aktifitas'];
+                $data[$key]['shift'] = $value['shift'];
+                $data[$key]['speed_standard'] = $value['speed_standard'];
+                $data[$key]['speed_dibawah_standard'] = $value['speed_dibawah_standard'];
+                $data[$key]['speed_diatas_standard'] = $value['speed_diatas_standard'];
+                $data[$key]['speed_rata_rata'] = $value['speed_rata_rata'];
+                $data[$key]['batas_atas_speed'] = $value['batas_atas_speed'];
+                $data[$key]['batas_bawah_speed'] = $value['batas_bawah_speed'];
+                $data[$key]['prc_ancakan'] = $value['prc_ancakan'];
+                $data[$key]['prc_conf_wing_level_kiri_bawah_std'] = $value['prc_conf_wing_level_kiri_bawah_std'];
+                $data[$key]['prc_conf_wing_level_kiri_dalam_std'] = $value['prc_conf_wing_level_kiri_dalam_std'];
+                $data[$key]['prc_conf_wing_level_kiri_atas_std'] = $value['prc_conf_wing_level_kiri_atas_std'];
+                $data[$key]['wing_level_kiri_rata_rata'] = $value['wing_level_kiri_rata_rata'];
+                $data[$key]['batas_bawah_wing_level_kiri'] = $value['batas_bawah_wing_level_kiri'];
+                $data[$key]['batas_atas_wing_level_kiri'] = $value['batas_atas_wing_level_kiri'];
+                $data[$key]['prc_conf_wing_level_kanan_bawah_std'] = $value['prc_conf_wing_level_kanan_bawah_std'];
+                $data[$key]['prc_conf_wing_level_kanan_dalam_std'] = $value['prc_conf_wing_level_kanan_dalam_std'];
+                $data[$key]['prc_conf_wing_level_kanan_atas_std'] = $value['prc_conf_wing_level_kanan_atas_std'];
+                $data[$key]['wing_level_kanan_rata_rata'] = $value['wing_level_kanan_rata_rata'];
+                $data[$key]['batas_bawah_wing_level_kanan'] = $value['batas_bawah_wing_level_kanan'];
+                $data[$key]['batas_atas_wing_level_kanan'] = $value['batas_atas_wing_level_kanan'];
+                $data[$key]['batas_atas_wing_level_kanan'] = $value['batas_atas_wing_level_kanan'];
+                $data[$key]['start_activity'] = $value['start_activity'];
+                $data[$key]['end_activity'] = $value['end_activity'];
+                $data[$key]['waktu_spray_detik'] = $value['waktu_spray_detik'];
+                $data[$key]['prc_suhu_dalam_std'] = $value['prc_suhu_dalam_std'];
+                $data[$key]['prc_suhu_tidak_std'] = $value['prc_suhu_tidak_std'];
+                $data[$key]['suhu_rata_rata'] = $value['suhu_rata_rata'];
+                $data[$key]['batas_suhu_std'] = $value['batas_suhu_std'];
+                $data[$key]['gloden_time_good'] = $value['gloden_time_good'];
+                $data[$key]['gloden_time_poor'] = $value['gloden_time_poor'];
+            }
 
             return response()->json([
                 'status'    => true, 
