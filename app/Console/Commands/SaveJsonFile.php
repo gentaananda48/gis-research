@@ -71,7 +71,7 @@ class SaveJsonFile extends Command
                             }
     
                             $temp['utc_timestamp'] = $data->utc_timestamp ? $data->utc_timestamp:null;
-                            if ($data->has('utc_timestamp_tablet')) {
+                            if (isset($data->utc_timestamp_tablet)) {
                                 $temp['device_timestamp'] = $data->utc_timestamp_tablet ? $data->utc_timestamp_tablet:null;
                             }
 
@@ -93,7 +93,7 @@ class SaveJsonFile extends Command
                             $temp['oil'] = $data->oil ? $data->oil:null;
                             $temp['gas'] = $data->gas ? $data->gas:null;
                             $temp['homogenity'] = $data->homogenity ? $data->homogenity:null;
-                            $temp['bearing'] = $data->bearing ? $data->bearing:null;
+                            $temp['bearing'] = isset($data->bearing) ? $data->bearing:null;
                             $temp['box_id'] = $data->box_id ? $data->box_id:null;
                             $temp['unit_label'] = $data->unit_label ? $data->unit_label:null;
                             $temp['created_at'] = date('Y-m-d H:i:s');
@@ -112,7 +112,9 @@ class SaveJsonFile extends Command
                     }
                 } catch (\Throwable $th) {
                     \Log::info($th->getMessage());
+                    \Log::info($th->getLine());
                     $this->info($th->getMessage());
+                    $this->info($th->getLine());
                 }
             }
         }
