@@ -27,7 +27,7 @@ class ProcessLacakSegment extends Command
      *
      * @var string
      */
-    protected $description = 'Process Lacak Segment';
+    protected $description = 'Process Lacak Segment sample BSC_01';
 
     /**
      * Create a new command instance.
@@ -72,11 +72,10 @@ class ProcessLacakSegment extends Command
 
                     foreach (array_keys($label_unit) as $unit_table) {
                         $lokasi_kode_unit = DB::table($unit_table)
-                        ->select('lokasi_kode','id', 'unit_label', 'pump_switch_main', 'pump_switch_left', 'pump_switch_right', 'lokasi_kode', 'created_at','speed')
+                        ->select('lokasi_kode','id', 'unit_label', 'pump_switch_main', 'pump_switch_left', 'pump_switch_right', 'lokasi_kode', 'created_at','speed','utc_timestamp','latitude','longitude')
                         ->where('lokasi_kode', '!=', '')
-                        // ->groupBy('lokasi_kode')
-                        // ->limit(10)
                         ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '2023-05-01' and '2023-06-10'")
+                        // ->limit(500)
                         ->get();
                         $table_segment_label = str_replace("lacak_", "lacak_segment_", $unit_table);
                         foreach ($lokasi_kode_unit as $by_lokasi ) {
@@ -110,17 +109,54 @@ class ProcessLacakSegment extends Command
                             }
                             // end hitung segment
 
+                            // hitung overlapping
+                                $overlapping_route = 0;
+                                $overlapping_left = 0;
+                                $overlapping_right = 0;
+                                $dt = new \DateTime("@$by_lokasi->utc_timestamp");
+                                $start_date = $dt->format('Y-m-d')." 00:00:00";
+                                $end_date = $dt->format('Y-m-d H:i:s');
+                                
+                            // end hitung overlapping
+
                             DB::insert("INSERT INTO {$table_segment_label} (lacak_bsc_id, kode_lokasi, segment, overlapping_route, overlapping_left, overlapping_right,luasan_m2, created_at) VALUES (?, ?, ?, ?, ?, ?, ?,?)", [
                                 $by_lokasi->id,
                                 $by_lokasi->lokasi_kode,
                                 $final_segment,
-                                0, 0, 0,
+                                $overlapping_route, 
+                                $overlapping_left,
+                                $overlapping_right,
                                 round($luasan,2),
-                                $by_lokasi->created_at
+                                $end_date
                             ]);
 
                             DB::commit();
-                            $this->info('Success inputting data to table segment: '.$table_segment_label);
+
+                            // hitung overlapping
+                                $overlapping_data = $this->getOverlapping($unit_table,$table_segment_label,$by_lokasi->lokasi_kode,$final_segment,$start_date,$end_date);
+                                if (count($overlapping_data) >= 10 && $by_lokasi->id == $overlapping_data[9]->id) {
+                                    $overlapping_route = 1;
+
+                                    if ($overlapping_data[0]->pump_switch_left != null && $overlapping_data[0]->pump_switch_left != 0) {
+                                        $overlapping_left = $overlapping_data[0]->pump_switch_left;
+                                    }
+
+                                    if ($overlapping_data[0]->pump_switch_right != null && $overlapping_data[0]->pump_switch_right != 0) {
+                                        $overlapping_right = $overlapping_data[0]->pump_switch_right;
+                                    }
+
+                                    DB::table($table_segment_label)
+                                    ->where('lacak_bsc_id',$overlapping_data[9]->id)
+                                    ->update([
+                                        'overlapping_route' => $overlapping_route,
+                                        'overlapping_left' => $overlapping_left,
+                                        'overlapping_right' => $overlapping_right
+                                    ]);
+
+                                    DB::commit();
+                                }
+                            // end overlapping
+                            $this->info('Success inputing data to table segment: '.$table_segment_label);
                         }
                     }
                 }
@@ -128,10 +164,26 @@ class ProcessLacakSegment extends Command
             
             // $cron_helper->create('process:lacak-segment', 'FINISHED', 'SourceDeviceID: '.$unit.'. Finished Successfully');
         } catch (\Exception $e) {
-            dd($e->getMessage());
             DB::rollback(); 
             Log::error($e->getMessage());
             // $cron_helper->create('process:lacak-segment', 'STOPPED', 'SourceDeviceID: '.$unit.'. ERROR: '.$e->getMessage());
         }
+    }
+
+    private function getOverlapping($table_bsc,$table_segment,$lokasi,$segment,$start,$end){
+        $data = DB::select(DB::raw("SELECT A.id,lokasi_kode,segment,pump_switch_left,pump_switch_right
+        FROM {$table_bsc} A
+        INNER JOIN (SELECT Latitude,longitude
+                    FROM {$table_bsc}
+                                WHERE lokasi_kode = '{$lokasi}'
+                    GROUP BY Latitude,longitude
+                    HAVING COUNT(*) > 1) B
+        ON A.Latitude = B.Latitude AND A.longitude = B.longitude
+        INNER JOIN {$table_segment} on {$table_segment}.lacak_bsc_id = A.id
+        WHERE segment = {$segment}
+        and {$table_segment}.created_at BETWEEN '{$start}' and '{$end}'
+        limit 10"));
+
+        return $data;
     }
 }

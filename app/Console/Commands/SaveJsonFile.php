@@ -65,12 +65,13 @@ class SaveJsonFile extends Command
                 try {
                     if ($getData) {
                         foreach ($getData as $data) {
-                            $cekTable = \DB::table("lacak_".$data->source_device_id)->where('device_timestamp',$data->utc_timestamp_tablet)->first();
+                            $cekTable = \DB::table("lacak_".$data->source_device_id)->where('utc_timestamp',$data->utc_timestamp)->first();
                             if($cekTable){
                                     continue;
                             }
     
                             $temp['utc_timestamp'] = $data->utc_timestamp ? $data->utc_timestamp:null;
+
                             if (isset($data->utc_timestamp_tablet)) {
                                 $temp['device_timestamp'] = $data->utc_timestamp_tablet ? $data->utc_timestamp_tablet:null;
                             }

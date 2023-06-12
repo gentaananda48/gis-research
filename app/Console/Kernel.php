@@ -43,6 +43,8 @@ class Kernel extends ConsoleKernel
         Commands\ReportSummaryVat::class,
         Commands\SaveJsonFile::class,
         Commands\ProcessLacakSegment::class,
+        Commands\SumarySegment::class,
+        Commands\ReportConformity::class,
     ];
 
     /**

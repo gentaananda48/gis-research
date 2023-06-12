@@ -1,0 +1,146 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class ReportConformity extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'process:report-confotmity';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Input from sumary segment';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        DB::beginTransaction();
+        try {
+            $data = DB::select(DB::raw("
+            WITH tb1 AS (
+                SELECT 
+                  CAST(created_date as DATE) as created_date, 
+                  lokasi, 
+                  unit,
+                  SUM(avg_speed * total_data_point)/SUM(total_data_point) as total_speed
+                FROM summary_segments
+                  GROUP BY lokasi,CAST(created_date AS DATE),unit
+              ),
+              tb2 AS (
+                SELECT tgl, lokasi_kode, unit_label, shift_nama, lokasi_grup, aktivitas_nama
+                FROM rencana_kerja
+              ),
+              tb3 AS (
+                SELECT wilayah, kode
+                FROM lokasi
+              )
+              SELECT 
+              tb1.created_date,
+              tb2.lokasi_grup,
+              tb3.wilayah,
+              tb1.lokasi,
+              tb1.unit,
+              tb2.aktivitas_nama as aktivitas,
+              tb2.shift_nama as shift,
+              tb1.total_speed as avg_speed
+              FROM tb1 
+              INNER JOIN tb2 ON tb2.lokasi_kode = tb1.lokasi
+              INNER JOIN tb3 ON tb3.kode = tb2.lokasi_kode
+              where tb1.unit = tb2.unit_label              
+            "));
+
+            if (count($data) > 0) {
+                foreach ($data as $key => $value) {
+                    DB::insert("INSERT INTO report_conformities (
+                        tanggal, 
+                        pg, 
+                        wilayah, 
+                        lokasi,
+                        unit,
+                        activity,
+                        shift,
+                        avg_speed, 
+                        speed_dibawah_standar,
+                        speed_standar,
+                        speed_diatas_standar,
+                        avg_wing_kiri,
+                        wing_kiri_dibawah_standar,
+                        wing_kiri_standar,
+                        wing_kiri_diatas_standar,
+                        avg_wing_kanan,
+                        wing_kanan_dibawah_standar,
+                        wing_kanan_standar,
+                        wing_kanan_diatas_standar,
+                        avg_goldentime,
+                        goldentime_standar,
+                        goldentime_tidak_standar,
+                        avg_spray,
+                        spray_standar,
+                        spray_tidak_standar
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+                        [$value->created_date,
+                        $value->lokasi_grup,
+                        $value->wilayah,
+                        $value->lokasi, 
+                        $value->unit,
+                        $value->aktivitas,
+                        $value->shift,
+                        (float) $value->avg_speed,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0]
+                    );
+
+                    DB::commit();
+                    $this->info('Success inputing data to table report conformities');
+                }
+            }else {
+                $this->info('Gagal Input data');
+            }
+            
+        } catch (\Exception $e) {
+            $this->info($e->getMessage());
+            DB::rollback(); 
+            Log::error($e->getMessage());
+        }
+    }
+}
