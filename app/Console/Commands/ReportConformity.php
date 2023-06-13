@@ -47,7 +47,21 @@ class ReportConformity extends Command
                   CAST(created_date as DATE) as created_date, 
                   lokasi, 
                   unit,
-                  SUM(avg_speed * total_data_point)/SUM(total_data_point) as total_speed
+                  SUM(avg_speed * total_data_point)/SUM(total_data_point) as total_speed,
+									SUM(speed_dibawah_standar * total_data_point)/SUM(total_data_point) as total_speed_dibawah_standar,
+									SUM(speed_standar * total_data_point)/SUM(total_data_point) as total_speed_standar,
+									SUM(speed_diatas_standar * total_data_point)/SUM(total_data_point) as total_speed_diatas_standar,
+									SUM(avg_wing_kiri * total_data_point)/SUM(total_data_point) as total_wing_kiri,
+									SUM(wing_kiri_dibawah_standar * total_data_point)/SUM(total_data_point) as total_wing_kiri_dibawah_standar,
+									SUM(wing_kiri_standar * total_data_point)/SUM(total_data_point) as total_wing_kiri_standar,
+									SUM(wing_kiri_diatas_standar * total_data_point)/SUM(total_data_point) as total_wing_kiri_diatas_standar,
+									SUM(avg_wing_kanan * total_data_point)/SUM(total_data_point) as total_wing_kanan,
+									SUM(wing_kanan_dibawah_standar * total_data_point)/SUM(total_data_point) as total_wing_kanan_dibawah_standar,
+									SUM(wing_kanan_standar * total_data_point)/SUM(total_data_point) as total_wing_kanan_standar,
+									SUM(wing_kanan_diatas_standar * total_data_point)/SUM(total_data_point) as total_wing_kanan_diatas_standar,
+									SUM(avg_goldentime * total_data_point)/SUM(total_data_point) as total_goldentime,
+									SUM(goldentime_tidak_standar * total_data_point)/SUM(total_data_point) as total_goldentime_dibawah_standar,
+									SUM(goldentime_standar * total_data_point)/SUM(total_data_point) as total_goldentime_standar
                 FROM summary_segments
                   GROUP BY lokasi,CAST(created_date AS DATE),unit
               ),
@@ -60,14 +74,11 @@ class ReportConformity extends Command
                 FROM lokasi
               )
               SELECT 
-              tb1.created_date,
               tb2.lokasi_grup,
               tb3.wilayah,
-              tb1.lokasi,
-              tb1.unit,
               tb2.aktivitas_nama as aktivitas,
               tb2.shift_nama as shift,
-              tb1.total_speed as avg_speed
+              tb1.*
               FROM tb1 
               INNER JOIN tb2 ON tb2.lokasi_kode = tb1.lokasi
               INNER JOIN tb3 ON tb3.kode = tb2.lokasi_kode
@@ -110,21 +121,21 @@ class ReportConformity extends Command
                         $value->unit,
                         $value->aktivitas,
                         $value->shift,
-                        (float) $value->avg_speed,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
+                        $value->total_speed,
+                        $value->total_speed_dibawah_standar,
+                        $value->total_speed_standar,
+                        $value->total_speed_diatas_standar,
+                        $value->total_wing_kiri,
+                        $value->total_wing_kiri_dibawah_standar,
+                        $value->total_wing_kiri_standar,
+                        $value->total_wing_kiri_diatas_standar,
+                        $value->total_wing_kanan,
+                        $value->total_wing_kanan_dibawah_standar,
+                        $value->total_wing_kanan_standar,
+                        $value->total_wing_kanan_diatas_standar,
+                        $value->total_goldentime,
+                        $value->total_goldentime_standar,
+                        $value->total_goldentime_dibawah_standar,
                         0,
                         0,
                         0]
