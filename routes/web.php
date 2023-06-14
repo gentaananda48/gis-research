@@ -234,6 +234,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/report/rencana_kerja_detail', array('uses' => 'Report\RencanaKerjaDetailController@index', 'as' => 'report.rencana_kerja_detail'));
     Route::get('/report/rencana_kerja_detail/get', array('uses' => 'Report\RencanaKerjaDetailController@get_list', 'as' => 'report.rencana_kerja_detail.get'));
     Route::get('/report/rencana_kerja_detail/export', array('uses' => 'Report\RencanaKerjaDetailController@export', 'as' => 'report.rencana_kerja_detail.export'));
+
+    Route::get('/summary/conformity_unit', array('uses' => 'Summary\ConformityUnitController@index', 'as' => 'summary.conformity_unit'));
+
 });
 
 
