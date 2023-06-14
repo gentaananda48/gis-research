@@ -237,6 +237,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Conformity Unit
     Route::get('/summary/conformity_unit', array('uses' => 'SummaryReportVAT\ConformityUnitController@index', 'as' => 'summary.conformity_unit'));
+    Route::get('/summary/conformity_unit/get', array('uses' => 'SummaryReportVAT\ConformityUnitController@get_list', 'as' => 'summary.conformity_unit.get'));
     Route::get('/summary/conformity_unit/{id}', array('uses' => 'SummaryReportVAT\ConformityUnitController@show', 'as' => 'summary.conformity_unit.show'));
     Route::get('/summary/conformity_unit/{id1}/detail/{id2}', array('uses' => 'SummaryReportVAT\ConformityUnitController@detail', 'as' => 'summary.conformity_unit.detail'));
 });

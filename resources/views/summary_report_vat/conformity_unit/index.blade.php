@@ -109,40 +109,42 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach ($report_conformities as $key => $report_conformity)
                                 <tr>
-                                    <td class="text-center">1</td>
-                                    <td>PG 1</td>
-                                    <td>Unit 1</td>
+                                    <td class="text-center">{{ $key + 1 }}</td>
+                                    <td>{{ $report_conformity->pg }}</td>
+                                    <td>{{ $report_conformity->unit }}</td>
                                     <td>
                                         <div style="display: flex; justify-content: center;">
-                                            <canvas id="speed_1" style="width:100%;max-width:100%"></canvas>
+                                            <canvas id="speed_{{$key}}" style="width:100%;max-width:100%"></canvas>
                                         </div>
                                     </td>
                                     <td>
                                         <div style="display: flex; justify-content: center;">
-                                            <canvas id="wing_kiri_1" style="width:100%;max-width:100%"></canvas>
+                                            <canvas id="wing_kiri_{{$key}}" style="width:100%;max-width:100%"></canvas>
                                         </div>
                                     </td>
                                     <td>
                                         <div style="display: flex; justify-content: center;">
-                                            <canvas id="wing_kanan_1" style="width:100%;max-width:100%"></canvas>
+                                            <canvas id="wing_kanan_{{$key}}" style="width:100%;max-width:100%"></canvas>
                                         </div>
                                     </td>
                                     <td>
                                         <div style="display: flex; justify-content: center;">
-                                            <canvas id="golden_time_1" style="width:100%;max-width:100%"></canvas>
+                                            <canvas id="golden_time_{{$key}}" style="width:100%;max-width:100%"></canvas>
                                         </div>
                                     </td>
                                     <td>
                                         <div style="display: flex; justify-content: center;">
-                                            <canvas id="waktu_spray_1" style="width:100%;max-width:100%"></canvas>
+                                            <canvas id="waktu_spray_{{$key}}" style="width:100%;max-width:100%"></canvas>
                                         </div>
                                     </td>
                                     <td class="text-center">
                                         <a href="{{ route('summary.conformity_unit.show', 1) }}" class="btn btn-success btn-sm">View Detail</a>
                                     </td>
                                 </tr>
-                                <tr>
+                                @endforeach
+                                {{-- <tr>
                                     <td class="text-center">2</td>
                                     <td>PG 2</td>
                                     <td>Unit 2</td>
@@ -165,7 +167,7 @@
                                     <td class="text-center">
                                         <a href="#" class="btn btn-success btn-sm">View Detail</a>
                                     </td>
-                                </tr>
+                                </tr> --}}
                             </tbody>
                         </table>
                     </div>
@@ -180,25 +182,48 @@
 
 <script>
     $(document).ready(function() {
-        for (let index = 1; index < 3; index++) {
-            pieChart("speed_"+index);
-            pieChart("wing_kiri_"+index);
-            pieChart("wing_kanan_"+index);
-            pieChart("golden_time_"+index);
-            pieChart("waktu_spray_"+index);
+        const reportConformities = JSON.parse('{!! $report_conformities !!}')
+        console.log(reportConformities)
+        for (let index = 0; index < reportConformities.length; index++) {
+            pieChart("speed_"+index, [
+                reportConformities[index].speed_standar,
+                reportConformities[index].speed_dibawah_standar,
+                reportConformities[index].speed_diatas_standar
+            ]);
+            pieChart("wing_kiri_"+index, [
+                reportConformities[index].wing_kiri_standar,
+                reportConformities[index].wing_kiri_dibawah_standar,
+                reportConformities[index].wing_kiri_diatas_standar
+            ]);
+            pieChart("wing_kanan_"+index, [
+                reportConformities[index].wing_kanan_standar,
+                reportConformities[index].wing_kanan_dibawah_standar,
+                reportConformities[index].wing_kanan_diatas_standar
+            ])
+            pieChart("golden_time_"+index, [
+                reportConformities[index].goldentime_standar,
+                reportConformities[index].goldentime_tidak_standar,
+            ], 'golden_time');
+            pieChart("waktu_spray_"+index, [
+                reportConformities[index].spray_standar,
+                reportConformities[index].spray_tidak_standar,
+            ], 'waktu_spray');
         }
     });
 
-    function pieChart(el) {
+    function pieChart(el, yValues, type = '') {
         var xValues = ["Standar", "Dibawah Standar", "Diatas Standar"];
-        var yValues = [generateRandom(), generateRandom(), generateRandom()];
+
+        if(type == 'golden_time' || type == 'waktu_spray') {
+            xValues = ["Standar", "Tidak Standar"]
+        }
+
         var barColors = [
             "#08b160",
             "#ffd95a",
             "#f97c22",
         ];
 
-        var ctx = document.getElementById(el); // node
         var ctx = el; // element id
 
         new Chart(ctx, {
@@ -211,6 +236,7 @@
                 }]
             },
             options: {
+                maintainAspectRatio: false,
                 title: {
                 display: false
                 },
@@ -222,14 +248,7 @@
                 plugins: {
                     datalabels: {
                         formatter: (value, ctx) => {
-                            let datasets = ctx.chart.data.datasets;
-                            if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
-                            let sum = datasets[0].data.reduce((a, b) => a + b, 0);
-                            let percentage = Math.round((value / sum) * 100) + '%';
-                            return percentage;
-                            } else {
-                            return percentage;
-                            }
+                            return value + ' %'
                         },
                         color: '#fff',
                     }
@@ -251,5 +270,6 @@
 
         return rand;
     }
-</script>
+
+</script>{!! Html::script('/js/summary_report_vat/conformity_unit.js') !!}
 @stop
