@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers\SummaryReportVAT;
 
+use App\Center\GridCenter;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Model\LacakBsc01;
+use App\Model\ReportConformity;
+use App\Transformer\LacakBsc01Transformer;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use DatePeriod;
 
 class ConformityUnitController extends Controller
 {
+    
     public function index(Request $request)
     {
         // $user = $this->guard()->user();
@@ -28,12 +33,15 @@ class ConformityUnitController extends Controller
         $list_pg = ['PG1'=>'PG1', 'PG2'=>'PG2', 'PG3'=>'PG3'];
         $list_unit = ['All'=>'All', 'Unit 1'=>'Unit 1', 'Unit 2'=>'Unit 2'];
 
+        $report_conformities = ReportConformity::get();
+
         return view('summary_report_vat.conformity_unit.index', [
             'date_range'    => $date_range,
             'list_pg'       => $list_pg,
             'pg'            => $request->pg,
             'list_unit'     => $list_unit,
             'unit'          => $request->unit,
+            'report_conformities' => $report_conformities
         ]); 
     }
 
