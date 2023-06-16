@@ -111,7 +111,7 @@
                             <tbody>
                                 @foreach ($report_conformities as $key => $report_conformity)
                                 <tr>
-                                    <td class="text-center">{{ $key + 1 }}</td>
+                                    <td class="text-center">{{ $loop->iteration + ($report_conformities->currentPage() - 1) * $report_conformities->perPage() }}</td>
                                     <td>{{ $report_conformity->pg }}</td>
                                     <td>{{ $report_conformity->unit }}</td>
                                     <td>
@@ -140,7 +140,7 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ route('summary.conformity_unit.show', 1) }}" class="btn btn-success btn-sm">View Detail</a>
+                                        <a href="{{ route('summary.conformity_unit.show', $report_conformity->id) }}" class="btn btn-success btn-sm">View Detail</a>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -170,6 +170,7 @@
                                 </tr> --}}
                             </tbody>
                         </table>
+                        {{$report_conformities->links()}}
                     </div>
                 </div>
             </div>
@@ -182,8 +183,8 @@
 
 <script>
     $(document).ready(function() {
-        const reportConformities = JSON.parse('{!! $report_conformities !!}')
-        console.log(reportConformities)
+        const reportConformities = JSON.parse('{!! collect($report_conformities->toArray()["data"]) !!}')
+
         for (let index = 0; index < reportConformities.length; index++) {
             pieChart("speed_"+index, [
                 reportConformities[index].speed_standar,

@@ -33,8 +33,8 @@ class ConformityUnitController extends Controller
         $list_pg = ['PG1'=>'PG1', 'PG2'=>'PG2', 'PG3'=>'PG3'];
         $list_unit = ['All'=>'All', 'Unit 1'=>'Unit 1', 'Unit 2'=>'Unit 2'];
 
-        $report_conformities = ReportConformity::get();
-
+        $report_conformities = ReportConformity::paginate(8);
+        
         return view('summary_report_vat.conformity_unit.index', [
             'date_range'    => $date_range,
             'list_pg'       => $list_pg,
@@ -51,9 +51,11 @@ class ConformityUnitController extends Controller
         $date1 = date('Y-m-01');
         $date2 = date('Y-m-d');
         $date_range = $this->getDatesFromRange($date1 . ' 00:00:00', $date2 . ' 23:00:00');
+        $report_conformity = ReportConformity::find($id);
 
         return view('summary_report_vat.conformity_unit.show_1', [
-            'date_range'    => $date_range
+            'date_range'    => $date_range,
+            'report_conformity' => $report_conformity
         ]);
     }
 

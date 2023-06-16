@@ -129,7 +129,7 @@
         <div class="col-md-12">
             <div class="box box-success">
                 <div class="box-header text-center">
-                    <h3 style="margin-bottom: 0px;"><strong>Conformity Unit PG1 - BSC 11</strong></h3>
+                    <h3 style="margin-bottom: 0px;"><strong>Conformity Unit {{ $report_conformity->pg }} - {{ $report_conformity->unit }}</strong></h3>
                 </div>
                 <div class="box-body">
                     <div style="padding-bottom: 1rem; display:flex; justify-content: end; align-items:center">
@@ -268,13 +268,31 @@
 
 <script>
     $(document).ready(function() {
-        for (let index = 1; index < 2; index++) {
-            pieChart("speed_"+index);
-            pieChart("wing_kiri_"+index);
-            pieChart("wing_kanan_"+index);
-            pieChart("golden_time_"+index);
-            pieChart("waktu_spray_"+index);
-        }
+        const reportConformity = JSON.parse('{!! $report_conformity !!}')
+
+        pieChart("speed_1", [
+            reportConformity.speed_standar,
+            reportConformity.speed_dibawah_standar,
+            reportConformity.speed_diatas_standar
+        ]);
+        pieChart("wing_kiri_1", [
+            reportConformity.wing_kiri_standar,
+            reportConformity.wing_kiri_dibawah_standar,
+            reportConformity.wing_kiri_diatas_standar
+        ]);
+        pieChart("wing_kanan_1", [
+            reportConformity.wing_kanan_standar,
+            reportConformity.wing_kanan_dibawah_standar,
+            reportConformity.wing_kanan_diatas_standar
+        ])
+        pieChart("golden_time_1", [
+            reportConformity.goldentime_standar,
+            reportConformity.goldentime_tidak_standar,
+        ], 'golden_time');
+        pieChart("waktu_spray_1", [
+            reportConformity.spray_standar,
+            reportConformity.spray_tidak_standar,
+        ], 'waktu_spray');
 
         $('.date-slider').slick({
             dots: false,
@@ -312,16 +330,19 @@
         })
     });
 
-    function pieChart(el) {
+    function pieChart(el, yValues, type) {
         var xValues = ["Standar", "Dibawah Standar", "Diatas Standar"];
-        var yValues = [generateRandom(), generateRandom(), generateRandom()];
+
+        if(type == 'golden_time' || type == 'waktu_spray') {
+            xValues = ["Standar", "Tidak Standar"]
+        }
+
         var barColors = [
             "#08b160",
             "#ffd95a",
             "#f97c22",
         ];
 
-        var ctx = document.getElementById(el); // node
         var ctx = el; // element id
 
         new Chart(ctx, {
