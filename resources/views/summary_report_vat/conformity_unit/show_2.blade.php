@@ -67,37 +67,37 @@
         <div class="col-md-12">
             <div class="box box-success">
                 <div class="box-header text-center">
-                    <h3><strong>BSC - 11</strong></h3>
+                    <h3><strong>{{ $rencana_kerja->unit_label }}</strong></h3>
                 </div>
                 <div class="box-body" style="padding-left: 36px; padding-right: 36px;">
                     <table class="table" width="100%" id="table-detail">
                         <tr>
                             <td width="25%"><h4>JENIS APLIKASI</h4></td>
-                            <td width="25%"><h4>Insektisida 2</h4></td>
+                            <td width="25%"><h4>{{ $rencana_kerja->aktivitas_nama }}</h4></td>
                             <td width="25%"><h4>LOKASI</h4></td>
-                            <td width="25%"><h4>078D2</h4></td>
+                            <td width="25%"><h4>{{ $rencana_kerja->lokasi_kode }}</h4></td>
                         </tr>
                         <tr>
-                            <td width="25%"><h4>LUAST NETTO</h4></td>
-                            <td width="25%"><h4>6.35 Ha</h4></td>
+                            <td width="25%"><h4>LUAS NETTO</h4></td>
+                            <td width="25%"><h4>{{ $rencana_kerja->lokasi_lsnetto }} Ha</h4></td>
                             <td width="25%"><h4>LUAS BRUTO</h4></td>
-                            <td width="25%"><h4>7.86 Ha</h4></td>
+                            <td width="25%"><h4>{{ $rencana_kerja->lokasi_lsbruto }} Ha</h4></td>
                         </tr>
                         <tr>
                             <td width="25%"><h4>NOZZLE</h4></td>
-                            <td width="25%"><h4>Flood Jet KSS-60</h4></td>
+                            <td width="25%"><h4>{{ $rencana_kerja->nozzle_nama }}</h4></td>
                             <td width="25%"><h4>UNIT</h4></td>
-                            <td width="25%"><h4>BCS - 11</h4></td>
+                            <td width="25%"><h4>{{ $rencana_kerja->unit_label }}</h4></td>
                         </tr>
                         <tr>
                             <td width="25%"><h4>JAM MULAI</h4></td>
-                            <td width="25%"><h4>2023-04-03 | 18:27:24</h4></td>
+                            <td width="25%"><h4>{{ date('Y-m-d | H:i:s', strtotime($rencana_kerja->jam_mulai)) }}</h4></td>
                             <td width="25%"><h4>VOLUME AIR</h4></td>
-                            <td width="25%"><h4>3000</h4></td>
+                            <td width="25%"><h4>{{ $rencana_kerja->volume }}</h4></td>
                         </tr>
                         <tr>
                             <td width="25%"><h4>JAM SELESAI</h4></td>
-                            <td width="25%"><h4>2023-04-03 | 18:27:24</h4></td>
+                            <td width="25%"><h4>{{ date('Y-m-d | H:i:s', strtotime($rencana_kerja->jam_selesai)) }}</h4></td>
                             <td width="25%"><h4>SUHU</h4></td>
                             <td width="25%"><h4>-</h4></td>
                         </tr>
@@ -149,27 +149,27 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td class="text-center">Malam</td>
-                                    <td class="text-center">85 m/s</td>
-                                    <td class="text-center">15%</td>
-                                    <td class="text-center">15%</td>
-                                    <td class="text-center">20%</td>
-                                    <td class="text-center">20%</td>
-                                    <td class="text-center">85 cm</td>
-                                    <td class="text-center">15%</td>
-                                    <td class="text-center">15%</td>
-                                    <td class="text-center">20%</td>
-                                    <td class="text-center">20%</td>
-                                    <td class="text-center">85 cm</td>
-                                    <td class="text-center">15%</td>
-                                    <td class="text-center">15%</td>
-                                    <td class="text-center">20%</td>
-                                    <td class="text-center">20%</td>
-                                    <td class="text-center">85 m/s</td>
-                                    <td class="text-center">15%</td>
-                                    <td class="text-center">15%</td>
-                                    <td class="text-center">20%</td>
-                                    <td class="text-center">20%</td>
+                                    <td class="text-center">{{ $report_conformity->shift }}</td>
+                                    <td class="text-center">N/A m/s</td>
+                                    <td class="text-center">{{ $report_conformity->speed_dibawah_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->speed_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->speed_diatas_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->avg_speed }}%</td>
+                                    <td class="text-center">N/A cm</td>
+                                    <td class="text-center">{{ $report_conformity->wing_kanan_dibawah_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->wing_kanan_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->wing_kanan_diatas_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->avg_wing_kanan }}%</td>
+                                    <td class="text-center">N/A cm</td>
+                                    <td class="text-center">{{ $report_conformity->wing_kiri_dibawah_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->wing_kiri_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->wing_kiri_diatas_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->avg_wing_kiri }}%</td>
+                                    <td class="text-center">N/A m/s</td>
+                                    <td class="text-center">N/A%</td>
+                                    <td class="text-center">N/A%</td>
+                                    <td class="text-center">N/A%</td>
+                                    <td class="text-center">N/A%</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -185,7 +185,7 @@
                     <div style="padding-bottom: 1rem; display:flex; justify-content: end; align-items:center">
                         <div>
                             <small><span class="label label-default" style="background-color: #08b160">&nbsp;</span> Standar</small> &nbsp;
-                            <small><span class="label label-default" style="background-color: #ffd95a">&nbsp;</span> Dibawah Standar</small> &nbsp;
+                            <small><span class="label label-default" style="background-color: red">&nbsp;</span> Dibawah Standar</small> &nbsp;
                             <small><span class="label label-default" style="background-color: #f97c22">&nbsp;</span> Diatas Standar</small>
                         </div>
                     </div>
@@ -242,6 +242,7 @@
                     <table class="table table-hover table-bordered rounded" width="100%" id="table-down">
                         <thead>
                             <tr>
+                                <th>Ritase</th>
                                 <th>Kecepatan Operasi</th>
                                 <th>Golden Time</th>
                                 <th>Waktu Spray</th>
@@ -252,37 +253,18 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>8.20</td>
-                                <td>18:27:24</td>
-                                <td>13.68</td>
-                                <td>181.21</td>
-                                <td>136.65</td>
-                                <td>23.11</td>
-                            </tr>
-                            <tr>
-                                <td>8.20</td>
-                                <td>18:27:24</td>
-                                <td>13.68</td>
-                                <td>181.21</td>
-                                <td>136.65</td>
-                                <td>23.11</td>
-                            </tr>
-                            <tr>
-                                <td>8.20</td>
-                                <td>18:27:24</td>
-                                <td>13.68</td>
-                                <td>181.21</td>
-                                <td>136.65</td>
-                                <td>23.11</td>
-                            </tr>
-                            <tr>
-                                <td>8.20</td>
-                                <td>18:27:24</td>
-                                <td>13.68</td>
-                                <td>181.21</td>
-                                <td>136.65</td>
-                                <td>23.11</td>
-                            </tr>
+                            @foreach($list_rrk as $v)
+                                    <tr>
+                                            <td>{{ $v['ritase'] }}</td>
+                                            @foreach($header as $k2 => $v2)
+                                                    @if ($k2 == 4 || $k2 == 5)
+                                                            <th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A' : $v['parameter_'.$k2] }}</th>
+                                                    @else
+                                                            <th>{{ $v['parameter_'.$k2] }}</th>
+                                                    @endif
+                                            @endforeach
+                                    </tr>
+                            @endforeach
                         </tbody>
                     </table>
 
@@ -301,26 +283,65 @@
 @section("script")
 
 <script>
-    $(document).ready(function() {
-        for (let index = 1; index < 2; index++) {
-            pieChart("speed_"+index);
-            pieChart("wing_kiri_"+index);
-            pieChart("wing_kanan_"+index);
-            pieChart("golden_time_"+index);
-            pieChart("waktu_spray_"+index);
-        }
+   $(document).ready(function() {
+        const reportConformity = JSON.parse('{!! $report_conformity !!}')
+
+        pieChart("speed_1", [
+            reportConformity.speed_standar,
+            reportConformity.speed_dibawah_standar,
+            reportConformity.speed_diatas_standar
+        ]);
+        pieChart("wing_kiri_1", [
+            reportConformity.wing_kiri_standar,
+            reportConformity.wing_kiri_dibawah_standar,
+            reportConformity.wing_kiri_diatas_standar
+        ]);
+        pieChart("wing_kanan_1", [
+            reportConformity.wing_kanan_standar,
+            reportConformity.wing_kanan_dibawah_standar,
+            reportConformity.wing_kanan_diatas_standar
+        ])
+        pieChart("golden_time_1", [
+            reportConformity.goldentime_standar,
+            reportConformity.goldentime_tidak_standar,
+        ], 'golden_time');
+        // pieChart("waktu_spray_1", [
+        //     reportConformity.spray_standar,
+        //     reportConformity.spray_tidak_standar,
+        // ], 'waktu_spray');
+
+        $('.date-slider').slick({
+            dots: false,
+            infinite: false,
+            speed: 300,
+            slidesToShow: 8,
+            slidesToScroll: 8,
+            arrows: true,
+            prevArrow:"<button type='button' class='slick-prev'><i class='fa fa-angle-left' aria-hidden='true'></i></button>",
+            nextArrow:"<button type='button' class='slick-next'><i class='fa fa-angle-right' aria-hidden='true'></i></button>"
+        });
+
+        $('.date-range').on('click', function() {
+            let data = $(this).data('date');
+        
+            window.location.href = '{{route("summary.conformity_unit.show", $report_conformity->id)}}?date='+data
+        })
     });
 
-    function pieChart(el) {
+    function pieChart(el, yValues, type) {
         var xValues = ["Standar", "Dibawah Standar", "Diatas Standar"];
-        var yValues = [generateRandom(), generateRandom(), generateRandom()];
+
+        if(type == 'golden_time' || type == 'waktu_spray') {
+            xValues = ["Standar", "Tidak Standar"]
+        }
+
+        //ref: public/js/constants.js
         var barColors = [
-            "#08b160",
-            "#ffd95a",
-            "#f97c22",
+            CHART_GREEN,
+            CHART_RED,
+            CHART_YELLOW,
         ];
 
-        var ctx = document.getElementById(el); // node
         var ctx = el; // element id
 
         new Chart(ctx, {
@@ -360,12 +381,5 @@
         });
     }
 
-    function generateRandom(maxLimit = 100){
-        let rand = Math.random() * maxLimit;
-
-        rand = Math.floor(rand); // 99
-
-        return rand;
-    }
 </script>
 @stop

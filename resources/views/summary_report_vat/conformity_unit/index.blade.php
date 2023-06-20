@@ -89,7 +89,7 @@
 
                         <div>
                             <small><span class="label label-default" style="background-color: #08b160">&nbsp;</span> Standar</small> &nbsp;
-                            <small><span class="label label-default" style="background-color: #ffd95a">&nbsp;</span> Dibawah Standar</small> &nbsp;
+                            <small><span class="label label-default" style="background-color: red">&nbsp;</span> Dibawah Standar</small> &nbsp;
                             <small><span class="label label-default" style="background-color: #f97c22">&nbsp;</span> Diatas Standar</small>
                         </div>
                     </div>
@@ -104,7 +104,7 @@
                                     <th>Wing Kiri</th>
                                     <th>Wing Kanan</th>
                                     <th>Golden Time</th>
-                                    <th>Waktu Spray</th>
+                                    {{-- <th>Waktu Spray</th> --}}
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -134,11 +134,11 @@
                                             <canvas id="golden_time_{{$key}}" style="width:100%;max-width:100%"></canvas>
                                         </div>
                                     </td>
-                                    <td>
+                                    {{-- <td>
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="waktu_spray_{{$key}}" style="width:100%;max-width:100%"></canvas>
                                         </div>
-                                    </td>
+                                    </td> --}}
                                     <td class="text-center">
                                         <a href="{{ route('summary.conformity_unit.show', $report_conformity->id) }}" class="btn btn-success btn-sm">View Detail</a>
                                     </td>
@@ -205,10 +205,10 @@
                 reportConformities[index].goldentime_standar,
                 reportConformities[index].goldentime_tidak_standar,
             ], 'golden_time');
-            pieChart("waktu_spray_"+index, [
-                reportConformities[index].spray_standar,
-                reportConformities[index].spray_tidak_standar,
-            ], 'waktu_spray');
+            // pieChart("waktu_spray_"+index, [
+            //     reportConformities[index].spray_standar,
+            //     reportConformities[index].spray_tidak_standar,
+            // ], 'waktu_spray');
         }
     });
 
@@ -219,10 +219,11 @@
             xValues = ["Standar", "Tidak Standar"]
         }
 
+        //ref: public/js/constants.js
         var barColors = [
-            "#08b160",
-            "#ffd95a",
-            "#f97c22",
+            CHART_GREEN,
+            CHART_RED,
+            CHART_YELLOW,
         ];
 
         var ctx = el; // element id

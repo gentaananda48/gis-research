@@ -135,7 +135,7 @@
                     <div style="padding-bottom: 1rem; display:flex; justify-content: end; align-items:center">
                         <div>
                             <small><span class="label label-default" style="background-color: #08b160">&nbsp;</span> Standar</small> &nbsp;
-                            <small><span class="label label-default" style="background-color: #ffd95a">&nbsp;</span> Dibawah Standar</small> &nbsp;
+                            <small><span class="label label-default" style="background-color: red">&nbsp;</span> Dibawah Standar</small> &nbsp;
                             <small><span class="label label-default" style="background-color: #f97c22">&nbsp;</span> Diatas Standar</small>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                                     <th>Wing Kiri</th>
                                     <th>Wing Kanan</th>
                                     <th>Golden Time</th>
-                                    <th>Waktu Spray</th>
+                                    {{-- <th>Waktu Spray</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -172,11 +172,11 @@
                                             <canvas id="golden_time_1" style="width:100%;max-width:100%"></canvas>
                                         </div>
                                     </td>
-                                    <td width="200px">
+                                    {{-- <td width="200px">
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="waktu_spray_1" style="width:100%;max-width:100%"></canvas>
                                         </div>
-                                    </td>
+                                    </td> --}}
                                 </tr>
                             </tbody>
                         </table>
@@ -195,7 +195,7 @@
                 <div class="box-body">
                     <div class="date-slider">
                         @foreach ($date_range as $date)
-                            <div class="date-range {{ date('Y-m-d') == $date ? 'slick-selected slick-current' : '' }}" data-date="{{ $date }}">{{ date('d/m/Y', strtotime($date)) }}</div>
+                            <div class="date-range {{ request()->date == $date ? 'slick-selected slick-current' : '' }}" data-date="{{ $date }}">{{ date('d/m/Y', strtotime($date)) }}</div>
                         @endforeach
                     </div>
 
@@ -218,36 +218,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>22/03/2023</td>
-                                <td>PG1</td>
-                                <td>BSC - 11</td>
-                                <td class="bg-2">75%</td>
-                                <td class="bg-2">90%</td>
-                                <td class="bg-2">89%</td>
-                                <td class="bg-1">95%</td>
-                                <td>078G</td>
-                                <td>Y</td>
-                                <td>Malam</td>
-                                <td>Forcing 2</td>
-                                <td class="text-center"><a href="{{ route('summary.conformity_unit.detail', [1, 1]) }}" class="btn btn-success btn-sm">Detail</a></td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>22/03/2023</td>
-                                <td>PG1</td>
-                                <td>BSC - 11</td>
-                                <td class="bg-3">40%</td>
-                                <td class="bg-2">90%</td>
-                                <td class="bg-2">89%</td>
-                                <td class="bg-2">95%</td>
-                                <td>078G</td>
-                                <td>Y</td>
-                                <td>Malam</td>
-                                <td>Forcing 2</td>
-                                <td class="text-center"><a href="{{ route('summary.conformity_unit.detail', [1, 1]) }}" class="btn btn-success btn-sm">Detail</a></td>
-                            </tr>
+                            @foreach ($report_conformities as $item)
+                                <tr>
+                                    <td class="text-center">{{ $loop->iteration  }}</td>
+                                    <td>{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
+                                    <td>{{ $item->pg }}</td>
+                                    <td>{{ $item->unit }}</td>
+                                    <td class="bg-2">{{ $item->speed_standar }}%</td>
+                                    <td class="bg-2">{{ $item->wing_kiri_standar }}%</td>
+                                    <td class="bg-2">{{ $item->wing_kanan_standar }}%</td>
+                                    <td class="bg-1">{{ $item->goldentime_standar }}%</td>
+                                    <td>{{ $item->lokasi }}</td>
+                                    <td>{{ $rencana_kerja->where('lokasi_kode', $item->lokasi)->where('tgl', $item->tanggal)->count() > 0 ? 'Y' : 'N' }}</td>
+                                    <td>{{ $item->shift }}</td>
+                                    <td>{{ $item->activity }}</td>
+                                    <td class="text-center"><a href="{{ route('summary.conformity_unit.detail', $item->id) }}" class="btn btn-success btn-sm">Detail</a></td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
 
@@ -289,10 +276,10 @@
             reportConformity.goldentime_standar,
             reportConformity.goldentime_tidak_standar,
         ], 'golden_time');
-        pieChart("waktu_spray_1", [
-            reportConformity.spray_standar,
-            reportConformity.spray_tidak_standar,
-        ], 'waktu_spray');
+        // pieChart("waktu_spray_1", [
+        //     reportConformity.spray_standar,
+        //     reportConformity.spray_tidak_standar,
+        // ], 'waktu_spray');
 
         $('.date-slider').slick({
             dots: false,
@@ -307,26 +294,8 @@
 
         $('.date-range').on('click', function() {
             let data = $(this).data('date');
-            $('.date-range').removeClass('slick-selected');
-            $(this).addClass('slick-selected');
-
-            $('#table-down tbody').html(`
-                <tr>
-                    <td>1</td>
-                    <td>22/03/2023</td>
-                    <td>PG1</td>
-                    <td>BSC - 11</td>
-                    <td class="bg-2">75%</td>
-                    <td class="bg-2">90%</td>
-                    <td class="bg-2">89%</td>
-                    <td class="bg-1">95%</td>
-                    <td>078G</td>
-                    <td>Y</td>
-                    <td>Malam</td>
-                    <td>Forcing 2</td>
-                    <td class="text-center"><a href="#" class="btn btn-success btn-sm">Detail</a></td>
-                </tr>
-            `);
+        
+            window.location.href = '{{route("summary.conformity_unit.show", $report_conformity->id)}}?date='+data
         })
     });
 
@@ -337,10 +306,11 @@
             xValues = ["Standar", "Tidak Standar"]
         }
 
+        //ref: public/js/constants.js
         var barColors = [
-            "#08b160",
-            "#ffd95a",
-            "#f97c22",
+            CHART_GREEN,
+            CHART_RED,
+            CHART_YELLOW,
         ];
 
         var ctx = el; // element id
