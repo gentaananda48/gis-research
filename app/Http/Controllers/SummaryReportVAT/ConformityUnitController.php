@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Model\LacakBsc01;
 use App\Model\RencanaKerja;
+use App\Model\RencanaKerjaSummary;
 use App\Model\ReportConformity;
+use App\Model\VReportRencanaKerja2;
 use App\Transformer\LacakBsc01Transformer;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
@@ -69,9 +71,39 @@ class ConformityUnitController extends Controller
         ]);
     }
 
-    public function detail($id1, $id2, Request $request)
+    public function detail(Request $request, $id)
     {
-        return view('summary_report_vat.conformity_unit.show_2');
+
+        $report_conformity = ReportConformity::find($id);
+        $report_conformities = ReportConformity::where('pg', $report_conformity->pg)
+            ->where('unit', $report_conformity->unit)
+            ->get();
+
+        $report_conformities = $report_conformities->where('tanggal', $request->date);
+
+        $rencana_kerja = RencanaKerja::where('unit_label', $report_conformity->unit)
+            ->where('tgl', $report_conformity->tanggal)
+            ->where('lokasi_kode', $report_conformity->lokasi)
+            ->first();
+
+        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rencana_kerja->id)->get()->toArray();
+
+        $list_rks = RencanaKerjaSummary::where('rk_id', $rencana_kerja->id)->get();
+        $header = [];
+
+        foreach ($list_rks as $rks) {
+            if ($rks->ritase == 999) {
+                $header[$rks->parameter_id] = $rks->parameter_nama;
+            }
+        }
+
+        return view('summary_report_vat.conformity_unit.show_2', [
+            'report_conformity' => $report_conformity,
+            'report_conformities' => $report_conformities,
+            'rencana_kerja' => $rencana_kerja,
+            'list_rrk' => $list_rrk,
+            'header' => $header
+        ]);
     }
 
     private function getDatesFromRange($date_time_from, $date_time_to)

@@ -232,7 +232,7 @@
                                     <td>{{ $rencana_kerja->where('lokasi_kode', $item->lokasi)->where('tgl', $item->tanggal)->count() > 0 ? 'Y' : 'N' }}</td>
                                     <td>{{ $item->shift }}</td>
                                     <td>{{ $item->activity }}</td>
-                                    <td class="text-center"><a href="{{ route('summary.conformity_unit.detail', [1, 1]) }}" class="btn btn-success btn-sm">Detail</a></td>
+                                    <td class="text-center"><a href="{{ route('summary.conformity_unit.detail', $item->id) }}" class="btn btn-success btn-sm">Detail</a></td>
                                 </tr>
                             @endforeach
                         </tbody>
