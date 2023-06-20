@@ -13,7 +13,7 @@ class ReportConformity extends Command
      *
      * @var string
      */
-    protected $signature = 'process:report-confotmity';
+    protected $signature = 'process:report-conformity';
 
     /**
      * The console command description.

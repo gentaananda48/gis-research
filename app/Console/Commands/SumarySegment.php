@@ -122,6 +122,7 @@ class SumarySegment extends Command
                 JOIN tb8 on tb8.report_parameter_standard_id = tb3.id
                 and tb3.nozzle_id = tb2.nozzle_id
                 and tb3.volume_id = tb2.volume_id
+                and tb2.tgl = DATE(tb1.created_at)
                 GROUP BY tb1.segment
             "));
 
@@ -170,7 +171,7 @@ class SumarySegment extends Command
                         $value->wing_right_under_standard,
                         $value->wing_right_standard,
                         $value->wing_right_upper_standard,
-                        $value->av_goldentime,
+                        0,
                         $value->goldentime_standard,
                         $value->goldentime_not_standard,
                         0,
