@@ -104,6 +104,7 @@
     {!! Html::script('AdminLTE-2.4.18/dist/js/adminlte.min.js') !!}
     {!! Html::script('js/numeral.min.js') !!}
     {!! Html::script('js/app.js') !!}
+    {!! Html::script('js/constants.js') !!}
     <!-- PACE -->
     {!! Html::script('AdminLTE-2.4.18/bower_components/PACE/pace.min.js') !!}
     @yield('script')

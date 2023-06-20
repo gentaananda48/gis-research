@@ -6,6 +6,7 @@ use App\Center\GridCenter;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Model\LacakBsc01;
+use App\Model\RencanaKerja;
 use App\Model\ReportConformity;
 use App\Transformer\LacakBsc01Transformer;
 use Carbon\Carbon;
@@ -33,7 +34,7 @@ class ConformityUnitController extends Controller
         $list_pg = ['PG1'=>'PG1', 'PG2'=>'PG2', 'PG3'=>'PG3'];
         $list_unit = ['All'=>'All', 'Unit 1'=>'Unit 1', 'Unit 2'=>'Unit 2'];
 
-        $report_conformities = ReportConformity::paginate(8);
+        $report_conformities = ReportConformity::paginate(10);
         
         return view('summary_report_vat.conformity_unit.index', [
             'date_range'    => $date_range,
@@ -45,17 +46,26 @@ class ConformityUnitController extends Controller
         ]); 
     }
 
-    public function show($id, Request $request)
+    public function show(Request $request, $id)
     {
-        
-        $date1 = date('Y-m-01');
-        $date2 = date('Y-m-d');
-        $date_range = $this->getDatesFromRange($date1 . ' 00:00:00', $date2 . ' 23:00:00');
         $report_conformity = ReportConformity::find($id);
+        $report_conformities = ReportConformity::where('pg', $report_conformity->pg)
+            ->where('unit', $report_conformity->unit)
+            ->get();
+
+        $date_range = array_unique($report_conformities->pluck('tanggal')->toArray());
+
+        $report_conformities = $report_conformities->where('tanggal', $request->date);
+
+        $rencana_kerja = RencanaKerja::where('tgl', $request->date)
+            ->whereIn('lokasi_kode', array_column($report_conformities->toArray(), 'lokasi'))
+            ->get();
 
         return view('summary_report_vat.conformity_unit.show_1', [
             'date_range'    => $date_range,
-            'report_conformity' => $report_conformity
+            'report_conformity' => $report_conformity,
+            'report_conformities' => $report_conformities,
+            'rencana_kerja' => $rencana_kerja
         ]);
     }
 
