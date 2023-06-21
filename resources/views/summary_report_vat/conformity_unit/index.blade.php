@@ -100,6 +100,7 @@
                                     <th>NO</th>
                                     <th style="width: 100px;">PG</th>
                                     <th style="width: 100px;">Unit</th>
+                                    <th style="width: 100px;">Lokasi</th>
                                     <th>Speed</th>
                                     <th>Wing Kiri</th>
                                     <th>Wing Kanan</th>
@@ -114,24 +115,25 @@
                                     <td class="text-center">{{ $loop->iteration + ($report_conformities->currentPage() - 1) * $report_conformities->perPage() }}</td>
                                     <td>{{ $report_conformity->pg }}</td>
                                     <td>{{ $report_conformity->unit }}</td>
+                                    <td>{{ $report_conformity->lokasi }}</td>
                                     <td>
                                         <div style="display: flex; justify-content: center;">
-                                            <canvas id="speed_{{$key}}" style="width:100%;max-width:100%"></canvas>
+                                            <canvas id="speed_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
                                     <td>
                                         <div style="display: flex; justify-content: center;">
-                                            <canvas id="wing_kiri_{{$key}}" style="width:100%;max-width:100%"></canvas>
+                                            <canvas id="wing_kiri_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
                                     <td>
                                         <div style="display: flex; justify-content: center;">
-                                            <canvas id="wing_kanan_{{$key}}" style="width:100%;max-width:100%"></canvas>
+                                            <canvas id="wing_kanan_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
                                     <td>
                                         <div style="display: flex; justify-content: center;">
-                                            <canvas id="golden_time_{{$key}}" style="width:100%;max-width:100%"></canvas>
+                                            <canvas id="golden_time_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
                                     {{-- <td>
@@ -187,23 +189,23 @@
 
         for (let index = 0; index < reportConformities.length; index++) {
             pieChart("speed_"+index, [
-                reportConformities[index].speed_standar,
-                reportConformities[index].speed_dibawah_standar,
-                reportConformities[index].speed_diatas_standar
+                reportConformities[index].speed_standar.toFixed(2),
+                reportConformities[index].speed_dibawah_standar.toFixed(2),
+                reportConformities[index].speed_diatas_standar.toFixed(2)
             ]);
             pieChart("wing_kiri_"+index, [
-                reportConformities[index].wing_kiri_standar,
-                reportConformities[index].wing_kiri_dibawah_standar,
-                reportConformities[index].wing_kiri_diatas_standar
+                reportConformities[index].wing_kiri_standar.toFixed(2),
+                reportConformities[index].wing_kiri_dibawah_standar.toFixed(2),
+                reportConformities[index].wing_kiri_diatas_standar.toFixed(2)
             ]);
             pieChart("wing_kanan_"+index, [
-                reportConformities[index].wing_kanan_standar,
-                reportConformities[index].wing_kanan_dibawah_standar,
-                reportConformities[index].wing_kanan_diatas_standar
+                reportConformities[index].wing_kanan_standar.toFixed(2),
+                reportConformities[index].wing_kanan_dibawah_standar.toFixed(2),
+                reportConformities[index].wing_kanan_diatas_standar.toFixed(2)
             ])
             pieChart("golden_time_"+index, [
-                reportConformities[index].goldentime_standar,
-                reportConformities[index].goldentime_tidak_standar,
+                reportConformities[index].goldentime_standar.toFixed(2),
+                reportConformities[index].goldentime_tidak_standar.toFixed(2),
             ], 'golden_time');
             // pieChart("waktu_spray_"+index, [
             //     reportConformities[index].spray_standar,
@@ -222,7 +224,8 @@
         //ref: public/js/constants.js
         var barColors = [
             CHART_GREEN,
-            CHART_RED,
+            // CHART_RED,
+            'rgba(232, 33, 53)',
             CHART_YELLOW,
         ];
 
@@ -246,13 +249,23 @@
                     display: false,
                     position: 'bottom'
                 },
-                
                 plugins: {
                     datalabels: {
+                        display: true,
                         formatter: (value, ctx) => {
-                            return value + ' %'
+                            if(value >0 ){
+                                return value + ' %'
+                            }else{
+                                value = "";
+                                return value;
+                            }
+                            
                         },
-                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 8
+                        },
+                        color: '#000000',
                     }
                 }
             },
