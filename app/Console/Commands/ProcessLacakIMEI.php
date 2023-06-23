@@ -92,10 +92,40 @@ class ProcessLacakIMEI extends Command
                     if (!$cekUtc) {
                         // start real code
                         //insert lacak imei to bsc with adjustment field device_timestamp
-                        DB::insert('insert into '.$table_name2.' (latitude, longitude, speed, altitude, arm_height_left, arm_height_right, temperature_left, temperature_right, pump_switch_main, pump_switch_left, pump_switch_right, flow_meter_left, flow_meter_right, tank_level, oil, gas, homogenity, bearing, microcontroller_id, `utc_timestamp`, created_at, box_id, unit_label, source_device_id, lokasi_kode, processed, report_date, device_timestamp) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, 0, ?, ?) ON DUPLICATE KEY UPDATE `utc_timestamp` = ?', [$v->latitude, $v->longitude, $v->speed, $v->altitude, $v->arm_height_left, $v->arm_height_right, $v->temperature_left, $v->temperature_right, $v->pump_switch_main, $v->pump_switch_left, $v->pump_switch_right, $v->flow_meter_left, $v->flow_meter_right, $v->tank_level, $v->oil, $v->gas, $v->homogenity, $v->bearing, $v->microcontroller_id, $v->utc_timestamp, $v->box_id, $v->unit_label, $source_device_id,  $lokasi_kode, $v->report_date, $v->device_timestamp, $v->utc_timestamp]);
+                        // DB::insert('insert into '.$table_name2.' (latitude, longitude, speed, altitude, arm_height_left, arm_height_right, temperature_left, temperature_right, pump_switch_main, pump_switch_left, pump_switch_right, flow_meter_left, flow_meter_right, tank_level, oil, gas, homogenity, bearing, microcontroller_id, `utc_timestamp`, created_at, box_id, unit_label, source_device_id, lokasi_kode, processed, report_date, device_timestamp) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, 0, ?, ?) ON DUPLICATE KEY UPDATE `utc_timestamp` = ?', [$v->latitude, $v->longitude, $v->speed, $v->altitude, $v->arm_height_left, $v->arm_height_right, $v->temperature_left, $v->temperature_right, $v->pump_switch_main, $v->pump_switch_left, $v->pump_switch_right, $v->flow_meter_left, $v->flow_meter_right, $v->tank_level, $v->oil, $v->gas, $v->homogenity, $v->bearing, $v->microcontroller_id, $v->utc_timestamp, $v->box_id, $v->unit_label, $source_device_id,  $lokasi_kode, $v->report_date, $v->device_timestamp, $v->utc_timestamp]);
+                        $temp['latitude'] = $v->latitude;
+                        $temp['longitude'] = $v->longitude;
+                        $temp['speed'] = $v->speed;
+                        $temp['altitude'] = $v->altitude;
+                        $temp['arm_height_left'] = $v->arm_height_left;
+                        $temp['arm_height_right'] = $v->arm_height_right;
+                        $temp['temperature_left'] = $v->temperature_left;
+                        $temp['temperature_right'] = $v->temperature_right;
+                        $temp['pump_switch_main'] = $v->pump_switch_main;
+                        $temp['pump_switch_left'] = $v->pump_switch_left;
+                        $temp['pump_switch_right'] = $v->pump_switch_right;
+                        $temp['flow_meter_left'] = $v->flow_meter_left;
+                        $temp['flow_meter_right'] = $v->flow_meter_right;
+                        $temp['tank_level'] = $v->tank_level;
+                        $temp['oil'] = $v->oil;
+                        $temp['gas'] = $v->gas;
+                        $temp['homogenity'] = $v->homogenity;
+                        $temp['bearing'] = $v->bearing;
+                        $temp['microcontroller_id'] = $v->microcontroller_id;
+                        $temp['utc_timestamp'] = $v->utc_timestamp;
+                        $temp['created_at'] = now();
+                        $temp['box_id'] = $v->box_id;
+                        $temp['unit_label'] = $v->unit_label;
+                        $temp['source_device_id'] = $source_device_id;
+                        $temp['lokasi_kode'] = $lokasi_kode;
+                        $temp['processed'] = 0;
+                        $temp['report_date'] = $v->report_date;
+                        $temp['device_timestamp'] = $v->device_timestamp;
+    
+                        DB::table($table_name2)->insert($temp);
                         DB::table($table_name)->where('id', '=', $v->id)->update(['processed'=>1]);
                         // end real code
-                        
+
                     }else{
                         DB::table($table_name)->where('id', '=', $v->id)->update(['processed'=>2]);
                     }
