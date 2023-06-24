@@ -113,7 +113,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($report_conformities as $key => $report_conformity)
+                                @forelse ($report_conformities as $key => $report_conformity)
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration + ($report_conformities->currentPage() - 1) * $report_conformities->perPage() }}</td>
                                     <td>{{ $report_conformity->pg }}</td>
@@ -148,7 +148,11 @@
                                         <a href="{{ route('summary.conformity_unit.show', $report_conformity->id) }}" class="btn btn-success btn-sm">View Detail</a>
                                     </td>
                                 </tr>
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="100" class="text-center">No data available</td>
+                                </tr>
+                                @endforelse
                                 {{-- <tr>
                                     <td class="text-center">2</td>
                                     <td>PG 2</td>

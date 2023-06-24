@@ -5,17 +5,24 @@ namespace App\Http\Controllers\SummaryReportVAT;
 use App\Center\GridCenter;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Model\KoordinatLokasi;
+use App\Model\Lacak;
+use App\Model\Lacak2;
 use App\Model\LacakBsc01;
 use App\Model\PG;
 use App\Model\RencanaKerja;
 use App\Model\RencanaKerjaSummary;
 use App\Model\ReportConformity;
+use App\Model\ReportParameterStandard;
+use App\Model\SystemConfiguration;
 use App\Model\Unit;
 use App\Model\VReportRencanaKerja2;
 use App\Transformer\LacakBsc01Transformer;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use DatePeriod;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 
 class ConformityUnitController extends Controller
 {
@@ -94,14 +101,25 @@ class ConformityUnitController extends Controller
 
         $report_conformities = $report_conformities->where('tanggal', $request->date);
 
-        $rencana_kerja = RencanaKerja::where('unit_label', $report_conformity->unit)
+        $rk = RencanaKerja::where('unit_label', $report_conformity->unit)
             ->where('tgl', $report_conformity->tanggal)
             ->where('lokasi_kode', $report_conformity->lokasi)
             ->first();
 
-        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rencana_kerja->id)->get()->toArray();
 
-        $list_rks = RencanaKerjaSummary::where('rk_id', $rencana_kerja->id)->get();
+        $report_param_standard = ReportParameterStandard::where('volume_id', $rk->volume_id)
+            ->where('nozzle_id', $rk->nozzle_id)
+            ->where('aktivitas_id', $rk->aktivitas_id)
+            ->with([
+                'reportParameterStandarDetails' => function($query) {
+                    $query->where('urutan', 2);
+                },
+            ])
+            ->first();
+
+        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get()->toArray();
+
+        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
         $header = [];
 
         foreach ($list_rks as $rks) {
@@ -110,12 +128,154 @@ class ConformityUnitController extends Controller
             }
         }
 
+        $jam_mulai = $rk->jam_mulai;
+        $jam_selesai = $rk->jam_selesai;
+
+        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT_'.$rk->lokasi_kode;
+        $cached = Redis::get($cache_key);
+        $list_koordinat_lokasi = [];
+        if(isset($cached)) {
+            $list_koordinat_lokasi = json_decode($cached, FALSE);
+        } else {
+            $list_koordinat_lokasi = KoordinatLokasi::where('lokasi', $rk->lokasi_kode)
+                ->orderBy('bagian', 'ASC')
+                ->orderBy('posnr', 'ASC')
+                ->get();
+            Redis::set($cache_key, json_encode($list_koordinat_lokasi));
+        }
+
+        $list_lokasi = [];
+        foreach($list_koordinat_lokasi as $v){
+            if($v->lokasi==$rk->lokasi_kode){
+                $idx = $v->lokasi.'_'.$v->bagian;
+                if(array_key_exists($idx, $list_lokasi)){
+                    $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+                } else {
+                    $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+                }
+            }
+        }
+        $list_lokasi = array_values($list_lokasi);
+
+        $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
+        $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
+        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$rk->unit_source_device_id;
+        if(in_array($rk->unit_source_device_id, $offline_units)){
+            $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$rk->unit_source_device_id;
+        }
+        $tgl = $rk->tgl;
+        if($tgl >= date('Y-m-d')) {
+            $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$tgl.'*');
+            $cache_key = $cache_key.'_'.$jam_selesai;
+            if(count($redis_scan_result[1])>0){
+                rsort($redis_scan_result[1]);
+                $last_key = $redis_scan_result[1][0];
+                if($cache_key<$last_key){
+                    $cache_key = $last_key;
+                }
+                foreach($redis_scan_result[1] as $key){
+                    if($key!=$cache_key){
+                        Redis::del($key);
+                    }
+                }
+            }
+        } else {
+            $cache_key = $cache_key.'_'.$tgl;
+        }
+        $cached = Redis::get($cache_key);
+        $list_lacak = [];
+        if(isset($cached)) {
+            $list_lacak = json_decode($cached, FALSE);
+        } else {
+            $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
+            $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
+            //
+            if(in_array($rk->unit_source_device_id, $offline_units)){
+                $table_name = 'lacak_'.$rk->unit_source_device_id;
+                $list_lacak = DB::table($table_name)
+                    ->where('report_date', $tgl)
+                    //->where('utc_timestamp', '>=', $timestamp_1)
+                    //->where('utc_timestamp', '<=', $timestamp_2)
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
+                    ->get();
+            } else {
+                if($rk->tgl>='2022-03-15') {
+                    $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
+                        ->where('timestamp', '>=', $timestamp_1)
+                        ->where('timestamp', '<=', $timestamp_2)
+                        ->orderBy('timestamp', 'ASC')
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
+                } else {
+                    $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
+                        ->where('timestamp', '>=', $timestamp_1)
+                        ->where('timestamp', '<=', $timestamp_2)
+                        ->orderBy('timestamp', 'ASC')
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
+                }
+            }
+            //
+            Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
+        }
+
+         // ADJUSTMENT CODE SUMMARY FROM REDIS
+        $cacheKey = env('APP_CODE') . ':RK_SUMMARY_' . $rk->id;
+        $summary = Redis::get($cacheKey);
+
+        if ($summary === null) {
+        // Data not found in Redis, retrieve from the database
+        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
+        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
+        $header = [];
+        $rata2 = [];
+        $poin = [];
+        $kualitas = '-';
+
+        foreach ($list_rks as $rks) {
+            if ($rks->ritase == 999) {
+                $header[$rks->parameter_id] = $rks->parameter_nama;
+                $rata2[$rks->parameter_id] = $rks->parameter_id != 2 ? number_format($rks->realisasi, 2) : $rks->realisasi;
+                $poin[$rks->parameter_id] = $rks->nilai_bobot;
+            } else if ($rks->ritase == 999999) {
+                $poin[999] = $rks->nilai_bobot;
+                $kualitas = $rks->kualitas;
+            }
+        }
+
+        $summary = (object) [
+            'header' => $header,
+            'ritase' => $list_rrk,
+            'rata2' => $rata2,
+            'poin' => $poin,
+            'kualitas' => $kualitas,
+        ];
+
+        // Store the retrieved data in Redis
+        Redis::set($cacheKey, json_encode($summary), 'EX', 2592000);
+        } else {
+            // Data found in Redis, retrieve it
+            $decodedSummary = json_decode($summary, true);
+
+            if ($decodedSummary !== null) {
+                // Decoding was successful
+                $summary = (object) $decodedSummary;
+                // Access the properties
+                $header = $summary->header;
+            }
+        }
+
         return view('summary_report_vat.conformity_unit.show_2', [
             'report_conformity' => $report_conformity,
             'report_conformities' => $report_conformities,
-            'rencana_kerja' => $rencana_kerja,
+            'rk' => $rk,
             'list_rrk' => $list_rrk,
-            'header' => $header
+            'header' => $header,
+            'summary'       => $summary,
+            'timestamp_jam_mulai'   => strtotime($jam_mulai),
+            'timestamp_jam_selesai' => strtotime($jam_selesai),
+            'list_lacak'    => json_encode($list_lacak),
+            'list_lokasi'   => json_encode($list_lokasi),
+            'report_param_standard' => $report_param_standard
         ]);
     }
 
