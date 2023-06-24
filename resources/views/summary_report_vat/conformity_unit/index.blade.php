@@ -49,20 +49,23 @@
           </div>
           <div class="box-body">
             <form>
-            <div class="form-group col-md-4">
-              <label for="date_range">Tanggal</label>
-              {{ Form::text('date_range', $date_range, array('id' => 'date_range', 'class' => 'form-control', 'autocomplete'=>'off')) }}
-            </div> 
-            <div class="col-md-3">
-              <label for="pg">PG</label>
-              {{ Form::select('pg[]', $list_pg , $pg, array('class' => 'form-control select2')) }}  
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label for="date_range">Tanggal</label>
+                    {{ Form::text('date_range', $date_range, array('id' => 'date_range', 'class' => 'form-control', 'autocomplete'=>'off')) }}
+                </div> 
+                <div class="col-md-4">
+                    <label for="pg">PG</label>
+                    {{ Form::select('pg[]', $list_pg , $pg, array('class' => 'form-control select2')) }}  
+                </div>
+    
+                <div class="col-md-4">
+                    <label for="unit">UNIT</label>
+                    {{ Form::select('unit[]', $list_unit , $unit, array('class' => 'form-control select2')) }}  
+                </div>
             </div>
-
-            <div class="col-md-4">
-              <label for="unit">UNIT</label>
-              {{ Form::select('unit[]', $list_unit , $unit, array('class' => 'form-control select2')) }}  
-            </div>
-            <button type="submit" class="btn btn-success col-md-1" style="margin-top: 23px;"><i class="fa fa-search"></i></button> 
+            <button type="submit" class="btn btn-success" style="margin-top: 23px;"><i class="fa fa-search"></i></button> 
+            <a href="{{ route('summary.conformity_unit') }}" type="submit" class="btn btn-warning" style="margin-top: 23px;">Clear Filter</a> 
             </form>
           </div>
         </div>

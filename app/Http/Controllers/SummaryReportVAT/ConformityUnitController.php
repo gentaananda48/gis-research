@@ -6,9 +6,11 @@ use App\Center\GridCenter;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Model\LacakBsc01;
+use App\Model\PG;
 use App\Model\RencanaKerja;
 use App\Model\RencanaKerjaSummary;
 use App\Model\ReportConformity;
+use App\Model\Unit;
 use App\Model\VReportRencanaKerja2;
 use App\Transformer\LacakBsc01Transformer;
 use Carbon\Carbon;
@@ -27,16 +29,27 @@ class ConformityUnitController extends Controller
             $date1 = date('Y-m-d', strtotime($date_range[0]));
             $date2 = date('Y-m-d', strtotime($date_range[1]));
         } else {
-            //$date1 = date('Y-m-d', strtotime('-6 day'));
             $date1 = date('Y-m-d');
             $date2 = date('Y-m-d');
         }
 
         $date_range = date('m/d/Y', strtotime($date1)).' - '.date('m/d/Y', strtotime($date2));
-        $list_pg = ['PG1'=>'PG1', 'PG2'=>'PG2', 'PG3'=>'PG3'];
-        $list_unit = ['All'=>'All', 'Unit 1'=>'Unit 1', 'Unit 2'=>'Unit 2'];
+        $list_pg = array_merge(['All' => 'All'], PG::all(['nama'])->pluck('nama', 'nama')->toArray());
+        $list_unit = array_merge(['All' => 'All'], Unit::all(['label'])->pluck('label', 'label')->toArray());
 
-        $report_conformities = ReportConformity::paginate(10);
+        $report_conformities = new ReportConformity();
+
+        $report_conformities = $report_conformities->whereBetween('tanggal', [$date1, $date2]);
+
+        if($request->unit && $request->unit[0] != 'All') {
+            $report_conformities = $report_conformities->where('unit', $request->unit[0]);
+        }
+
+        if($request->pg && $request->pg[0] != 'All') {
+            $report_conformities = $report_conformities->where('pg', $request->pg[0]);
+        }
+
+        $report_conformities = $report_conformities->paginate(10);
         
         return view('summary_report_vat.conformity_unit.index', [
             'date_range'    => $date_range,
