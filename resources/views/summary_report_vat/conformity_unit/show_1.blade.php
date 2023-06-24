@@ -218,7 +218,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($report_conformities as $item)
+                            @forelse ($report_conformities as $item)
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration  }}</td>
                                     <td>{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
@@ -234,7 +234,11 @@
                                     <td>{{ $item->activity }}</td>
                                     <td class="text-center"><a href="{{ route('summary.conformity_unit.detail', $item->id) }}" class="btn btn-success btn-sm">Detail</a></td>
                                 </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="100" class="text-center">No data available</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
 
