@@ -338,7 +338,8 @@
         //ref: public/js/constants.js
         var barColors = [
             CHART_GREEN,
-            CHART_RED,
+            // CHART_RED,
+            'rgba(232, 33, 53)',
             CHART_YELLOW,
         ];
 
@@ -365,13 +366,18 @@
                 plugins: {
                     datalabels: {
                         formatter: (value, ctx) => {
-                            let datasets = ctx.chart.data.datasets;
-                            if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
-                            let sum = datasets[0].data.reduce((a, b) => a + b, 0);
-                            let percentage = Math.round((value / sum) * 100) + '%';
-                            return percentage;
-                            } else {
-                            return percentage;
+                            if(value >0 ){
+                                let datasets = ctx.chart.data.datasets;
+                                if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
+                                let sum = datasets[0].data.reduce((a, b) => a + b, 0);
+                                let percentage = Math.round((value / sum) * 100) + '%';
+                                return percentage;
+                                } else {
+                                return percentage;
+                                }
+                            }else{
+                                value = "";
+                                return value;
                             }
                         },
                         color: '#fff',
