@@ -103,7 +103,7 @@
                                     <th>NO</th>
                                     <th style="width: 100px;">PG</th>
                                     <th style="width: 100px;">Unit</th>
-                                    <th style="width: 100px;">Lokasi</th>
+                                    {{-- <th style="width: 100px;">Lokasi</th> --}}
                                     <th>Speed</th>
                                     <th>Wing Kiri</th>
                                     <th>Wing Kanan</th>
@@ -119,7 +119,7 @@
                                     <td class="text-center">{{ $loop->iteration + ($report_conformities->currentPage() - 1) * $report_conformities->perPage() }}</td>
                                     <td>{{ $report_conformity->pg }}</td>
                                     <td>{{ $report_conformity->unit }}</td>
-                                    <td>{{ $report_conformity->lokasi }}</td>
+                                    {{-- <td>{{ $report_conformity->lokasi }}</td> --}}
                                     <td>
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="speed_{{$key}}" width="100" height="100"></canvas>
