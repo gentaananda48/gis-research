@@ -35,15 +35,20 @@
             background-color: transparent;
             border: 0;
         }
-        .bg-1 {
+        .bg-lightgreen {
             background-color: rgba(1, 146, 76, 0.6) !important;
             color: #00512A !important;
         }
-        .bg-2 {
+        .bg-green {
             background-color: rgba(1, 146, 76, 0.2) !important;
             color: #00512A !important;
         }
-        .bg-3 {
+        .bg-red {
+            background-color: #F70404 !important;
+            color: #fff !important;
+        }
+
+        .bg-yellow {
             background-color: #F70404 !important;
             color: #fff !important;
         }
@@ -219,60 +224,17 @@
                         </thead>
                         <tbody>
                             @forelse ($report_conformities as $item)
-                                @php
-                                    $rk = $rencana_kerja->where('lokasi_kode', $item->lokasi)->where('tgl', $item->tanggal)->first();
-                                   
-                                    $report_param_standard = \App\Model\ReportParameterStandard::where('volume_id', $rk->volume_id)
-                                        ->where('nozzle_id', $rk->nozzle_id)
-                                        ->where('aktivitas_id', $rk->aktivitas_id)
-                                        ->with([
-                                            'reportParameterStandarDetails' => function($query) {
-                                                $query->where('urutan', 2);
-                                            },
-                                        ])
-                                        ->first();
-
-                                    $color_speed = $rk->speed_standar < 
-                                        $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 1)->first()->range_1 ? 
-                                        'bg-3' : 'bg-1';
-
-                                    $color_speed = $rk->speed_standar ==
-                                        $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 1)->first()->range_1 ? 'bg-2' : $color_speed;
-
-                                    $color_wing_kiri = $rk->wing_kiri_standar < 
-                                        $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 4)->first()->range_1 ? 
-                                        'bg-3' : 'bg-1';
-
-                                    $color_wing_kiri = $rk->wing_kiri_standar ==
-                                        $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 4)->first()->range_1 ? 'bg-2' : $color_wing_kiri;
-
-
-                                    $color_wing_kanan = $rk->wing_kanan_standar < 
-                                        $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 5)->first()->range_1 ? 
-                                        'bg-3' : 'bg-1';
-
-                                    $color_wing_kanan = $rk->wing_kanan_standar ==
-                                        $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 5)->first()->range_1 ? 'bg-2' : $color_wing_kanan;
-
-                                    $color_goldentime = $rk->goldentime_standar < 
-                                        $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 2)->first()->range_1 ? 
-                                        'bg-3' : 'bg-1';
-
-                                    $color_goldentime = $rk->goldentime_standar ==
-                                        $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 2)->first()->range_1 ? 'bg-2' : $color_goldentime;
-
-                                @endphp
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration  }}</td>
                                     <td>{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
                                     <td>{{ $item->pg }}</td>
                                     <td>{{ $item->unit }}</td>
-                                    <td class="{{ $color_speed }}">{{ $item->speed_standar }}%</td>
-                                    <td class="{{ $color_wing_kiri }}">{{ $item->wing_kiri_standar }}%</td>
-                                    <td class="{{ $color_wing_kanan }}">{{ $item->wing_kanan_standar }}%</td>
-                                    <td class="{{ $color_goldentime }}">{{ $item->goldentime_standar }}%</td>
+                                    <td class="{{ $item->getStandardColor($item->speed_standar) }}">{{ $item->speed_standar }}%</td>
+                                    <td class="{{ $item->getStandardColor($item->wing_kiri_standar) }}">{{ $item->wing_kiri_standar }}%</td>
+                                    <td class="{{ $item->getStandardColor($item->wing_kanan_standar) }}">{{ $item->wing_kanan_standar }}%</td>
+                                    <td class="{{ $item->getStandardColor($item->goldentime_standar) }}">{{ $item->goldentime_standar }}%</td>
                                     <td>{{ $item->lokasi }}</td>
-                                    <td>{{ $rk->count() > 0 ? 'Y' : 'N' }}</td>
+                                    <td>{{ $rencana_kerja->count() > 0 ? 'Y' : 'N' }}</td>
                                     <td>{{ $item->shift }}</td>
                                     <td>{{ $item->activity }}</td>
                                     <td class="text-center"><a href="{{ route('summary.conformity_unit.detail', $item->id) }}" class="btn btn-success btn-sm">Detail</a></td>

@@ -108,6 +108,7 @@
                                     <th>Wing Kiri</th>
                                     <th>Wing Kanan</th>
                                     <th>Golden Time</th>
+                                    <th>Tanggal</th>
                                     {{-- <th>Waktu Spray</th> --}}
                                     <th>Action</th>
                                 </tr>
@@ -139,6 +140,7 @@
                                             <canvas id="golden_time_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
+                                    <td>{{ date('d/m/Y', strtotime($report_conformity->tanggal)) }}</td>
                                     {{-- <td>
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="waktu_spray_{{$key}}" style="width:100%;max-width:100%"></canvas>
