@@ -103,12 +103,12 @@
                                     <th>NO</th>
                                     <th style="width: 100px;">PG</th>
                                     <th style="width: 100px;">Unit</th>
+                                    <th>Tanggal</th>
                                     {{-- <th style="width: 100px;">Lokasi</th> --}}
                                     <th>Speed</th>
                                     <th>Wing Kiri</th>
                                     <th>Wing Kanan</th>
                                     <th>Golden Time</th>
-                                    <th>Tanggal</th>
                                     {{-- <th>Waktu Spray</th> --}}
                                     <th>Action</th>
                                 </tr>
@@ -119,6 +119,7 @@
                                     <td class="text-center">{{ $loop->iteration + ($report_conformities->currentPage() - 1) * $report_conformities->perPage() }}</td>
                                     <td>{{ $report_conformity->pg }}</td>
                                     <td>{{ $report_conformity->unit }}</td>
+                                    <td>{{ date('d/m/Y', strtotime($report_conformity->tanggal)) }}</td>
                                     {{-- <td>{{ $report_conformity->lokasi }}</td> --}}
                                     <td>
                                         <div style="display: flex; justify-content: center;">
@@ -140,7 +141,6 @@
                                             <canvas id="golden_time_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
-                                    <td>{{ date('d/m/Y', strtotime($report_conformity->tanggal)) }}</td>
                                     {{-- <td>
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="waktu_spray_{{$key}}" style="width:100%;max-width:100%"></canvas>
