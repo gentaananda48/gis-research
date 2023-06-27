@@ -56,7 +56,7 @@ class ConformityUnitController extends Controller
             $report_conformities = $report_conformities->where('pg', $request->pg[0]);
         }
 
-        $report_conformities = $report_conformities->groupBy('pg', 'unit', 'tanggal')
+        $report_conformities = $report_conformities->groupBy(['pg'])
         ->select([
             DB::raw("SUM(speed_diatas_standar) as speed_diatas_standar"),
             DB::raw("SUM(speed_dibawah_standar) as speed_dibawah_standar"),
