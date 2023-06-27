@@ -56,8 +56,23 @@ class ConformityUnitController extends Controller
             $report_conformities = $report_conformities->where('pg', $request->pg[0]);
         }
 
-        $report_conformities = $report_conformities->paginate(10);
-        
+        $report_conformities = $report_conformities->groupBy('pg', 'unit', 'tanggal')
+        ->select([
+            DB::raw("SUM(speed_diatas_standar) as speed_diatas_standar"),
+            DB::raw("SUM(speed_dibawah_standar) as speed_dibawah_standar"),
+            DB::raw("SUM(speed_standar) as speed_standar"),
+            DB::raw("SUM(wing_kiri_diatas_standar) as wing_kiri_diatas_standar"),
+            DB::raw("SUM(wing_kiri_dibawah_standar) as wing_kiri_dibawah_standar"),
+            DB::raw("SUM(wing_kiri_standar) as wing_kiri_standar"),
+            DB::raw("SUM(wing_kanan_diatas_standar) as wing_kanan_diatas_standar"),
+            DB::raw("SUM(wing_kanan_dibawah_standar) as wing_kanan_dibawah_standar"),
+            DB::raw("SUM(wing_kanan_standar) as wing_kanan_standar"),
+            DB::raw("SUM(goldentime_tidak_standar) as goldentime_tidak_standar"),
+            DB::raw("SUM(goldentime_standar) as goldentime_standar"),
+            'pg', 'unit', 'tanggal', 'id'
+        ])
+        ->paginate(10);
+
         return view('summary_report_vat.conformity_unit.index', [
             'date_range'    => $date_range,
             'list_pg'       => $list_pg,
