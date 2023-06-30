@@ -216,6 +216,7 @@ Route::group([
     'prefix'        => 'report_segment'
 ], function ($router) {
     Route::get('all', 'ReportSegmentController@all');
+    Route::get('segment', 'ReportSegmentController@segment');
 });
 
 //API AI Dashboard temporary

@@ -65,6 +65,10 @@ class SaveJsonFile extends Command
                 try {
                     if ($getData) {
                         foreach ($getData as $data) {
+                            if (!isset($data->utc_timestamp_tablet)) {
+                                continue;
+                            }
+
                             $cekTable = \DB::table("lacak_".$data->source_device_id)->where('device_timestamp',$data->utc_timestamp_tablet)->first();
                             if($cekTable){
                                     continue;
@@ -110,6 +114,8 @@ class SaveJsonFile extends Command
 
                         \Log::info("save success");
                         $this->info('save succes');
+                    }else{
+                        unlink($tempFile);
                     }
                 } catch (\Throwable $th) {
                     \Log::info($th->getMessage());

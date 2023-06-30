@@ -49,6 +49,58 @@
             padding: 0px;
             border: 0px;
         }
+
+        @media print {
+            body {-webkit-print-color-adjust: exact;}
+            
+            .hidden-print {
+                display: none !important;
+            }
+            
+            .clr-std{
+                background-color: #08b160 !important;
+                print-color-adjust: exact;
+            }
+            .clr-btm-std{
+                background-color: red !important;
+                print-color-adjust: exact;
+            }
+            .clr-up-std{
+                background-color: #f97c22 !important;
+                print-color-adjust: exact;
+            }
+
+            td.bg-lightgreen {
+            background-color: rgba(1, 146, 76, 0.6) !important;
+            color: #00512A !important;
+            }
+
+            td.bg-green {
+                background-color: rgba(1, 146, 76, 0.2) !important;
+                color: #00512A !important;
+            }
+
+            td.bg-red {
+                background-color: #F70404 !important;
+                color: #fff !important;
+            }
+
+            td.bg-yellow {
+                background-color: #F70404 !important;
+                color: #fff !important;
+            }
+
+            th {
+                text-align: center;
+                background-color: #01924C;
+                color: #fff;
+            }
+        }
+
+        @page {
+            margin: 0cm;
+            size: A4 landscape;
+        }
     </style>
 @stop
 
@@ -58,6 +110,7 @@
         <div class="col-md-12">
             <div class="box box-success">
                 <div class="box-body">
+				    <div id="map" style="width: 100%; height: 500px;"></div>
                 </div>
             </div>
         </div>
@@ -67,37 +120,37 @@
         <div class="col-md-12">
             <div class="box box-success">
                 <div class="box-header text-center">
-                    <h3><strong>{{ $rencana_kerja->unit_label }}</strong></h3>
+                    <h3><strong>{{ $rk->unit_label }}</strong></h3>
                 </div>
                 <div class="box-body" style="padding-left: 36px; padding-right: 36px;">
                     <table class="table" width="100%" id="table-detail">
                         <tr>
                             <td width="25%"><h4>JENIS APLIKASI</h4></td>
-                            <td width="25%"><h4>{{ $rencana_kerja->aktivitas_nama }}</h4></td>
+                            <td width="25%"><h4>{{ $rk->aktivitas_nama }}</h4></td>
                             <td width="25%"><h4>LOKASI</h4></td>
-                            <td width="25%"><h4>{{ $rencana_kerja->lokasi_kode }}</h4></td>
+                            <td width="25%"><h4>{{ $rk->lokasi_kode }}</h4></td>
                         </tr>
                         <tr>
                             <td width="25%"><h4>LUAS NETTO</h4></td>
-                            <td width="25%"><h4>{{ $rencana_kerja->lokasi_lsnetto }} Ha</h4></td>
+                            <td width="25%"><h4>{{ $rk->lokasi_lsnetto }} Ha</h4></td>
                             <td width="25%"><h4>LUAS BRUTO</h4></td>
-                            <td width="25%"><h4>{{ $rencana_kerja->lokasi_lsbruto }} Ha</h4></td>
+                            <td width="25%"><h4>{{ $rk->lokasi_lsbruto }} Ha</h4></td>
                         </tr>
                         <tr>
                             <td width="25%"><h4>NOZZLE</h4></td>
-                            <td width="25%"><h4>{{ $rencana_kerja->nozzle_nama }}</h4></td>
+                            <td width="25%"><h4>{{ $rk->nozzle_nama }}</h4></td>
                             <td width="25%"><h4>UNIT</h4></td>
-                            <td width="25%"><h4>{{ $rencana_kerja->unit_label }}</h4></td>
+                            <td width="25%"><h4>{{ $rk->unit_label }}</h4></td>
                         </tr>
                         <tr>
                             <td width="25%"><h4>JAM MULAI</h4></td>
-                            <td width="25%"><h4>{{ date('Y-m-d | H:i:s', strtotime($rencana_kerja->jam_mulai)) }}</h4></td>
+                            <td width="25%"><h4>{{ date('Y-m-d | H:i:s', strtotime($rk->jam_mulai)) }}</h4></td>
                             <td width="25%"><h4>VOLUME AIR</h4></td>
-                            <td width="25%"><h4>{{ $rencana_kerja->volume }}</h4></td>
+                            <td width="25%"><h4>{{ $rk->volume }}</h4></td>
                         </tr>
                         <tr>
                             <td width="25%"><h4>JAM SELESAI</h4></td>
-                            <td width="25%"><h4>{{ date('Y-m-d | H:i:s', strtotime($rencana_kerja->jam_selesai)) }}</h4></td>
+                            <td width="25%"><h4>{{ date('Y-m-d | H:i:s', strtotime($rk->jam_selesai)) }}</h4></td>
                             <td width="25%"><h4>SUHU</h4></td>
                             <td width="25%"><h4>-</h4></td>
                         </tr>
@@ -150,22 +203,50 @@
                             <tbody>
                                 <tr>
                                     <td class="text-center">{{ $report_conformity->shift }}</td>
-                                    <td class="text-center">N/A m/s</td>
+                                    <td class="text-center">
+                                        {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 1)
+                                                ->first()
+                                                ->range_1
+                                        }} m/s
+                                    </td>
                                     <td class="text-center">{{ $report_conformity->speed_dibawah_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->speed_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->speed_diatas_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->avg_speed }}%</td>
-                                    <td class="text-center">N/A cm</td>
+                                    <td class="text-center">
+                                        {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 5)
+                                                ->first()
+                                                ->range_1
+                                        }} cm
+                                    </td>
                                     <td class="text-center">{{ $report_conformity->wing_kanan_dibawah_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->wing_kanan_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->wing_kanan_diatas_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->avg_wing_kanan }}%</td>
-                                    <td class="text-center">N/A cm</td>
+                                    <td class="text-center">
+                                        {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 4)
+                                                ->first()
+                                                ->range_1
+                                        }} cm
+                                    </td>
                                     <td class="text-center">{{ $report_conformity->wing_kiri_dibawah_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->wing_kiri_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->wing_kiri_diatas_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->avg_wing_kiri }}%</td>
-                                    <td class="text-center">N/A m/s</td>
+                                    <td class="text-center">
+                                        {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 6)
+                                                ->first()
+                                                ->range_1
+                                        }} C
+                                    </td>
                                     <td class="text-center">N/A%</td>
                                     <td class="text-center">N/A%</td>
                                     <td class="text-center">N/A%</td>
@@ -184,9 +265,9 @@
                 <div class="box-body">
                     <div style="padding-bottom: 1rem; display:flex; justify-content: end; align-items:center">
                         <div>
-                            <small><span class="label label-default" style="background-color: #08b160">&nbsp;</span> Standar</small> &nbsp;
-                            <small><span class="label label-default" style="background-color: red">&nbsp;</span> Dibawah Standar</small> &nbsp;
-                            <small><span class="label label-default" style="background-color: #f97c22">&nbsp;</span> Diatas Standar</small>
+                            <small><span class="label label-default clr-std" style="background-color: #08b160">&nbsp;</span> Standar</small> &nbsp;
+                            <small><span class="label label-default clr-btm-std" style="background-color: red">&nbsp;</span> Dibawah Standar</small> &nbsp;
+                            <small><span class="label label-default clr-up-std" style="background-color: #f97c22">&nbsp;</span> Diatas Standar</small>
                         </div>
                     </div>
                     <div >
@@ -268,10 +349,10 @@
                         </tbody>
                     </table>
 
-                    <div style="padding-top: 1rem;">
+                    <div style="padding-top: 1rem;" class="hidden-print">
                         <a href="{{ route('summary.conformity_unit') }}" class="btn btn-warning btn-sm"  style="margin: 0px; margin-right: 8px;">Back</a>
 
-                        <button class="btn btn-success btn-sm" style="margin: 0">Export</button>
+                        <button class="btn btn-success btn-sm btn-print" style="margin: 0">Export</button>
                     </div>
                 </div>
             </div>
@@ -284,6 +365,11 @@
 
 <script>
    $(document).ready(function() {
+        $('.btn-print').click(function(){
+           window.print();
+           return false;
+        });
+
         const reportConformity = JSON.parse('{!! $report_conformity !!}')
 
         pieChart("speed_1", [
@@ -388,4 +474,102 @@
     }
 
 </script>
+
+<script>
+	var map;
+	var marker;
+	var poly;
+	var lacak = {!! $list_lacak !!};
+	var timestamp_jam_mulai = {!! $timestamp_jam_mulai !!};
+	var timestamp_jam_selesai = {!! $timestamp_jam_selesai !!};
+	var i = 0;
+
+	function initMap() {
+		map = new google.maps.Map(document.getElementById("map"), {
+		    zoom: 17,
+		    center: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
+		    mapTypeId: "satellite",
+		});
+
+		google.maps.Polygon.prototype.my_getBounds=function(){
+		    var bounds = new google.maps.LatLngBounds()
+		    this.getPath().forEach(function(element,index){bounds.extend(element)})
+		    return bounds
+		}
+
+		marker = new google.maps.Marker({
+		    position: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
+		    //label: 'TEST',
+		    map: map,
+		    //animation: google.maps.Animation.DROP,
+		    icon: {
+		        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+		        fillColor: '#04F8E5',
+			    fillOpacity: 1,
+			    strokeWeight: 1,
+		        strokeColor: '#04F8E5',
+			    scale: 5,
+		        rotation: lacak[0].position_direction,
+		        anchor: new google.maps.Point(0, 5),
+		    }
+		});
+
+		var list_lokasi = {!! $list_lokasi !!} || []
+	  	list_lokasi.forEach(function(lokasi) {
+		  	const polygon = new google.maps.Polygon({
+			    paths: lokasi.koordinat,
+			    strokeColor: '#964B00',
+			    strokeOpacity: 0.9,
+			    strokeWeight: 2,
+			    fillColor: '#964B00',
+			    fillOpacity: 0.4
+		  	});
+	    	polygon.infoWindow = new google.maps.InfoWindow({
+	      		content: lokasi.nama
+	    	});
+		  	polygon.setMap(map);
+		  	map.setCenter(polygon.my_getBounds().getCenter());
+		});
+		for (var i = 0, len = lacak.length; i < len; i += 1) {
+			if(timestamp_jam_mulai > lacak[i].timestamp || lacak[i].timestamp > timestamp_jam_selesai) {
+				continue;
+			}
+		    var icon = marker.getIcon();
+			icon.rotation = lacak[i].position_direction;
+	    	marker.setIcon(icon);
+	    	var position = new google.maps.LatLng(lacak[i].position_latitude, lacak[i].position_longitude);
+			marker.setPosition(position);
+			if(i>0){
+				if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
+					var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#00FF00" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#FFA500" : "#FFFF00";
+					var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
+					var poly = new google.maps.Polyline({
+					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+					    geodesic: true,
+					    strokeColor: strokeColor,
+					    strokeOpacity: 0.5,
+					    strokeWeight: strokeWeight,
+			    		zIndex: 999999,
+					});
+			    	poly.setMap(map);
+				} else {
+					var poly = new google.maps.Polyline({
+					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+					    geodesic: true,
+					    strokeColor: "#FF0000",
+					    strokeOpacity: 0.5,
+					    strokeWeight: 3,
+			    		zIndex: 999999,
+					});
+			    	poly.setMap(map);
+				}
+			}
+		}
+	}
+</script>
+ <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBALLhhVF_c4wQ1CdlsZaDCaCD0ekaJn3Q&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
 @stop
