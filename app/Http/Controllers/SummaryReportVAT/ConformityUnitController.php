@@ -100,12 +100,26 @@ class ConformityUnitController extends Controller
         $rencana_kerja = RencanaKerja::where('tgl', $request->date)
             ->whereIn('lokasi_kode', array_column($report_conformities->toArray(), 'lokasi'))
             ->get();
+    
+        if ($report_conformities) {
+            foreach ($report_conformities as $value) {
+                $lokasiTemp = KoordinatLokasi::where('lokasi',$value->lokasi)->get();
+                if ($lokasiTemp) {
+                    foreach ($lokasiTemp as $key => $valueChild) {
+                        $lokasi[$value->lokasi][$key]['lat'] = $valueChild->latd;
+                        $lokasi[$value->lokasi][$key]['lng'] = $valueChild->long;
+                    }
+                }
+            }
+        }
 
         return view('summary_report_vat.conformity_unit.show_1', [
             'date_range'    => $date_range,
             'report_conformity' => $report_conformity,
             'report_conformities' => $report_conformities,
-            'rencana_kerja' => $rencana_kerja
+            'rencana_kerja' => $rencana_kerja,
+            'pg' => $report_conformity->pg,
+            'lokasi' => $lokasi
         ]);
     }
 
