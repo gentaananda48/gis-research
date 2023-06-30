@@ -100,7 +100,8 @@ class ConformityUnitController extends Controller
         $rencana_kerja = RencanaKerja::where('tgl', $request->date)
             ->whereIn('lokasi_kode', array_column($report_conformities->toArray(), 'lokasi'))
             ->get();
-    
+        
+        $lokasi = array();
         if ($report_conformities) {
             foreach ($report_conformities as $value) {
                 $lokasiTemp = KoordinatLokasi::where('lokasi',$value->lokasi)->get();
