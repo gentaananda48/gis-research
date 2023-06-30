@@ -125,6 +125,10 @@
             font-weight: 600;
         }
 
+        #peta_pg {
+            height: 300px;
+        }
+
         @media print {
             body {-webkit-print-color-adjust: exact;}
             
@@ -182,6 +186,11 @@
                 <div class="box-header text-center">
                     <h3 style="margin-bottom: 0px;"><strong>Conformity Unit {{ $report_conformity->pg }} - {{ $report_conformity->unit }}</strong></h3>
                 </div>
+
+                <div class="box-body text-center">
+                    <div id="peta_pg" class="h-[400px] md:h-[120px] md:h-[220px]"></div>
+                </div>
+
                 <div class="box-body">
                     <div style="padding-bottom: 1rem; display:flex; justify-content: end; align-items:center">
                         <div>
@@ -431,4 +440,65 @@
         return rand;
     }
 </script>
+
+{{-- Map --}}
+<script>
+    function initMap() {
+        var unit = '{{ $pg }}';
+        var lat;
+        var long;
+
+        if (unit == 'PG1') {
+           lat = -4.806653;
+           long = 105.239725;
+        }else if(unit == 'PG2'){
+            lat = -4.761925;
+           long = 105.125017;
+        }else{
+            lat = -4.632863;
+            long = 105.302955;
+        }
+
+        peta_pg = new google.maps.Map(document.getElementById('peta_pg'), {
+            center: new google.maps.LatLng(lat, long),
+            zoom: 12,
+            mapTypeId: google.maps.MapTypeId.SATELLITE
+        }); 
+
+        @if ($lokasi)
+            @foreach ($lokasi as $key => $item)
+            var lok_{{ $key }} = new google.maps.Polygon({
+                paths: {!! json_encode($item) !!},
+                strokeColor: '#0000FF',
+                strokeOpacity: 1,
+                fillColor: '#f97c22',
+                fillOpacity: 0.7,
+                strokeWeight: 0.2
+            });
+
+            lok_{{ $key }}.setMap(peta_pg);
+
+            google.maps.event.addListener(lok_{{ $key }}, "click", function(event) {
+                var info_{{ $key }} = '<div id="content">' +
+                '<div id="siteNotice">' +
+                "</div>" +
+                '<h1 id="firstHeading" class="firstHeading">Lokasi {{ $key }}</a></h1>' +
+                '<div id="bodyContent">' +
+                "<p></p>" +
+                "</div>" +
+                "</div>";
+                iw_{{ $key }} = new google.maps.InfoWindow();
+                iw_{{ $key }}.setContent(info_{{ $key }});
+                iw_{{ $key }}.setPosition(event.latLng);
+                iw_{{ $key }}.open(peta_pg);
+            });
+            @endforeach
+        @endif
+        // lok_pg.setMap(peta_pg);
+    }
+    window.initMap = initMap;
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQxxTv2PALE4bBtAuNr6qYgsLp5ZDKmRY&callback=initMap"></script>
+
 @stop
