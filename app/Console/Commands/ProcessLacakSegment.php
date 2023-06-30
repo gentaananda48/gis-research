@@ -171,30 +171,41 @@ class ProcessLacakSegment extends Command
                                 continue;
                             }
 
+                            $getDataBsc = array();
+                            if ($by_lokasi->speed > 0.9) {
+                                $getSegment = DB::table($table_segment_label)
+                                ->whereBetween('id',array(1,$startID))
+                                ->where('kode_lokasi',$by_lokasi->lokasi_kode)
+                                ->where('report_date',$by_lokasi->report_date)
+                                ->pluck('lacak_bsc_id');
 
-                            $getSegment = DB::table($table_segment_label)
-                            ->whereBetween('id',array(1,$startID))
-                            ->where('kode_lokasi',$by_lokasi->lokasi_kode)
-                            ->where('report_date',$by_lokasi->report_date)
-                            ->pluck('lacak_bsc_id');
-
-                            $geofenceHelper = new GeofenceHelper;
-                            $getDataBsc = DB::table($unit_table)
-                            ->select('latitude','longitude')
-                            ->where('speed','>',0.9)
-                            ->whereIn('id',$getSegment)
-                            ->get()
-                            ->toArray();
+                                $geofenceHelper = new GeofenceHelper;
+                                $getDataBsc = DB::table($unit_table)
+                                ->select('latitude','longitude')
+                                ->where('speed','>',0.9)
+                                ->whereIn('id',$getSegment)
+                                ->get()
+                                ->toArray();
+                            }
+                            
                             
                             if ($getDataBsc) {
-
+                                $left = 0;
+                                $right = 0;
                                 $overlapping = $geofenceHelper->calculateOverlap($by_lokasi->latitude, $by_lokasi->longitude, $getDataBsc);
+                                // cek kondisi wing main
+                                if ($overlapping  == 1 && $by_lokasi->pump_switch_main  == 1) {
+                                   $left = $by_lokasi->bearing > 90 ? ($by_lokasi->pump_switch_right == null ? 0:$by_lokasi->pump_switch_right) :($by_lokasi->pump_switch_left == null ? 0:$by_lokasi->pump_switch_left);
+                                   $right = $by_lokasi->bearing > 90 ? ($by_lokasi->pump_switch_left == null ? 0:$by_lokasi->pump_switch_left):($by_lokasi->pump_switch_right == null ? 0:$by_lokasi->pump_switch_right);
+                                }
+                                // end cek kondisi
+
                                 DB::table($table_segment_label)
                                 ->where('lacak_bsc_id',$by_lokasi->id)
                                 ->update([
                                     'overlapping_route' => $overlapping,
-                                    'overlapping_left' => $by_lokasi->bearing > 90 ? ($by_lokasi->pump_switch_right == null ? 0:$by_lokasi->pump_switch_right) :($by_lokasi->pump_switch_left == null ? 0:$by_lokasi->pump_switch_left),
-                                    'overlapping_right' => $by_lokasi->bearing > 90 ? ($by_lokasi->pump_switch_left == null ? 0:$by_lokasi->pump_switch_left):($by_lokasi->pump_switch_right == null ? 0:$by_lokasi->pump_switch_right)
+                                    'overlapping_left' => $left,
+                                    'overlapping_right' => $right
                                 ]);
 
                                 DB::commit();

@@ -30,6 +30,32 @@
             background-color: transparent;
             border: 0;
         }
+
+        @media print {
+            body {-webkit-print-color-adjust: exact;}
+            
+            .hidden-print {
+                display: none !important;
+            }
+            
+            .clr-std{
+                background-color: #08b160 !important;
+                print-color-adjust: exact;
+            }
+            .clr-btm-std{
+                background-color: red !important;
+                print-color-adjust: exact;
+            }
+            .clr-up-std{
+                background-color: #f97c22 !important;
+                print-color-adjust: exact;
+            }
+        }
+
+        @page {
+            margin: 0cm;
+            size: A4 landscape;
+        }
     </style>
     {!! Html::script('AdminLTE-2.4.18/bower_components/chart.js/Chart.js') !!}
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -37,7 +63,8 @@
 
 @section('content')
 <section class="content">
-    <div class="row">
+    @if ($hide_filter == false)
+    <div class="row hidden-print">
       <div class="col-md-12">
         <div class="box box-success">
           <div class="box-header with-border">
@@ -70,7 +97,8 @@
           </div>
         </div>
       </div>
-    </div>
+    </div>    
+    @endif
 
     <div class="row">
         <div class="col-md-12">
@@ -80,22 +108,23 @@
                 </div>
                 <div class="box-body">
                     <div style="padding-bottom: 1rem; display:flex; justify-content: space-between; align-items:center">
-                        <div class="btn-group">
+                        <div class="btn-group hidden-print">
                             <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               Export <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                              <li><a href="#">Excel</a></li>
-                              <li><a href="#">PNG</a></li>
+                              <li><a href="{{ route('summary.conformity_unit.export','excel') }}?range={{ $date_range }}&pg={{ is_array($pg) ? $pg[0]:'' }}&unit={{ is_array($unit) ? $unit[0]:'' }}">Excel</a></li>
+                              <li><a href="javascript:void(0)" class="btn-print">PDF</a></li>
                             </ul>
                         </div>
 
                         <div>
-                            <small><span class="label label-default" style="background-color: #08b160">&nbsp;</span> Standar</small> &nbsp;
-                            <small><span class="label label-default" style="background-color: red">&nbsp;</span> Dibawah Standar</small> &nbsp;
-                            <small><span class="label label-default" style="background-color: #f97c22">&nbsp;</span> Diatas Standar</small>
+                            <small><span class="label label-default clr-std" style="background-color: #08b160">&nbsp;</span> Standar</small> &nbsp;
+                            <small><span class="label label-default clr-btm-std" style="background-color: red">&nbsp;</span> Dibawah Standar</small> &nbsp;
+                            <small><span class="label label-default clr-up-std" style="background-color: #f97c22">&nbsp;</span> Diatas Standar</small>
                         </div>
                     </div>
+
                     <div >
                         <table class="table table-hover table-bordered" width="100%">
                             <thead>
@@ -110,13 +139,20 @@
                                     <th>Wing Kanan</th>
                                     <th>Golden Time</th>
                                     {{-- <th>Waktu Spray</th> --}}
-                                    <th>Action</th>
+                                    @if ($hide_filter == false)
+                                    <th class="hidden-print">Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($report_conformities as $key => $report_conformity)
                                 <tr>
-                                    <td class="text-center">{{ $loop->iteration + ($report_conformities->currentPage() - 1) * $report_conformities->perPage() }}</td>
+                                    @if ($hide_filter == false)
+                                        <td class="text-center">{{ $loop->iteration + ($report_conformities->currentPage() - 1) * $report_conformities->perPage() }}</td>
+                                    @else
+                                        <td class="text-center">{{ $loop->iteration}}</td>
+                                    @endif
+
                                     <td>{{ $report_conformity->pg }}</td>
                                     <td>{{ $report_conformity->unit }}</td>
                                     <td>{{ date('d/m/Y', strtotime($report_conformity->tanggal)) }}</td>
@@ -146,9 +182,11 @@
                                             <canvas id="waktu_spray_{{$key}}" style="width:100%;max-width:100%"></canvas>
                                         </div>
                                     </td> --}}
-                                    <td class="text-center">
+                                    @if ($hide_filter == false)
+                                    <td class="text-center hidden-print">
                                         <a href="{{ route('summary.conformity_unit.show', $report_conformity->id) }}" class="btn btn-success btn-sm">View Detail</a>
                                     </td>
+                                    @endif
                                 </tr>
                                 @empty
                                 <tr>
@@ -181,7 +219,11 @@
                                 </tr> --}}
                             </tbody>
                         </table>
-                        {{$report_conformities->links()}}
+                        @if ($hide_filter == false)
+                            <div class="hidden-print">
+                            {{$report_conformities->links()}}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -194,8 +236,13 @@
 
 <script>
     $(document).ready(function() {
-        const reportConformities = JSON.parse('{!! collect($report_conformities->toArray()["data"]) !!}')
-
+        let reportConformities;
+        @if ($hide_filter == false)
+            reportConformities = JSON.parse('{!! collect($report_conformities->toArray()["data"]) !!}');
+        @else
+            reportConformities = JSON.parse('{!! collect($report_conformities->toArray()) !!}');
+        @endif
+        
         for (let index = 0; index < reportConformities.length; index++) {
             pieChart("speed_"+index, [
                 reportConformities[index].speed_standar.toFixed(2),
@@ -221,6 +268,11 @@
             //     reportConformities[index].spray_tidak_standar,
             // ], 'waktu_spray');
         }
+
+        $('.btn-print').click(function(){
+           window.print();
+           return false;
+        });
     });
 
     function pieChart(el, yValues, type = '') {

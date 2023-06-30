@@ -18,11 +18,14 @@ use App\Model\SystemConfiguration;
 use App\Model\Unit;
 use App\Model\VReportRencanaKerja2;
 use App\Transformer\LacakBsc01Transformer;
+use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use DatePeriod;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ExportSummary;
 
 class ConformityUnitController extends Controller
 {
@@ -56,7 +59,7 @@ class ConformityUnitController extends Controller
             $report_conformities = $report_conformities->where('pg', $request->pg[0]);
         }
 
-        $report_conformities = $report_conformities->groupBy('pg', 'unit', 'tanggal')
+        $report_conformities = $report_conformities->groupBy('pg', 'unit')
         ->select([
             DB::raw("SUM(speed_diatas_standar) as speed_diatas_standar"),
             DB::raw("SUM(speed_dibawah_standar) as speed_dibawah_standar"),
@@ -72,14 +75,14 @@ class ConformityUnitController extends Controller
             'pg', 'unit', 'tanggal', 'id'
         ])
         ->paginate(10);
-
         return view('summary_report_vat.conformity_unit.index', [
             'date_range'    => $date_range,
             'list_pg'       => $list_pg,
             'pg'            => $request->pg,
             'list_unit'     => $list_unit,
             'unit'          => $request->unit,
-            'report_conformities' => $report_conformities
+            'report_conformities' => $report_conformities,
+            'hide_filter' => false
         ]); 
     }
 
@@ -312,5 +315,52 @@ class ConformityUnitController extends Controller
         }
 
         return $dates;
+    }
+
+    function export(Request $request,$type){
+        if(!empty($request->range)){
+            $date_range = explode(' - ', $request->range);
+            $date1 = date('Y-m-d', strtotime($date_range[0]));
+            $date2 = date('Y-m-d', strtotime($date_range[1]));
+        } else {
+            $date1 = date('Y-m-d');
+            $date2 = date('Y-m-d');
+        }
+
+        $date_range = date('m/d/Y', strtotime($date1)).' - '.date('m/d/Y', strtotime($date2));
+        $list_pg = array_merge(['All' => 'All'], PG::all(['nama'])->pluck('nama', 'nama')->toArray());
+        $list_unit = array_merge(['All' => 'All'], Unit::all(['label'])->pluck('label', 'label')->toArray());
+
+        $report_conformities = new ReportConformity();
+
+        $report_conformities = $report_conformities->whereBetween('tanggal', [$date1, $date2]);
+
+        if($request->unit && $request->unit != 'All') {
+            $report_conformities = $report_conformities->where('unit', $request->unit);
+        }
+
+        if($request->pg && $request->pg != 'All') {
+            $report_conformities = $report_conformities->where('pg', $request->pg);
+        }
+
+        $report_conformities = $report_conformities->groupBy('pg', 'unit')
+        ->select([
+            DB::raw("SUM(speed_diatas_standar) as speed_diatas_standar"),
+            DB::raw("SUM(speed_dibawah_standar) as speed_dibawah_standar"),
+            DB::raw("SUM(speed_standar) as speed_standar"),
+            DB::raw("SUM(wing_kiri_diatas_standar) as wing_kiri_diatas_standar"),
+            DB::raw("SUM(wing_kiri_dibawah_standar) as wing_kiri_dibawah_standar"),
+            DB::raw("SUM(wing_kiri_standar) as wing_kiri_standar"),
+            DB::raw("SUM(wing_kanan_diatas_standar) as wing_kanan_diatas_standar"),
+            DB::raw("SUM(wing_kanan_dibawah_standar) as wing_kanan_dibawah_standar"),
+            DB::raw("SUM(wing_kanan_standar) as wing_kanan_standar"),
+            DB::raw("SUM(goldentime_tidak_standar) as goldentime_tidak_standar"),
+            DB::raw("SUM(goldentime_standar) as goldentime_standar"),
+            'pg', 'unit', 'tanggal', 'id'
+        ])->get();
+
+        $result['summary'] = $report_conformities; 
+        $result['date'] = $request->range; 
+        return Excel::download(new ExportSummary($result), 'summary.xlsx');
     }
 }

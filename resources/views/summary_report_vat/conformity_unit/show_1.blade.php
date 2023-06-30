@@ -124,6 +124,52 @@
             font-size: 15px;
             font-weight: 600;
         }
+
+        @media print {
+            body {-webkit-print-color-adjust: exact;}
+            
+            .hidden-print {
+                display: none !important;
+            }
+            
+            .clr-std{
+                background-color: #08b160 !important;
+                print-color-adjust: exact;
+            }
+            .clr-btm-std{
+                background-color: red !important;
+                print-color-adjust: exact;
+            }
+            .clr-up-std{
+                background-color: #f97c22 !important;
+                print-color-adjust: exact;
+            }
+
+            td.bg-lightgreen {
+            background-color: rgba(1, 146, 76, 0.6) !important;
+            color: #00512A !important;
+            }
+
+            td.bg-green {
+                background-color: rgba(1, 146, 76, 0.2) !important;
+                color: #00512A !important;
+            }
+
+            td.bg-red {
+                background-color: #F70404 !important;
+                color: #fff !important;
+            }
+
+            td.bg-yellow {
+                background-color: #F70404 !important;
+                color: #fff !important;
+            }
+        }
+
+        @page {
+            margin: 0cm;
+            size: A4 landscape;
+        }
     </style>
 @stop
 
@@ -139,9 +185,9 @@
                 <div class="box-body">
                     <div style="padding-bottom: 1rem; display:flex; justify-content: end; align-items:center">
                         <div>
-                            <small><span class="label label-default" style="background-color: #08b160">&nbsp;</span> Standar</small> &nbsp;
-                            <small><span class="label label-default" style="background-color: red">&nbsp;</span> Dibawah Standar</small> &nbsp;
-                            <small><span class="label label-default" style="background-color: #f97c22">&nbsp;</span> Diatas Standar</small>
+                            <small><span class="label label-default clr-std" style="background-color: #08b160">&nbsp;</span> Standar</small> &nbsp;
+                            <small><span class="label label-default clr-btm-std" style="background-color: red">&nbsp;</span> Dibawah Standar</small> &nbsp;
+                            <small><span class="label label-default clr-up-std" style="background-color: #f97c22">&nbsp;</span> Diatas Standar</small>
                         </div>
                     </div>
                     <div >
@@ -219,7 +265,7 @@
                                 <th>Rencana Kerja</th>
                                 <th>Shift</th>
                                 <th>Jenis Aplikasi</th>
-                                <th>Action</th>
+                                <th class="hidden-print">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -237,7 +283,7 @@
                                     <td>{{ $rencana_kerja->count() > 0 ? 'Y' : 'N' }}</td>
                                     <td>{{ $item->shift }}</td>
                                     <td>{{ $item->activity }}</td>
-                                    <td class="text-center"><a href="{{ route('summary.conformity_unit.detail', $item->id) }}" class="btn btn-success btn-sm">Detail</a></td>
+                                    <td class="text-center hidden-print"><a href="{{ route('summary.conformity_unit.detail', $item->id) }}" class="btn btn-success btn-sm">Detail</a></td>
                                 </tr>
                             @empty
                             <tr>
@@ -247,10 +293,10 @@
                         </tbody>
                     </table>
 
-                    <div style="padding-top: 1rem;">
+                    <div style="padding-top: 1rem;" class="hidden-print">
                         <a href="{{ route('summary.conformity_unit') }}" class="btn btn-warning btn-sm"  style="margin: 0px; margin-right: 8px;">Back</a>
 
-                        <button class="btn btn-success btn-sm" style="margin: 0">Export</button>
+                        <button class="btn btn-success btn-sm btn-print" style="margin: 0">Export</button>
                     </div>
                 </div>
             </div>
@@ -264,6 +310,11 @@
 
 <script>
     $(document).ready(function() {
+        $('.btn-print').click(function(){
+           window.print();
+           return false;
+        });
+
         const reportConformity = JSON.parse('{!! $report_conformity !!}')
 
         pieChart("speed_1", [
