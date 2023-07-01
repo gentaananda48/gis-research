@@ -120,6 +120,7 @@ class SumarySegment extends Command
                 JOIN tb6 on tb6.report_parameter_standard_id = tb3.id
                 JOIN tb7 on tb7.report_parameter_standard_id = tb3.id
                 JOIN tb8 on tb8.report_parameter_standard_id = tb3.id
+                where tb1.overlapping_route != 0
                 and tb3.nozzle_id = tb2.nozzle_id
                 and tb3.volume_id = tb2.volume_id
                 and tb2.tgl = DATE(tb1.created_at)
