@@ -95,7 +95,7 @@ class ConformityUnitController extends Controller
 
         $date_range = array_unique($report_conformities->pluck('tanggal')->toArray());
 
-        $report_conformities = $report_conformities->where('tanggal', $request->date);
+       if($request->date) $report_conformities = $report_conformities->where('tanggal', $request->date);
 
         $rencana_kerja = RencanaKerja::where('tgl', $request->date)
             ->whereIn('lokasi_kode', array_column($report_conformities->toArray(), 'lokasi'))
