@@ -121,7 +121,7 @@ class SumarySegment extends Command
                     ROUND(SUM(CASE WHEN tb0.arm_height_right BETWEEN tb6.range_1 AND tb6.range_2 THEN 1 ELSE 0 END) / COUNT(tb0.arm_height_right) * 100,2) as wing_right_standard,
                     ROUND(SUM(CASE WHEN tb0.arm_height_right > tb6.range_2 THEN 1 ELSE 0 END) / COUNT(tb0.arm_height_right) * 100,2) as wing_right_upper_standard
                     FROM tb1 
-
+                    
                     LEFT JOIN tb0 ON tb0.id = tb1.lacak_bsc_id
                     LEFT JOIN tb2 ON tb2.lokasi_kode = tb1.kode_lokasi
                     LEFT JOIN tb3 on tb3.aktivitas_id = tb2.aktivitas_id
