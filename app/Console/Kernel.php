@@ -72,11 +72,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('summary:report')->hourly();
 
         //cron delete data archive more than 2 month, will execute at 00:00 (midnight) on the first day of each month.
-        $schedule->command('archive:delete-old-files')
-             ->monthly();
+        // $schedule->command('archive:delete-old-files')
+        //      ->monthly();
 
         //save file json to db
-        $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));
+        // $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));
         // \Log::info($schedule);
 
         // wait validation data
