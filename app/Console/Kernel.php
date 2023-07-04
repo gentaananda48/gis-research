@@ -81,9 +81,9 @@ class Kernel extends ConsoleKernel
         // \Log::info($schedule);
 
         // wait validation data
-        // $schedule->command('process:lacak-segment')->everyMinute();
-        // $schedule->command('process:sumary-segment')->everyFiveMinutes();
-        // $schedule->command('process:report-conformity')->everyFiveMinutes();
+        // $schedule->command('process:lacak-segment')->everyFiveMinutes();
+        // $schedule->command('process:sumary-segment')->dailyAt('23:00');
+        // $schedule->command('process:report-conformity')->dailyAt('23:00');
 
         // $schedule->call(function () {
         //     $this->pull_data_lacak();

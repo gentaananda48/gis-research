@@ -41,6 +41,11 @@ class ReportConformity extends Command
     {
         DB::beginTransaction();
         try {
+            // truncate table
+            DB::table('report_conformities')->truncate();
+            DB::commit();
+            // truncate
+
             $data = DB::select(DB::raw("
             WITH tb1 AS (
                 SELECT 

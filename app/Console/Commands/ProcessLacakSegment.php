@@ -20,14 +20,14 @@ class ProcessLacakSegment extends Command
      *
      * @var string
      */
-    protected $signature = 'process:lacak-segment {unit}';
+    protected $signature = 'process:lacak-segment';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Process Lacak Segment sample BSC_01';
+    protected $description = 'Process Lacak Segment';
 
     /**
      * Create a new command instance.
@@ -46,32 +46,22 @@ class ProcessLacakSegment extends Command
      */
     public function handle() {
         $cron_helper = new CronLogHelper;
-        $unit = $this->argument('unit');
         // $cron_helper->create('process:lacak-segment', 'STARTED', 'SourceDeviceID: '.$unit);
-        $list_source_device_id = explode(',',$unit);
+        $units = Unit::pluck('label')->all();
         DB::beginTransaction();
         try {
-            foreach($list_source_device_id as $source_device_id) {
-                $table_name = 'lacak_'.$source_device_id;
-
-                // lacak segment
-                $list_unit_table = [];
-                $get_label = DB::table($table_name)->select('unit_label')->limit(1)->orderBy('id', 'desc')->get();
-
-                foreach($get_label as $label) {
-                    $table_name2 = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($label->unit_label)));
-                    array_push($list_unit_table, $table_name2);
+            foreach($units as $source_device_id) {
+                if ($source_device_id == 'BSC - 06') {
+                    continue;
                 }
 
+                $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($source_device_id)));
+                $list_unit_table = array();
                 $iteration_segment = 1;
                 $final_segment = 1;
                 $luasan = 0;
                 $label_unit = array_count_values($list_unit_table);
-                
-                if (count(array_keys($label_unit)) > 0) {
-
-                    foreach (array_keys($label_unit) as $unit_table) {
-                        $lokasi_kode_unit = DB::table($unit_table)
+                $lokasi_kode_unit = DB::table($table_name)
                         ->select(
                             'lokasi_kode',
                             'id', 
@@ -89,10 +79,27 @@ class ProcessLacakSegment extends Command
                             'bearing'
                         )
                         ->where('lokasi_kode', '!=', '')
-                        ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '2023-05-01' and '2023-06-31'")
+                        ->where('is_segment',0)
+                        // ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '2023-05-01' and '2023-06-31'")
+                        ->limit(100)
                         ->get();
-                        $table_segment_label = str_replace("lacak_", "lacak_segment_", $unit_table);
+                        $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
                         foreach ($lokasi_kode_unit as $by_lokasi ) {
+                            // cek lacak segment
+                            $cekTable = DB::table($table_segment_label)
+                            ->where('lacak_bsc_id',$by_lokasi->id)
+                            ->first();
+                            if ($cekTable) {
+                                DB::table($table_name)
+                                ->where('id',$by_lokasi->id)
+                                ->update([
+                                    'is_segment' => true
+                                ]);
+
+                                DB::commit();
+                                continue;
+                            }
+
                             // hitung luasan
                             $left = 0;
                             $right = 0;
@@ -159,6 +166,12 @@ class ProcessLacakSegment extends Command
                                 $by_lokasi->report_date
                             ]);
 
+                            DB::table($table_name)
+                                ->where('id',$by_lokasi->id)
+                                ->update([
+                                    'is_segment' => true
+                                ]);
+
                             DB::commit();
 
                             $idSegment = DB::table($table_segment_label)
@@ -180,7 +193,7 @@ class ProcessLacakSegment extends Command
                                 ->pluck('lacak_bsc_id');
 
                                 $geofenceHelper = new GeofenceHelper;
-                                $getDataBsc = DB::table($unit_table)
+                                $getDataBsc = DB::table($table_name)
                                 ->select('latitude','longitude')
                                 ->where('speed','>',0.9)
                                 ->whereIn('id',$getSegment)
@@ -213,8 +226,6 @@ class ProcessLacakSegment extends Command
                             // end overlapping
                             $this->info('Success inputing data to table segment: '.$table_segment_label);
                         }
-                    }
-                }
             }
             
             // $cron_helper->create('process:lacak-segment', 'FINISHED', 'SourceDeviceID: '.$unit.'. Finished Successfully');
