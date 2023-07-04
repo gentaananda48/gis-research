@@ -76,13 +76,13 @@ class Kernel extends ConsoleKernel
         //      ->monthly();
 
         //save file json to db
-        // $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));
+        $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));
         // \Log::info($schedule);
 
         // wait validation data
-        // $schedule->command('process:lacak-segment')->everyFiveMinutes();
-        // $schedule->command('process:sumary-segment')->dailyAt('23:00');
-        // $schedule->command('process:report-conformity')->dailyAt('23:00');
+        $schedule->command('process:lacak-segment')->everyFiveMinutes();
+        $schedule->command('process:sumary-segment')->dailyAt('23:00');
+        $schedule->command('process:report-conformity')->dailyAt('23:00');
 
         // $schedule->call(function () {
         //     $this->pull_data_lacak();
