@@ -40,22 +40,31 @@ class SendEmailReport extends Command
      */
     public function handle()
     {
+        $date = '2023-06-24';
+
         // Fetch data from the database using a SQL query
-        $data = DB::select('SELECT tanggal, pg, unit, shift, lokasi, activity, speed_standar, wing_kiri_standar, wing_kanan_standar FROM report_conformities WHERE tanggal = CURDATE() - 1 GROUP BY pg');
+        $data = DB::select("SELECT tanggal, pg, unit, shift, lokasi, activity, speed_standar, wing_kiri_standar, wing_kanan_standar FROM report_conformities WHERE tanggal = '$date'");
 
         // Prepare the email data
         $emailData = [
             'tableHeaders' => [
-                'no', 'unit', 'shift', 'location', 'activity',
-                'rencana kerja', 'speed on standard',
+                'no', 'unit', 'pg', 'shift', 'location', 'activity', 'speed on standard',
                 'wing left on standard', 'wing right on standard'
             ],
             'tableData' => $data
         ];
 
-        // Send the email
-        Mail::to('akhmad.hidayat@gg-foods.com')->send(new DailyReport($emailData));
+        // Define the recipients
+        $recipients = [
+            'akhmad.hidayat@gg-foods.com',
+            'fahmi.robbani@gg-foods.com',
+            'zulian.jatmiko@gg-foods.com'
+        ];
+
+        // Send the email to multiple recipients
+        Mail::to($recipients)->send(new DailyReport($emailData));
 
         $this->info('Daily report email sent successfully.');
     }
+
 }
