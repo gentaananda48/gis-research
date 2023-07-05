@@ -45,6 +45,7 @@ class Kernel extends ConsoleKernel
         Commands\SumarySegment::class,
         Commands\ReportConformity::class,
         Commands\DeleteOldArchiveFiles::class,
+        Commands\SendEmailReport::class,
     ];
 
     /**
@@ -60,6 +61,8 @@ class Kernel extends ConsoleKernel
         // $this->base_url = SystemConfiguration::where('code', 'LACAK_API_URL')->first(['value'])->value;
         // $this->hash = SystemConfiguration::where('code', 'LACAK_API_HASH')->first(['value'])->value;
 
+        // 0 5 * * * cd /var/www/html && php artisan email:report >> /dev/null 2>&1
+
         $schedule->call(function () {
             //$this->generate_rencana_kerja_summary();
             $this->generate_rencana_kerja_report();
@@ -71,9 +74,9 @@ class Kernel extends ConsoleKernel
         // cron for summary and delete data old in archive
         $schedule->command('summary:report')->hourly();
 
-        //cron delete data archive more than 2 month, will execute at 00:00 (midnight) on the first day of each month.
-        // $schedule->command('archive:delete-old-files')
-        //      ->monthly();
+        // cron delete data archive more than 2 month, will execute at 00:00 (midnight) on the first day of each month.
+        $schedule->command('archive:delete-old-files')
+             ->monthly();
 
         //save file json to db
         $schedule->command('save:jsonfile')->everyMinute()->appendOutputTo(storage_path('/logs/laravel.log'));
