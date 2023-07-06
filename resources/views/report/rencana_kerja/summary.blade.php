@@ -129,7 +129,7 @@
 							</table>
 							</div>
 						</div>
-						{{-- <div class="box box-default box-solid">
+						<div class="box box-default box-solid">
 							<div class="box-body table-responsive">
 								<table class="table table-bordered">
 							        <thead>
@@ -159,31 +159,36 @@
 							            </tr>
 							        </thead>
 							        <tbody>
-							        	@foreach($list_percentage as $v)
-							            <tr>
-								            <td>{{$v->ritase}}</td>
-								            <td>{{$v->std_speed}}</td>
-								            <td>{{$v->avg_speed}}</td>
-								            <td>{{$v->prc_speed_under_standard}}</td>
-								            <td>{{$v->prc_speed_standard}}</td>
-								            <td>{{$v->prc_speed_upper_standard}}</td>
-								            <td>{{$v->std_arm_height_right}}</td>
-								            <td>{{$v->avg_arm_height_right}}</td>
-								            <td>{{$v->prc_arm_height_right_under_standard}}</td>
-								            <td>{{$v->prc_arm_height_right_standard}}</td>
-								            <td>{{$v->prc_arm_height_right_upper_standard}}</td>
-								            <td>{{$v->std_arm_height_left}}</td>
-								            <td>{{$v->avg_arm_height_left}}</td>
-								            <td>{{$v->prc_arm_height_left_under_standard}}</td>
-								            <td>{{$v->prc_arm_height_left_standard}}</td>
-								            <td>{{$v->prc_arm_height_left_upper_standard}}</td>
-								            <td>{{$v->avg_temperature_right}}</td>
-							            </tr>
-							        	@endforeach
+												@foreach($list_percentage as $v)
+												@php
+														if (!is_array($v)) {
+																$v = json_decode(json_encode($v), true);
+														}
+												@endphp
+												<tr>
+														<td>{{ $v['ritase'] }}</td>
+														<td>{{ $v['std_speed'] }}</td>
+														<td>{{ $v['avg_speed'] }}</td>
+														<td>{{ $v['prc_speed_under_standard'] }}</td>
+														<td>{{ $v['prc_speed_standard'] }}</td>
+														<td>{{ $v['prc_speed_upper_standard'] }}</td>
+														<td>{{ $v['std_arm_height_right'] }}</td>
+														<td>{{ $v['avg_arm_height_right'] }}</td>
+														<td>{{ $v['prc_arm_height_right_under_standard'] }}</td>
+														<td>{{ $v['prc_arm_height_right_standard'] }}</td>
+														<td>{{ $v['prc_arm_height_right_upper_standard'] }}</td>
+														<td>{{ $v['std_arm_height_left'] }}</td>
+														<td>{{ $v['avg_arm_height_left'] }}</td>
+														<td>{{ $v['prc_arm_height_left_under_standard'] }}</td>
+														<td>{{ $v['prc_arm_height_left_standard'] }}</td>
+														<td>{{ $v['prc_arm_height_left_upper_standard'] }}</td>
+														<td>{{ $v['avg_temperature_right'] }}</td>
+												</tr>
+												@endforeach
 							        </tbody>
 						        </table>
 							</div>
-						</div> --}}
+						</div>
 					</div>
 					<div class="box-footer">
 						<a href="{{ url('/report/rencana_kerja') }}" class="btn btn-warning"> Back </a>
