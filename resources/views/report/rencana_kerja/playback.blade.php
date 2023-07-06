@@ -159,126 +159,132 @@
 							</div>
 						</div>
 
-		{{-- <div class="box box-default box-solid">
-			<div class="box-body table-responsive">
-				<table class="table table-bordered">
-			        <thead>
-			            <tr>
-				            <th rowspan="2" style="vertical-align: middle; text-align: center;">Ritase</th>
-				            <th colspan="5" style="vertical-align: middle; text-align: center;">Speed</th>
-				            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kanan</th>
-				            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kiri</th>
-				            <th rowspan="2" style="vertical-align: middle; text-align: center;">Suhu</th>
-			            </tr>
-			            <tr>
-				            <th style="vertical-align: middle; text-align: center;">Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Average</th>
-				            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Average</th>
-				            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Average</th>
-				            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
-				            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
-			            </tr>
-			        </thead>
-			        <tbody>
-			        	@foreach($list_percentage as $v)
-			            <tr>
-				            <td>{{$v->std_speed}}</td>
-				            <td>{{$v->std_speed}}</td>
-				            <td>{{$v->avg_speed}}</td>
-				            <td>{{$v->prc_speed_under_standard}}</td>
-				            <td>{{$v->prc_speed_standard}}</td>
-				            <td>{{$v->prc_speed_upper_standard}}</td>
-				            <td>{{$v->std_arm_height_right}}</td>
-				            <td>{{$v->avg_arm_height_right}}</td>
-				            <td>{{$v->prc_arm_height_right_under_standard}}</td>
-				            <td>{{$v->prc_arm_height_right_standard}}</td>
-				            <td>{{$v->prc_arm_height_right_upper_standard}}</td>
-				            <td>{{$v->std_arm_height_left}}</td>
-				            <td>{{$v->avg_arm_height_left}}</td>
-				            <td>{{$v->prc_arm_height_left_under_standard}}</td>
-				            <td>{{$v->prc_arm_height_left_standard}}</td>
-				            <td>{{$v->prc_arm_height_left_upper_standard}}</td>
-				            <td>{{$v->avg_temperature_right}}</td>
-			            </tr>
-			        	@endforeach
-			        </tbody>
-		        </table>
-			</div>
-		</div> --}}
+		<div class="box box-default box-solid">
+							<div class="box-body table-responsive">
+								<table class="table table-bordered">
+							        <thead>
+							            <tr>
+								            <th rowspan="2" style="vertical-align: middle; text-align: center;">Ritase</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Speed</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kanan</th>
+								            <th colspan="5" style="vertical-align: middle; text-align: center;">Wing Level Kiri</th>
+								            <th rowspan="2" style="vertical-align: middle; text-align: center;">Suhu</th>
+							            </tr>
+							            <tr>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Average</th>
+								            <th style="vertical-align: middle; text-align: center;">Dibawah Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Dalam Standard</th>
+								            <th style="vertical-align: middle; text-align: center;">Diatas Standard</th>
+							            </tr>
+							        </thead>
+							        <tbody>
+												@foreach($list_percentage as $v)
+												@php
+														if (!is_array($v)) {
+																$v = json_decode(json_encode($v), true);
+														}
+												@endphp
+												<tr>
+														<td>{{ $v['ritase'] }}</td>
+														<td>{{ $v['std_speed'] }}</td>
+														<td>{{ $v['avg_speed'] }}</td>
+														<td>{{ $v['prc_speed_under_standard'] }}</td>
+														<td>{{ $v['prc_speed_standard'] }}</td>
+														<td>{{ $v['prc_speed_upper_standard'] }}</td>
+														<td>{{ $v['std_arm_height_right'] }}</td>
+														<td>{{ $v['avg_arm_height_right'] }}</td>
+														<td>{{ $v['prc_arm_height_right_under_standard'] }}</td>
+														<td>{{ $v['prc_arm_height_right_standard'] }}</td>
+														<td>{{ $v['prc_arm_height_right_upper_standard'] }}</td>
+														<td>{{ $v['std_arm_height_left'] }}</td>
+														<td>{{ $v['avg_arm_height_left'] }}</td>
+														<td>{{ $v['prc_arm_height_left_under_standard'] }}</td>
+														<td>{{ $v['prc_arm_height_left_standard'] }}</td>
+														<td>{{ $v['prc_arm_height_left_upper_standard'] }}</td>
+														<td>{{ $v['avg_temperature_right'] }}</td>
+												</tr>
+												@endforeach
+							        </tbody>
+						        </table>
+							</div>
+						</div>
+					</div>
     </section>
-<div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form class="form-horizontal">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Information</h4>
-                </div>
-                <div class="modal-body">
-                    <table class="table">
-                    	<tbody>
-                    		<tr>
-                    			<td>Unit</td>
-                    			<td>: <span>{{$rk->unit_label}}</span></td>
-                    			<td>Aktivitas</td>
-                    			<td>: <span>{{$rk->aktivitas_nama}}</span></td>
-                    		</tr>
-                    		<tr>
-                    			<td>Lokasi</td>
-                    			<td>: <span>{{$rk->lokasi_kode}}</span></td>
-                    			<td>Volume</td>
-                    			<td>: <span>{{$rk->volume}}</span></td>
-                    		</tr>
-                    		<tr>
-                    			<td>Nozzle</td>
-                    			<td>: <span>{{$rk->nozzle_nama}}</span></td>
-                    			<td>Kecepatan</td>
-                    			<td>: <span id="info-kecepatan"></span> KM/Jam</td>
-                    		</tr>
-                    		<tr>
-                    			<td>Latitude</td>
-                    			<td>: <span id="info-latitude"></span></td>
-                    			<td>Spray Kiri</td>
-                    			<td>: <span id="info-nozzle-kanan"></span></td>
-                    		</tr>
-                    		<tr>
-                    			<td>Longitude</td>
-                    			<td>: <span id="info-longitude"></span></td>
-                    			<td>Spray Kanan</td>
-                    			<td>: <span id="info-nozzle-kiri"></span></td>
-                    		</tr>
-                    		<tr>
-                    			<td>Altitude</td>
-                    			<td>: <span id="info-altitude"></span></td>
-                    			<td>Wing Level Kanan</td>
-                    			<td>: <span id="info-wing-level-kanan"></span></td>
-                    		</tr>
-                    		<tr>
-                    			<td>Timestamp</td>
-                    			<td>: <span id="info-timestamp"></span></td>
-                    			<td>Wing Level Kiri</td>
-                    			<td>: <span id="info-wing-level-kiri"></span></td>
-                    		</tr>
-                    	</tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@stop
+		<div class="modal fade win-info" tabindex="-1" role="dialog" aria-labelledby="winFormMenuLabel" aria-hidden="true">
+				<div class="modal-dialog">
+						<div class="modal-content">
+								<form class="form-horizontal">
+										<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="close"><span aria-hidden="true">&times;</span></button>
+												<h4 class="modal-title">Information</h4>
+										</div>
+										<div class="modal-body">
+												<table class="table">
+													<tbody>
+														<tr>
+															<td>Unit</td>
+															<td>: <span>{{$rk->unit_label}}</span></td>
+															<td>Aktivitas</td>
+															<td>: <span>{{$rk->aktivitas_nama}}</span></td>
+														</tr>
+														<tr>
+															<td>Lokasi</td>
+															<td>: <span>{{$rk->lokasi_kode}}</span></td>
+															<td>Volume</td>
+															<td>: <span>{{$rk->volume}}</span></td>
+														</tr>
+														<tr>
+															<td>Nozzle</td>
+															<td>: <span>{{$rk->nozzle_nama}}</span></td>
+															<td>Kecepatan</td>
+															<td>: <span id="info-kecepatan"></span> KM/Jam</td>
+														</tr>
+														<tr>
+															<td>Latitude</td>
+															<td>: <span id="info-latitude"></span></td>
+															<td>Spray Kiri</td>
+															<td>: <span id="info-nozzle-kanan"></span></td>
+														</tr>
+														<tr>
+															<td>Longitude</td>
+															<td>: <span id="info-longitude"></span></td>
+															<td>Spray Kanan</td>
+															<td>: <span id="info-nozzle-kiri"></span></td>
+														</tr>
+														<tr>
+															<td>Altitude</td>
+															<td>: <span id="info-altitude"></span></td>
+															<td>Wing Level Kanan</td>
+															<td>: <span id="info-wing-level-kanan"></span></td>
+														</tr>
+														<tr>
+															<td>Timestamp</td>
+															<td>: <span id="info-timestamp"></span></td>
+															<td>Wing Level Kiri</td>
+															<td>: <span id="info-wing-level-kiri"></span></td>
+														</tr>
+													</tbody>
+												</table>
+										</div>
+										<div class="modal-footer">
+												<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+										</div>
+								</form>
+						</div>
+				</div>
+		</div>
+		@stop
 
 @section("script")
 <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
