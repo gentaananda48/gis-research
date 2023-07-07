@@ -66,7 +66,8 @@ class ReportConformity extends Command
 									SUM(wing_kanan_diatas_standar * total_data_point)/SUM(total_data_point) as total_wing_kanan_diatas_standar,
 									SUM(avg_goldentime * total_data_point)/SUM(total_data_point) as total_goldentime,
 									SUM(goldentime_tidak_standar * total_data_point)/SUM(total_data_point) as total_goldentime_dibawah_standar,
-									SUM(goldentime_standar * total_data_point)/SUM(total_data_point) as total_goldentime_standar
+									SUM(goldentime_standar * total_data_point)/SUM(total_data_point) as total_goldentime_standar,
+                                    round(SUM(total_luasan), 2) as total_luasan_sum
                 FROM summary_segments
                   GROUP BY lokasi,CAST(created_date AS DATE),unit
               ),
@@ -118,8 +119,9 @@ class ReportConformity extends Command
                         goldentime_tidak_standar,
                         avg_spray,
                         spray_standar,
-                        spray_tidak_standar
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+                        spray_tidak_standar,
+                        total_luasan
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
                         [$value->created_date,
                         $value->lokasi_grup,
                         $value->wilayah,
@@ -144,7 +146,9 @@ class ReportConformity extends Command
                         $value->total_goldentime_dibawah_standar,
                         0,
                         0,
-                        0]
+                        0,
+                        $value->total_luasan_sum
+                        ]
                     );
 
                     DB::commit();

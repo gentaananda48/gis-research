@@ -99,7 +99,7 @@
 
         @page {
             margin: 0cm;
-            size: A4 landscape;
+            size: A3 landscape;
         }
     </style>
 @stop
@@ -260,7 +260,7 @@
                 <hr>
 
                 <div class="box-header text-center">
-                    <h3 style="margin-bottom: 0px;"><strong>Conformity Unit PG1 - BSC 11</strong></h3>
+                    <h3 style="margin-bottom: 0px;"><strong>Conformity Unit {{ $pg }} - {{ $unit }}</strong></h3>
                 </div>
                 <div class="box-body">
                     <div style="padding-bottom: 1rem; display:flex; justify-content: end; align-items:center">
@@ -336,12 +336,15 @@
                             <tr>
                             @foreach($list_rrk as $v)
                                     <tr>
-                                            <td>{{ $v['ritase'] }}</td>
+                                            <td class="text-center">{{ $v->ritase }}</td>
                                             @foreach($header as $k2 => $v2)
+                                                @php
+                                                    $param = 'parameter_'.$k2;
+                                                @endphp
                                                     @if ($k2 == 4 || $k2 == 5)
-                                                            <th>{{ doubleval($v['parameter_'.$k2]) <= 2 ? 'N/A' : $v['parameter_'.$k2] }}</th>
+                                                            <td class="text-center">{{ doubleval($v->$param) <= 2 ? 'N/A' : $v->$param }}</td>
                                                     @else
-                                                            <th>{{ $v['parameter_'.$k2] }}</th>
+                                                            <td class="text-center">{{ $v->$param }}</td>
                                                     @endif
                                             @endforeach
                                     </tr>
