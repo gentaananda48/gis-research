@@ -88,7 +88,7 @@
     
                 <div class="col-md-4">
                     <label for="unit">UNIT</label>
-                    {{ Form::select('unit[]', $list_unit , $unit, array('class' => 'form-control select2')) }}  
+                    {{ Form::select('unit[]', $list_unit , $unit, array('multiple'=>'multiple','class' => 'form-control select2')) }}  
                 </div>
             </div>
             <button type="submit" class="btn btn-success" style="margin-top: 23px;"><i class="fa fa-search"></i></button> 
@@ -155,7 +155,7 @@
 
                                     <td>{{ $report_conformity->pg }}</td>
                                     <td>{{ $report_conformity->unit }}</td>
-                                    <td>{{ date('d/m/Y', strtotime($report_conformity->tanggal)) }}</td>
+                                    <td>{{ $date_range }}</td>
                                     {{-- <td>{{ $report_conformity->lokasi }}</td> --}}
                                     <td>
                                         <div style="display: flex; justify-content: center;">
@@ -184,7 +184,7 @@
                                     </td> --}}
                                     @if ($hide_filter == false)
                                     <td class="text-center hidden-print">
-                                        <a href="{{ route('summary.conformity_unit.show', $report_conformity->id) }}" class="btn btn-success btn-sm">View Detail</a>
+                                        <a href="{{ route('summary.conformity_unit.show') }}?range_date={{ $date_range}}&pg={{$report_conformity->pg}}&unit={{$report_conformity->unit}}" class="btn btn-success btn-sm">View Detail</a>
                                     </td>
                                     @endif
                                 </tr>
@@ -245,23 +245,23 @@
         
         for (let index = 0; index < reportConformities.length; index++) {
             pieChart("speed_"+index, [
-                reportConformities[index].speed_standar.toFixed(2),
-                reportConformities[index].speed_dibawah_standar.toFixed(2),
-                reportConformities[index].speed_diatas_standar.toFixed(2)
+                reportConformities[index].speed_standar ? reportConformities[index].speed_standar.toFixed(2):0,
+                reportConformities[index].speed_dibawah_standar ? reportConformities[index].speed_dibawah_standar.toFixed(2):0,
+                reportConformities[index].speed_diatas_standar ? reportConformities[index].speed_diatas_standar.toFixed(2):0
             ]);
             pieChart("wing_kiri_"+index, [
-                reportConformities[index].wing_kiri_standar.toFixed(2),
-                reportConformities[index].wing_kiri_dibawah_standar.toFixed(2),
-                reportConformities[index].wing_kiri_diatas_standar.toFixed(2)
+                reportConformities[index].wing_kiri_standar ? reportConformities[index].wing_kiri_standar.toFixed(2):0,
+                reportConformities[index].wing_kiri_dibawah_standar ? reportConformities[index].wing_kiri_dibawah_standar.toFixed(2):0,
+                reportConformities[index].wing_kiri_diatas_standar ? reportConformities[index].wing_kiri_diatas_standar.toFixed(2):0
             ]);
             pieChart("wing_kanan_"+index, [
-                reportConformities[index].wing_kanan_standar.toFixed(2),
-                reportConformities[index].wing_kanan_dibawah_standar.toFixed(2),
-                reportConformities[index].wing_kanan_diatas_standar.toFixed(2)
+                reportConformities[index].wing_kanan_standar ? reportConformities[index].wing_kanan_standar.toFixed(2):0,
+                reportConformities[index].wing_kanan_dibawah_standar ? reportConformities[index].wing_kanan_dibawah_standar.toFixed(2):0,
+                reportConformities[index].wing_kanan_diatas_standar ? reportConformities[index].wing_kanan_diatas_standar.toFixed(2):0
             ])
             pieChart("golden_time_"+index, [
-                reportConformities[index].goldentime_standar.toFixed(2),
-                reportConformities[index].goldentime_tidak_standar.toFixed(2),
+                reportConformities[index].goldentime_standar ? reportConformities[index].goldentime_standar.toFixed(2):0,
+                reportConformities[index].goldentime_tidak_standar ? reportConformities[index].goldentime_tidak_standar.toFixed(2):0,
             ], 'golden_time');
             // pieChart("waktu_spray_"+index, [
             //     reportConformities[index].spray_standar,

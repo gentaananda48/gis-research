@@ -26,33 +26,67 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ExportSummary;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class ConformityUnitController extends Controller
 {
     
     public function index(Request $request)
     {
+        $user = Auth::user();
+        if ($request->has('pg')) {
+            $pg = $request->pg;
+            Cache::put('pg',$request->pg,15);
+        }else{
+            if (Cache::has('pg')) {
+                $pg = Cache::get('pg');
+            }else{
+                $pg[0] = 'All';
+            }
+        }
+
+        if ($request->has('unit')) {
+            $unit = $request->unit;
+            Cache::put('unit',$request->unit,15);
+        }else{
+            if (Cache::has('unit')) {
+                $unit = Cache::get('unit');
+            }else{
+                $unit[0] = 'All';
+            }
+        }
+
+        if ($request->has('date_range')) {
+            $date_range_request = $request->date_range;
+            Cache::put('date_range',$request->date_range,15);
+        }else{
+            if (Cache::has('date_range')) {
+                $date_range_request = Cache::get('date_range');
+            }
+        }
+
         // $user = $this->guard()->user();
         // $list_pg = explode(',', $user->area);
-        if(!empty($request->date_range)){
-            $date_range = explode(' - ', $request->date_range);
+        if(!empty($date_range_request)){
+            $date_range = explode(' - ', $date_range_request);
             $date1 = date('Y-m-d', strtotime($date_range[0]));
             $date2 = date('Y-m-d', strtotime($date_range[1]));
         } else {
-            $date1 = date('Y-m-d');
+            $date1 = Carbon::now()->subDays(30)->format('Y-m-d');
             $date2 = date('Y-m-d');
         }
 
         $date_range = date('m/d/Y', strtotime($date1)).' - '.date('m/d/Y', strtotime($date2));
-        $list_pg = array_merge(['All' => 'All'], PG::all(['nama'])->pluck('nama', 'nama')->toArray());
-        $list_unit = array_merge(['All' => 'All'], Unit::all(['label'])->pluck('label', 'label')->toArray());
+        $list_pg = array_merge(['All' => 'All'], PG::whereIn('nama', explode(',', $user->area))->pluck('nama', 'nama')->toArray());
+        $list_unit = array_merge(['All' => 'All'], Unit::whereIn('pg', explode(',', $user->area))->pluck('label', 'label')->toArray());
 
         $report_conformities = new ReportConformity();
 
         $report_conformities = $report_conformities->whereBetween('tanggal', [$date1, $date2]);
 
-        if($request->unit && $request->unit[0] != 'All') {
-            $report_conformities = $report_conformities->where('unit', $request->unit[0]);
+        if($request->unit && !in_array("All", $request->unit)) {
+            $report_conformities = $report_conformities->whereIn('unit', $request->unit);
         }
 
         if($request->pg && $request->pg[0] != 'All') {
@@ -61,45 +95,72 @@ class ConformityUnitController extends Controller
 
         $report_conformities = $report_conformities->groupBy('pg', 'unit')
         ->select([
-            DB::raw("SUM(speed_diatas_standar) as speed_diatas_standar"),
-            DB::raw("SUM(speed_dibawah_standar) as speed_dibawah_standar"),
-            DB::raw("SUM(speed_standar) as speed_standar"),
-            DB::raw("SUM(wing_kiri_diatas_standar) as wing_kiri_diatas_standar"),
-            DB::raw("SUM(wing_kiri_dibawah_standar) as wing_kiri_dibawah_standar"),
-            DB::raw("SUM(wing_kiri_standar) as wing_kiri_standar"),
-            DB::raw("SUM(wing_kanan_diatas_standar) as wing_kanan_diatas_standar"),
-            DB::raw("SUM(wing_kanan_dibawah_standar) as wing_kanan_dibawah_standar"),
-            DB::raw("SUM(wing_kanan_standar) as wing_kanan_standar"),
-            DB::raw("SUM(goldentime_tidak_standar) as goldentime_tidak_standar"),
-            DB::raw("SUM(goldentime_standar) as goldentime_standar"),
+            DB::raw("(SUM(speed_diatas_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_diatas_standar"),
+            DB::raw("(SUM(speed_dibawah_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_dibawah_standar"),
+            DB::raw("(SUM(speed_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_standar"),
+            DB::raw("(SUM(wing_kiri_diatas_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_diatas_standar"),
+            DB::raw("(SUM(wing_kiri_dibawah_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_dibawah_standar"),
+            DB::raw("(SUM(wing_kiri_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_standar"),
+            DB::raw("(SUM(wing_kanan_diatas_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_diatas_standar"),
+            DB::raw("(SUM(wing_kanan_dibawah_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_dibawah_standar"),
+            DB::raw("(SUM(wing_kanan_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_standar"),
+            DB::raw("(SUM(goldentime_tidak_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_tidak_standar"),
+            DB::raw("(SUM(goldentime_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_standar"),
             'pg', 'unit', 'tanggal', 'id'
         ])
         ->paginate(10);
         return view('summary_report_vat.conformity_unit.index', [
             'date_range'    => $date_range,
             'list_pg'       => $list_pg,
-            'pg'            => $request->pg,
+            'pg'            => $pg,
             'list_unit'     => $list_unit,
-            'unit'          => $request->unit,
+            'unit'          => $unit,
             'report_conformities' => $report_conformities,
             'hide_filter' => false
         ]); 
     }
 
-    public function show(Request $request, $id)
+    public function show(Request $request)
     {
-        $report_conformity = ReportConformity::find($id);
-        $report_conformities = ReportConformity::where('pg', $report_conformity->pg)
-            ->where('unit', $report_conformity->unit)
+        $date_ranges = explode(' - ', $request->range_date);
+        $date1 = date('Y-m-d', strtotime($date_ranges[0]));
+        $date2 = date('Y-m-d', strtotime($date_ranges[1]));
+        $report_conformities = ReportConformity::where('pg', $request->pg)
+            ->where('unit', $request->unit)
+            ->whereBetween('tanggal', [$date1, $date2])
             ->get();
+        
+        if ($request->has('date') && $request->date != '') {
+            $date1 = $request->date;
+            $date2 = $request->date;    
+        }
+
+        $report_conformity = ReportConformity::where('pg', $request->pg)
+        ->where('unit', $request->unit)
+        ->whereBetween('tanggal', [$date1, $date2])
+        ->groupBy('pg', 'unit')
+        ->select([
+            DB::raw("(SUM(speed_diatas_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_diatas_standar"),
+            DB::raw("(SUM(speed_dibawah_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_dibawah_standar"),
+            DB::raw("(SUM(speed_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_standar"),
+            DB::raw("(SUM(wing_kiri_diatas_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_diatas_standar"),
+            DB::raw("(SUM(wing_kiri_dibawah_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_dibawah_standar"),
+            DB::raw("(SUM(wing_kiri_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_standar"),
+            DB::raw("(SUM(wing_kanan_diatas_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_diatas_standar"),
+            DB::raw("(SUM(wing_kanan_dibawah_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_dibawah_standar"),
+            DB::raw("(SUM(wing_kanan_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_standar"),
+            DB::raw("(SUM(goldentime_tidak_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_tidak_standar"),
+            DB::raw("(SUM(goldentime_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_standar"),
+            'pg', 'unit', 'tanggal', 'id'
+        ])->first();
 
         $date_range = array_unique($report_conformities->pluck('tanggal')->toArray());
 
        if($request->date) $report_conformities = $report_conformities->where('tanggal', $request->date);
 
-        $rencana_kerja = RencanaKerja::where('tgl', $request->date)
-            ->whereIn('lokasi_kode', array_column($report_conformities->toArray(), 'lokasi'))
-            ->get();
+        // $rencana_kerja = RencanaKerja::where('tgl', $request->date)
+        //     ->whereIn('lokasi_kode', array_column($report_conformities->toArray(), 'lokasi'))
+        //     ->get();
         
         $lokasi = array();
         if ($report_conformities) {
@@ -116,30 +177,42 @@ class ConformityUnitController extends Controller
 
         return view('summary_report_vat.conformity_unit.show_1', [
             'date_range'    => $date_range,
+            'range_date'    => $request->range_date,
             'report_conformity' => $report_conformity,
             'report_conformities' => $report_conformities,
-            'rencana_kerja' => $rencana_kerja,
-            'pg' => $report_conformity->pg,
+            // 'rencana_kerja' => $rencana_kerja,
+            'pg' => $request->pg,
+            'unit' => $request->unit,
             'lokasi' => $lokasi
         ]);
     }
 
-    public function detail(Request $request, $id)
+    public function detail(Request $request)
     {
-
-        $report_conformity = ReportConformity::find($id);
-        $report_conformities = ReportConformity::where('pg', $report_conformity->pg)
-            ->where('unit', $report_conformity->unit)
-            ->get();
-
-        $report_conformities = $report_conformities->where('tanggal', $request->date);
-
+        $report_conformity = ReportConformity::where('pg', $request->pg)
+        ->where('unit', $request->unit)
+        ->where('tanggal', $request->date)
+        ->groupBy('pg', 'unit')
+        ->select([
+            DB::raw("(SUM(speed_diatas_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_diatas_standar"),
+            DB::raw("(SUM(speed_dibawah_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_dibawah_standar"),
+            DB::raw("(SUM(speed_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_standar"),
+            DB::raw("(SUM(wing_kiri_diatas_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_diatas_standar"),
+            DB::raw("(SUM(wing_kiri_dibawah_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_dibawah_standar"),
+            DB::raw("(SUM(wing_kiri_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_standar"),
+            DB::raw("(SUM(wing_kanan_diatas_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_diatas_standar"),
+            DB::raw("(SUM(wing_kanan_dibawah_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_dibawah_standar"),
+            DB::raw("(SUM(wing_kanan_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_standar"),
+            DB::raw("(SUM(goldentime_tidak_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_tidak_standar"),
+            DB::raw("(SUM(goldentime_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_standar"),
+            'pg', 'unit', 'tanggal', 'id','lokasi','shift'
+        ])->first();
+        
         $rk = RencanaKerja::where('unit_label', $report_conformity->unit)
             ->where('tgl', $report_conformity->tanggal)
             ->where('lokasi_kode', $report_conformity->lokasi)
             ->first();
-
-
+        
         $report_param_standard = ReportParameterStandard::where('volume_id', $rk->volume_id)
             ->where('nozzle_id', $rk->nozzle_id)
             ->where('aktivitas_id', $rk->aktivitas_id)
@@ -150,8 +223,16 @@ class ConformityUnitController extends Controller
             ])
             ->first();
 
-        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get()->toArray();
+        $cache_key = env('APP_CODE').':LOKASI:LIST_ReportConformity_Ritase_'.$rk->id;
+        $cached = Redis::get($cache_key);
+        if(isset($cached)) {
+            $list_rrk = $cached;
+        } else {
+            $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get();
 
+            Redis::set($cache_key, $list_rrk);
+        }
+        
         $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
         $header = [];
 
@@ -257,7 +338,7 @@ class ConformityUnitController extends Controller
 
         if ($summary === null) {
         // Data not found in Redis, retrieve from the database
-        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
+        $list_rrk_array = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get()->toArray();
         $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
         $header = [];
         $rata2 = [];
@@ -277,7 +358,7 @@ class ConformityUnitController extends Controller
 
         $summary = (object) [
             'header' => $header,
-            'ritase' => $list_rrk,
+            'ritase' => $list_rrk_array,
             'rata2' => $rata2,
             'poin' => $poin,
             'kualitas' => $kualitas,
@@ -299,16 +380,17 @@ class ConformityUnitController extends Controller
 
         return view('summary_report_vat.conformity_unit.show_2', [
             'report_conformity' => $report_conformity,
-            'report_conformities' => $report_conformities,
             'rk' => $rk,
-            'list_rrk' => $list_rrk,
+            'list_rrk' => json_decode($list_rrk),
             'header' => $header,
             'summary'       => $summary,
             'timestamp_jam_mulai'   => strtotime($jam_mulai),
             'timestamp_jam_selesai' => strtotime($jam_selesai),
             'list_lacak'    => json_encode($list_lacak),
             'list_lokasi'   => json_encode($list_lokasi),
-            'report_param_standard' => $report_param_standard
+            'report_param_standard' => $report_param_standard,
+            'pg' => $request->pg,
+            'unit' => $request->unit
         ]);
     }
 
@@ -360,19 +442,20 @@ class ConformityUnitController extends Controller
 
         $report_conformities = $report_conformities->groupBy('pg', 'unit')
         ->select([
-            DB::raw("SUM(speed_diatas_standar) as speed_diatas_standar"),
-            DB::raw("SUM(speed_dibawah_standar) as speed_dibawah_standar"),
-            DB::raw("SUM(speed_standar) as speed_standar"),
-            DB::raw("SUM(wing_kiri_diatas_standar) as wing_kiri_diatas_standar"),
-            DB::raw("SUM(wing_kiri_dibawah_standar) as wing_kiri_dibawah_standar"),
-            DB::raw("SUM(wing_kiri_standar) as wing_kiri_standar"),
-            DB::raw("SUM(wing_kanan_diatas_standar) as wing_kanan_diatas_standar"),
-            DB::raw("SUM(wing_kanan_dibawah_standar) as wing_kanan_dibawah_standar"),
-            DB::raw("SUM(wing_kanan_standar) as wing_kanan_standar"),
-            DB::raw("SUM(goldentime_tidak_standar) as goldentime_tidak_standar"),
-            DB::raw("SUM(goldentime_standar) as goldentime_standar"),
+            DB::raw("(SUM(speed_diatas_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_diatas_standar"),
+            DB::raw("(SUM(speed_dibawah_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_dibawah_standar"),
+            DB::raw("(SUM(speed_standar)/(SUM(speed_diatas_standar) + SUM(speed_dibawah_standar) + SUM(speed_standar)) * 100) as speed_standar"),
+            DB::raw("(SUM(wing_kiri_diatas_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_diatas_standar"),
+            DB::raw("(SUM(wing_kiri_dibawah_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_dibawah_standar"),
+            DB::raw("(SUM(wing_kiri_standar)/(SUM(wing_kiri_diatas_standar) + SUM(wing_kiri_dibawah_standar) + SUM(wing_kiri_standar)) * 100) as wing_kiri_standar"),
+            DB::raw("(SUM(wing_kanan_diatas_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_diatas_standar"),
+            DB::raw("(SUM(wing_kanan_dibawah_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_dibawah_standar"),
+            DB::raw("(SUM(wing_kanan_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_standar"),
+            DB::raw("(SUM(goldentime_tidak_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_tidak_standar"),
+            DB::raw("(SUM(goldentime_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_standar"),
             'pg', 'unit', 'tanggal', 'id'
-        ])->get();
+        ])
+        ->get();
 
         $result['summary'] = $report_conformities; 
         $result['date'] = $request->range; 

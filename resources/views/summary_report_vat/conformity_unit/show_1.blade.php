@@ -184,7 +184,7 @@
         <div class="col-md-12">
             <div class="box box-success">
                 <div class="box-header text-center">
-                    <h3 style="margin-bottom: 0px;"><strong>Conformity Unit {{ $report_conformity->pg }} - {{ $report_conformity->unit }}</strong></h3>
+                    <h3 style="margin-bottom: 0px;"><strong>Conformity Unit {{ $pg }} - {{ $unit }}</strong></h3>
                 </div>
 
                 <div class="box-body text-center">
@@ -254,6 +254,7 @@
                 </div>
                 <div class="box-body">
                     <div class="date-slider">
+                        <div class="date-range {{ request()->date == "" ? 'slick-selected slick-current' : '' }}" data-date="" href="{{ route('summary.conformity_unit.show') }}?range_date={{ $range_date }}&pg={{$pg}}&unit={{$unit}}">All</div>
                         @foreach ($date_range as $date)
                             <div class="date-range {{ request()->date == $date ? 'slick-selected slick-current' : '' }}" data-date="{{ $date }}">{{ date('d/m/Y', strtotime($date)) }}</div>
                         @endforeach
@@ -266,6 +267,7 @@
                                 <th>Tanggal</th>
                                 <th style="width: 100px">PG</th>
                                 <th style="width: 100px">Unit</th>
+                                <th style="width: 100px">Total Luasan</th>
                                 <th>On Standar Speed</th>
                                 <th>On Standar Wing Kiri</th>
                                 <th>On Standar Wing Kanan</th>
@@ -281,18 +283,19 @@
                             @forelse ($report_conformities as $item)
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration  }}</td>
-                                    <td>{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
-                                    <td>{{ $item->pg }}</td>
-                                    <td>{{ $item->unit }}</td>
-                                    <td class="{{ $item->getStandardColor($item->speed_standar) }}">{{ $item->speed_standar }}%</td>
-                                    <td class="{{ $item->getStandardColor($item->wing_kiri_standar) }}">{{ $item->wing_kiri_standar }}%</td>
-                                    <td class="{{ $item->getStandardColor($item->wing_kanan_standar) }}">{{ $item->wing_kanan_standar }}%</td>
-                                    <td class="{{ $item->getStandardColor($item->goldentime_standar) }}">{{ $item->goldentime_standar }}%</td>
-                                    <td>{{ $item->lokasi }}</td>
-                                    <td>{{ $rencana_kerja->count() > 0 ? 'Y' : 'N' }}</td>
-                                    <td>{{ $item->shift }}</td>
-                                    <td>{{ $item->activity }}</td>
-                                    <td class="text-center hidden-print"><a href="{{ route('summary.conformity_unit.detail', $item->id) }}" class="btn btn-success btn-sm">Detail</a></td>
+                                    <td class="text-center">{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
+                                    <td class="text-center">{{ $item->pg }}</td>
+                                    <td class="text-center">{{ $item->unit }}</td>
+                                    <td class="text-center">{{ $item->total_luasan }}</td>
+                                    <td class="text-center {{ $item->getStandardColor($item->speed_standar) }}">{{ $item->speed_standar }}%</td>
+                                    <td class="text-center {{ $item->getStandardColor($item->wing_kiri_standar) }}">{{ $item->wing_kiri_standar }}%</td>
+                                    <td class="text-center {{ $item->getStandardColor($item->wing_kanan_standar) }}">{{ $item->wing_kanan_standar }}%</td>
+                                    <td class="text-center {{ $item->getStandardColor($item->goldentime_standar) }}">{{ $item->goldentime_standar }}%</td>
+                                    <td class="text-center">{{ $item->lokasi }}</td>
+                                    <td class="text-center">{{ $item->shift != null && $item->activity != null ? 'Y' : 'N' }}</td>
+                                    <td class="text-center">{{ $item->shift }}</td>
+                                    <td class="text-center">{{ $item->activity }}</td>
+                                    <td class="text-center hidden-print"><a href="{{ route('summary.conformity_unit.detail') }}?date={{ $item->tanggal }}&pg={{$item->pg}}&unit={{$item->unit}}" class="btn btn-success btn-sm">Detail</a></td>
                                 </tr>
                             @empty
                             <tr>
@@ -364,7 +367,7 @@
         $('.date-range').on('click', function() {
             let data = $(this).data('date');
         
-            window.location.href = '{{route("summary.conformity_unit.show", $report_conformity->id)}}?date='+data
+            window.location.href = '{{route("summary.conformity_unit.show")}}?range_date={{ $range_date }}&pg={{$pg}}&unit={{$unit}}&date='+data
         })
     });
 

@@ -238,8 +238,8 @@ Route::group(['middleware' => ['auth']], function () {
     // Conformity Unit
     Route::get('/summary/conformity_unit', array('uses' => 'SummaryReportVAT\ConformityUnitController@index', 'as' => 'summary.conformity_unit'));
     Route::get('/summary/conformity_unit/get', array('uses' => 'SummaryReportVAT\ConformityUnitController@get_list', 'as' => 'summary.conformity_unit.get'));
-    Route::get('/summary/conformity_unit/{id}', array('uses' => 'SummaryReportVAT\ConformityUnitController@show', 'as' => 'summary.conformity_unit.show'));
-    Route::get('/summary/conformity_unit/{id}/detail', array('uses' => 'SummaryReportVAT\ConformityUnitController@detail', 'as' => 'summary.conformity_unit.detail'));
+    Route::get('/summary/conformity_unit/location', array('uses' => 'SummaryReportVAT\ConformityUnitController@show', 'as' => 'summary.conformity_unit.show'));
+    Route::get('/summary/conformity_unit/location/detail', array('uses' => 'SummaryReportVAT\ConformityUnitController@detail', 'as' => 'summary.conformity_unit.detail'));
 
     // ajax page 1
     Route::get('/summary/conformity_unit_export/{type}', array('uses' => 'SummaryReportVAT\ConformityUnitController@export', 'as' => 'summary.conformity_unit.export'));

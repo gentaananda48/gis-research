@@ -40,6 +40,7 @@ class CreateReportConformitiesTable extends Migration
             $table->double('avg_spray',8,2)->default(0);
             $table->float('spray_standar')->default(0);
             $table->float('spray_tidak_standar')->default(0);
+            $table->double('total_luasan',16,2)->default(0);
             $table->timestamps();
         });
     }
