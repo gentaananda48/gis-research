@@ -130,10 +130,10 @@ class ConformityUnitController extends Controller
             ->whereBetween('tanggal', [$date1, $date2])
             ->get();
         
-        if ($request->has('date') && $request->date != '') {
-            $date1 = $request->date;
-            $date2 = $request->date;    
-        }
+        // if ($request->has('date') && $request->date != '') {
+        //     $date1 = $request->date;
+        //     $date2 = $request->date;    
+        // }
 
         $report_conformity = ReportConformity::where('pg', $request->pg)
         ->where('unit', $request->unit)
