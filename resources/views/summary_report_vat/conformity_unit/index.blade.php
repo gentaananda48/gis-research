@@ -244,25 +244,45 @@
         @endif
         
         for (let index = 0; index < reportConformities.length; index++) {
-            pieChart("speed_"+index, [
+            if (reportConformities[index].speed_standar + reportConformities[index].speed_dibawah_standar + reportConformities[index].speed_diatas_standar != 0) {
+                pieChart("speed_"+index, [
                 reportConformities[index].speed_standar ? reportConformities[index].speed_standar.toFixed(2):0,
                 reportConformities[index].speed_dibawah_standar ? reportConformities[index].speed_dibawah_standar.toFixed(2):0,
                 reportConformities[index].speed_diatas_standar ? reportConformities[index].speed_diatas_standar.toFixed(2):0
-            ]);
-            pieChart("wing_kiri_"+index, [
+                ]);    
+            }else{
+                $('#speed_'+index).parent().html('NA');
+            }
+            
+            if (reportConformities[index].wing_kiri_standar + reportConformities[index].wing_kiri_dibawah_standar + reportConformities[index].wing_kiri_diatas_standar != 0) {
+                pieChart("wing_kiri_"+index, [
                 reportConformities[index].wing_kiri_standar ? reportConformities[index].wing_kiri_standar.toFixed(2):0,
                 reportConformities[index].wing_kiri_dibawah_standar ? reportConformities[index].wing_kiri_dibawah_standar.toFixed(2):0,
                 reportConformities[index].wing_kiri_diatas_standar ? reportConformities[index].wing_kiri_diatas_standar.toFixed(2):0
-            ]);
-            pieChart("wing_kanan_"+index, [
+                ]);    
+            }else{
+                $('#wing_kiri_'+index).parent().html('NA');
+            }
+            
+            if (reportConformities[index].wing_kanan_standar + reportConformities[index].wing_kanan_dibawah_standar + reportConformities[index].wing_kanan_diatas_standar != 0) {
+                pieChart("wing_kanan_"+index, [
                 reportConformities[index].wing_kanan_standar ? reportConformities[index].wing_kanan_standar.toFixed(2):0,
                 reportConformities[index].wing_kanan_dibawah_standar ? reportConformities[index].wing_kanan_dibawah_standar.toFixed(2):0,
                 reportConformities[index].wing_kanan_diatas_standar ? reportConformities[index].wing_kanan_diatas_standar.toFixed(2):0
-            ])
-            pieChart("golden_time_"+index, [
+                ]);    
+            }else{
+                $('#wing_kanan_'+index).parent().html('NA');
+            }
+
+            if (reportConformities[index].goldentime_standar + reportConformities[index].goldentime_tidak_standar != 0) {
+                pieChart("golden_time_"+index, [
                 reportConformities[index].goldentime_standar ? reportConformities[index].goldentime_standar.toFixed(2):0,
                 reportConformities[index].goldentime_tidak_standar ? reportConformities[index].goldentime_tidak_standar.toFixed(2):0,
-            ], 'golden_time');
+                ], 'golden_time');    
+            }else{
+                $('#golden_time_'+index).parent().html('NA');
+            }
+
             // pieChart("waktu_spray_"+index, [
             //     reportConformities[index].spray_standar,
             //     reportConformities[index].spray_tidak_standar,

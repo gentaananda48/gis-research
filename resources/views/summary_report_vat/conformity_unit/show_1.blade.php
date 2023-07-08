@@ -329,25 +329,45 @@
 
         const reportConformity = JSON.parse('{!! $report_conformity !!}')
 
-        pieChart("speed_1", [
+        if (reportConformity.speed_standar + reportConformity.speed_dibawah_standar + reportConformity.speed_diatas_standar != 0) {
+            pieChart("speed_1", [
             reportConformity.speed_standar,
             reportConformity.speed_dibawah_standar,
             reportConformity.speed_diatas_standar
-        ]);
-        pieChart("wing_kiri_1", [
+            ]);     
+        }else{
+            $('#speed_1').parent().html('NA');
+        }
+
+        if (reportConformity.wing_kiri_standar + reportConformity.wing_kiri_dibawah_standar + reportConformity.wing_kiri_diatas_standar != 0) {
+            pieChart("wing_kiri_1", [
             reportConformity.wing_kiri_standar,
             reportConformity.wing_kiri_dibawah_standar,
             reportConformity.wing_kiri_diatas_standar
-        ]);
-        pieChart("wing_kanan_1", [
+            ]);    
+        }else{
+            $('#wing_kiri_1').parent().html('NA');
+        }
+
+        if (reportConformity.wing_kanan_standar + reportConformity.wing_kanan_dibawah_standar + reportConformity.wing_kanan_diatas_standar != 0) {
+            pieChart("wing_kanan_1", [
             reportConformity.wing_kanan_standar,
             reportConformity.wing_kanan_dibawah_standar,
             reportConformity.wing_kanan_diatas_standar
-        ])
-        pieChart("golden_time_1", [
+            ]);   
+        }else{
+            $('#wing_kanan_1').parent().html('NA');
+        }
+
+        if (reportConformity.goldentime_standar + reportConformity.goldentime_tidak_standar != 0) {
+            pieChart("golden_time_1", [
             reportConformity.goldentime_standar,
             reportConformity.goldentime_tidak_standar,
-        ], 'golden_time');
+            ], 'golden_time');  
+        }else{
+            $('#golden_time_1').parent().html('NA');
+        }
+
         // pieChart("waktu_spray_1", [
         //     reportConformity.spray_standar,
         //     reportConformity.spray_tidak_standar,
