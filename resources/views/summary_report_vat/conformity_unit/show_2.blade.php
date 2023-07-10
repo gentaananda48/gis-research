@@ -221,7 +221,7 @@
                                                 ->where('report_parameter_id', 1)
                                                 ->first()
                                                 ->range_2
-                                        }} m/s
+                                        }} Km / h
                                     </td>
                                     <td class="text-center">{{ $report_conformity->speed_dibawah_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->speed_standar }}%</td>
