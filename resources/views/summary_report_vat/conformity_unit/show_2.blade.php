@@ -173,9 +173,10 @@
                                 <tr>
                                     <th rowspan="2">Shift</th>
                                     <th colspan="5">Speed</th>
-                                    <th colspan="5">Wing Kanan</th>
                                     <th colspan="5">Wing Kiri</th>
-                                    <th colspan="5">Suhu</th>
+                                    <th colspan="5">Wing Kanan</th>
+                                    <th colspan="3">Golden Time</th>
+                                    <th colspan="4">Suhu</th>
                                 </tr>
                                 <tr>
                                     <th>Standar</th>
@@ -183,20 +184,26 @@
                                     <th>Standar (%)</th>
                                     <th>Diatas Standar (%)</th>
                                     <th>Average (%)</th>
+
                                     <th>Standar</th>
                                     <th>Dibawah Standar (%)</th>
                                     <th>Standar (%)</th>
                                     <th>Diatas Standar (%)</th>
                                     <th>Average (%)</th>
+                                    
                                     <th>Standar</th>
                                     <th>Dibawah Standar (%)</th>
                                     <th>Standar (%)</th>
                                     <th>Diatas Standar (%)</th>
                                     <th>Average (%)</th>
+                                    
                                     <th>Standar</th>
-                                    <th>Dibawah Standar (%)</th>
+                                    <th>Tidak Standar (%)</th>
                                     <th>Standar (%)</th>
-                                    <th>Diatas Standar (%)</th>
+
+                                    <th>Standar</th>
+                                    <th>Tidak Standar (%)</th>
+                                    <th>Standar (%)</th>
                                     <th>Average (%)</th>
                                 </tr>
                             </thead>
@@ -209,45 +216,83 @@
                                                 ->where('report_parameter_id', 1)
                                                 ->first()
                                                 ->range_1
+                                        }} - {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 1)
+                                                ->first()
+                                                ->range_2
                                         }} m/s
                                     </td>
                                     <td class="text-center">{{ $report_conformity->speed_dibawah_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->speed_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->speed_diatas_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->avg_speed }}%</td>
-                                    <td class="text-center">
-                                        {{ 
-                                            @$report_param_standard->reportParameterStandarDetails
-                                                ->where('report_parameter_id', 5)
-                                                ->first()
-                                                ->range_1
-                                        }} cm
-                                    </td>
-                                    <td class="text-center">{{ $report_conformity->wing_kanan_dibawah_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->wing_kanan_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->wing_kanan_diatas_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->avg_wing_kanan }}%</td>
+                                    
                                     <td class="text-center">
                                         {{ 
                                             @$report_param_standard->reportParameterStandarDetails
                                                 ->where('report_parameter_id', 4)
                                                 ->first()
                                                 ->range_1
+                                        }} - {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 4)
+                                                ->first()
+                                                ->range_2
                                         }} cm
                                     </td>
                                     <td class="text-center">{{ $report_conformity->wing_kiri_dibawah_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->wing_kiri_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->wing_kiri_diatas_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->avg_wing_kiri }}%</td>
+
+                                    <td class="text-center">
+                                        {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 5)
+                                                ->first()
+                                                ->range_1
+                                        }} - {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 5)
+                                                ->first()
+                                                ->range_2
+                                        }} cm
+                                    </td>
+                                    <td class="text-center">{{ $report_conformity->wing_kanan_dibawah_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->wing_kanan_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->wing_kanan_diatas_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->avg_wing_kanan }}%</td>
+                                    
+                                    <td class="text-center">
+                                        {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 2)
+                                                ->first()
+                                                ->range_1
+                                        }} - {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 2)
+                                                ->first()
+                                                ->range_2
+                                        }} 
+                                    </td>
+                                    <td class="text-center">{{ $report_conformity->golden_time_standar ? $report_conformity->golden_time_standar:"N/A" }}</td>
+                                    <td class="text-center">{{ $report_conformity->golden_time_tidak_standar ? $report_conformity->golden_time_tidak_standar:"N/A" }}</td>
+
                                     <td class="text-center">
                                         {{ 
                                             @$report_param_standard->reportParameterStandarDetails
                                                 ->where('report_parameter_id', 6)
                                                 ->first()
                                                 ->range_1
+                                        }} - {{ 
+                                            @$report_param_standard->reportParameterStandarDetails
+                                                ->where('report_parameter_id', 6)
+                                                ->first()
+                                                ->range_2
                                         }} C
                                     </td>
-                                    <td class="text-center">N/A%</td>
                                     <td class="text-center">N/A%</td>
                                     <td class="text-center">N/A%</td>
                                     <td class="text-center">N/A%</td>
@@ -476,14 +521,7 @@
                     datalabels: {
                         formatter: (value, ctx) => {
                             if(value >0 ){
-                                let datasets = ctx.chart.data.datasets;
-                                if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
-                                let sum = datasets[0].data.reduce((a, b) => a + b, 0);
-                                let percentage = Math.round((value / sum) * 100) + '%';
-                                return percentage;
-                                } else {
-                                return percentage;
-                                }
+                                return value+ '%';
                             }else{
                                 value = "";
                                 return value;

@@ -295,7 +295,7 @@
                                     <td class="text-center">{{ $item->shift != null && $item->activity != null ? 'Y' : 'N' }}</td>
                                     <td class="text-center">{{ $item->shift }}</td>
                                     <td class="text-center">{{ $item->activity }}</td>
-                                    <td class="text-center hidden-print"><a href="{{ route('summary.conformity_unit.detail') }}?date={{ $item->tanggal }}&pg={{$item->pg}}&unit={{$item->unit}}" class="btn btn-success btn-sm">Detail</a></td>
+                                    <td class="text-center hidden-print"><a href="{{ route('summary.conformity_unit.detail',$item->id) }}" class="btn btn-success btn-sm">Detail</a></td>
                                 </tr>
                             @empty
                             <tr>
@@ -488,6 +488,7 @@
             mapTypeId: google.maps.MapTypeId.SATELLITE
         }); 
 
+        var activeInfoWindow; 
         @if ($lokasi)
             @foreach ($lokasi as $key => $item)
             var lok_{{ $key }} = new google.maps.Polygon({
@@ -502,6 +503,8 @@
             lok_{{ $key }}.setMap(peta_pg);
 
             google.maps.event.addListener(lok_{{ $key }}, "click", function(event) {
+                iw_{{ $key }} = new google.maps.InfoWindow();
+                if (activeInfoWindow) { activeInfoWindow.close();}
                 var info_{{ $key }} = '<div id="content">' +
                 '<div id="siteNotice">' +
                 "</div>" +
@@ -510,10 +513,10 @@
                 "<p></p>" +
                 "</div>" +
                 "</div>";
-                iw_{{ $key }} = new google.maps.InfoWindow();
                 iw_{{ $key }}.setContent(info_{{ $key }});
                 iw_{{ $key }}.setPosition(event.latLng);
                 iw_{{ $key }}.open(peta_pg);
+                activeInfoWindow = iw_{{ $key }};
             });
             @endforeach
         @endif
