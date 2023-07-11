@@ -325,8 +325,8 @@
             data: {
                 labels: xValues,
                 datasets: [{
-                backgroundColor: barColors,
-                data: yValues
+                    backgroundColor: barColors,
+                    data: yValues
                 }]
             },
             options: {
@@ -358,6 +358,15 @@
                             size: 12
                         },
                         clip: 'auto'
+                    }
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                        var datasetLabel = '';
+                        var label = data.labels[tooltipItem.index];
+                        return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                        }
                     }
                 }
             },

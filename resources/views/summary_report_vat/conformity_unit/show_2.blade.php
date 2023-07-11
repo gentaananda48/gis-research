@@ -175,7 +175,7 @@
                           Export <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                          <li><a href="{{ route('summary.conformity_unit.export_show') }}">Excel</a></li>
+                          <li><a href="{{ route('summary.conformity_unit.export_detail',$report_conformity->id) }}">Excel</a></li>
                           {{-- <li><a href="javascript:void(0)" class="btn-print">PDF</a></li> --}}
                         </ul>
                     </div>
@@ -351,7 +351,7 @@
                 <hr>
 
                 <div class="box-header text-center">
-                    <h3 style="margin-bottom: 0px;"><strong>Conformity Unit {{ $pg }} - {{ $unit }}</strong></h3>
+                    <h3 style="margin-bottom: 0px;"><strong>Conformity Unit {{ $report_conformity->pg }} - {{ $report_conformity->unit }}</strong></h3>
                 </div>
                 <div class="box-body">
                     <div style="padding-bottom: 1rem; display:flex; justify-content: end; align-items:center">
@@ -590,6 +590,15 @@
                             size: 12
                         },
                         clip: 'auto'
+                    }
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                        var datasetLabel = '';
+                        var label = data.labels[tooltipItem.index];
+                        return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                        }
                     }
                 }
             },

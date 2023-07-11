@@ -324,7 +324,7 @@
                               Export <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                              <li><a href="{{ route('summary.conformity_unit.export_detail') }}?range={{ $range_date }}&pg={{ $pg }}&unit={{ $unit }}&date={{ $data_date }}">Excel</a></li>
+                              <li><a href="{{ route('summary.conformity_unit.export_show') }}?range={{ $range_date }}&pg={{ $pg }}&unit={{ $unit }}&date={{ $data_date }}">Excel</a></li>
                               {{-- <li><a href="javascript:void(0)" class="btn-print">PDF</a></li> --}}
                             </ul>
                         </div>
@@ -474,6 +474,15 @@
                             size: 12
                         },
                         clip: 'auto'
+                    }
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                        var datasetLabel = '';
+                        var label = data.labels[tooltipItem.index];
+                        return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                        }
                     }
                 }
             },

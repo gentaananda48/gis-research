@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ExportSummary;
+use App\Exports\ReportConformityShow;
+use App\Exports\ReportConformityDetail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -463,11 +465,51 @@ class ConformityUnitController extends Controller
         return Excel::download(new ExportSummary($result), 'summary.xlsx');
     }
 
-    function export_detail(Request $request){
-        return "dev";
+    function export_show(Request $request){
+        $date_ranges = explode(' - ', $request->range);
+        if ($request->has('date') && $request->date != '') {
+            $date1 = $request->date;
+            $date2 = $request->date;    
+        }else{
+            $date1 = date('Y-m-d', strtotime($date_ranges[0]));
+            $date2 = date('Y-m-d', strtotime($date_ranges[1]));
+        }
+        
+        $report_conformities = ReportConformity::where('pg', $request->pg)
+            ->where('unit', $request->unit)
+            ->whereBetween('tanggal', [$date1, $date2])
+            ->get();
+
+            return Excel::download(new ReportConformityShow($report_conformities), 'ReportConformityShow.xlsx');
     }
 
-    function export_show(Request $request){
-        return "dev";
+    function export_detail(Request $request,$id){
+        $report_conformity = ReportConformity::find($id);
+        $rk = RencanaKerja::where('unit_label', $report_conformity->unit)
+            ->where('tgl', $report_conformity->tanggal)
+            ->where('lokasi_kode', $report_conformity->lokasi)
+            ->first();
+        
+        $report_param_standard = ReportParameterStandard::where('volume_id', $rk->volume_id)
+        ->where('nozzle_id', $rk->nozzle_id)
+        ->where('aktivitas_id', $rk->aktivitas_id)
+        ->with([
+            'reportParameterStandarDetails' => function($query) {
+                $query->where('point', 1);
+            },
+        ])
+        ->first();
+
+        $explodeRk = explode(" ",$rk->aktivitas_nama); 
+        $cache_key = env('APP_CODE').':LOKASI:LIST_ReportConformity_Ritase_'.$rk->id;
+        $list_rrk = Redis::get($cache_key);
+        $avgRRK = collect(json_decode($list_rrk))->avg('parameter_6');
+
+        $result['report_conformity'] = $report_conformity; 
+        $result['avgRRK'] = $avgRRK;
+        $result['report_param_standard'] = $report_param_standard;
+        $result['explodeRk'] = $explodeRk;
+
+        return Excel::download(new ReportConformityDetail($result), 'ReportConformityDetail.xlsx');
     }
 }

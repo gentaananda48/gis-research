@@ -241,10 +241,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/summary/conformity_unit/location', array('uses' => 'SummaryReportVAT\ConformityUnitController@show', 'as' => 'summary.conformity_unit.show'));
     Route::get('/summary/conformity_unit/location/detail/{id}', array('uses' => 'SummaryReportVAT\ConformityUnitController@detail', 'as' => 'summary.conformity_unit.detail'));
 
-    // ajax page 1
+    // ajax export
     Route::get('/summary/conformity_unit_export/{type}', array('uses' => 'SummaryReportVAT\ConformityUnitController@export', 'as' => 'summary.conformity_unit.export'));
-    Route::get('/summary/conformity_unit_export_detail', array('uses' => 'SummaryReportVAT\ConformityUnitController@export_detail', 'as' => 'summary.conformity_unit.export_detail'));
-    Route::get('/summary/conformity_unit_export_detail_show', array('uses' => 'SummaryReportVAT\ConformityUnitController@export_show', 'as' => 'summary.conformity_unit.export_show'));
+    Route::get('/summary/conformity_unit_export_show', array('uses' => 'SummaryReportVAT\ConformityUnitController@export_show', 'as' => 'summary.conformity_unit.export_show'));
+    Route::get('/summary/conformity_unit_export_detail/{id}', array('uses' => 'SummaryReportVAT\ConformityUnitController@export_detail', 'as' => 'summary.conformity_unit.export_detail'));
 });
 
 
