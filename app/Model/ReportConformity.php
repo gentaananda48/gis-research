@@ -10,12 +10,12 @@ class ReportConformity extends Model
 
     public function getStandardColor($val) {
         if($val > 90)
-            return 'bg-green';
+            return 'background-color:#cbf078;';
         if($val > 70 && $val < 90)
-            return 'bg-lightgreen';
+            return 'background-color:#fcff82;';
         if( $val > 50 && $val < 70)
-            return 'bg-yellow';
+            return 'background-color:#f1b963;';
         
-        return 'bg-red';
+        return 'background-color:#e46161;color: white;';
     }
 }

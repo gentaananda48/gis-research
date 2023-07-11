@@ -67,6 +67,8 @@ class ReportConformity extends Command
                     SUM(avg_goldentime * total_data_point)/SUM(total_data_point) as total_goldentime,
                     SUM(goldentime_tidak_standar * total_data_point)/SUM(total_data_point) as total_goldentime_dibawah_standar,
                     SUM(goldentime_standar * total_data_point)/SUM(total_data_point) as total_goldentime_standar,
+                    SUM(suhu_tidak_standar * total_data_point)/SUM(total_data_point) as total_suhu_dibawah_standar,
+                    SUM(suhu_standar * total_data_point)/SUM(total_data_point) as total_suhu_standar,
                     round(SUM(total_luasan), 2) as total_luasan_sum
                 FROM summary_segments
                   GROUP BY lokasi,CAST(created_date AS DATE),unit
@@ -120,8 +122,10 @@ class ReportConformity extends Command
                         avg_spray,
                         spray_standar,
                         spray_tidak_standar,
-                        total_luasan
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+                        total_luasan,
+                        suhu_standar,
+                        suhu_tidak_standar
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
                         [$value->created_date,
                         $value->lokasi_grup,
                         $value->wilayah,
@@ -147,7 +151,9 @@ class ReportConformity extends Command
                         0,
                         0,
                         0,
-                        $value->total_luasan_sum
+                        $value->total_luasan_sum,
+                        $value->total_suhu_standar,
+                        $value->total_suhu_dibawah_standar
                         ]
                     );
 

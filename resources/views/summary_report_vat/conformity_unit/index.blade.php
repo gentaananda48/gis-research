@@ -114,7 +114,7 @@
                             </button>
                             <ul class="dropdown-menu">
                               <li><a href="{{ route('summary.conformity_unit.export','excel') }}?range={{ $date_range }}&pg={{ is_array($pg) ? $pg[0]:'' }}&unit={{ is_array($unit) ? $unit[0]:'' }}">Excel</a></li>
-                              <li><a href="javascript:void(0)" class="btn-print">PDF</a></li>
+                              {{-- <li><a href="javascript:void(0)" class="btn-print">PDF</a></li> --}}
                             </ul>
                         </div>
 
@@ -251,27 +251,35 @@
                 reportConformities[index].speed_diatas_standar ? reportConformities[index].speed_diatas_standar.toFixed(2):0
                 ]);    
             }else{
-                $('#speed_'+index).parent().html('NA');
+                $('#speed_'+index).parent().html('N/A');
             }
             
-            if (reportConformities[index].wing_kiri_standar + reportConformities[index].wing_kiri_dibawah_standar + reportConformities[index].wing_kiri_diatas_standar != 0) {
-                pieChart("wing_kiri_"+index, [
-                reportConformities[index].wing_kiri_standar ? reportConformities[index].wing_kiri_standar.toFixed(2):0,
-                reportConformities[index].wing_kiri_dibawah_standar ? reportConformities[index].wing_kiri_dibawah_standar.toFixed(2):0,
-                reportConformities[index].wing_kiri_diatas_standar ? reportConformities[index].wing_kiri_diatas_standar.toFixed(2):0
-                ]);    
+            if (reportConformities[index].wing_kiri_rusak > 2) {
+                if (reportConformities[index].wing_kiri_standar + reportConformities[index].wing_kiri_dibawah_standar + reportConformities[index].wing_kiri_diatas_standar != 0) {
+                    pieChart("wing_kiri_"+index, [
+                    reportConformities[index].wing_kiri_standar ? reportConformities[index].wing_kiri_standar.toFixed(2):0,
+                    reportConformities[index].wing_kiri_dibawah_standar ? reportConformities[index].wing_kiri_dibawah_standar.toFixed(2):0,
+                    reportConformities[index].wing_kiri_diatas_standar ? reportConformities[index].wing_kiri_diatas_standar.toFixed(2):0
+                    ]);    
+                }else{
+                    $('#wing_kiri_'+index).parent().html('N/A');
+                }   
             }else{
-                $('#wing_kiri_'+index).parent().html('NA');
+                    $('#wing_kiri_'+index).parent().html('N/A');
             }
             
-            if (reportConformities[index].wing_kanan_standar + reportConformities[index].wing_kanan_dibawah_standar + reportConformities[index].wing_kanan_diatas_standar != 0) {
-                pieChart("wing_kanan_"+index, [
-                reportConformities[index].wing_kanan_standar ? reportConformities[index].wing_kanan_standar.toFixed(2):0,
-                reportConformities[index].wing_kanan_dibawah_standar ? reportConformities[index].wing_kanan_dibawah_standar.toFixed(2):0,
-                reportConformities[index].wing_kanan_diatas_standar ? reportConformities[index].wing_kanan_diatas_standar.toFixed(2):0
-                ]);    
+            if (reportConformities[index].wing_kanan_rusak > 2) {
+                if (reportConformities[index].wing_kanan_standar + reportConformities[index].wing_kanan_dibawah_standar + reportConformities[index].wing_kanan_diatas_standar != 0) {
+                    pieChart("wing_kanan_"+index, [
+                    reportConformities[index].wing_kanan_standar ? reportConformities[index].wing_kanan_standar.toFixed(2):0,
+                    reportConformities[index].wing_kanan_dibawah_standar ? reportConformities[index].wing_kanan_dibawah_standar.toFixed(2):0,
+                    reportConformities[index].wing_kanan_diatas_standar ? reportConformities[index].wing_kanan_diatas_standar.toFixed(2):0
+                    ]);    
+                }else{
+                    $('#wing_kanan_'+index).parent().html('N/A');
+                }
             }else{
-                $('#wing_kanan_'+index).parent().html('NA');
+                $('#wing_kanan_'+index).parent().html('N/A');
             }
 
             if (reportConformities[index].goldentime_standar + reportConformities[index].goldentime_tidak_standar != 0) {
@@ -280,7 +288,7 @@
                 reportConformities[index].goldentime_tidak_standar ? reportConformities[index].goldentime_tidak_standar.toFixed(2):0,
                 ], 'golden_time');    
             }else{
-                $('#golden_time_'+index).parent().html('NA');
+                $('#golden_time_'+index).parent().html('N/A');
             }
 
             // pieChart("waktu_spray_"+index, [
@@ -332,21 +340,24 @@
                 },
                 plugins: {
                     datalabels: {
-                        display: true,
                         formatter: (value, ctx) => {
-                            if(value >0 ){
-                                return value + ' %'
-                            }else{
+                            if (value > 0) {
+                                return value + '%';
+                            } else {
                                 value = "";
                                 return value;
                             }
-                            
                         },
+                        color: '#00000',
+                        display: 'auto',
+                        anchor: 'end',
+                        align: 'start',
+                        offset: -1,
+                        clamp: true,
                         font: {
-                            weight: 'bold',
-                            size: 8
+                            size: 12
                         },
-                        color: '#000000',
+                        clip: 'auto'
                     }
                 }
             },

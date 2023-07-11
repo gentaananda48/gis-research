@@ -129,6 +129,14 @@
             height: 300px;
         }
 
+        .table-bordered>thead>tr>th {
+            border: 1.5px solid lightgray !important;
+        }
+
+        .table>tbody>tr>td {
+            border: 1.5px solid lightgray !important;
+        }
+
         @media print {
             body {-webkit-print-color-adjust: exact;}
             
@@ -267,7 +275,7 @@
                                 <th>Tanggal</th>
                                 <th style="width: 100px">PG</th>
                                 <th style="width: 100px">Unit</th>
-                                <th style="width: 100px">Total Luasan</th>
+                                <th style="width: 100px">Total Luasan (Ha)</th>
                                 <th>On Standar Speed</th>
                                 <th>On Standar Wing Kiri</th>
                                 <th>On Standar Wing Kanan</th>
@@ -286,11 +294,11 @@
                                     <td class="text-center">{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
                                     <td class="text-center">{{ $item->pg }}</td>
                                     <td class="text-center">{{ $item->unit }}</td>
-                                    <td class="text-center">{{ $item->total_luasan }}</td>
-                                    <td class="text-center {{ $item->getStandardColor($item->speed_standar) }}">{{ $item->speed_standar }}%</td>
-                                    <td class="text-center {{ $item->getStandardColor($item->wing_kiri_standar) }}">{{ $item->wing_kiri_standar }}%</td>
-                                    <td class="text-center {{ $item->getStandardColor($item->wing_kanan_standar) }}">{{ $item->wing_kanan_standar }}%</td>
-                                    <td class="text-center {{ $item->getStandardColor($item->goldentime_standar) }}">{{ $item->goldentime_standar }}%</td>
+                                    <td class="text-center">{{ $item->total_luasan != 0 ? round($item->total_luasan/10000,2):0 }}</td>
+                                    <td class="text-center" style="{{ $item->getStandardColor($item->speed_standar) }}">{{ $item->speed_standar }}%</td>
+                                    <td class="text-center" style="{{ $item->getStandardColor($item->wing_kiri_standar) }}">{{ $item->avg_wing_kiri > 2 ? $item->wing_kiri_standar.'%':'N/A' }}</td>
+                                    <td class="text-center" style="{{ $item->getStandardColor($item->wing_kanan_standar) }}">{{ $item->avg_wing_kanan > 2 ? $item->wing_kanan_standar.'%':'N/A' }}</td>
+                                    <td class="text-center" style="{{ $item->getStandardColor($item->goldentime_standar) }}">{{ $item->goldentime_standar }}%</td>
                                     <td class="text-center">{{ $item->lokasi }}</td>
                                     <td class="text-center">{{ $item->shift != null && $item->activity != null ? 'Y' : 'N' }}</td>
                                     <td class="text-center">{{ $item->shift }}</td>
@@ -306,9 +314,21 @@
                     </table>
 
                     <div style="padding-top: 1rem;" class="hidden-print">
-                        <a href="{{ route('summary.conformity_unit') }}" class="btn btn-warning btn-sm"  style="margin: 0px; margin-right: 8px;">Back</a>
+                        <button type="button" class="btn btn-warning">
+                            <a href="{{ route('summary.conformity_unit') }}" style="color: white;">Back</a>
+                        </button>
 
-                        <button class="btn btn-success btn-sm btn-print" style="margin: 0">Export</button>
+
+                        <div class="btn-group hidden-print">
+                            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              Export <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a href="{{ route('summary.conformity_unit.export_detail') }}?range={{ $range_date }}&pg={{ $pg }}&unit={{ $unit }}&date={{ $data_date }}">Excel</a></li>
+                              {{-- <li><a href="javascript:void(0)" class="btn-print">PDF</a></li> --}}
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -331,41 +351,49 @@
 
         if (reportConformity.speed_standar + reportConformity.speed_dibawah_standar + reportConformity.speed_diatas_standar != 0) {
             pieChart("speed_1", [
-            reportConformity.speed_standar,
-            reportConformity.speed_dibawah_standar,
-            reportConformity.speed_diatas_standar
+            reportConformity.speed_standar.toFixed(2),
+            reportConformity.speed_dibawah_standar.toFixed(2),
+            reportConformity.speed_diatas_standar.toFixed(2)
             ]);     
         }else{
-            $('#speed_1').parent().html('NA');
+            $('#speed_1').parent().html('N/A');
         }
 
-        if (reportConformity.wing_kiri_standar + reportConformity.wing_kiri_dibawah_standar + reportConformity.wing_kiri_diatas_standar != 0) {
-            pieChart("wing_kiri_1", [
-            reportConformity.wing_kiri_standar,
-            reportConformity.wing_kiri_dibawah_standar,
-            reportConformity.wing_kiri_diatas_standar
-            ]);    
+        if (reportConformity.wing_kiri_rusak > 2) {
+            if (reportConformity.wing_kiri_standar + reportConformity.wing_kiri_dibawah_standar + reportConformity.wing_kiri_diatas_standar != 0) {
+                pieChart("wing_kiri_1", [
+                reportConformity.wing_kiri_standar.toFixed(2),
+                reportConformity.wing_kiri_dibawah_standar.toFixed(2),
+                reportConformity.wing_kiri_diatas_standar.toFixed(2)
+                ]);    
+            }else{
+                $('#wing_kiri_1').parent().html('N/A');
+            }
         }else{
-            $('#wing_kiri_1').parent().html('NA');
+            $('#wing_kiri_1').parent().html('N/A');
         }
 
-        if (reportConformity.wing_kanan_standar + reportConformity.wing_kanan_dibawah_standar + reportConformity.wing_kanan_diatas_standar != 0) {
-            pieChart("wing_kanan_1", [
-            reportConformity.wing_kanan_standar,
-            reportConformity.wing_kanan_dibawah_standar,
-            reportConformity.wing_kanan_diatas_standar
-            ]);   
+        if (reportConformity.wing_kanan_rusak > 2) {
+            if (reportConformity.wing_kanan_standar + reportConformity.wing_kanan_dibawah_standar + reportConformity.wing_kanan_diatas_standar != 0) {
+                pieChart("wing_kanan_1", [
+                reportConformity.wing_kanan_standar.toFixed(2),
+                reportConformity.wing_kanan_dibawah_standar.toFixed(2),
+                reportConformity.wing_kanan_diatas_standar.toFixed(2)
+                ]);   
+            }else{
+                $('#wing_kanan_1').parent().html('N/A');
+            }
         }else{
-            $('#wing_kanan_1').parent().html('NA');
+            $('#wing_kanan_1').parent().html('N/A');
         }
 
         if (reportConformity.goldentime_standar + reportConformity.goldentime_tidak_standar != 0) {
             pieChart("golden_time_1", [
-            reportConformity.goldentime_standar,
-            reportConformity.goldentime_tidak_standar,
+            reportConformity.goldentime_standar.toFixed(2),
+            reportConformity.goldentime_tidak_standar.toFixed(2),
             ], 'golden_time');  
         }else{
-            $('#golden_time_1').parent().html('NA');
+            $('#golden_time_1').parent().html('N/A');
         }
 
         // pieChart("waktu_spray_1", [
@@ -429,21 +457,23 @@
                 plugins: {
                     datalabels: {
                         formatter: (value, ctx) => {
-                            if(value >0 ){
-                                let datasets = ctx.chart.data.datasets;
-                                if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
-                                let sum = datasets[0].data.reduce((a, b) => a + b, 0);
-                                let percentage = Math.round((value / sum) * 100) + '%';
-                                return percentage;
-                                } else {
-                                return percentage;
-                                }
-                            }else{
+                            if (value > 0) {
+                                return value + '%';
+                            } else {
                                 value = "";
                                 return value;
                             }
                         },
-                        color: '#fff',
+                        color: '#00000',
+                        display: 'auto',
+                        anchor: 'end',
+                        align: 'start',
+                        offset: -1,
+                        clamp: true,
+                        font: {
+                            size: 12
+                        },
+                        clip: 'auto'
                     }
                 }
             },

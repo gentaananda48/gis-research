@@ -106,6 +106,8 @@ class ConformityUnitController extends Controller
             DB::raw("(SUM(wing_kanan_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_standar"),
             DB::raw("(SUM(goldentime_tidak_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_tidak_standar"),
             DB::raw("(SUM(goldentime_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_standar"),
+            DB::raw("AVG(avg_wing_kiri) as wing_kiri_rusak"),
+            DB::raw("AVG(avg_wing_kanan) as wing_kanan_rusak"),
             'pg', 'unit', 'tanggal', 'id'
         ])
         ->paginate(10);
@@ -151,6 +153,8 @@ class ConformityUnitController extends Controller
             DB::raw("(SUM(wing_kanan_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_standar"),
             DB::raw("(SUM(goldentime_tidak_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_tidak_standar"),
             DB::raw("(SUM(goldentime_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_standar"),
+            DB::raw("AVG(avg_wing_kiri) as wing_kiri_rusak"),
+            DB::raw("AVG(avg_wing_kanan) as wing_kanan_rusak"),
             'pg', 'unit', 'tanggal', 'id'
         ])->first();
 
@@ -174,7 +178,11 @@ class ConformityUnitController extends Controller
                 }
             }
         }
-
+        
+        $data_date = '';
+        if($request->date){
+            $data_date = $request->date;
+        }
         return view('summary_report_vat.conformity_unit.show_1', [
             'date_range'    => $date_range,
             'range_date'    => $request->range_date,
@@ -183,7 +191,8 @@ class ConformityUnitController extends Controller
             // 'rencana_kerja' => $rencana_kerja,
             'pg' => $request->pg,
             'unit' => $request->unit,
-            'lokasi' => $lokasi
+            'lokasi' => $lokasi,
+            'data_date' => $data_date
         ]);
     }
 
@@ -195,13 +204,15 @@ class ConformityUnitController extends Controller
             ->where('tgl', $report_conformity->tanggal)
             ->where('lokasi_kode', $report_conformity->lokasi)
             ->first();
-        
+
+        $explodeRk = explode(" ",$rk->aktivitas_nama); 
+
         $report_param_standard = ReportParameterStandard::where('volume_id', $rk->volume_id)
             ->where('nozzle_id', $rk->nozzle_id)
             ->where('aktivitas_id', $rk->aktivitas_id)
             ->with([
                 'reportParameterStandarDetails' => function($query) {
-                    $query->where('urutan', 2);
+                    $query->where('point', 1);
                 },
             ])
             ->first();
@@ -360,7 +371,8 @@ class ConformityUnitController extends Controller
                 $header = $summary->header;
             }
         }
-
+        
+        $avgRRK = collect(json_decode($list_rrk))->avg('parameter_6');
         return view('summary_report_vat.conformity_unit.show_2', [
             'report_conformity' => $report_conformity,
             'rk' => $rk,
@@ -373,7 +385,9 @@ class ConformityUnitController extends Controller
             'list_lokasi'   => json_encode($list_lokasi),
             'report_param_standard' => $report_param_standard,
             'pg' => $request->pg,
-            'unit' => $request->unit
+            'unit' => $request->unit,
+            'avgRRK' => $avgRRK,
+            'explodeRk' => $explodeRk[0]
         ]);
     }
 
@@ -436,6 +450,10 @@ class ConformityUnitController extends Controller
             DB::raw("(SUM(wing_kanan_standar)/(SUM(wing_kanan_diatas_standar) + SUM(wing_kanan_dibawah_standar) + SUM(wing_kanan_standar)) * 100) as wing_kanan_standar"),
             DB::raw("(SUM(goldentime_tidak_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_tidak_standar"),
             DB::raw("(SUM(goldentime_standar)/(SUM(goldentime_tidak_standar) + SUM(goldentime_standar)) * 100) as goldentime_standar"),
+            DB::raw("(SUM(suhu_tidak_standar)/(SUM(suhu_tidak_standar) + SUM(suhu_standar)) * 100) as suhu_tidak_standar"),
+            DB::raw("(SUM(suhu_standar)/(SUM(suhu_tidak_standar) + SUM(suhu_standar)) * 100) as suhu_standar"),
+            DB::raw("AVG(avg_wing_kiri) as wing_kiri_rusak"),
+            DB::raw("AVG(avg_wing_kanan) as wing_kanan_rusak"),
             'pg', 'unit', 'tanggal', 'id'
         ])
         ->get();
@@ -443,5 +461,13 @@ class ConformityUnitController extends Controller
         $result['summary'] = $report_conformities; 
         $result['date'] = $request->range; 
         return Excel::download(new ExportSummary($result), 'summary.xlsx');
+    }
+
+    function export_detail(Request $request){
+        return "dev";
+    }
+
+    function export_show(Request $request){
+        return "dev";
     }
 }

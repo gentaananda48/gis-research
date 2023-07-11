@@ -142,17 +142,23 @@
                             <td width="25%"><h4>UNIT</h4></td>
                             <td width="25%"><h4>{{ $rk->unit_label }}</h4></td>
                         </tr>
+                        
                         <tr>
-                            <td width="25%"><h4>JAM MULAI</h4></td>
-                            <td width="25%"><h4>{{ date('Y-m-d | H:i:s', strtotime($rk->jam_mulai)) }}</h4></td>
+                            <td width="25%"><h4>TANGGAL</h4></td>
+                            <td width="25%"><h4>{{ date('Y-m-d', strtotime($rk->jam_mulai)) }}</h4></td>
                             <td width="25%"><h4>VOLUME AIR</h4></td>
                             <td width="25%"><h4>{{ $rk->volume }}</h4></td>
                         </tr>
+
+                        <tr>
+                            <td width="25%"><h4>JAM MULAI</h4></td>
+                            <td width="25%"><h4>{{ date('H:i:s', strtotime($rk->jam_mulai)) }}</h4></td>
+                            <td width="25%"><h4>SUHU</h4></td>
+                            <td width="25%"><h4>{{ $avgRRK > 2 ? round($avgRRK,2):'N/A' }}</h4></td>
+                        </tr>
                         <tr>
                             <td width="25%"><h4>JAM SELESAI</h4></td>
-                            <td width="25%"><h4>{{ date('Y-m-d | H:i:s', strtotime($rk->jam_selesai)) }}</h4></td>
-                            <td width="25%"><h4>SUHU</h4></td>
-                            <td width="25%"><h4>-</h4></td>
+                            <td width="25%"><h4>{{ date('H:i:s', strtotime($rk->jam_selesai)) }}</h4></td>
                         </tr>
                     </table>
                 </div>
@@ -163,15 +169,27 @@
     <div class="row">
         <div class="col-md-12">
             <div class="box box-success">
-                <div class="box-header text-center">
-                    <h3><strong>Summary</strong></h3>
+                <div class="box-header">
+                    <div class="btn-group hidden-print">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Export <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a href="{{ route('summary.conformity_unit.export_show') }}">Excel</a></li>
+                          {{-- <li><a href="javascript:void(0)" class="btn-print">PDF</a></li> --}}
+                        </ul>
+                    </div>
+
+                    <h3 class="text-center"><strong>Summary</strong></h3>
                 </div>
+                
                 <div class="box-body">
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered rounded" width="100%" id="table-summary">
                             <thead>
                                 <tr>
                                     <th rowspan="2">Shift</th>
+                                    <th rowspan="2">Total Luasan (Ha)</th>
                                     <th colspan="5">Speed</th>
                                     <th colspan="5">Wing Kiri</th>
                                     <th colspan="5">Wing Kanan</th>
@@ -183,19 +201,19 @@
                                     <th>Dibawah Standar (%)</th>
                                     <th>Standar (%)</th>
                                     <th>Diatas Standar (%)</th>
-                                    <th>Average (%)</th>
+                                    <th>Average (Km / h)</th>
 
                                     <th>Standar</th>
                                     <th>Dibawah Standar (%)</th>
                                     <th>Standar (%)</th>
                                     <th>Diatas Standar (%)</th>
-                                    <th>Average (%)</th>
+                                    <th>Average (cm)</th>
                                     
                                     <th>Standar</th>
                                     <th>Dibawah Standar (%)</th>
                                     <th>Standar (%)</th>
                                     <th>Diatas Standar (%)</th>
-                                    <th>Average (%)</th>
+                                    <th>Average (cm)</th>
                                     
                                     <th>Standar</th>
                                     <th>Tidak Standar (%)</th>
@@ -204,12 +222,13 @@
                                     <th>Standar</th>
                                     <th>Tidak Standar (%)</th>
                                     <th>Standar (%)</th>
-                                    <th>Average (%)</th>
+                                    <th>Average (C)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td class="text-center">{{ $report_conformity->shift }}</td>
+                                    <td class="text-center">{{ $report_conformity->total_luasan != 0 ? round($report_conformity->total_luasan/10000,2):0 }}</td>
                                     <td class="text-center">
                                         {{ 
                                             @$report_param_standard->reportParameterStandarDetails
@@ -226,7 +245,7 @@
                                     <td class="text-center">{{ $report_conformity->speed_dibawah_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->speed_standar }}%</td>
                                     <td class="text-center">{{ $report_conformity->speed_diatas_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->avg_speed }}%</td>
+                                    <td class="text-center">{{ $report_conformity->avg_speed }} Km / h</td>
                                     
                                     <td class="text-center">
                                         {{ 
@@ -241,10 +260,18 @@
                                                 ->range_2
                                         }} cm
                                     </td>
-                                    <td class="text-center">{{ $report_conformity->wing_kiri_dibawah_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->wing_kiri_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->wing_kiri_diatas_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->avg_wing_kiri }}%</td>
+                                    @if ($report_conformity->avg_wing_kiri > 2)
+                                        <td class="text-center">{{ $report_conformity->wing_kiri_dibawah_standar }}%</td>
+                                        <td class="text-center">{{ $report_conformity->wing_kiri_standar }}%</td>
+                                        <td class="text-center">{{ $report_conformity->wing_kiri_diatas_standar }}%</td>
+                                        <td class="text-center">{{ $report_conformity->avg_wing_kiri }} cm</td>    
+                                    @else
+                                        <td class="text-center">N/A</td>
+                                        <td class="text-center">N/A</td>
+                                        <td class="text-center">N/A</td>
+                                        <td class="text-center">N/A</td>
+                                    @endif
+                                    
 
                                     <td class="text-center">
                                         {{ 
@@ -259,10 +286,18 @@
                                                 ->range_2
                                         }} cm
                                     </td>
-                                    <td class="text-center">{{ $report_conformity->wing_kanan_dibawah_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->wing_kanan_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->wing_kanan_diatas_standar }}%</td>
-                                    <td class="text-center">{{ $report_conformity->avg_wing_kanan }}%</td>
+
+                                    @if ($report_conformity->avg_wing_kanan > 2)
+                                        <td class="text-center">{{ $report_conformity->wing_kanan_dibawah_standar }}%</td>
+                                        <td class="text-center">{{ $report_conformity->wing_kanan_standar }}%</td>
+                                        <td class="text-center">{{ $report_conformity->wing_kanan_diatas_standar }}%</td>
+                                        <td class="text-center">{{ $report_conformity->avg_wing_kanan }} cm</td>    
+                                    @else
+                                        <td class="text-center">N/A</td>
+                                        <td class="text-center">N/A</td>
+                                        <td class="text-center">N/A</td>
+                                        <td class="text-center">N/A</td>
+                                    @endif
                                     
                                     <td class="text-center">
                                         {{ 
@@ -277,10 +312,13 @@
                                                 ->range_2
                                         }} 
                                     </td>
-                                    <td class="text-center">{{ $report_conformity->golden_time_standar ? $report_conformity->golden_time_standar:"N/A" }}</td>
-                                    <td class="text-center">{{ $report_conformity->golden_time_tidak_standar ? $report_conformity->golden_time_tidak_standar:"N/A" }}</td>
+                                    <td class="text-center">{{ $report_conformity->goldentime_tidak_standar }}%</td>
+                                    <td class="text-center">{{ $report_conformity->goldentime_standar}}%</td>
 
                                     <td class="text-center">
+                                        @if ($explodeRk != 'Forcing')
+                                            -
+                                        @else
                                         {{ 
                                             @$report_param_standard->reportParameterStandarDetails
                                                 ->where('report_parameter_id', 6)
@@ -292,10 +330,18 @@
                                                 ->first()
                                                 ->range_2
                                         }} C
+                                        @endif
                                     </td>
-                                    <td class="text-center">N/A%</td>
-                                    <td class="text-center">N/A%</td>
-                                    <td class="text-center">N/A%</td>
+                                    @if ($avgRRK > 2)
+                                        <td class="text-center">{{ $explodeRk != 'Forcing' ? '-': $report_conformity->suhu_standar.'%'}}</td>
+                                        <td class="text-center">{{ $explodeRk != 'Forcing' ? '-': $report_conformity->suhu_tidak_standar.'%'}}</td>
+                                        <td class="text-center">{{ round($avgRRK,2).' C'}}</td>                                        
+                                    @else
+                                        <td class="text-center">{{ $explodeRk != 'Forcing' ? '-': 'N/A'}}</td>
+                                        <td class="text-center">{{ $explodeRk != 'Forcing' ? '-': 'N/A'}}</td>
+                                        <td class="text-center">{{ 'N/A'}}</td>
+                                    @endif
+                                    
                                 </tr>
                             </tbody>
                         </table>
@@ -323,7 +369,6 @@
                                     <th>Wing Kiri</th>
                                     <th>Wing Kanan</th>
                                     <th>Golden Time</th>
-                                    <th>Waktu Spray</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -346,12 +391,6 @@
                                     <td width="200px">
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="golden_time_1" style="width:100%;max-width:100%"></canvas>
-                                        </div>
-                                    </td>
-                                    <td width="200px">
-                                        <div style="display: flex; justify-content: center;">
-                                            NA
-                                            {{-- <canvas id="waktu_spray_1" style="width:100%;max-width:100%"></canvas> --}}
                                         </div>
                                     </td>
                                 </tr>
@@ -379,29 +418,33 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                            @foreach($list_rrk as $v)
+                            @forelse($list_rrk as $v)
                                     <tr>
                                             <td class="text-center">{{ $v->ritase }}</td>
                                             @foreach($header as $k2 => $v2)
                                                 @php
                                                     $param = 'parameter_'.$k2;
                                                 @endphp
-                                                    @if ($k2 == 4 || $k2 == 5)
+                                                    @if ($k2 == 4 || $k2 == 5 || $k2 == 6)
                                                             <td class="text-center">{{ doubleval($v->$param) <= 2 ? 'N/A' : $v->$param }}</td>
                                                     @else
                                                             <td class="text-center">{{ $v->$param }}</td>
                                                     @endif
                                             @endforeach
                                     </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="100" class="text-center">No data available</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
 
                     <div style="padding-top: 1rem;" class="hidden-print">
-                        <a href="{{ route('summary.conformity_unit') }}" class="btn btn-warning btn-sm"  style="margin: 0px; margin-right: 8px;">Back</a>
+                        <a href="{{ url()->previous() }}" class="btn btn-warning"  style="margin: 0px; margin-right: 8px;">Back</a>
+                        <a href="{{ route('report.rencana_kerja.playback',$rk->id) }}" class="btn btn-success"> Playback</a>
 
-                        <button class="btn btn-success btn-sm btn-print" style="margin: 0">Export</button>
+                        {{-- <button class="btn btn-success btn-sm btn-print" style="margin: 0">Export</button> --}}
                     </div>
                 </div>
             </div>
@@ -411,6 +454,7 @@
 @stop
 
 @section("script")
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script>
    $(document).ready(function() {
@@ -423,41 +467,50 @@
 
         if (reportConformity.speed_standar + reportConformity.speed_dibawah_standar + reportConformity.speed_diatas_standar != 0) {
             pieChart("speed_1", [
-            reportConformity.speed_standar,
-            reportConformity.speed_dibawah_standar,
-            reportConformity.speed_diatas_standar
+            reportConformity.speed_standar.toFixed(2),
+            reportConformity.speed_dibawah_standar.toFixed(2),
+            reportConformity.speed_diatas_standar.toFixed(2)
             ]);     
         }else{
-            $('#speed_1').parent().html('NA');
+            $('#speed_1').parent().html('N/A');
         }
 
-        if (reportConformity.wing_kiri_standar + reportConformity.wing_kiri_dibawah_standar + reportConformity.wing_kiri_diatas_standar != 0) {
-            pieChart("wing_kiri_1", [
-            reportConformity.wing_kiri_standar,
-            reportConformity.wing_kiri_dibawah_standar,
-            reportConformity.wing_kiri_diatas_standar
-            ]);    
+        if (reportConformity.avg_wing_kiri > 2) {
+            if (reportConformity.wing_kiri_standar + reportConformity.wing_kiri_dibawah_standar + reportConformity.wing_kiri_diatas_standar != 0) {
+                pieChart("wing_kiri_1", [
+                reportConformity.wing_kiri_standar.toFixed(2),
+                reportConformity.wing_kiri_dibawah_standar.toFixed(2),
+                reportConformity.wing_kiri_diatas_standar.toFixed(2)
+                ]);    
+            }else{
+                $('#wing_kiri_1').parent().html('N/A');
+            }
         }else{
-            $('#wing_kiri_1').parent().html('NA');
+            $('#wing_kiri_1').parent().html('N/A');
         }
+        
 
-        if (reportConformity.wing_kanan_standar + reportConformity.wing_kanan_dibawah_standar + reportConformity.wing_kanan_diatas_standar != 0) {
-            pieChart("wing_kanan_1", [
-            reportConformity.wing_kanan_standar,
-            reportConformity.wing_kanan_dibawah_standar,
-            reportConformity.wing_kanan_diatas_standar
-            ]);   
+        if (reportConformity.avg_wing_kanan > 2) {
+            if (reportConformity.wing_kanan_standar + reportConformity.wing_kanan_dibawah_standar + reportConformity.wing_kanan_diatas_standar != 0) {
+                pieChart("wing_kanan_1", [
+                reportConformity.wing_kanan_standar.toFixed(2),
+                reportConformity.wing_kanan_dibawah_standar.toFixed(2),
+                reportConformity.wing_kanan_diatas_standar.toFixed(2)
+                ]);   
+            }else{
+                $('#wing_kanan_1').parent().html('N/A');
+            }
         }else{
-            $('#wing_kanan_1').parent().html('NA');
+            $('#wing_kanan_1').parent().html('N/A');
         }
 
         if (reportConformity.goldentime_standar + reportConformity.goldentime_tidak_standar != 0) {
             pieChart("golden_time_1", [
-            reportConformity.goldentime_standar,
-            reportConformity.goldentime_tidak_standar,
+            reportConformity.goldentime_standar.toFixed(2),
+            reportConformity.goldentime_tidak_standar.toFixed(2),
             ], 'golden_time');  
         }else{
-            $('#golden_time_1').parent().html('NA');
+            $('#golden_time_1').parent().html('N/A');
         }
         // pieChart("waktu_spray_1", [
         //     reportConformity.spray_standar,
@@ -520,14 +573,23 @@
                 plugins: {
                     datalabels: {
                         formatter: (value, ctx) => {
-                            if(value >0 ){
-                                return value+ '%';
-                            }else{
+                            if (value > 0) {
+                                return value + '%';
+                            } else {
                                 value = "";
                                 return value;
                             }
                         },
-                        color: '#fff',
+                        color: '#00000',
+                        display: 'auto',
+                        anchor: 'end',
+                        align: 'start',
+                        offset: -1,
+                        clamp: true,
+                        font: {
+                            size: 12
+                        },
+                        clip: 'auto'
                     }
                 }
             },
@@ -541,14 +603,15 @@
 	var marker;
 	var poly;
 	var lacak = {!! $list_lacak !!};
-	var timestamp_jam_mulai = {!! $timestamp_jam_mulai !!};
-	var timestamp_jam_selesai = {!! $timestamp_jam_selesai !!};
+	var lokasi = {!! $list_lokasi !!};
+	var timestamp_jam_mulai = "{!! $timestamp_jam_mulai ? $timestamp_jam_mulai:'-' !!}";
+	var timestamp_jam_selesai = "{!! $timestamp_jam_selesai ? $timestamp_jam_selesai:'-' !!}";
 	var i = 0;
 
 	function initMap() {
 		map = new google.maps.Map(document.getElementById("map"), {
 		    zoom: 17,
-		    center: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
+		    center: {lng: lokasi[0]['koordinat'][0]['lng'], lat: lokasi[0]['koordinat'][0]['lat']},
 		    mapTypeId: "satellite",
 		});
 
@@ -558,22 +621,24 @@
 		    return bounds
 		}
 
-		marker = new google.maps.Marker({
-		    position: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
-		    //label: 'TEST',
-		    map: map,
-		    //animation: google.maps.Animation.DROP,
-		    icon: {
-		        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-		        fillColor: '#04F8E5',
-			    fillOpacity: 1,
-			    strokeWeight: 1,
-		        strokeColor: '#04F8E5',
-			    scale: 5,
-		        rotation: lacak[0].position_direction,
-		        anchor: new google.maps.Point(0, 5),
-		    }
-		});
+        if (lacak.length > 0) {
+            marker = new google.maps.Marker({
+                position: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
+                //label: 'TEST',
+                map: map,
+                //animation: google.maps.Animation.DROP,
+                icon: {
+                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                    fillColor: '#04F8E5',
+                    fillOpacity: 1,
+                    strokeWeight: 1,
+                    strokeColor: '#04F8E5',
+                    scale: 5,
+                    rotation: lacak[0].position_direction,
+                    anchor: new google.maps.Point(0, 5),
+                }
+            });   
+        }
 
 		var list_lokasi = {!! $list_lokasi !!} || []
 	  	list_lokasi.forEach(function(lokasi) {
@@ -591,41 +656,43 @@
 		  	polygon.setMap(map);
 		  	map.setCenter(polygon.my_getBounds().getCenter());
 		});
-		for (var i = 0, len = lacak.length; i < len; i += 1) {
-			if(timestamp_jam_mulai > lacak[i].timestamp || lacak[i].timestamp > timestamp_jam_selesai) {
-				continue;
-			}
-		    var icon = marker.getIcon();
-			icon.rotation = lacak[i].position_direction;
-	    	marker.setIcon(icon);
-	    	var position = new google.maps.LatLng(lacak[i].position_latitude, lacak[i].position_longitude);
-			marker.setPosition(position);
-			if(i>0){
-				if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
-					var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#00FF00" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#FFA500" : "#FFFF00";
-					var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
-					var poly = new google.maps.Polyline({
-					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
-					    geodesic: true,
-					    strokeColor: strokeColor,
-					    strokeOpacity: 0.5,
-					    strokeWeight: strokeWeight,
-			    		zIndex: 999999,
-					});
-			    	poly.setMap(map);
-				} else {
-					var poly = new google.maps.Polyline({
-					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
-					    geodesic: true,
-					    strokeColor: "#FF0000",
-					    strokeOpacity: 0.5,
-					    strokeWeight: 3,
-			    		zIndex: 999999,
-					});
-			    	poly.setMap(map);
-				}
-			}
-		}
+        if (lacak.length > 0) {
+            for (var i = 0, len = lacak.length; i < len; i += 1) {
+                if(timestamp_jam_mulai > lacak[i].timestamp || lacak[i].timestamp > timestamp_jam_selesai) {
+                    continue;
+                }
+                var icon = marker.getIcon();
+                icon.rotation = lacak[i].position_direction;
+                marker.setIcon(icon);
+                var position = new google.maps.LatLng(lacak[i].position_latitude, lacak[i].position_longitude);
+                marker.setPosition(position);
+                if(i>0){
+                    if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
+                        var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#00FF00" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#FFA500" : "#FFFF00";
+                        var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
+                        var poly = new google.maps.Polyline({
+                            path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+                            geodesic: true,
+                            strokeColor: strokeColor,
+                            strokeOpacity: 0.5,
+                            strokeWeight: strokeWeight,
+                            zIndex: 999999,
+                        });
+                        poly.setMap(map);
+                    } else {
+                        var poly = new google.maps.Polyline({
+                            path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+                            geodesic: true,
+                            strokeColor: "#FF0000",
+                            strokeOpacity: 0.5,
+                            strokeWeight: 3,
+                            zIndex: 999999,
+                        });
+                        poly.setMap(map);
+                    }
+                }
+            }   
+        }
 	}
 </script>
  <!-- Async script executes immediately and must be after any DOM elements used in callback. -->

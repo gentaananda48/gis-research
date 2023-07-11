@@ -17,6 +17,8 @@
                 <th>Wing Kanan diatas standar</th>
                 <th>Golden Time standar</th>
                 <th>Golden Time tidak standar</th>
+                <th>Suhu standar</th>
+                <th>Suhu tidak standar</th>
             </tr>
         </thead>
         <tbody>
@@ -37,6 +39,8 @@
                 <td>{{ $item->wing_kanan_diatas_standar}}</td>
                 <td>{{ $item->goldentime_standar}}</td>
                 <td>{{ $item->goldentime_tidak_standar}}</td>
+                <td>{{ $item->suhu_standar}}</td>
+                <td>{{ $item->suhu_tidak_standar}}</td>
             </tr>
             @empty
             <tr>
