@@ -73,8 +73,8 @@ class Kernel extends ConsoleKernel
         })->everyMinute();
 
         // cron for summary and delete data old in archive
-        $schedule->command('summary:report')->hourly();
-        $schedule->command('generate:listpercentage')->hourly();
+        // $schedule->command('summary:report')->hourly();
+        // $schedule->command('generate:listpercentage')->hourly();
 
         // cron delete data archive more than 2 month, will execute at 00:00 (midnight) on the first day of each month.
         // $schedule->command('archive:delete-old-files')
