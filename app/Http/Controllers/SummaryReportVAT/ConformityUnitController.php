@@ -112,6 +112,7 @@ class ConformityUnitController extends Controller
             DB::raw("AVG(avg_wing_kanan) as wing_kanan_rusak"),
             'pg', 'unit', 'tanggal', 'id'
         ])
+        ->whereIn('pg', explode(',', $user->area))
         ->paginate(10);
         return view('summary_report_vat.conformity_unit.index', [
             'date_range'    => $date_range,
@@ -414,6 +415,7 @@ class ConformityUnitController extends Controller
     }
 
     function export(Request $request,$type){
+        $user = Auth::user();
         if(!empty($request->range)){
             $date_range = explode(' - ', $request->range);
             $date1 = date('Y-m-d', strtotime($date_range[0]));
@@ -458,6 +460,7 @@ class ConformityUnitController extends Controller
             DB::raw("AVG(avg_wing_kanan) as wing_kanan_rusak"),
             'pg', 'unit', 'tanggal', 'id'
         ])
+        ->whereIn('pg', explode(',', $user->area))
         ->get();
 
         $result['summary'] = $report_conformities; 

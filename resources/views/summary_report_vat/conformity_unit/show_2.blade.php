@@ -580,7 +580,7 @@
                                 return value;
                             }
                         },
-                        color: '#00000',
+                        color: '#fff',
                         display: 'auto',
                         anchor: 'end',
                         align: 'start',
