@@ -209,7 +209,7 @@ class SumarySegment extends Command
                         $this->info('Success inputing data to table summary segment');
                     }
                 }else {
-                    $this->info('Gagal Input data');
+                    $this->info('data tidak ada');
                 }
             }
         } catch (\Exception $e) {

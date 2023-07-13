@@ -47,6 +47,7 @@ class Kernel extends ConsoleKernel
         Commands\DeleteOldArchiveFiles::class,
         Commands\SendEmailReport::class,
         Commands\DataPercentage::class,
+        Commands\ResetLacakSegment::class,
     ];
 
     /**
