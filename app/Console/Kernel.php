@@ -23,6 +23,8 @@ use App\Model\Aktivitas;
 use App\Model\ReportRencanaKerja;
 use App\Model\VReportRencanaKerja;
 use App\Model\VReportRencanaKerja2;
+use App\Model\CronLog;
+use App\Helper\CronLogHelper;
 
 
 class Kernel extends ConsoleKernel
@@ -97,6 +99,7 @@ class Kernel extends ConsoleKernel
 
     public function update_kualitas_rencana_kerja(){
         try {  
+        $cron_helper = new CronLogHelper;    
         $oldLimit = ini_get( 'memory_limit' );
         ini_set( 'memory_limit', '-1' );
         set_time_limit(0);
@@ -253,8 +256,11 @@ class Kernel extends ConsoleKernel
 
             if (!empty($successIds)) {
                 return $successMessage;
+                $cron_helper->create('generate kualitas', 'FINISHED', 'ID: '.$successIds.'. Finished Successfully');
             } elseif (!empty($errorIds)) {
                 return $errorMessage;
+                Log::error($e->getMessage());
+                $cron_helper->create('generate kualitas', 'STOPPED', 'ID: '.$successIds.'. ERROR: '.$e->getMessage());
             } else {
                 return "No Rencana Kerja kualitas were updated.";
             }
