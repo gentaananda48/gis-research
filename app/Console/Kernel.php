@@ -99,7 +99,6 @@ class Kernel extends ConsoleKernel
 
     public function update_kualitas_rencana_kerja(){
         try {  
-        $cron_helper = new CronLogHelper;    
         $oldLimit = ini_get( 'memory_limit' );
         ini_set( 'memory_limit', '-1' );
         set_time_limit(0);
@@ -112,12 +111,14 @@ class Kernel extends ConsoleKernel
 
         $successIds = [];
         $errorIds = [];
-
+        $cron_helper = new CronLogHelper;    
+        
         if(count($list_rk)>0){
             $list_rp = ReportParameter::orderBy('id', 'ASC')->get();
             $list_rs = ReportStatus::get();
             foreach($list_rk AS $rk) {
                 $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get()->toArray();
+                $cron_helper->create('update:kualitas-rencana-kerja', 'STARTED', 'ID: '.$id);
                 $kualitas = '';
                 if(count($list_rrk)>0) {
                     $aktivitas = Aktivitas::find($rk->aktivitas_id);
