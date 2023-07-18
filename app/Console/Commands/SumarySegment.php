@@ -141,6 +141,7 @@ class SumarySegment extends Command
                         JOIN tb9 on tb9.report_parameter_standard_id = tb3.id
                         where tb3.nozzle_id = tb2.nozzle_id
                         and tb0.speed > 0.9
+                        and tb1.overlapping_route != 1
                         and tb3.volume_id = tb2.volume_id
                         and tb2.tgl = DATE(tb1.created_at)
                         GROUP BY tb1.segment

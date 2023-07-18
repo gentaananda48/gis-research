@@ -90,7 +90,8 @@ class UnitController extends Controller {
                         $table->double('homogenity')->nullable();
                         $table->double('bearing')->nullable();
                         $table->string('microcontroller_id', 30)->nullable();
-                        $table->double('utc_timestamp')->unique()->nullable();
+                        $table->double('utc_timestamp')->nullable();
+                        $table->double('device_timestamp')->unique()->nullable();
                         $table->dateTime('created_at')->nullable();
                         $table->string('box_id', 20)->nullable();
                         $table->string('unit_label', 30)->nullable();
@@ -124,7 +125,8 @@ class UnitController extends Controller {
                         $table->double('homogenity')->nullable();
                         $table->double('bearing')->nullable();
                         $table->string('microcontroller_id', 30)->nullable();
-                        $table->double('utc_timestamp')->unique()->nullable();
+                        $table->double('utc_timestamp')->nullable();
+                        $table->double('device_timestamp')->unique()->nullable();
                         $table->dateTime('created_at')->nullable();
                         $table->string('box_id', 20)->nullable();
                         $table->string('unit_label', 30)->nullable();
