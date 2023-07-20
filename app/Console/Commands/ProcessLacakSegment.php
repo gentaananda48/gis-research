@@ -76,8 +76,8 @@ class ProcessLacakSegment extends Command
                         )
                         ->where('lokasi_kode', '!=', '')
                         ->where('is_segment',0)
-                        ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '2023-07-01' and '2023-07-31'")
-                        // ->limit(100)
+                        // ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '2023-07-01' and '2023-07-31'")
+                        ->limit(100)
                         ->get();
                         $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
                         foreach ($lokasi_kode_unit as $by_lokasi ) {
