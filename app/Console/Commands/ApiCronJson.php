@@ -52,7 +52,7 @@ class ApiCronJson extends Command
                 'headers' => $headers
             ]);
 
-            $res = $client->request('GET', $devurl);
+            $res = $client->request('GET', $produrl);
             $body = json_decode($res->getBody());
             if ($body->status) {
                 Log::info("save json file via api success");
