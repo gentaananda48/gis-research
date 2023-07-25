@@ -1,312 +1,594 @@
 @extends('base_theme')
+ 
 @section('style')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.41.0/apexcharts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tilt.js/1.2.1/tilt.jquery.min.js"></script>
 <style>
-</style>
-@stop
-@section('content')
-  <section class="content">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="box box-success">
-          <div class="box-header with-border">
-            <h3 class="box-title">Filter</h3>
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-              </button>
-            </div>
-          </div>
-          <div class="box-body">
-            <form>
-            <div class="form-group col-md-3">
-              <label for="date_range">Tanggal</label>
-              {{ Form::text('date_range', $date_range, array('id' => 'date_range', 'class' => 'form-control', 'autocomplete'=>'off')) }}
-            </div> 
-            <div class="col-md-2">
-              <label for="pg">PG</label>
-              {{ Form::select('pg[]', $list_pg , $pg, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
-            </div> 
-            <div class="col-md-3">
-              <label for="aktivitas">Aktivitas</label>
-              {{ Form::select('aktivitas[]', $list_aktivitas , $aktivitas, array('class' => 'form-control select2', 'multiple'=>'multiple')) }}  
-            </div>
-            <div class="col-md-3">
-              <label for="kualitas">Kualitas</label>
-              {{ Form::select('kualitas[]', $list_kualitas , $kualitas, array('class' => 'form-control select2', 'multiple'=>'multiple')) }} 
-            </div> 
-            <button type="submit" class="btn btn-info col-md-1" style="margin-top: 23px;"><i class="fa fa-search"></i></button> 
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    @if (env('APP_CODE') === 'VAT_BOOM') 
-    <div class="row">
-      <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="info-box">
-          <span class="info-box-icon bg-aqua"><i class="fa fa-file-text-o"></i></span>
-          <div class="info-box-content">
-            <span>Input Data VAT</span>
-            <span class="info-box-number">{{ $total_rk }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="info-box">
-          <span class="info-box-icon bg-green"><i class="fa fa-truck"></i></span>
-          <div class="info-box-content">
-            <span>Record Data VAT</span>
-            <span class="info-box-number">{{ $total_real }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="clearfix visible-sm-block"></div>
-      <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="info-box">
-          <span class="info-box-icon bg-yellow"><i class="fa fa-bar-chart"></i></span>
-          <div class="info-box-content">
-            <span>Input Data VAT VS Record Data VAT</span>
-            <span class="info-box-number">{{ $perc_rk_real }}<small>%</small></span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-    @elseif (env('APP_CODE') === 'VAT_BOOM_DEV')
-      <div class="row">
-
-      <div class="col-md-3">
-        <div class="info-box">
-          <span class="info-box-icon bg-primary"><i class="fa fa-download"></i></span>
-          <div class="info-box-content">
-            <a href="{{ route('download') }}">Download APK Boom</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-3">
-        <div class="info-box">
-          <span class="info-box-icon bg-aqua"><i class="fa fa-file-text-o"></i></span>
-          <div class="info-box-content">
-            <span>Input Data VAT</span>
-            <span class="info-box-number">{{ $total_rk }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-3">
-        <div class="info-box">
-          <span class="info-box-icon bg-green"><i class="fa fa-truck"></i></span>
-          <div class="info-box-content">
-            <span>Record Data VAT</span>
-            <span class="info-box-number">{{ $total_real }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="clearfix visible-sm-block"></div>
-      <div class="col-md-3">
-        <div class="info-box">
-          <span class="info-box-icon bg-yellow"><i class="fa fa-bar-chart"></i></span>
-          <div class="info-box-content">
-            <span>Input Data VAT VS Record Data VAT</span>
-            <span class="info-box-number">{{ $perc_rk_real }}<small>%</small></span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-    @endif
-
-  	<div class="row">
-      <div class="col-md-6">
-        <div class="box box-success">
-          <div class="box-header with-border">
-            <h3 class="box-title">Data yang di input vs Data Ter-Record</h3>
-          </div>
-          <div class="box-body">
-            <canvas id="barChart1" style="height:230px; background-color: white; padding: 5px;"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="box box-success">
-          <div class="box-header with-border">
-            <h3 class="box-title">Spraying Quality</h3>
-          </div>
-          <div class="box-body">
-            <canvas id="barChart2" style="height:230px; background-color: white; padding: 5px;"></canvas>
-            </div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="box box-success">
-          <div class="box-header with-border">
-            <h3 class="box-title">Poor Locations</h3>
-          </div>
-          <div class="box-body">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Tanggal</th>
-                  <th>PG</th>
-                  <th>Kode Lokasi</th>
-                  <th>Nama Aktivitas</th>
-                  <th>Nama Unit</th>
-                  <th>Kualitas</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($list_data_rk_poor as $v)
-                <tr>
-                  <td>{{$v->tgl}}</td>
-                  <td>{{$v->lokasi_grup}}</td>
-                  <td>
-                    <a href="/report/rencana_kerja/summary/{{$v->id}}">{{$v->lokasi_kode}}</a>
-                  </td>
-                  <td>{{$v->aktivitas_nama}}</td>
-                  <td>{{$v->unit_label}}</td>
-                  <td>{{$v->kualitas}}</td>
-                  <td>
-                    @if($v->kualitas=='Very Poor')
-                      <i class="fa fa-square" style="color: #548235;"></i>
-                    @else
-                      <i class="fa fa-square" style="color: #72DB0F;"></i>
-                    @endif
-                  </td>
-                </tr>
-                @endforeach
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="box box-success">
-          <div class="box-header with-border">
-            <h3 class="box-title">Boom Sprayer</h3>
-          </div>
-          <div class="box-body">
-            <table class="table table-bordered">
-              <tbody>
-                <tr>
-                  <td class="text-center">Unit</td>
-                  <td class="text-center">Excellent</td>
-                  <td class="text-center">Very Good</td>
-                  <td class="text-center">Good</td>
-                  <td class="text-center">Average</td>
-                  <td class="text-center">Poor</td>
-                  <td class="text-center">Very Poor</td>
-                  <td class="text-center">NR</td>
-                </tr>
-                @foreach($list_data_unit_poor as $k=>$v)
-                <tr>
-                    <td class="text-center">{{$k}}</td>
-                    <td class="text-center">{{ !empty($v['Excellent']) ? $v['Excellent'] : 0 }}</td>
-                    <td class="text-center">{{ !empty($v['Very Good']) ? $v['Very Good'] : 0 }}</td>
-                    <td class="text-center">{{ !empty($v['Good']) ? $v['Good'] : 0 }}</td>
-                    <td class="text-center">{{ !empty($v['Average']) ? $v['Average'] : 0 }}</td>
-                    <td class="text-center">{{ !empty($v['Poor']) ? $v['Poor'] : 0 }}</td>
-                    <td class="text-center">{{ !empty($v['Very Poor']) ? $v['Very Poor'] : 0 }}</td>
-                    <td class="text-center">{{ !empty($v['-']) ? $v['-'] : 0 }}</td>
-                </tr>
-                @endforeach
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-@endsection
-@section("script")
-<!-- ChartJS -->
-{!! Html::script('AdminLTE-2.4.18/bower_components/chart.js/Chart.js') !!}
-<script>
-  $(function () {
-    $("[data-widget='collapse']").click();
-  $('#date_range').daterangepicker();
-  var list_chart_1a = {!! $list_chart_1a !!}
-  var list_chart_1b = {!! $list_chart_1b !!}
-  var list_chart_2 = {!! $list_chart_2 !!}
-  var barChartData1 = {
-    labels  : list_chart_1a['label'],
-    datasets: [
-      {
-        fillColor           : '#548235',
-        strokeColor         : '#548235',
-        pointColor          : '#548235',
-        pointStrokeColor    : 'rgba(60,141,188,1)',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgba(60,141,188,1)',
-        data                : list_chart_1a['data'],
-        label               : 'RK'
-      },
-      {
-        fillColor           : '#72DB0F',
-        strokeColor         : '#72DB0F',
-        pointColor          : '#72DB0F',
-        pointStrokeColor    : 'rgba(60,141,188,1)',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgba(60,141,188,1)',
-        data                : list_chart_1b['data'],
-        label               : 'Report'
-      }
-    ]
-  }
-  var barChartData2 = {
-    labels  : list_chart_2['label'],
-    datasets: [
-      {
-        fillColor           : '#72DB0F',
-        strokeColor         : '#72DB0F',
-        pointColor          : '#72DB0F',
-        pointStrokeColor    : 'rgba(60,141,188,1)',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgba(60,141,188,1)',
-        data                : list_chart_2['data']
-      }
-    ]
-  }
-  var barChartCanvas1  = $('#barChart1').get(0).getContext('2d')
-  var barChartCanvas2  = $('#barChart2').get(0).getContext('2d')
-  var barChart1        = new Chart(barChartCanvas1)
-  var barChart2        = new Chart(barChartCanvas2)
-  var barChartOptions                  = {
-      //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-      scaleBeginAtZero        : true,
-      //Boolean - Whether grid lines are shown across the chart
-      scaleShowGridLines      : true,
-      //String - Colour of the grid lines
-      scaleGridLineColor      : 'rgba(0,0,0,.05)',
-      //Number - Width of the grid lines
-      scaleGridLineWidth      : 1,
-      //Boolean - Whether to show horizontal lines (except X axis)
-      scaleShowHorizontalLines: true,
-      //Boolean - Whether to show vertical lines (except Y axis)
-      scaleShowVerticalLines  : true,
-      //Boolean - If there is a stroke on each bar
-      barShowStroke           : true,
-      //Number - Pixel width of the bar stroke
-      barStrokeWidth          : 2,
-      //Number - Spacing between each of the X value sets
-      barValueSpacing         : 5,
-      //Number - Spacing between data sets within X values
-      barDatasetSpacing       : 1,
-      //String - A legend template
-      legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].fillColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
-      //Boolean - whether to make the chart responsive
-      responsive              : true,
-      maintainAspectRatio     : true
+ /* Define the color palette */
+    :root {
+        --primary-color: #00a65a;  /* green */
+        --secondary-color: #acc6aa; /* s */
+        --third-color: #ffbd67; /* sc */
+        --background-color: #f2f2f2;
+        --text-color: #333333;
+        --semi-color: #118a7e;
     }
-  barChartOptions.datasetFill = false
-  barChart1.Bar(barChartData1, barChartOptions)
-  barChart2.Bar(barChartData2, barChartOptions)
-  })
-</script>
-@stop
+ 
+    body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+ 
+    /* Override Bootstrap card styles */
+    .card {
+        margin-bottom: 20px;
+        margin-top: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease;
+        position: relative;
+        background-color: #fdfff0;
+        border-radius: 10px;
+        padding: 15px;
+        height: 410px; /* Increase the height for better visualization */
+    }
+ 
+    .card:hover {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+ 
+    /* Typography */
+    h5.card-title {
+        position: relative;
+        font-size: 25px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 10px;
+        color: var(--semi-color);
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+ 
+    .card-text {
+        font-size: 36px;
+        font-weight: bold;
+        text-align: center;
+        color: var(--primary-color);
+    }
+ 
+    /* Charts */
+    .chart-container {
+        width: 100%;
+        height: 380px; /* Increase the height for better visualization */
+        margin-left: 0;
+        margin-right: auto;
+    }
+ 
+    /* Rotating Circle */
+    .rotating-circle {
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 10px solid var(--secondary-color);
+        animation: rotate 5s linear infinite;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+ 
+    .rotating-circle span {
+        display: block;
+        font-size: 48px;
+        font-weight: bold;
+        color: var(--secondary-color);
+        animation: number-increase 5s linear infinite;
+    }
+ 
+        /* Position the image container */
+    .image-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+ 
+    /* Style the image to fit the container */
+    .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: blur(2px); /* Adjust the blur amount as needed (0 to 10px or more) */
+    }
+ 
+</style>
+@endsection
+ 
+@section('content')
+<div class="container-fluid">
+    <div class="row align-items-center">
+        <div class="col-md-4">
+            <!-- Card 2 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">TOTAL APLIKASI</h5>
+                    <div class="chart-container">
+                        <div id="charts"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <!-- Card 2 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">TOTAL LOKASI PER-UNIT DATA</h5>
+                    <div class="chart-container">
+                        <div id="chart2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <div class="row align-items-center">
+        <div class="col-md-4">
+            <!-- Card 5 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">TOTAL APLIKASI PER-SHIFT</h5>
+                    <div class="chart-container">
+                        <div id="chart5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Card 3 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">TOTAL UNIT AKTIF</h5>
+                    <div class="chart-container">
+                        <div id="chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Card 3 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">JENIS APLIKASI</h5>
+                    <div class="chart-container">
+                        <div id="chart3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+<div>
+  @section('field')
+ 
+  @endsection
+</div>
+@endsection
+@php
+    // Convert the JSON-encoded data back to a JavaScript object
+    $chartData = json_decode($chartDataJSON);
+@endphp
+ 
+ 
+@section('script')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.41.0/apexcharts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tilt.js/1.2.1/tilt.jquery.min.js"></script>
+    <!-- ApexCharts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        // var dummyChartData = {
+        //         series: [
+        //             {
+        //                 name: 'Series 1',
+        //                 data: [40, 60, 35, 80, 50, 70], // Replace this array with your desired data
+        //             },
+        //         ],
+        //         categories: ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6'], // Replace this array with your desired categories
+        //     };
+ 
+        // chart to show data from card number 1
+        var options2 = {
+          series: [<?php echo $result2[0]->Lokasi_Count; ?>],
+          chart: {
+          height: 350,
+          type: 'radialBar',
+          offsetY: -10
+        },
+        plotOptions: {
+          radialBar: {
+            startAngle: -135,
+            endAngle: 135,
+            dataLabels: {
+              name: {
+                fontSize: '16px',
+                color: 'var(--semi-color)', 
+                offsetY: 120
+              },
+              value: {
+                offsetY: 76,
+                fontSize: '22px',
+                color: undefined,
+                formatter: function (val) {
+                  return val;
+                }
+              }
+            }
+          }
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+              shade: 'dark',
+              shadeIntensity: 0.15,
+              inverseColors: false,
+              opacityFrom: 1,
+              opacityTo: 1,
+              stops: [0, 50, 65, 91]
+          },
+        },
+        stroke: {
+          dashArray: 4
+        },
+        labels: ['Total Application'],
+        };
+ 
+        var chart = new ApexCharts(document.querySelector("#charts"), options2);
+        chart.render();
+ 
+        // chart to show data from card number 2
+        var options = {
+          series: [<?php echo $result1[0]->Unit_Aktif; ?>],
+          chart: {
+          height: 350,
+          type: 'radialBar',
+          toolbar: {
+            show: false
+          }
+        },
+        plotOptions: {
+          radialBar: {
+            startAngle: -135,
+            endAngle: 225,
+             hollow: {
+              margin: 0,
+              size: '70%',
+              background: '#fff',
+              image: undefined,
+              imageOffsetX: 0,
+              imageOffsetY: 0,
+              position: 'front',
+              dropShadow: {
+                enabled: true,
+                top: 3,
+                left: 0,
+                blur: 4,
+                opacity: 0.24
+              }
+            },
+            track: {
+              background: '#fff',
+              strokeWidth: '67%',
+              margin: 0, // margin is in pixels
+              dropShadow: {
+                enabled: true,
+                top: -3,
+                left: 0,
+                blur: 4,
+                opacity: 0.35
+              }
+            },
+ 
+            dataLabels: {
+              show: true,
+              name: {
+                offsetY: -10,
+                show: true,
+                color: '#888',
+                fontSize: '17px'
+              },
+              value: {
+                formatter: function(val) {
+                  return parseInt(val);
+                },
+                color: '#111',
+                fontSize: '36px',
+                show: true,
+              }
+            }
+          }
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'dark',
+            type: 'horizontal',
+            shadeIntensity: 0.5,
+            gradientToColors: ['#ABE5A1'],
+            inverseColors: true,
+            opacityFrom: 1,
+            opacityTo: 1,
+            stops: [0, 100]
+          }
+        },
+        stroke: {
+          lineCap: 'round'
+        },
+        labels: ['Unit Aktif'],
+        };
+ 
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+ 
+            // Enable Tilt.js for cards number 1 and 4
+            $('.card-number-1, .card-number-4').tilt({
+                scale: 1.05,
+                perspective: 1000,
+                easing: 'cubic-bezier(.03,.98,.52,.99)',
+            });
+ 
+            // Query 2: Total Location per Unit Data
+            // var dummyData2 = [50, 30, 40, 70, 20, 50]; 
+            // var dumyCategories2 = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6'];
+
+            var chart2Options = {
+                chart: {
+                    type: 'line',
+                    height: 300,
+                    width: '100%',
+                    fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 1500,
+                        animateGradually: {
+                            enabled: true,
+                            delay: 200,
+                        },
+                        dynamicAnimation: {
+                            enabled: true,
+                            speed: 350,
+                        },
+                    },
+                    toolbar: {
+                        show: false,
+                    },                
+                },
+                series: [
+                    {
+                        name: 'Unit Aktif',
+                        data: @json($data),
+                    },
+                ],
+                xaxis: {
+                    categories: @json($labels),
+                    labels: {
+                        style: {
+                            colors: 'var(--primary-color)',
+                            fontSize: '12px',
+                        },
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        style: {
+                            colors: 'var(--primary-color)',
+                            fontSize: '12px',
+                        },
+                    },
+                },
+                stroke: {
+                colors: 'var(--primary-color)',
+                width: 2,
+            },
+                markers: {
+                    size: 4, 
+                    colors: 'var(--primary-color)', 
+                    strokeWidth: 0, 
+                    strokeColors: 'transparent', 
+                    hover: {
+                        size: 6,
+                    },
+                },
+            };
+            var chart2 = new ApexCharts(document.querySelector("#chart2"), chart2Options);
+            chart2.render();
+ 
+            var chartData = @json($chartData);
+ 
+            // Query 3: Jenis Aplikasi in One Day
+            var chart3Options = {
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    width: '100%',
+                    fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 1500,
+                        animateGradually: {
+                            enabled: true,
+                            delay: 200,
+                        },
+                        dynamicAnimation: {
+                            enabled: true,
+                            speed: 350,
+                        },
+                    },
+                },
+                series: chartData.series,
+                    chart: {
+                    type: 'bar',
+                    height: 350,
+                    stacked: true,
+                    toolbar: {
+                            show: false,
+                        },
+                    },
+                plotOptions: {
+                    bar: {
+                        horizontal: true,
+                        colors: {
+                            ranges: [
+                                {
+                                    from: 0,
+                                    to: Infinity,
+                                    color: 'var(--primary-color)', 
+                                },
+                            ],
+                        },
+                    },
+                },
+                stroke: {
+                    width: 1,
+                    colors: ['#fff']
+                },
+                xaxis: {
+                    categories: chartData.categories,
+                    labels: {
+                        formatter: function (val) {
+                        return val
+                        }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                        return val
+                        }
+                    }
+                },
+                fill: {
+                    opacity: 1
+                },
+                legend: {
+                    show: false 
+                },
+            };
+ 
+            var chart3 = new ApexCharts(document.querySelector("#chart3"), chart3Options);
+            chart3.render();
+ 
+            // var dummyData = [50, 30, 40, 70, 20, 50]; // Replace this array with your desired data
+            // var dumyCategories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6'];
+ 
+            // Query 5: Total Aplikasi per Shift
+            var chart5Options = {
+                chart: {
+                    type: 'bar',
+                    height: 320,
+                    width: '100%',
+                    fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 1500,
+                        animateGradually: {
+                            enabled: true,
+                            delay: 200,
+                        },
+                        dynamicAnimation: {
+                            enabled: true,
+                            speed: 350,
+                        },
+                    },
+                    toolbar: {
+                        show: false, 
+                    },
+                },
+                series: [
+                    {
+                        name: 'Total shift',
+                        data: @json($data2),
+                    },
+                ],
+                xaxis: {
+                    categories: @json($labels2),
+                    labels: {
+                        style: {
+                            colors: 'var(--primary-color)',
+                            fontSize: '12px',
+                        },
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        style: {
+                            colors: 'var(--primary-color)',
+                            fontSize: '12px',
+                        },
+                    },
+                },
+                plotOptions: {
+                    bar: {
+                        colors: {
+                            ranges: [
+                                {
+                                    from: 0,
+                                    to: Infinity,
+                                    color: 'var(--primary-color)',
+                                },
+                            ],
+                        },
+                    },
+                },
+                legend: {
+                    show: false 
+                },
+            };
+            var chart5 = new ApexCharts(document.querySelector("#chart5"), chart5Options);
+            chart5.render();
+ 
+            // animated javascript for increasing data
+                function animateCount(element, targetValue) {
+                gsap.to(element, {
+                    duration: 1,
+                    innerHTML: targetValue,
+                    roundProps: 'innerHTML',
+                    ease: 'power1.out',
+                });
+            }
+ 
+            function updateCount(element, targetValue) {
+                var count = 0;
+                function update() {
+                    if (count < targetValue) {
+                        count += 1;
+                        animateCount(element, count);
+                        requestAnimationFrame(update);
+                    }
+                }
+                requestAnimationFrame(update);
+            }
+ 
+            // Start the animation for Card 1
+            var query1Count = document.getElementById('query1Count');
+            var targetValue1 = parseInt(query1Count.innerHTML);
+            updateCount(query1Count, targetValue1);
+ 
+            // Start the animation for Card 4
+            var query4Count = document.getElementById('query4Count');
+            var targetValue4 = parseInt(query4Count.innerHTML);
+            updateCount(query4Count, targetValue4);
+ 
+        });
+    </script>
+@endsection
