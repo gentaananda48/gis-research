@@ -33,7 +33,7 @@
         padding: 15px;
         height: 410px; /* Increase the height for better visualization */
     }
- 
+
     .card:hover {
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
@@ -88,24 +88,35 @@
         color: var(--secondary-color);
         animation: number-increase 5s linear infinite;
     }
- 
-        /* Position the image container */
-    .image-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        border-radius: 10px;
+
+        /* Add styling for the tilt effect */
+    .tilt {
+        transition: transform 0.3s;
     }
- 
-    /* Style the image to fit the container */
-    .image-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        filter: blur(2px); /* Adjust the blur amount as needed (0 to 10px or more) */
+
+    .tilt:hover {
+        transform: scale(1.05);
+    }
+
+    /* Style the section titles */
+    .section-title {
+        position: relative;
+        font-size: 25px;
+        font-weight: bold;
+        text-align: center;
+        color: var(--semi-color);
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-vat {
+        margin-bottom: 10px;
+        margin-top: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease;
+        position: relative;
+        background-color: #fdfff0;
+        border-radius: 18px;
+        padding: 15px;
     }
  
 </style>
@@ -113,9 +124,15 @@
  
 @section('content')
 <div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-4 text-center">
+            <div class="card-vat">
+                <h2 class="section-title">Dashboard VAT {{$formattedYesterday}}</h2>
+            </div>
+        </div>
+    </div>
     <div class="row align-items-center">
-        <div class="col-md-4">
-            <!-- Card 2 -->
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">TOTAL APLIKASI</h5>
@@ -125,32 +142,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-            <!-- Card 2 -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">TOTAL LOKASI PER-UNIT DATA</h5>
-                    <div class="chart-container">
-                        <div id="chart2"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
- 
-    <div class="row align-items-center">
-        <div class="col-md-4">
-            <!-- Card 5 -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">TOTAL APLIKASI PER-SHIFT</h5>
-                    <div class="chart-container">
-                        <div id="chart5"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             <!-- Card 3 -->
             <div class="card">
                 <div class="card-body">
@@ -161,13 +153,41 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+    </div>
+
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <!-- Card 5 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">TOTAL APLIKASI PER-SHIFT</h5>
+                    <div class="chart-container">
+                        <div id="chart5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
             <!-- Card 3 -->
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">JENIS APLIKASI</h5>
                     <div class="chart-container">
                         <div id="chart3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center">
+        <div class="col-md-12">
+            <!-- Card 2 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">TOTAL LOKASI PER-UNIT DATA</h5>
+                    <div class="chart-container">
+                        <div id="chart2"></div>
                     </div>
                 </div>
             </div>
@@ -338,7 +358,7 @@
         chart.render();
  
             // Enable Tilt.js for cards number 1 and 4
-            $('.card-number-1, .card-number-4').tilt({
+            $('.card-vat').tilt({
                 scale: 1.05,
                 perspective: 1000,
                 easing: 'cubic-bezier(.03,.98,.52,.99)',
@@ -465,14 +485,14 @@
                     categories: chartData.categories,
                     labels: {
                         formatter: function (val) {
-                        return val
+                        return val.toFixed(2);
                         }
                     }
                 },
                 tooltip: {
                     y: {
                         formatter: function (val) {
-                        return val
+                        return val.toFixed(2);
                         }
                     }
                 },
