@@ -3,6 +3,7 @@
         <tr>
             <th rowspan="2">Shift</th>
             <th rowspan="2">Total Luasan (Ha)</th>
+            <th rowspan="2">Total Overlapping (Ha)</th>
             <th colspan="5">Speed</th>
             <th colspan="5">Wing Kiri</th>
             <th colspan="5">Wing Kanan</th>
@@ -41,7 +42,8 @@
     <tbody>
         <tr>
             <td class="text-center">{{ $report_conformity->shift }}</td>
-            <td class="text-center">{{ $report_conformity->total_luasan != 0 ? round($report_conformity->total_luasan/10000,2):0 }}</td>
+            <td class="text-center">{{ $report_conformity->total_spraying != 0 ? round($report_conformity->total_spraying/10000,2):0 }}</td>
+            <td class="text-center">{{ $report_conformity->total_overlaping != 0 ? round($report_conformity->total_overlaping/10000,2):0 }}</td>
             <td class="text-center">
                 {{ 
                     @$report_param_standard->reportParameterStandarDetails

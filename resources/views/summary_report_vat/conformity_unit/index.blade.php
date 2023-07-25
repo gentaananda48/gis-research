@@ -129,18 +129,18 @@
                         <table class="table table-hover table-bordered" width="100%">
                             <thead>
                                 <tr>
-                                    <th>NO</th>
-                                    <th style="width: 100px;">PG</th>
-                                    <th style="width: 100px;">Unit</th>
-                                    <th>Tanggal</th>
-                                    {{-- <th style="width: 100px;">Lokasi</th> --}}
-                                    <th>Speed</th>
-                                    <th>Wing Kiri</th>
-                                    <th>Wing Kanan</th>
-                                    <th>Golden Time</th>
+                                    <th style="width: 5%;">NO</th>
+                                    <th style="width: 10%;">PG</th>
+                                    <th style="width: 10%;">Unit</th>
+                                    <th style="width: 15%;">Tanggal</th>
+                                    {{-- <th style="width: 100;">Lokasi</th> --}}
+                                    <th style="width: 15%;">Speed</th>
+                                    <th style="width: 15%;">Wing Kiri</th>
+                                    <th style="width: 15%;">Wing Kanan</th>
+                                    <th style="width: 15%;">Golden Time</th>
                                     {{-- <th>Waktu Spray</th> --}}
                                     @if ($hide_filter == false)
-                                    <th class="hidden-print">Action</th>
+                                    <th class="hidden-print" style="width: 15%;">Action</th>
                                     @endif
                                 </tr>
                             </thead>
@@ -153,31 +153,31 @@
                                         <td class="text-center">{{ $loop->iteration}}</td>
                                     @endif
 
-                                    <td>{{ $report_conformity->pg }}</td>
-                                    <td>{{ $report_conformity->unit }}</td>
-                                    <td>{{ $date_range }}</td>
-                                    {{-- <td>{{ $report_conformity->lokasi }}</td> --}}
-                                    <td>
+                                    <td class="text-center">{{ $report_conformity->pg }}</td>
+                                    <td class="text-center">{{ $report_conformity->unit }}</td>
+                                    <td class="text-center">{{ $date_range }}</td>
+                                    {{-- <td class="text-center">{{ $report_conformity->lokasi }}</td> --}}
+                                    <td class="text-center">
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="speed_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="wing_kiri_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="wing_kanan_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="golden_time_{{$key}}" width="100" height="100"></canvas>
                                         </div>
                                     </td>
-                                    {{-- <td>
+                                    {{-- <td class="text-center">
                                         <div style="display: flex; justify-content: center;">
                                             <canvas id="waktu_spray_{{$key}}" style="width:100%;max-width:100%"></canvas>
                                         </div>

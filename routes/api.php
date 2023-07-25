@@ -207,6 +207,7 @@ Route::group([
 ], function ($router) {
     Route::post('db', 'MicroController@upload');
     Route::post('json', 'MicroController@uploadJson');
+    Route::get('cron-json', 'MicroController@cronJson');
 });
 
 // report segment

@@ -105,6 +105,8 @@ class SumarySegment extends Command
                         MAX(kode_lokasi) as kode_lokasi,
                         MAX(tb1.created_at) as created_date,
                         ROUND(SUM(tb1.luasan_m2),2) as total_luasan,
+                        ROUND(SUM(CASE WHEN tb1.overlapping_route < 1 THEN tb1.luasan_m2 ELSE 0 END),2) AS total_spraying,
+                        ROUND(Sum(CASE WHEN tb1.overlapping_route > 0 THEN tb1.luasan_m2 ELSE 0 END),2) AS total_overlaping,
                         count(tb1.id) as total_data_point,
                         AVG(tb0.speed) as av_speed,
                         AVG(tb0.arm_height_left) as av_wing_left,
@@ -141,7 +143,6 @@ class SumarySegment extends Command
                         JOIN tb9 on tb9.report_parameter_standard_id = tb3.id
                         where tb3.nozzle_id = tb2.nozzle_id
                         and tb0.speed > 0.9
-                        and tb1.overlapping_route != 1
                         and tb3.volume_id = tb2.volume_id
                         and tb2.tgl = DATE(tb1.created_at)
                         GROUP BY tb1.segment
@@ -154,6 +155,8 @@ class SumarySegment extends Command
                             segment, 
                             lokasi, 
                             total_luasan,
+                            total_spraying,
+                            total_overlaping,
                             created_date, 
                             avg_speed, 
                             speed_dibawah_standar,
@@ -176,11 +179,13 @@ class SumarySegment extends Command
                             total_data_point,
                             suhu_standar,
                             suhu_tidak_standar
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
                             [$value->unit_label,
                             $value->segment,
                             $value->kode_lokasi,
                             $value->total_luasan, 
+                            $value->total_spraying, 
+                            $value->total_overlaping, 
                             $value->created_date,
                             $value->av_speed,
                             $value->speed_under_standard,

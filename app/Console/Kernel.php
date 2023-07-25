@@ -46,6 +46,7 @@ class Kernel extends ConsoleKernel
         Commands\ProcessLacakSegment::class,
         Commands\SumarySegment::class,
         Commands\ReportConformity::class,
+        Commands\ApiCronJson::class,
         Commands\DeleteOldArchiveFiles::class,
         Commands\SendEmailReport::class,
         Commands\DataPercentage::class,

@@ -117,7 +117,7 @@
                             <small style="display: flex;margin-top: 10px;"><span class="label label-default map-right-on" style="background-color: #FFA500;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Sayap On Kanan</small> &nbsp;
                             <small style="display: flex;margin-top: 10px;"><span class="label label-default map-left-on" style="background-color: #FFFF00;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Sayap On Kiri</small>
                             <small style="display: flex;margin-top: 10px;"><span class="label label-default map-wing-off" style="background-color: #FF0000;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Sayap OFF Kanan & Kiri</small>
-                            <small style="display: flex;margin-top: 10px;"><span class="label label-default map-overlapping" style="background-color: #f70776;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Overlapping</small>
+                            <small style="display: flex;margin-top: 10px;"><span class="label label-default map-overlapping" style="background-color: #00bbf0;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Overlapping</small>
                         </div>
                     </div>
                 </div>
@@ -199,6 +199,7 @@
                                 <tr>
                                     <th rowspan="2">Shift</th>
                                     <th rowspan="2">Total Luasan (Ha)</th>
+                                    <th rowspan="2">Total Overlapping (Ha)</th>
                                     <th colspan="5">Speed</th>
                                     <th colspan="5">Wing Kiri</th>
                                     <th colspan="5">Wing Kanan</th>
@@ -237,7 +238,8 @@
                             <tbody>
                                 <tr>
                                     <td class="text-center">{{ $report_conformity->shift }}</td>
-                                    <td class="text-center">{{ $report_conformity->total_luasan != 0 ? round($report_conformity->total_luasan/10000,2):0 }}</td>
+                                    <td class="text-center">{{ $report_conformity->total_spraying != 0 ? round($report_conformity->total_spraying/10000,2):0 }}</td>
+                                    <td class="text-center">{{ $report_conformity->total_overlaping != 0 ? round($report_conformity->total_overlaping/10000,2):0 }}</td>
                                     <td class="text-center">
                                         {{ 
                                             @$report_param_standard->reportParameterStandarDetails
@@ -735,37 +737,70 @@
 
                         // overlappingPath.setMap(map);
                         if (lacak[i-1].is_overlapping == 1) {
-                            var poly = new google.maps.Polyline({
-                                path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
-                                geodesic: true,
-                                strokeColor: "#f70776",
-                                strokeOpacity: 0.3,
+                            // var poly = new google.maps.Polyline({
+                            //     path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+                            //     geodesic: true,
+                            //     strokeColor: "#00bbf0",
+                            //     strokeOpacity: 0.3,
+                            //     strokeWeight: 7,
+                            //     zIndex: 999999,
+                            // });
+                            // poly.setMap(map);
+                            new google.maps.Circle({
+                                strokeColor: '#00bbf0',
+                                strokeOpacity: 0.9,
                                 strokeWeight: 7,
-                                zIndex: 999999,
+                                fillColor: '#00bbf0',
+                                fillOpacity: 0.9,
+                                map,
+                                center: { lat: lacak[i-1].position_latitude, lng: lacak[i-1].position_longitude },
+                                radius: 1,
+                                zIndex: 999999
                             });
-                            poly.setMap(map);
                         } else if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
                             var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#00FF00" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#FFA500" : "#FFFF00";
                             var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
-                            var poly = new google.maps.Polyline({
-                                path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
-                                geodesic: true,
+                            // var poly = new google.maps.Polyline({
+                            //     path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+                            //     geodesic: true,
+                            //     strokeColor: strokeColor,
+                            //     strokeOpacity: 0.5,
+                            //     strokeWeight: strokeWeight,
+                            //     zIndex: 99999,
+                            // });
+                            // poly.setMap(map);
+                            new google.maps.Circle({
                                 strokeColor: strokeColor,
                                 strokeOpacity: 0.5,
                                 strokeWeight: strokeWeight,
-                                zIndex: 99999,
+                                fillColor: strokeColor,
+                                fillOpacity: 0.35,
+                                map,
+                                center: { lat: lacak[i-1].position_latitude, lng: lacak[i-1].position_longitude },
+                                radius: 0.3,
+                                zIndex: 99999
                             });
-                            poly.setMap(map);
                         } else {
-                            var poly = new google.maps.Polyline({
-                                path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
-                                geodesic: true,
-                                strokeColor: "#FF0000",
+                            // var poly = new google.maps.Polyline({
+                            //     path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+                            //     geodesic: true,
+                            //     strokeColor: "#FF0000",
+                            //     strokeOpacity: 0.5,
+                            //     strokeWeight: 3,
+                            //     zIndex: 99999,
+                            // });
+                            // poly.setMap(map);
+                            new google.maps.Circle({
+                                strokeColor: '#FF0000',
                                 strokeOpacity: 0.5,
                                 strokeWeight: 3,
-                                zIndex: 99999,
+                                fillColor: '#FF0000',
+                                fillOpacity: 0.35,
+                                map,
+                                center: { lat: lacak[i-1].position_latitude, lng: lacak[i-1].position_longitude },
+                                radius: 0.3,
+                                zIndex: 99999
                             });
-                            poly.setMap(map);
                         }
                     }
             }   

@@ -164,7 +164,7 @@ class GeofenceHelper {
 
     // algoritma haversine hitung overlapping
     function calculateOverlap($latitude, $longitude, $points) {
-        $threshold = 10; // Jarak treshold dalam meter
+        $threshold = 5; // Jarak treshold dalam meter
         $overlapCount = 0;
 
         foreach ($points as $point) {
