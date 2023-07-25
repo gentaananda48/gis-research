@@ -193,6 +193,103 @@ class HomeController extends Controller
         ]);
     }
 
+    public function showDataDashboard(){
+        // Get the currently authenticated user
+        $user = auth()->user();
+        $list_pg = explode(',', $user->area);
+ 
+        // Query 4 total unit aktif        
+        $result1 = DB::select("SELECT COUNT(DISTINCT(unit)) AS Unit_Aktif, '17' AS Total_Unit FROM report_conformities WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)");
+ 
+        // Query 1 total data aplikasi hari ini
+        $result2 = DB::select("SELECT COUNT(DISTINCT(lokasi)) AS Lokasi_Count FROM report_conformities WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)");
+        // Format the data for the chart
+ 
+        // Query 3
+        $queryResult = DB::select("
+            SELECT tanggal, unit, activity, COUNT(lokasi) AS total_aktivitas
+            FROM report_conformities
+            WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)
+            GROUP BY tanggal, unit, activity;
+        ");
+ 
+        $activityData = [];
+        foreach ($queryResult as $item) {
+            $key = $item->activity;
+            if (!isset($activityData[$key])) {
+                $activityData[$key] = [
+                    'activity' => $item->activity,
+                    'data' => [],
+                    'units' => [],
+                ];
+            }
+            $activityData[$key]['data'][] = $item->total_aktivitas;
+            $activityData[$key]['units'][] = $item->unit;
+        }
+ 
+        $series = [];
+        $labels3 = [];
+        $legends = [];
+ 
+        foreach ($activityData as $activity) {
+            $series[] = [
+                'name' => implode(', ', $activity['units']),
+                'data' => $activity['data'],
+            ];
+            $labels3[] = $activity['activity'];
+            $legends[] = implode(', ', $activity['units']);
+        }
+ 
+        // Encode the data as JSON
+        $chartData = [
+            'series' => $series,
+            'categories' => $labels3,
+            'legends' => $legends,
+        ];
+ 
+        $chartDataJSON = json_encode($chartData);
+ 
+        // Query 3 countunit aktif
+        $result3 = DB::select("
+            SELECT DISTINCT(unit), COUNT(lokasi) FROM (
+                SELECT DISTINCT(lokasi), unit
+                FROM report_conformities
+                WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)
+            ) A
+            GROUP BY unit;
+        ");
+ 
+        // Format the data for the chart
+        $labels = [];
+        $data = [];
+ 
+        foreach ($result3 as $result3) {
+            $labels[] = $result3->unit;
+            $data[] = $result3->{'COUNT(lokasi)'};
+        }
+ 
+        // Query 5: Total data aplikasi perr shift
+        $result4 = DB::select("
+            SELECT shift, COUNT(shift)
+            FROM (
+                SELECT DISTINCT(lokasi), unit, shift
+                FROM report_conformities
+                WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)
+            ) A
+            GROUP BY shift
+        ");
+        $labels2 = [];
+        $data2 = [];
+ 
+        foreach ($result4 as $results4) {
+            $labels2[] = $results4->shift;
+            $data2[] = $results4->{'COUNT(shift)'};
+        }
+ 
+        // Dump and die (dd) the result to inspect the data.
+        return view('home', compact('result1', 'result2', 'labels', 'data', 'labels2', 'data2', 'chartDataJSON'));
+    }
+
     public function home(){
         return redirect('/');
     }

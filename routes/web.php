@@ -60,7 +60,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/admin/cron_log/get', array('uses' => 'Admin\CronLogController@get_list', 'as' => 'admin.cron_log.get'));
 
     Route::get('/myprofile', array('uses' => 'Admin\UserController@myprofile', 'as' => 'myprofile'));
-    Route::get('/', 'HomeController@index')->name('home');
+    Route::get('/', 'HomeController@showDataDashboard')->name('home');
+    // Route::get('/', 'HomeController@index')->name('home');
     Route::get('/home', 'HomeController@home')->name('home');
     Route::get('/generate_report', 'HomeController@generate_report');
 
