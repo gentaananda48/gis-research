@@ -26,6 +26,8 @@ use App\Model\VReportRencanaKerja;
 use App\Model\VReportRencanaKerja2;
 use App\Model\SystemConfiguration;
 use App\Model\Log;
+use Illuminate\Support\Facades\Cache;
+
 
 class HomeController extends Controller
 {
@@ -194,18 +196,12 @@ class HomeController extends Controller
     }
 
     public function showDataDashboard(){
-        // Get the currently authenticated user
-        $user = auth()->user();
-        $list_pg = explode(',', $user->area);
- 
-        // Query 4 total unit aktif        
+        // Card 1 total data aplikasi hari ini
+        $result2 = DB::select("SELECT COUNT(DISTINCT(lokasi)) AS Lokasi_Count FROM report_conformities WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)");
+        // Card 2 total unit aktif        
         $result1 = DB::select("SELECT COUNT(DISTINCT(unit)) AS Unit_Aktif, '17' AS Total_Unit FROM report_conformities WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)");
  
-        // Query 1 total data aplikasi hari ini
-        $result2 = DB::select("SELECT COUNT(DISTINCT(lokasi)) AS Lokasi_Count FROM report_conformities WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)");
-        // Format the data for the chart
- 
-        // Query 3
+        // Card 4 type application
         $queryResult = DB::select("
             SELECT tanggal, unit, activity, COUNT(lokasi) AS total_aktivitas
             FROM report_conformities
@@ -239,9 +235,7 @@ class HomeController extends Controller
             $labels3[] = $activity['activity'];
             $legends[] = implode(', ', $activity['units']);
         }
- 
-        // Encode the data as JSON
-        $chartData = [
+         $chartData = [
             'series' => $series,
             'categories' => $labels3,
             'legends' => $legends,
@@ -249,26 +243,22 @@ class HomeController extends Controller
  
         $chartDataJSON = json_encode($chartData);
  
-        // Query 3 countunit aktif
+        // Card 5 count unit per location
         $result3 = DB::select("
-            SELECT DISTINCT(unit), COUNT(lokasi) FROM (
-                SELECT DISTINCT(lokasi), unit
-                FROM report_conformities
-                WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)
-            ) A
-            GROUP BY unit;
+            SELECT A.label,COUNT(B.lokasi) FROM unit A
+            LEFT JOIN report_conformities B
+            ON A.label = B.unit
+            AND B.tanggal  = (CURDATE() + INTERVAL -(10) DAY)
+            GROUP BY A.label;
         ");
- 
-        // Format the data for the chart
-        $labels = [];
+         $labels = [];
         $data = [];
- 
         foreach ($result3 as $result3) {
-            $labels[] = $result3->unit;
-            $data[] = $result3->{'COUNT(lokasi)'};
+            $labels[] = $result3->label;
+            $data[] = $result3->{'COUNT(B.lokasi)'};
         }
  
-        // Query 5: Total data aplikasi perr shift
+        // card 3: Total data aplikasi per shift
         $result4 = DB::select("
             SELECT shift, COUNT(shift)
             FROM (
@@ -285,9 +275,12 @@ class HomeController extends Controller
             $labels2[] = $results4->shift;
             $data2[] = $results4->{'COUNT(shift)'};
         }
- 
-        // Dump and die (dd) the result to inspect the data.
-        return view('home', compact('result1', 'result2', 'labels', 'data', 'labels2', 'data2', 'chartDataJSON'));
+
+         // Calculate yesterday's date
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
+        $formattedYesterday = date('d F Y', strtotime($yesterday));
+
+         return view('home', compact('result1', 'result2', 'labels', 'data', 'labels2', 'data2', 'chartDataJSON', 'formattedYesterday'));
     }
 
     public function home(){
