@@ -42,7 +42,7 @@ class ReportConformity extends Command
         DB::beginTransaction();
         try {
             // truncate table
-            DB::table('report_conformities')->truncate();
+            // DB::table('report_conformities')->truncate();
             DB::commit();
             // truncate
 

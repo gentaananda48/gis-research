@@ -44,7 +44,7 @@ class SumarySegment extends Command
         try {
             $units = Unit::pluck('label')->all();
             // truncate table
-            DB::table('summary_segments')->truncate();
+            // DB::table('summary_segments')->truncate();
             DB::commit();
             // truncate
             foreach ($units as $source_device_id) {
