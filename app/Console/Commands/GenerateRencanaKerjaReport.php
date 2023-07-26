@@ -29,7 +29,7 @@ class GenerateRencanaKerjaReport extends Command
 
     protected $rkController;
 
-      public function __construct(GenerateRencanaKerjaController $rkController)
+    public function __construct(GenerateRencanaKerjaController $rkController)
     {
         parent::__construct();
         $this->rkController = $rkController;

@@ -51,7 +51,7 @@ class Kernel extends ConsoleKernel
         Commands\SendEmailReport::class,
         Commands\DataPercentage::class,
         Commands\ResetLacakSegment::class,
-        Commands\GenerateRencanaKerjaReport::class,
+        // Commands\GenerateRencanaKerjaReport::class,
     ];
 
     /**
