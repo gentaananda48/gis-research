@@ -370,8 +370,8 @@
 
             var chart2Options = {
                 chart: {
-                    type: 'line',
-                    height: 300,
+                    type: 'bar',
+                    height: 320,
                     width: '100%',
                     fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
                     animations: {
@@ -388,8 +388,8 @@
                         },
                     },
                     toolbar: {
-                        show: false,
-                    },                
+                        show: false, 
+                    },
                 },
                 series: [
                     {
@@ -414,18 +414,21 @@
                         },
                     },
                 },
-                stroke: {
-                colors: 'var(--primary-color)',
-                width: 2,
-            },
-                markers: {
-                    size: 4, 
-                    colors: 'var(--primary-color)', 
-                    strokeWidth: 0, 
-                    strokeColors: 'transparent', 
-                    hover: {
-                        size: 6,
+                plotOptions: {
+                    bar: {
+                        colors: {
+                            ranges: [
+                                {
+                                    from: 0,
+                                    to: Infinity,
+                                    color: 'var(--primary-color)',
+                                },
+                            ],
+                        },
                     },
+                },
+                legend: {
+                    show: false 
                 },
             };
             var chart2 = new ApexCharts(document.querySelector("#chart2"), chart2Options);
