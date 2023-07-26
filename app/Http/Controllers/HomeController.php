@@ -195,20 +195,68 @@ class HomeController extends Controller
         ]);
     }
 
-    public function showDataDashboard(){
+    public function showDataDashboard(Request $request)
+    {
+        $user = Auth::user();
+
+        // Handle 'pg' parameter
+        if ($request->has('pg')) {
+            $pg = $request->pg;
+            Cache::put('pg', $request->pg, 15);
+        } else {
+            if (Cache::has('pg')) {
+                $pg = Cache::get('pg');
+            } else {
+                $pg = ['All'];
+            }
+        }
+
+        // Handle 'unit' parameter
+        if ($request->has('unit')) {
+            $unit = $request->unit;
+            Cache::put('unit', $request->unit, 15);
+        } else {
+            if (Cache::has('unit')) {
+                $unit = Cache::get('unit');
+            } else {
+                $unit = ['All'];
+            }
+        }
+
+        // Calculate yesterday's date
+        $yesterday = date('Y-m-d', strtotime('-15 day'));
+        $formattedYesterday = date('d F Y', strtotime($yesterday));
+
         // Card 1 total data aplikasi hari ini
-        $result2 = DB::select("SELECT COUNT(DISTINCT(lokasi)) AS Lokasi_Count FROM report_conformities WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)");
-        // Card 2 total unit aktif        
-        $result1 = DB::select("SELECT COUNT(DISTINCT(unit)) AS Unit_Aktif, '17' AS Total_Unit FROM report_conformities WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)");
- 
+        $result2 = DB::table('report_conformities')
+            ->whereDate('tanggal', '=', $yesterday)
+            ->select(DB::raw('COUNT(DISTINCT lokasi) as Lokasi_Count'))
+            ->whereIn('pg', explode(',', $user->area))
+            ->first();
+
+        // Card 2 total unit aktif
+        $result1 = DB::table('report_conformities')
+            ->whereDate('tanggal', '=', $yesterday)
+            ->select(
+                DB::raw('COUNT(DISTINCT unit) as Unit_Aktif'),
+                DB::raw("'17' as Total_Unit")
+            )
+            ->whereIn('pg', explode(',', $user->area))
+            ->first();
+
         // Card 4 type application
-        $queryResult = DB::select("
-            SELECT tanggal, unit, activity, COUNT(lokasi) AS total_aktivitas
-            FROM report_conformities
-            WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)
-            GROUP BY tanggal, unit, activity;
-        ");
- 
+        $queryResult = DB::table('report_conformities')
+            ->whereDate('tanggal', '=', $yesterday)
+            ->groupBy('tanggal', 'unit', 'activity')
+            ->select(
+                'tanggal',
+                'unit',
+                'activity',
+                DB::raw('COUNT(lokasi) AS total_aktivitas')
+            )
+            ->whereIn('pg', explode(',', $user->area))
+            ->get();
+
         $activityData = [];
         foreach ($queryResult as $item) {
             $key = $item->activity;
@@ -222,11 +270,11 @@ class HomeController extends Controller
             $activityData[$key]['data'][] = $item->total_aktivitas;
             $activityData[$key]['units'][] = $item->unit;
         }
- 
+
         $series = [];
         $labels3 = [];
         $legends = [];
- 
+
         foreach ($activityData as $activity) {
             $series[] = [
                 'name' => implode(', ', $activity['units']),
@@ -235,53 +283,50 @@ class HomeController extends Controller
             $labels3[] = $activity['activity'];
             $legends[] = implode(', ', $activity['units']);
         }
-         $chartData = [
+        $chartData = [
             'series' => $series,
             'categories' => $labels3,
             'legends' => $legends,
         ];
- 
+
         $chartDataJSON = json_encode($chartData);
- 
+
         // Card 5 count unit per location
-        $result3 = DB::select("
-            SELECT A.label,COUNT(B.lokasi) FROM unit A
-            LEFT JOIN report_conformities B
-            ON A.label = B.unit
-            AND B.tanggal  = (CURDATE() + INTERVAL -(10) DAY)
-            GROUP BY A.label;
-        ");
-         $labels = [];
+        $result3 = DB::table('unit AS A')
+            ->leftJoin('report_conformities AS B', function ($join) use ($yesterday) {
+                $join->on('A.label', '=', 'B.unit')
+                    ->whereDate('B.tanggal', '=', $yesterday);
+            }) ->groupBy('A.label')
+            ->select('A.label', DB::raw('COUNT(B.lokasi)'))
+            ->whereIn('A.pg', explode(',', $user->area))
+            ->get();
+
+        $labels = [];
         $data = [];
-        foreach ($result3 as $result3) {
-            $labels[] = $result3->label;
-            $data[] = $result3->{'COUNT(B.lokasi)'};
+        foreach ($result3 as $item) {
+            $labels[] = $item->label;
+            $data[] = $item->{'COUNT(B.lokasi)'};
         }
- 
-        // card 3: Total data aplikasi per shift
-        $result4 = DB::select("
-            SELECT shift, COUNT(shift)
-            FROM (
-                SELECT DISTINCT(lokasi), unit, shift
-                FROM report_conformities
-                WHERE tanggal = (CURDATE() + INTERVAL -(1) DAY)
-            ) A
-            GROUP BY shift
-        ");
+
+        // Card 3: Total data aplikasi per shift
+        $result4 = DB::table('report_conformities')
+            ->whereDate('tanggal', '=', $yesterday)
+            ->select('shift', DB::raw('COUNT(shift) as shift_count'))
+            ->groupBy('shift')
+            ->whereIn('pg', explode(',', $user->area))
+            ->get();
+
         $labels2 = [];
         $data2 = [];
- 
-        foreach ($result4 as $results4) {
-            $labels2[] = $results4->shift;
-            $data2[] = $results4->{'COUNT(shift)'};
+
+        foreach ($result4 as $item) {
+            $labels2[] = $item->shift;
+            $data2[] = $item->shift_count;
         }
 
-         // Calculate yesterday's date
-        $yesterday = date('Y-m-d', strtotime('-1 day'));
-        $formattedYesterday = date('d F Y', strtotime($yesterday));
-
-         return view('home', compact('result1', 'result2', 'labels', 'data', 'labels2', 'data2', 'chartDataJSON', 'formattedYesterday'));
+        return view('home', compact('result1', 'result2', 'labels', 'data', 'labels2', 'data2', 'chartDataJSON', 'formattedYesterday', 'pg', 'unit'));
     }
+
 
     public function home(){
         return redirect('/');
