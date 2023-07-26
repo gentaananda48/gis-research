@@ -226,7 +226,7 @@
  
         // chart to show data from card number 1
         var options2 = {
-          series: [<?php echo $result2[0]->Lokasi_Count; ?>],
+          series: [<?php echo $result2->Lokasi_Count; ?>],
           chart: {
           height: 350,
           type: 'radialBar',
@@ -275,7 +275,7 @@
  
         // chart to show data from card number 2
         var options = {
-          series: [<?php echo $result1[0]->Unit_Aktif; ?>],
+          series: [<?php echo $result1->Unit_Aktif; ?>],
           chart: {
           height: 350,
           type: 'radialBar',
