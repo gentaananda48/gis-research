@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Http\Controllers\RencanaKerjaController;
+use App\Http\Controllers\GenerateRencanaKerjaController;
 
 class GenerateRencanaKerjaReport extends Command
 {
@@ -29,7 +29,7 @@ class GenerateRencanaKerjaReport extends Command
 
     protected $rkController;
 
-      public function __construct(RencanaKerjaController $rkController)
+      public function __construct(GenerateRencanaKerjaController $rkController)
     {
         parent::__construct();
         $this->rkController = $rkController;

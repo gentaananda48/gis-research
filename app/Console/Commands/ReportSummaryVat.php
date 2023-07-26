@@ -9,26 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
-use GuzzleHttp\Client;
-
-use App\Model\Unit;
-use App\Model\SystemConfiguration;
-use App\Model\Lacak;
-use App\Model\Lacak2;
-use App\Helper\GeofenceHelper;
-use App\Model\KoordinatLokasi;
-use App\Model\RencanaKerja;
-use App\Model\ReportParameter;
-use App\Model\ReportParameterStandard;
-use App\Model\ReportParameterBobot;
 use App\Model\RencanaKerjaSummary;
-use App\Model\ReportStatus;
-use App\Model\Aktivitas;
-use App\Model\ReportRencanaKerja;
-use App\Model\VReportRencanaKerja;
 use App\Model\VReportRencanaKerja2;
-use App\Model\CloneAllRencanaKerja;
-
 
 class ReportSummaryVat extends Command
 {
