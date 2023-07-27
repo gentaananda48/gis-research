@@ -132,7 +132,7 @@
         </div>
     </div>
     <div class="row align-items-center">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">TOTAL APLIKASI</h5>
@@ -142,8 +142,17 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <!-- Card 3 -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">TOTAL APLIKASI PER-SHIFT</h5>
+                    <div class="chart-container">
+                        <div id="chart5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">TOTAL UNIT AKTIF</h5>
@@ -157,18 +166,6 @@
 
     <div class="row align-items-center">
         <div class="col-md-6">
-            <!-- Card 5 -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">TOTAL APLIKASI PER-SHIFT</h5>
-                    <div class="chart-container">
-                        <div id="chart5"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <!-- Card 3 -->
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">JENIS APLIKASI</h5>
@@ -178,11 +175,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="row align-items-center">
-        <div class="col-md-12">
-            <!-- Card 2 -->
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">TOTAL LOKASI PER-UNIT DATA</h5>
@@ -201,162 +194,152 @@
   @endsection
 </div>
 @endsection
-@php
-    // Convert the JSON-encoded data back to a JavaScript object
-    $chartData = json_decode($chartDataJSON);
-@endphp
- 
  
 @section('script')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.41.0/apexcharts.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tilt.js/1.2.1/tilt.jquery.min.js"></script>
     <!-- ApexCharts -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-        // var dummyChartData = {
-        //         series: [
-        //             {
-        //                 name: 'Series 1',
-        //                 data: [40, 60, 35, 80, 50, 70], // Replace this array with your desired data
-        //             },
-        //         ],
-        //         categories: ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6'], // Replace this array with your desired categories
-        //     };
- 
-        // chart to show data from card number 1
-        var options2 = {
-          series: [<?php echo $result2->Lokasi_Count; ?>],
-          chart: {
-          height: 350,
-          type: 'radialBar',
-          offsetY: -10
-        },
-        plotOptions: {
-          radialBar: {
-            startAngle: -135,
-            endAngle: 135,
-            dataLabels: {
-              name: {
-                fontSize: '16px',
-                color: 'var(--semi-color)', 
-                offsetY: 120
-              },
-              value: {
-                offsetY: 76,
-                fontSize: '22px',
-                color: undefined,
-                formatter: function (val) {
-                  return val;
-                }
-              }
-            }
-          }
-        },
-        fill: {
-          type: 'gradient',
-          gradient: {
-              shade: 'dark',
-              shadeIntensity: 0.15,
-              inverseColors: false,
-              opacityFrom: 1,
-              opacityTo: 1,
-              stops: [0, 50, 65, 91]
-          },
-        },
-        stroke: {
-          dashArray: 4
-        },
-        labels: ['Total Application'],
-        };
- 
-        var chart = new ApexCharts(document.querySelector("#charts"), options2);
-        chart.render();
- 
-        // chart to show data from card number 2
-        var options = {
-          series: [<?php echo $result1->Unit_Aktif; ?>],
-          chart: {
-          height: 350,
-          type: 'radialBar',
-          toolbar: {
-            show: false
-          }
-        },
-        plotOptions: {
-          radialBar: {
-            startAngle: -135,
-            endAngle: 225,
-             hollow: {
-              margin: 0,
-              size: '70%',
-              background: '#fff',
-              image: undefined,
-              imageOffsetX: 0,
-              imageOffsetY: 0,
-              position: 'front',
-              dropShadow: {
-                enabled: true,
-                top: 3,
-                left: 0,
-                blur: 4,
-                opacity: 0.24
-              }
-            },
-            track: {
-              background: '#fff',
-              strokeWidth: '67%',
-              margin: 0, // margin is in pixels
-              dropShadow: {
-                enabled: true,
-                top: -3,
-                left: 0,
-                blur: 4,
-                opacity: 0.35
-              }
-            },
- 
-            dataLabels: {
-              show: true,
-              name: {
-                offsetY: -10,
-                show: true,
-                color: '#888',
-                fontSize: '17px'
-              },
-              value: {
-                formatter: function(val) {
-                  return parseInt(val);
+<script>
+        document.addEventListener('DOMContentLoaded', function () { 
+            // chart to show data from card number 1
+            var options2 = {
+                series: [<?php echo $result2->Lokasi_Count; ?>],
+                chart: {
+                    height: 350,
+                    type: 'radialBar',
+                    offsetY: -10
                 },
-                color: '#111',
-                fontSize: '36px',
-                show: true,
-              }
-            }
-          }
-        },
-        fill: {
-          type: 'gradient',
-          gradient: {
-            shade: 'dark',
-            type: 'horizontal',
-            shadeIntensity: 0.5,
-            gradientToColors: ['#ABE5A1'],
-            inverseColors: true,
-            opacityFrom: 1,
-            opacityTo: 1,
-            stops: [0, 100]
-          }
-        },
-        stroke: {
-          lineCap: 'round'
-        },
-        labels: ['Unit Aktif'],
-        };
- 
-        var chart = new ApexCharts(document.querySelector("#chart"), options);
-        chart.render();
- 
+                plotOptions: {
+                    radialBar: {
+                        startAngle: -135,
+                        endAngle: 135,
+                        dataLabels: {
+                            name: {
+                                fontSize: '16px',
+                                color: 'var(--semi-color)', 
+                                offsetY: 120
+                            },
+                            value: {
+                                offsetY: 76,
+                                fontSize: '22px',
+                                color: undefined,
+                                formatter: function (val) {
+                                    return val;
+                                }
+                            }
+                        }
+                    }
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'dark',
+                        shadeIntensity: 0.15,
+                        inverseColors: false,
+                        opacityFrom: 1,
+                        opacityTo: 1,
+                        stops: [0, 50, 65, 91]
+                    },
+                },
+                stroke: {
+                    dashArray: 4
+                },
+                labels: ['Total Application'],
+            };
+    
+            var chart = new ApexCharts(document.querySelector("#charts"), options2);
+            chart.render();
+            
+            // start card number two, top right
+            // show data unit aktif -> from 18 unit percentage
+            var realDataUnitAktif = <?php echo $unitAktif; ?>;
+            var constantTotalUnit = 18;
+            var percentageUnitAktif = (100 / constantTotalUnit) * realDataUnitAktif;
+
+            var options = {
+            series: [percentageUnitAktif],
+                chart: {
+                    height: 350,
+                    type: 'radialBar',
+                    toolbar: {
+                        show: false
+                    }
+                },
+                plotOptions: {
+                    radialBar: {
+                        startAngle: -135,
+                        endAngle: 225,
+                        hollow: {
+                            margin: 0,
+                            size: '70%',
+                            background: '#fff',
+                            image: undefined,
+                            imageOffsetX: 0,
+                            imageOffsetY: 0,
+                            position: 'front',
+                            dropShadow: {
+                                enabled: true,
+                                top: 3,
+                                left: 0,
+                                blur: 4,
+                                opacity: 0.24
+                            }
+                        },
+                        track: {
+                            background: '#fff',
+                            strokeWidth: '67%',
+                            margin: 0, // margin is in pixels
+                            dropShadow: {
+                                enabled: true,
+                                top: -3,
+                                left: 0,
+                                blur: 4,
+                                opacity: 0.35
+                            }
+                        },
+                        dataLabels: {
+                            show: true,
+                            name: {
+                                offsetY: -10,
+                                show: true,
+                                color: '#888',
+                                fontSize: '17px'
+                            },
+                            value: {
+                                formatter: function(val) {
+                                    // Display the real data (Unit Aktif) in the chart
+                                    return <?php echo $unitAktif; ?>;
+                                },
+                                color: '#111',
+                                fontSize: '36px',
+                                show: true,
+                            }
+                        }
+                    }
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'dark',
+                        type: 'horizontal',
+                        shadeIntensity: 0.5,
+                        gradientToColors: ['#ABE5A1'],
+                        inverseColors: true,
+                        opacityFrom: 1,
+                        opacityTo: 1,
+                        stops: [0, percentageUnitAktif] // Use the calculated percentage for the fill
+                    }
+                },
+                stroke: {
+                    lineCap: 'round'
+                },
+                labels: ['Unit Aktif'],
+            };
+
+            var chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+
             // Enable Tilt.js for cards number 1 and 4
             $('.card-vat').tilt({
                 scale: 1.05,
@@ -365,9 +348,7 @@
             });
  
             // Query 2: Total Location per Unit Data
-            // var dummyData2 = [50, 30, 40, 70, 20, 50]; 
-            // var dumyCategories2 = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6'];
-
+            // card on the bottom of the blade
             var chart2Options = {
                 chart: {
                     type: 'bar',
@@ -433,87 +414,74 @@
             };
             var chart2 = new ApexCharts(document.querySelector("#chart2"), chart2Options);
             chart2.render();
- 
-            var chartData = @json($chartData);
- 
+  
             // Query 3: Jenis Aplikasi in One Day
+            // card with stacked bar
             var chart3Options = {
+                series: <?php echo json_encode($series); ?>,
                 chart: {
-                    type: 'bar',
-                    height: 300,
-                    width: '100%',
-                    fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-                    animations: {
-                        enabled: true,
-                        easing: 'easeinout',
-                        speed: 1500,
-                        animateGradually: {
-                            enabled: true,
-                            delay: 200,
-                        },
-                        dynamicAnimation: {
-                            enabled: true,
-                            speed: 350,
-                        },
-                    },
-                },
-                series: chartData.series,
-                    chart: {
                     type: 'bar',
                     height: 350,
                     stacked: true,
-                    toolbar: {
-                            show: false,
-                        },
+                    dropShadow: {
+                        enabled: true,
+                        blur: 1,
+                        opacity: 0.25
                     },
+                    toolbar: {
+                        show: false, 
+                    },
+                },
                 plotOptions: {
                     bar: {
                         horizontal: true,
-                        colors: {
-                            ranges: [
-                                {
-                                    from: 0,
-                                    to: Infinity,
-                                    color: 'var(--primary-color)', 
-                                },
-                            ],
-                        },
+                        barHeight: '60%',
                     },
                 },
+                dataLabels: {
+                    enabled: false
+                },
                 stroke: {
-                    width: 1,
-                    colors: ['#fff']
+                    width: 2,
                 },
                 xaxis: {
-                    categories: chartData.categories,
-                    labels: {
-                        formatter: function (val) {
-                        return val.toFixed(2);
-                        }
-                    }
+                    categories: <?php echo json_encode($categories); ?>,
+                },
+                yaxis: {
+                    title: {
+                        text: undefined
+                    },
                 },
                 tooltip: {
+                shared: false,
                     y: {
                         formatter: function (val) {
-                        return val.toFixed(2);
+                        return val + " Aktivitas"
                         }
                     }
                 },
                 fill: {
-                    opacity: 1
+                type: 'pattern',
+                opacity: 1,
+                    pattern: {
+                    style: ['circles', 'verticalLines', 'horizontalLines', 'slantedLines'], 
+                    }
+                },
+                states: {
+                    hover: {
+                        filter: 'none'
+                    }
                 },
                 legend: {
-                    show: false 
-                },
+                    show: false
+                }
             };
  
             var chart3 = new ApexCharts(document.querySelector("#chart3"), chart3Options);
             chart3.render();
  
-            // var dummyData = [50, 30, 40, 70, 20, 50]; // Replace this array with your desired data
-            // var dumyCategories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6'];
- 
             // Query 5: Total Aplikasi per Shift
+            // card shift malam and pagi
             var chart5Options = {
                 chart: {
                     type: 'bar',
@@ -547,8 +515,8 @@
                     categories: @json($labels2),
                     labels: {
                         style: {
-                            colors: 'var(--primary-color)',
-                            fontSize: '12px',
+                            colors: 'var(--semi-color)',
+                            fontSize: '30px',
                         },
                     },
                 },
@@ -581,7 +549,7 @@
             chart5.render();
  
             // animated javascript for increasing data
-                function animateCount(element, targetValue) {
+            function animateCount(element, targetValue) {
                 gsap.to(element, {
                     duration: 1,
                     innerHTML: targetValue,
@@ -613,5 +581,5 @@
             updateCount(query4Count, targetValue4);
  
         });
-    </script>
+</script>
 @endsection

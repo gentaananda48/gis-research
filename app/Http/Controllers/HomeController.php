@@ -224,7 +224,7 @@ class HomeController extends Controller
         }
 
         // Calculate yesterday's date
-        $yesterday = date('Y-m-d', strtotime('-15 day'));
+        $yesterday = date('Y-m-d', strtotime('-16 day'));
         $formattedYesterday = date('d F Y', strtotime($yesterday));
 
         // Card 1 total data aplikasi hari ini
@@ -243,8 +243,32 @@ class HomeController extends Controller
             )
             ->whereIn('pg', explode(',', $user->area))
             ->first();
+        
+        $unitAktif = $result1->Unit_Aktif;
+        $constantTotalUnit = 18; // Since Total_Unit is constant and equal to 18
+
+        // Calculate the percentages
+        $percentageUnitAktif = (100 / $constantTotalUnit) * $unitAktif;
+
+        // Card 3: Total data aplikasi per shift
+        // shift malam and pagi
+        $result4 = DB::table('report_conformities')
+            ->whereDate('tanggal', '=', $yesterday)
+            ->select('shift', DB::raw('COUNT(shift) as shift_count'))
+            ->groupBy('shift')
+            ->whereIn('pg', explode(',', $user->area))
+            ->get();
+
+        $labels2 = [];
+        $data2 = [];
+
+        foreach ($result4 as $item) {
+            $labels2[] = $item->shift;
+            $data2[] = $item->shift_count;
+        }
 
         // Card 4 type application
+        // show data activity with contain bsc and total_aktivitas
         $queryResult = DB::table('report_conformities')
             ->whereDate('tanggal', '=', $yesterday)
             ->groupBy('tanggal', 'unit', 'activity')
@@ -256,42 +280,62 @@ class HomeController extends Controller
             )
             ->whereIn('pg', explode(',', $user->area))
             ->get();
+        
+        $groupedData = [];
+        foreach ($queryResult as $row) {
+            $categories[] = $row->activity;
+            $activity = $row->activity;
+            $unit = $row->unit;
+            $totalAktivitas = $row->total_aktivitas;
 
-        $activityData = [];
-        foreach ($queryResult as $item) {
-            $key = $item->activity;
-            if (!isset($activityData[$key])) {
-                $activityData[$key] = [
-                    'activity' => $item->activity,
-                    'data' => [],
-                    'units' => [],
-                ];
+            if (!isset($groupedData[$unit])) {
+                $groupedData[$unit] = [];
             }
-            $activityData[$key]['data'][] = $item->total_aktivitas;
-            $activityData[$key]['units'][] = $item->unit;
+
+            switch ($activity) {
+                case 'Foliar':
+                    $groupedData[$unit][0] = $totalAktivitas;
+                    break;
+                case 'Insektisida 1':
+                    $groupedData[$unit][1] = $totalAktivitas;
+                    break;
+                case 'Insektisida 2':
+                    $groupedData[$unit][2] = $totalAktivitas;
+                    break;
+                case 'Post Herbisida':
+                    $groupedData[$unit][3] = $totalAktivitas;
+                    break;
+                case 'Forcing 2':
+                    $groupedData[$unit][4] = $totalAktivitas;
+                    break;
+            }
         }
+
+        foreach ($groupedData as $unit => $data) {
+            $groupedData[$unit] = $data + array_fill(0, 5, 0);
+            ksort($groupedData[$unit]); // Sort the array by keys to ensure it's in the correct order (0 to 4)
+        }
+        ksort($groupedData);
 
         $series = [];
-        $labels3 = [];
-        $legends = [];
-
-        foreach ($activityData as $activity) {
+        $categories = DB::table('report_conformities')
+            ->whereDate('tanggal', '=', $yesterday)
+            ->groupBy('activity')
+            ->select(
+                'activity',
+            )
+            ->whereIn('pg', explode(',', $user->area))
+            ->pluck('activity');
+        
+        foreach ($groupedData as $unit => $data) {
             $series[] = [
-                'name' => implode(', ', $activity['units']),
-                'data' => $activity['data'],
+                'name' => $unit,
+                'data' => array_values($data), 
             ];
-            $labels3[] = $activity['activity'];
-            $legends[] = implode(', ', $activity['units']);
-        }
-        $chartData = [
-            'series' => $series,
-            'categories' => $labels3,
-            'legends' => $legends,
-        ];
-
-        $chartDataJSON = json_encode($chartData);
+        };
 
         // Card 5 count unit per location
+        // show categories bsc with data contain activity
         $result3 = DB::table('unit AS A')
             ->leftJoin('report_conformities AS B', function ($join) use ($yesterday) {
                 $join->on('A.label', '=', 'B.unit')
@@ -308,23 +352,27 @@ class HomeController extends Controller
             $data[] = $item->{'COUNT(B.lokasi)'};
         }
 
-        // Card 3: Total data aplikasi per shift
-        $result4 = DB::table('report_conformities')
-            ->whereDate('tanggal', '=', $yesterday)
-            ->select('shift', DB::raw('COUNT(shift) as shift_count'))
-            ->groupBy('shift')
-            ->whereIn('pg', explode(',', $user->area))
-            ->get();
+        // new adjustment query 
+        
+        // $result3 = DB::table('unit AS A')
+        // ->leftJoin('report_conformities AS B', function ($join) use ($yesterday) {
+        //     $join->on('A.label', '=', 'B.unit')
+        //         ->whereDate('B.tanggal', '=', $yesterday);
+        // })
+        // ->groupBy('A.label', 'B.activity')
+        // ->select('A.label', 'B.activity', DB::raw('COUNT(B.lokasi)'))
+        // ->get();
 
-        $labels2 = [];
-        $data2 = [];
+        // $labels = [];
+        // $data = [];
+        // foreach ($result3 as $item) {
+        //     $labels[] = $item->label;
+        //     $data[] = $item->{'COUNT(B.lokasi)'};
+        // }
 
-        foreach ($result4 as $item) {
-            $labels2[] = $item->shift;
-            $data2[] = $item->shift_count;
-        }
-
-        return view('home', compact('result1', 'result2', 'labels', 'data', 'labels2', 'data2', 'chartDataJSON', 'formattedYesterday', 'pg', 'unit'));
+        return view('home', compact(
+            'unitAktif', 'percentageUnitAktif', 'result2', 'labels', 'data', 'labels2', 'data2', 'series', 'categories', 'formattedYesterday', 'pg', 'unit'
+        ));
     }
 
 
