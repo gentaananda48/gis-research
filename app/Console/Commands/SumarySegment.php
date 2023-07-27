@@ -44,7 +44,7 @@ class SumarySegment extends Command
         try {
             $units = Unit::pluck('label')->all();
             // truncate table
-            // DB::table('summary_segments')->truncate();
+            DB::table('summary_segments')->truncate();
             DB::commit();
             // truncate
             foreach ($units as $source_device_id) {
@@ -64,6 +64,7 @@ class SumarySegment extends Command
                     tb2 AS (
                         SELECT *
                         FROM rencana_kerja
+                        where unit_label = '{$source_device_id}'
                         ),
                         tb3 AS (
                         SELECT *
@@ -103,7 +104,7 @@ class SumarySegment extends Command
                         tb1.segment,
                         MAX(tb0.unit_label) as unit_label,
                         MAX(kode_lokasi) as kode_lokasi,
-                        MAX(tb1.created_at) as created_date,
+						MAX(tb1.created_at) as created_date,
                         ROUND(SUM(tb1.luasan_m2),2) as total_luasan,
                         ROUND(SUM(CASE WHEN tb1.overlapping_route < 1 THEN tb1.luasan_m2 ELSE 0 END),2) AS total_spraying,
                         ROUND(Sum(CASE WHEN tb1.overlapping_route > 0 THEN tb1.luasan_m2 ELSE 0 END),2) AS total_overlaping,
@@ -142,14 +143,15 @@ class SumarySegment extends Command
                         JOIN tb8 on tb8.report_parameter_standard_id = tb3.id
                         JOIN tb9 on tb9.report_parameter_standard_id = tb3.id
                         where tb3.nozzle_id = tb2.nozzle_id
+                        and tb2.tgl = DATE(tb1.created_at)
                         and tb0.speed > 0.9
                         and tb3.volume_id = tb2.volume_id
-                        and tb2.tgl = DATE(tb1.created_at)
-                        GROUP BY tb1.segment
+                        GROUP BY tb1.segment,DATE(tb1.created_at)
                 "));
 
                 if (count($data) > 0) {
                     foreach ($data as $key => $value) {
+
                         DB::insert("INSERT INTO summary_segments (
                             unit, 
                             segment, 
@@ -183,9 +185,9 @@ class SumarySegment extends Command
                             [$value->unit_label,
                             $value->segment,
                             $value->kode_lokasi,
-                            $value->total_luasan, 
+                            $value->total_luasan,
                             $value->total_spraying, 
-                            $value->total_overlaping, 
+                            $value->total_overlaping,
                             $value->created_date,
                             $value->av_speed,
                             $value->speed_under_standard,
@@ -218,6 +220,7 @@ class SumarySegment extends Command
                     $this->info('data tidak ada');
                 }
             }
+            // end foreach
         } catch (\Exception $e) {
             $this->info($e->getMessage());
             DB::rollback(); 

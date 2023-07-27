@@ -42,7 +42,7 @@ class ReportConformity extends Command
         DB::beginTransaction();
         try {
             // truncate table
-            // DB::table('report_conformities')->truncate();
+            DB::table('report_conformities')->truncate();
             DB::commit();
             // truncate
 
@@ -98,7 +98,7 @@ class ReportConformity extends Command
 
             if (count($data) > 0) {
                 foreach ($data as $key => $value) {
-                    DB::insert("INSERT INTO report_conformities (
+                    DB::insert("INSERT INTO report_conformities_temp_1 (
                         tanggal, 
                         pg, 
                         wilayah, 
