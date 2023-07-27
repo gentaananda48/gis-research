@@ -374,7 +374,7 @@
                 },
                 series: [
                     {
-                        name: 'Unit Aktif',
+                        name: 'Total Lokasi',
                         data: @json($data),
                     },
                 ],
