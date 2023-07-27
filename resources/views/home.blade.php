@@ -516,7 +516,7 @@
                     labels: {
                         style: {
                             colors: 'var(--semi-color)',
-                            fontSize: '30px',
+                            fontSize: '24px',
                         },
                     },
                 },
@@ -540,6 +540,14 @@
                             ],
                         },
                     },
+                },
+                dataLabels: {
+                    enabled: true,
+                    offsetX: -6,
+                    style: {
+                        fontSize: '30px',
+                        colors: ['#fff']
+                    }
                 },
                 legend: {
                     show: false 
