@@ -101,6 +101,47 @@
             margin: 0cm;
             size: A3 landscape;
         }
+
+        .centered {
+        text-align: center;
+        }
+
+        .spinner.loading {
+        padding: 50px;
+        text-align: center;
+        }
+
+        .loading-text {
+        width: 90px;
+        position: absolute;
+        top: calc(90% - 25px);
+        left: calc(50% - 60px);
+        text-align: center;
+        }
+
+        .spinner.loading:before {
+        content: "";
+        height: 90px;
+        width: 90px;
+        margin: -15px auto auto -15px;
+        position: absolute;
+        top: calc(90% - 45px);
+        left: calc(50% - 45px);
+        border-width: 8px;
+        border-style: solid;
+        border-color: #01924C #ccc #ccc;
+        border-radius: 100%;
+        animation: rotation .7s infinite linear;
+        }
+
+        @keyframes rotation {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(359deg);
+        }
+        }
     </style>
 @stop
 
@@ -412,51 +453,43 @@
                 
                 <hr>
 
-                <div class="box-header text-center">
-                    <h3><strong>Detail Per Ritase</strong></h3>
-                </div>
-                <div class="box-body">
-                    <table class="table table-hover table-bordered rounded" width="100%" id="table-down">
-                        <thead>
-                            <tr>
-                                <th>Ritase</th>
-                                <th>Kecepatan Operasi</th>
-                                <th>Golden Time</th>
-                                <th>Waktu Spray</th>
-                                <th>Wing Level Kiri</th>
-                                <th>Wing Level Kanan</th>
-                                <th>Suhu</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($list_rrk as $v)
-                                    <tr>
-                                            <td class="text-center">{{ $v->ritase }}</td>
-                                            @foreach($header as $k2 => $v2)
-                                                @php
-                                                    $param = 'parameter_'.$k2;
-                                                @endphp
-                                                    @if ($k2 == 4 || $k2 == 5 || $k2 == 6)
-                                                            <td class="text-center">{{ doubleval($v->$param) <= 2 ? 'N/A' : $v->$param }}</td>
-                                                    @else
-                                                            <td class="text-center">{{ $v->$param }}</td>
-                                                    @endif
-                                            @endforeach
-                                    </tr>
-                            @empty
-                            <tr>
-                                <td colspan="100" class="text-center">No data available</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-
-                    <div style="padding-top: 1rem;" class="hidden-print">
-                        <a href="{{ url()->previous() }}" class="btn btn-warning"  style="margin: 0px; margin-right: 8px;">Back</a>
-                        <a href="{{ route('report.rencana_kerja.playback',$rk->id) }}" class="btn btn-success"> Playback</a>
-
-                        {{-- <button class="btn btn-success btn-sm btn-print" style="margin: 0">Export</button> --}}
+                <div class="load-ritase">
+                    <div class="box-header text-center">
+                        <h3><strong>Detail Per Ritase</strong></h3>
                     </div>
+                    <div class="box-body">
+                        <table class="table table-hover table-bordered rounded" width="100%" id="table-down">
+                            <thead>
+                                <tr>
+                                    <th>Ritase</th>
+                                    <th>Kecepatan Operasi</th>
+                                    <th>Golden Time</th>
+                                    <th>Waktu Spray</th>
+                                    <th>Wing Level Kiri</th>
+                                    <th>Wing Level Kanan</th>
+                                    <th>Suhu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="100">
+                                        <div class="centered">
+                                            <div id="divSpinner" class="spinner loading">
+                                              <div class="loading-text">Loading ...</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="padding: 10px;" class="hidden-print">
+                    <a href="{{ url()->previous() }}" class="btn btn-warning"  style="margin: 0px; margin-right: 8px;">Back</a>
+                    <a href="{{ route('report.rencana_kerja.playback',$rk->id) }}" class="btn btn-success"> Playback</a>
+
+                    {{-- <button class="btn btn-success btn-sm btn-print" style="margin: 0">Export</button> --}}
                 </div>
             </div>
         </div>
@@ -469,6 +502,17 @@
 
 <script>
    $(document).ready(function() {
+        $.ajax({
+        type: 'GET',
+        url: BASE_URL + '/summary/conformity_ritase/'+{{ $report_conformity->id }},
+        success: function(data){
+            $('.load-ritase').html(data.html);
+        }
+        });
+        // .done(function() {
+        //     $("#overlay").fadeOut(300);
+        // });
+        
         $('.btn-print').click(function(){
            window.print();
            return false;

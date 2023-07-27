@@ -221,24 +221,25 @@ class ConformityUnitController extends Controller
             ])
             ->first();
 
-        $cache_key = env('APP_CODE').':LOKASI:LIST_ReportConformity_Ritase_'.$rk->id;
-        $cached = Redis::get($cache_key);
-        if(isset($cached)) {
-            $list_rrk = $cached;
-        } else {
-            $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get();
+        $list_rrk = array();
+        // $cache_key = env('APP_CODE').':LOKASI:LIST_ReportConformity_Ritase_'.$rk->id;
+        // $cached = Redis::get($cache_key);
+        // if(isset($cached)) {
+        //     $list_rrk = $cached;
+        // } else {
+        //     $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get();
 
-            Redis::set($cache_key, $list_rrk);
-        }
+        //     Redis::set($cache_key, $list_rrk);
+        // }
         
-        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
+        // $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
         $header = [];
 
-        foreach ($list_rks as $rks) {
-            if ($rks->ritase == 999) {
-                $header[$rks->parameter_id] = $rks->parameter_nama;
-            }
-        }
+        // foreach ($list_rks as $rks) {
+        //     if ($rks->ritase == 999) {
+        //         $header[$rks->parameter_id] = $rks->parameter_nama;
+        //     }
+        // }
 
         $jam_mulai = $rk->jam_mulai;
         $jam_selesai = $rk->jam_selesai;
@@ -474,6 +475,7 @@ class ConformityUnitController extends Controller
         // }
         
         $lacak_overlapping = array();
+        $list_rrk = '{}';
         $avgRRK = collect(json_decode($list_rrk))->avg('parameter_6');
         return view('summary_report_vat.conformity_unit.show_2', [
             'report_conformity' => $report_conformity,
@@ -614,5 +616,55 @@ class ConformityUnitController extends Controller
         $result['explodeRk'] = $explodeRk;
 
         return Excel::download(new ReportConformityDetail($result), 'ReportConformityDetail.xlsx');
+    }
+
+    function ritaseAjax(Request $request,$id){
+        $result = array();
+
+        $result['status'] = '200';
+        $result['message'] = "data success";
+
+        $report_conformity = ReportConformity::find($id);
+
+        $rk = RencanaKerja::where('unit_label', $report_conformity->unit)
+            ->where('tgl', $report_conformity->tanggal)
+            ->where('lokasi_kode', $report_conformity->lokasi)
+            ->first();
+
+        $explodeRk = explode(" ",$rk->aktivitas_nama); 
+
+        $report_param_standard = ReportParameterStandard::where('volume_id', $rk->volume_id)
+            ->where('nozzle_id', $rk->nozzle_id)
+            ->where('aktivitas_id', $rk->aktivitas_id)
+            ->with([
+                'reportParameterStandarDetails' => function($query) {
+                    $query->where('point', 1);
+                },
+            ])
+            ->first();
+
+        $list_rrk = array();
+        $cache_key = env('APP_CODE').':LOKASI:LIST_ReportConformity_Ritase_'.$rk->id;
+        $cached = Redis::get($cache_key);
+        if(isset($cached)) {
+            $list_rrk = $cached;
+        } else {
+            $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get();
+
+            Redis::set($cache_key, $list_rrk);
+        }
+        
+        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
+        $header = [];
+
+        foreach ($list_rks as $rks) {
+            if ($rks->ritase == 999) {
+                $header[$rks->parameter_id] = $rks->parameter_nama;
+            }
+        }
+
+        $list_rrk = json_decode($list_rrk);
+        $result['html'] = view('summary_report_vat.conformity_unit._partial_ritase',compact('list_rrk','header'))->render();
+        return $result;
     }
 }

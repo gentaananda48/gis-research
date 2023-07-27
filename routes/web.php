@@ -246,6 +246,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/summary/conformity_unit_export/{type}', array('uses' => 'SummaryReportVAT\ConformityUnitController@export', 'as' => 'summary.conformity_unit.export'));
     Route::get('/summary/conformity_unit_export_show', array('uses' => 'SummaryReportVAT\ConformityUnitController@export_show', 'as' => 'summary.conformity_unit.export_show'));
     Route::get('/summary/conformity_unit_export_detail/{id}', array('uses' => 'SummaryReportVAT\ConformityUnitController@export_detail', 'as' => 'summary.conformity_unit.export_detail'));
+    Route::get('/summary/conformity_ritase/{id}', array('uses' => 'SummaryReportVAT\ConformityUnitController@ritaseAjax', 'as' => 'summary.conformity_unit.ritase_ajax'));
 });
 
 

@@ -138,6 +138,24 @@ class UnitController extends Controller {
                         $table->index('report_date');
                     });
                 }
+
+                $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
+                if (!Schema::hasTable($table_segment_label)) {
+                    Schema::create($table_segment_label, function (Blueprint $table) {
+                        $table->bigIncrements('id');
+                        $table->integer('lacak_bsc_id')->nullable();
+                        $table->string('kode_lokasi')->nullable();
+                        $table->string('segment')->nullable();
+                        $table->string('overlapping_route')->nullable();
+                        $table->string('overlapping_left')->nullable();
+                        $table->string('overlapping_right')->nullable();
+                        $table->timestamp('created_at')->nullable();
+                        $table->timestamp('updated_at')->nullable();
+                        $table->double('luasan_m2')->nullable();
+                        $table->date('report_date')->nullable();
+                        $table->tinyInteger('is_add_summary')->default(0);
+                    });
+                }
             }
             DB::commit();
         } catch (\Exception $e) {
