@@ -270,113 +270,6 @@ class ConformityUnitController extends Controller
         }
         $list_lokasi = array_values($list_lokasi);
 
-        // $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
-        // $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
-        // $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$rk->unit_source_device_id;
-        // if(in_array($rk->unit_source_device_id, $offline_units)){
-        //     $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$rk->unit_source_device_id;
-        // }
-        // $tgl = $rk->tgl;
-        // if($tgl >= date('Y-m-d')) {
-        //     $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$tgl.'*');
-        //     $cache_key = $cache_key.'_'.$jam_selesai;
-        //     if(count($redis_scan_result[1])>0){
-        //         rsort($redis_scan_result[1]);
-        //         $last_key = $redis_scan_result[1][0];
-        //         if($cache_key<$last_key){
-        //             $cache_key = $last_key;
-        //         }
-        //         foreach($redis_scan_result[1] as $key){
-        //             if($key!=$cache_key){
-        //                 Redis::del($key);
-        //             }
-        //         }
-        //     }
-        // } else {
-        //     $cache_key = $cache_key.'_'.$tgl;
-        // }
-        // $cached = Redis::get($cache_key);
-        // $list_lacak = [];
-        // if(isset($cached)) {
-        //     $list_lacak = json_decode($cached, FALSE);
-        // } else {
-        //     $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
-        //     $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
-        //     //
-        //     if(in_array($rk->unit_source_device_id, $offline_units)){
-        //         $table_name = 'lacak_'.$rk->unit_source_device_id;
-        //         $list_lacak = DB::table($table_name)
-        //             ->where('report_date', $tgl)
-        //             //->where('utc_timestamp', '>=', $timestamp_1)
-        //             //->where('utc_timestamp', '<=', $timestamp_2)
-        //             ->orderBy('utc_timestamp', 'ASC')
-        //             ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
-        //             ->get();
-        //     } else {
-        //         if($rk->tgl>='2022-03-15') {
-        //             $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
-        //                 ->where('timestamp', '>=', $timestamp_1)
-        //                 ->where('timestamp', '<=', $timestamp_2)
-        //                 ->orderBy('timestamp', 'ASC')
-        //                 ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
-        //         } else {
-        //             $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
-        //                 ->where('timestamp', '>=', $timestamp_1)
-        //                 ->where('timestamp', '<=', $timestamp_2)
-        //                 ->orderBy('timestamp', 'ASC')
-        //                 ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
-        //         }
-        //     }
-        //     //
-        //     Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
-        // }
-
-         // ADJUSTMENT CODE SUMMARY FROM REDIS
-        $cacheKey = env('APP_CODE') . ':RK_SUMMARY_' . $rk->id;
-        $summary = Redis::get($cacheKey);
-
-        if ($summary === null) {
-        // Data not found in Redis, retrieve from the database
-        $list_rrk_array = VReportRencanaKerja2::where('rencana_kerja_id', $rk->id)->get()->toArray();
-        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
-        $header = [];
-        $rata2 = [];
-        $poin = [];
-        $kualitas = '-';
-
-        foreach ($list_rks as $rks) {
-            if ($rks->ritase == 999) {
-                $header[$rks->parameter_id] = $rks->parameter_nama;
-                $rata2[$rks->parameter_id] = $rks->parameter_id != 2 ? number_format($rks->realisasi, 2) : $rks->realisasi;
-                $poin[$rks->parameter_id] = $rks->nilai_bobot;
-            } else if ($rks->ritase == 999999) {
-                $poin[999] = $rks->nilai_bobot;
-                $kualitas = $rks->kualitas;
-            }
-        }
-
-        $summary = (object) [
-            'header' => $header,
-            'ritase' => $list_rrk_array,
-            'rata2' => $rata2,
-            'poin' => $poin,
-            'kualitas' => $kualitas,
-        ];
-
-        // Store the retrieved data in Redis
-        Redis::set($cacheKey, json_encode($summary), 'EX', 2592000);
-        } else {
-            // Data found in Redis, retrieve it
-            $decodedSummary = json_decode($summary, true);
-
-            if ($decodedSummary !== null) {
-                // Decoding was successful
-                $summary = (object) $decodedSummary;
-                // Access the properties
-                $header = $summary->header;
-            }
-        }
-
         $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($report_conformity->unit)));
         $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
         $data_bsc = DB::table($table_name)
@@ -387,17 +280,15 @@ class ConformityUnitController extends Controller
         ->where('speed','>',0.9)
         ->get();
         $lacak_bsc = array();
+
+        $new_date['date'] = "";
+        $new_date['jam_mulai'] = "";
+        $new_date['jam_akhir'] = "";
+
         if ($data_bsc) {
             $loop = 0;
             $luasan = 0;
             foreach ($data_bsc as $key => $value) {
-                // $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
-                // $data_segment = DB::table($table_segment_label)
-                // ->leftJoin($table_name,$table_name.'.id','=',$table_segment_label.'.lacak_bsc_id')
-                // ->where($table_segment_label.'.lacak_bsc_id',$value->id)
-                // ->where('overlapping_route',1)
-                // ->count();
-
                 $lacak_bsc[$key]['is_overlapping'] = $value->overlapping_route == "1" ? 1:0;
                 $lacak_bsc[$key]['position_latitude'] = $value->latitude;
                 $lacak_bsc[$key]['position_longitude'] = $value->longitude;
@@ -411,69 +302,13 @@ class ConformityUnitController extends Controller
                 $lacak_bsc[$key]['arm_height_left'] = $value->arm_height_left;
                 $lacak_bsc[$key]['timestamp'] = $value->utc_timestamp;
                 
-                // $startID = $value->id - 11;
-                // $overlapping = 0;
-                // $geofenceHelper = new GeofenceHelper;
-                // $getDataBsc = DB::table($table_name)
-                // ->select('latitude','longitude')
-                // ->where('lokasi_kode',$report_conformity->lokasi)
-                // ->where('report_date',$report_conformity->tanggal)
-                // ->where('speed','>',0.9)
-                // ->whereBetween('id',[$data_bsc->first()->id,$startID])
-                // ->get()
-                // ->toArray();
-
-                // if ($getDataBsc) {
-                //     $overlapping = $geofenceHelper->calculateOverlap($value->latitude, $value->longitude, $getDataBsc);
-                // }
-
-                // \Log::info($overlapping);
-                // // end cek kondisi
-                // if ($overlapping != 1) {
-                //     continue;
-                // }
-
-                // $lacak_overlapping[$loop]['position_latitude'] = $value->latitude;
-                // $lacak_overlapping[$loop]['position_longitude'] = $value->longitude;
-                // $lacak_overlapping[$loop]['position_altitude'] = $value->altitude;
-                // $lacak_overlapping[$loop]['position_direction'] = $value->bearing;
-                // $lacak_overlapping[$loop]['position_speed'] = $value->speed;
-                // $lacak_overlapping[$loop]['pump_switch_right'] = $value->pump_switch_right;
-                // $lacak_overlapping[$loop]['pump_switch_left'] = $value->pump_switch_left;
-                // $lacak_overlapping[$loop]['pump_switch_main'] = $value->pump_switch_main;
-                // $lacak_overlapping[$loop]['arm_height_right'] = $value->arm_height_right;
-                // $lacak_overlapping[$loop]['arm_height_left'] = $value->arm_height_left;
-                // $lacak_overlapping[$loop]['timestamp'] = $value->utc_timestamp;
-                // $loop++;
             }
+
+            $new_date['date'] = date('Y-m-d', $data_bsc->first()->utc_timestamp);
+            $new_date['jam_mulai'] = date('H:i:s',$data_bsc->first()->utc_timestamp);
+            $new_date['jam_akhir'] = date('H:i:s',$data_bsc->last()->utc_timestamp);
         }
-        
 
-        // $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
-        // $data_segment = DB::table($table_segment_label)
-        // ->leftJoin($table_name,$table_name.'.id','=',$table_segment_label.'.lacak_bsc_id')
-        // ->where('kode_lokasi',$report_conformity->lokasi)
-        // ->where($table_segment_label.'.report_date',$report_conformity->tanggal)
-        // ->where('overlapping_route',1)
-        // ->get();
-
-        // $lacak_overlapping = array();
-        // if ($data_segment) {
-        //     foreach ($data_segment as $key => $value) {
-        //         $lacak_overlapping[$key]['position_latitude'] = $value->latitude;
-        //         $lacak_overlapping[$key]['position_longitude'] = $value->longitude;
-        //         $lacak_overlapping[$key]['position_altitude'] = $value->altitude;
-        //         $lacak_overlapping[$key]['position_direction'] = $value->bearing;
-        //         $lacak_overlapping[$key]['position_speed'] = $value->speed;
-        //         $lacak_overlapping[$key]['pump_switch_right'] = $value->pump_switch_right;
-        //         $lacak_overlapping[$key]['pump_switch_left'] = $value->pump_switch_left;
-        //         $lacak_overlapping[$key]['pump_switch_main'] = $value->pump_switch_main;
-        //         $lacak_overlapping[$key]['arm_height_right'] = $value->arm_height_right;
-        //         $lacak_overlapping[$key]['arm_height_left'] = $value->arm_height_left;
-        //         $lacak_overlapping[$key]['timestamp'] = $value->utc_timestamp;
-        //     }
-        // }
-        
         $lacak_overlapping = array();
         $list_rrk = '{}';
         $avgRRK = collect(json_decode($list_rrk))->avg('parameter_6');
@@ -482,7 +317,7 @@ class ConformityUnitController extends Controller
             'rk' => $rk,
             'list_rrk' => json_decode($list_rrk),
             'header' => $header,
-            'summary'       => $summary,
+            // 'summary'       => $summary,
             'timestamp_jam_mulai'   => strtotime($jam_mulai),
             'timestamp_jam_selesai' => strtotime($jam_selesai),
             'list_lacak'    => json_encode($lacak_bsc),
@@ -492,7 +327,8 @@ class ConformityUnitController extends Controller
             'pg' => $request->pg,
             'unit' => $request->unit,
             'avgRRK' => $avgRRK,
-            'explodeRk' => $explodeRk[0]
+            'explodeRk' => $explodeRk[0],
+            'new_date' => $new_date
         ]);
     }
 

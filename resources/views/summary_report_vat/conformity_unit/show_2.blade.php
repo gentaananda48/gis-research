@@ -195,20 +195,20 @@
                         
                         <tr>
                             <td width="25%"><h4>TANGGAL</h4></td>
-                            <td width="25%"><h4>{{ date('Y-m-d', strtotime($rk->jam_mulai)) }}</h4></td>
+                            <td width="25%"><h4>{{ $new_date['date'] }}</h4></td>
                             <td width="25%"><h4>VOLUME AIR</h4></td>
                             <td width="25%"><h4>{{ $rk->volume }}</h4></td>
                         </tr>
 
                         <tr>
                             <td width="25%"><h4>JAM MULAI</h4></td>
-                            <td width="25%"><h4>{{ date('H:i:s', strtotime($rk->jam_mulai)) }}</h4></td>
+                            <td width="25%"><h4>{{ $new_date['jam_mulai'] }}</h4></td>
                             <td width="25%"><h4>SUHU</h4></td>
                             <td width="25%"><h4>{{ $avgRRK > 2 ? round($avgRRK,2):'N/A' }}</h4></td>
                         </tr>
                         <tr>
                             <td width="25%"><h4>JAM SELESAI</h4></td>
-                            <td width="25%"><h4>{{ date('H:i:s', strtotime($rk->jam_selesai)) }}</h4></td>
+                            <td width="25%"><h4>{{ $new_date['jam_akhir'] }}</h4></td>
                         </tr>
                     </table>
                 </div>
@@ -502,16 +502,15 @@
 
 <script>
    $(document).ready(function() {
-        $.ajax({
-        type: 'GET',
-        url: BASE_URL + '/summary/conformity_ritase/'+{{ $report_conformity->id }},
-        success: function(data){
-            $('.load-ritase').html(data.html);
-        }
-        });
-        // .done(function() {
-        //     $("#overlay").fadeOut(300);
-        // });
+        setTimeout(function() {
+            $.ajax({
+            type: 'GET',
+            url: BASE_URL + '/summary/conformity_ritase/'+{{ $report_conformity->id }},
+                success: function(data){
+                    $('.load-ritase').html(data.html);
+                }
+            });
+        }, 15000);
         
         $('.btn-print').click(function(){
            window.print();
