@@ -222,6 +222,6 @@ Route::group([
 
 //API AI Dashboard temporary
 // Route::get('getAllData', 'API\ApiDashboardController@index');
-Route::get('getAllData', 'API\ReportSegmentController@segment');
+Route::get('getAllData', 'API\ApiDashboardController@all');
 Route::get('dataByDate', 'API\ApiDashboardController@getDataByDate');
 
