@@ -409,7 +409,7 @@
                     },
                 },
                 legend: {
-                    show: false 
+                    show: false,
                 },
             };
             var chart2 = new ApexCharts(document.querySelector("#chart2"), chart2Options);
@@ -423,11 +423,6 @@
                     type: 'bar',
                     height: 350,
                     stacked: true,
-                    dropShadow: {
-                        enabled: true,
-                        blur: 1,
-                        opacity: 0.25
-                    },
                     toolbar: {
                         show: false, 
                     },
@@ -435,17 +430,19 @@
                 plotOptions: {
                     bar: {
                         horizontal: true,
-                        barHeight: '60%',
                     },
                 },
-                dataLabels: {
-                    enabled: false
-                },
                 stroke: {
-                    width: 2,
+                    width: 1,
+                    colors: ['#fff']
                 },
                 xaxis: {
-                    categories: <?php echo json_encode($categories); ?>,
+                categories: <?php echo json_encode($categories); ?>,
+                labels: {
+                        formatter: function (val) {
+                        return val
+                        }
+                    }
                 },
                 yaxis: {
                     title: {
@@ -453,7 +450,6 @@
                     },
                 },
                 tooltip: {
-                shared: false,
                     y: {
                         formatter: function (val) {
                         return val + " Aktivitas"
@@ -461,19 +457,12 @@
                     }
                 },
                 fill: {
-                type: 'pattern',
-                opacity: 1,
-                    pattern: {
-                    style: ['circles', 'verticalLines', 'horizontalLines', 'slantedLines'], 
-                    }
-                },
-                states: {
-                    hover: {
-                        filter: 'none'
-                    }
+                    opacity: 1
                 },
                 legend: {
-                    show: false
+                    position: 'top',
+                    horizontalAlign: 'left',
+                    offsetX: 40
                 }
             };
  
@@ -516,7 +505,7 @@
                     labels: {
                         style: {
                             colors: 'var(--semi-color)',
-                            fontSize: '24px',
+                            fontSize: '20px',
                         },
                     },
                 },
