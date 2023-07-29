@@ -280,59 +280,40 @@ class HomeController extends Controller
             )
             ->whereIn('pg', explode(',', $user->area))
             ->get();
-        
+
         $groupedData = [];
+        $categories = [];
+
         foreach ($queryResult as $row) {
-            $categories[] = $row->activity;
             $activity = $row->activity;
             $unit = $row->unit;
             $totalAktivitas = $row->total_aktivitas;
 
-            if (!isset($groupedData[$unit])) {
-                $groupedData[$unit] = [];
+            if (!isset($groupedData[$activity])) {
+                $groupedData[$activity] = [];
             }
-
-            switch ($activity) {
-                case 'Foliar':
-                    $groupedData[$unit][0] = $totalAktivitas;
-                    break;
-                case 'Insektisida 1':
-                    $groupedData[$unit][1] = $totalAktivitas;
-                    break;
-                case 'Insektisida 2':
-                    $groupedData[$unit][2] = $totalAktivitas;
-                    break;
-                case 'Post Herbisida':
-                    $groupedData[$unit][3] = $totalAktivitas;
-                    break;
-                case 'Forcing 2':
-                    $groupedData[$unit][4] = $totalAktivitas;
-                    break;
+            if (!isset($groupedData[$activity][$unit])) {
+                $groupedData[$activity][$unit] = $totalAktivitas;
+            }
+            if (!in_array($unit, $categories)) {
+                $categories[] = $unit;
             }
         }
 
-        foreach ($groupedData as $unit => $data) {
-            $groupedData[$unit] = $data + array_fill(0, 5, 0);
-            ksort($groupedData[$unit]); // Sort the array by keys to ensure it's in the correct order (0 to 4)
+        foreach ($groupedData as $activity => $unitsData) {
+            $groupedData[$activity] = array_replace(array_fill_keys($categories, 0), $unitsData);
         }
+
         ksort($groupedData);
+        $categories = array_values($categories);
 
         $series = [];
-        $categories = DB::table('report_conformities')
-            ->whereDate('tanggal', '=', $yesterday)
-            ->groupBy('activity')
-            ->select(
-                'activity',
-            )
-            ->whereIn('pg', explode(',', $user->area))
-            ->pluck('activity');
-        
         foreach ($groupedData as $unit => $data) {
             $series[] = [
                 'name' => $unit,
-                'data' => array_values($data), 
+                'data' => array_values($data),
             ];
-        };
+        }
 
         // Card 5 count unit per location
         // show categories bsc with data contain activity
