@@ -44,7 +44,7 @@ class ReportConformity extends Command
         DB::beginTransaction();
         try {
             // truncate table
-            DB::table('report_conformities_temp')->truncate();
+            DB::table('report_conformities')->truncate();
             DB::commit();
             // truncate
 
@@ -130,7 +130,7 @@ class ReportConformity extends Command
                     $data_bsc_first = $data_bsc->first();
                     $data_bsc_last = $data_bsc->latest()->first();
 
-                    DB::insert("INSERT INTO report_conformities_temp (
+                    DB::insert("INSERT INTO report_conformities (
                         tanggal, 
                         pg, 
                         wilayah, 
@@ -172,8 +172,10 @@ class ReportConformity extends Command
                         batas_atas_wing_level_kiri,
                         batas_bawah_wing_level_kanan,
                         batas_atas_wing_level_kanan,
-                        total_ancakan
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+                        total_ancakan,
+                        created_at,
+                        updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
                         [$value->created_date,
                         $value->lokasi_grup,
                         $value->wilayah,
@@ -215,7 +217,9 @@ class ReportConformity extends Command
                         (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 4)->first()->range_2,
                         (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 5)->first()->range_1,
                         (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 5)->first()->range_2,
-                        $total_ancakan
+                        $total_ancakan,
+                        now(),
+                        now()
                         ]
                     );
 
