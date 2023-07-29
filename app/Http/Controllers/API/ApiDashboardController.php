@@ -77,8 +77,8 @@ class ApiDashboardController extends Controller
                     $result[$key]['batas_suhu_std'] = $value->batas_suhu;
                     $result[$key]['gloden_time_good'] = $value->goldentime_tidak_standar;
                     $result[$key]['gloden_time_poor'] = $value->goldentime_standar;
-                    $result[$key]['created_at'] = null;
-                    $result[$key]['updated_at'] = null;
+                    $result[$key]['created_at'] = $value->created_at->format('Y-m-d H:i:s');
+                    $result[$key]['updated_at'] = $value->updated_at->format('Y-m-d H:i:s');
                 }
                 
             }
