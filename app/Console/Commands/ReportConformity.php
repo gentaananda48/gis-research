@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Model\RencanaKerja;
+use App\Model\ReportParameterStandard;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -42,7 +44,7 @@ class ReportConformity extends Command
         DB::beginTransaction();
         try {
             // truncate table
-            DB::table('report_conformities')->truncate();
+            DB::table('report_conformities_temp')->truncate();
             DB::commit();
             // truncate
 
@@ -98,7 +100,37 @@ class ReportConformity extends Command
 
             if (count($data) > 0) {
                 foreach ($data as $key => $value) {
-                    DB::insert("INSERT INTO report_conformities_temp_1 (
+                    $rk = RencanaKerja::where('unit_label', $value->unit)
+                    ->where('tgl', $value->created_date)
+                    ->where('lokasi_kode', $value->lokasi)
+                    ->first();
+                    
+                $report_param_standard = ReportParameterStandard::where('volume_id', $rk->volume_id)
+                    ->where('nozzle_id', $rk->nozzle_id)
+                    ->where('aktivitas_id', $rk->aktivitas_id)
+                    ->with([
+                        'reportParameterStandarDetails' => function($query) {
+                            $query->where('point', 1);
+                        },
+                    ])
+                    ->first();
+                    
+                    // total 
+                    $total_ancakan = (($value->total_spraying_sum/10000)/$rk->lokasi_lsnetto) * 100;
+
+                    $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($value->unit)));
+                    $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
+                    $data_bsc = \DB::table($table_name)
+                    ->select($table_name.'.*',$table_segment_label.".overlapping_route")
+                    ->leftJoin($table_segment_label,$table_segment_label.'.lacak_bsc_id','=',$table_name.'.id')
+                    ->where('lokasi_kode',$value->lokasi)
+                    ->where($table_name.'.report_date',$value->created_date);
+                    
+                    $data_bsc_avg = $data_bsc->avg('temperature_right');
+                    $data_bsc_first = $data_bsc->first();
+                    $data_bsc_last = $data_bsc->latest()->first();
+
+                    DB::insert("INSERT INTO report_conformities_temp (
                         tanggal, 
                         pg, 
                         wilayah, 
@@ -128,8 +160,20 @@ class ReportConformity extends Command
                         total_spraying,
                         total_overlaping,
                         suhu_standar,
-                        suhu_tidak_standar
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+                        suhu_tidak_standar,
+                        start_activity,
+                        end_activity,
+                        waktu_spray_detik,
+                        batas_suhu,
+                        suhu_avg,
+                        batas_atas_speed,
+                        batas_bawah_speed,
+                        batas_bawah_wing_level_kiri,
+                        batas_atas_wing_level_kiri,
+                        batas_bawah_wing_level_kanan,
+                        batas_atas_wing_level_kanan,
+                        total_ancakan
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
                         [$value->created_date,
                         $value->lokasi_grup,
                         $value->wilayah,
@@ -159,7 +203,19 @@ class ReportConformity extends Command
                         $value->total_spraying_sum,
                         $value->total_overlaping_sum,
                         $value->total_suhu_standar,
-                        $value->total_suhu_dibawah_standar
+                        $value->total_suhu_dibawah_standar,
+                        isset($data_bsc_first->utc_timestamp) && $data_bsc_first->utc_timestamp != null ? date('Y-m-d H:i:s',$data_bsc_first->utc_timestamp):"",
+                        isset($data_bsc_last->utc_timestamp) && $data_bsc_last->utc_timestamp != null ? date('Y-m-d H:i:s',$data_bsc_last->utc_timestamp):"",
+                        (isset($data_bsc_first->utc_timestamp) && $data_bsc_first->utc_timestamp != null) && isset($data_bsc_last->utc_timestamp) && $data_bsc_last->utc_timestamp != null ? $data_bsc_last->utc_timestamp - $data_bsc_first->utc_timestamp:0,
+                        ($value->aktivitas == 'Forcing' || $value->aktivitas == 'Forcing 1' || $value->aktivitas == 'Forcing 2' || $value->aktivitas == 'Forcing 3') ? (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 6)->first()->range_2:"",
+                        ($value->aktivitas == 'Forcing' || $value->aktivitas == 'Forcing 1' || $value->aktivitas == 'Forcing 2' || $value->aktivitas == 'Forcing 3') ? round($data_bsc_avg,2):"",
+                        (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 1)->first()->range_1,
+                        (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 1)->first()->range_2,
+                        (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 4)->first()->range_1,
+                        (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 4)->first()->range_2,
+                        (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 5)->first()->range_1,
+                        (int) $report_param_standard->reportParameterStandarDetails->where('report_parameter_id', 5)->first()->range_2,
+                        $total_ancakan
                         ]
                     );
 
