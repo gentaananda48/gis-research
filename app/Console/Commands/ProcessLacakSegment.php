@@ -20,14 +20,14 @@ class ProcessLacakSegment extends Command
      *
      * @var string
      */
-    protected $signature = 'process:lacak-segment {unit}';
+    protected $signature = 'process:lacak-segment {unit} {start_date} {end_date}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Process Lacak Segment BSC_01';
+    protected $description = 'Process Lacak Segment BSC_01 2023-08-01 2023-08-02';
 
     /**
      * Create a new command instance.
@@ -49,6 +49,8 @@ class ProcessLacakSegment extends Command
         // $cron_helper->create('process:lacak-segment', 'STARTED', 'SourceDeviceID: '.$unit);
         // $units = Unit::pluck('label')->all();
         $unit = $this->argument('unit');
+        $start_date_cron = $this->argument('start_date');
+        $end_date_cron = $this->argument('end_date');
         DB::beginTransaction();
         try {
             $unit = $this->argument('unit');
@@ -78,7 +80,7 @@ class ProcessLacakSegment extends Command
                         )
                         ->where('lokasi_kode', '!=', '')
                         ->where('is_segment',0)
-                        ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '2023-05-01' and '2023-07-31'")
+                        ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '{$start_date_cron}' and '{$end_date_cron}'")
                         // ->limit(500)
                         ->get();
                         $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
