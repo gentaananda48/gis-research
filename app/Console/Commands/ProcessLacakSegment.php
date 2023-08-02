@@ -20,14 +20,14 @@ class ProcessLacakSegment extends Command
      *
      * @var string
      */
-    protected $signature = 'process:lacak-segment';
+    protected $signature = 'process:lacak-segment {unit}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Process Lacak Segment';
+    protected $description = 'Process Lacak Segment BSC_01';
 
     /**
      * Create a new command instance.
@@ -47,11 +47,14 @@ class ProcessLacakSegment extends Command
     public function handle() {
         $cron_helper = new CronLogHelper;
         // $cron_helper->create('process:lacak-segment', 'STARTED', 'SourceDeviceID: '.$unit);
-        $units = Unit::pluck('label')->all();
+        // $units = Unit::pluck('label')->all();
+        $unit = $this->argument('unit');
         DB::beginTransaction();
         try {
-            foreach($units as $source_device_id) {
-                $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($source_device_id)));
+            $unit = $this->argument('unit');
+            // foreach($units as $source_device_id) {
+                // $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($source_device_id)));
+                $table_name = "lacak_".$unit;
                 $list_unit_table = array();
                 $iteration_segment = 1;
                 $final_segment = 1;
@@ -77,7 +80,7 @@ class ProcessLacakSegment extends Command
                         ->where('lokasi_kode', '!=', '')
                         ->where('is_segment',0)
                         ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '2023-05-01' and '2023-07-31'")
-                        // ->limit(100)
+                        ->limit(500)
                         ->get();
                         $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
                         foreach ($lokasi_kode_unit as $by_lokasi ) {
@@ -222,8 +225,8 @@ class ProcessLacakSegment extends Command
                             // end overlapping
                             $this->info(now().' - Success inputing data to table segment: '.$table_segment_label);
                         }
-            }
-            
+            // }
+            // end unit loop
             // $cron_helper->create('process:lacak-segment', 'FINISHED', 'SourceDeviceID: '.$unit.'. Finished Successfully');
         } catch (\Exception $e) {
             DB::rollback(); 
