@@ -440,7 +440,7 @@
                 categories: <?php echo json_encode($categories); ?>,
                 labels: {
                         formatter: function (val) {
-                        return val
+                        return val.toFixed(2)
                         }
                     }
                 },
