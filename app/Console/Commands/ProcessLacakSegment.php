@@ -220,7 +220,7 @@ class ProcessLacakSegment extends Command
                                 DB::commit();
                             }
                             // end overlapping
-                            $this->info('Success inputing data to table segment: '.$table_segment_label);
+                            $this->info(now().' - Success inputing data to table segment: '.$table_segment_label);
                         }
             }
             

@@ -214,7 +214,7 @@ class SumarySegment extends Command
                         );
 
                         DB::commit();
-                        $this->info('Success inputing data to table summary segment');
+                        $this->info(now().' - Success inputing data to table summary segment');
                     }
                 }else {
                     $this->info('data tidak ada');

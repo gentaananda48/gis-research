@@ -44,7 +44,7 @@ class ReportConformity extends Command
         DB::beginTransaction();
         try {
             // truncate table
-            DB::table('report_conformities')->truncate();
+            DB::table('report_conformities_temp')->truncate();
             DB::commit();
             // truncate
 
@@ -124,13 +124,13 @@ class ReportConformity extends Command
                     ->select($table_name.'.*',$table_segment_label.".overlapping_route")
                     ->leftJoin($table_segment_label,$table_segment_label.'.lacak_bsc_id','=',$table_name.'.id')
                     ->where('lokasi_kode',$value->lokasi)
-                    ->where($table_name.'.report_date',$value->created_date);
+                    ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') = '{$value->created_date}'");
                     
                     $data_bsc_avg = $data_bsc->avg('temperature_right');
                     $data_bsc_first = $data_bsc->first();
                     $data_bsc_last = $data_bsc->latest()->first();
 
-                    DB::insert("INSERT INTO report_conformities (
+                    DB::insert("INSERT INTO report_conformities_temp (
                         tanggal, 
                         pg, 
                         wilayah, 
@@ -224,7 +224,7 @@ class ReportConformity extends Command
                     );
 
                     DB::commit();
-                    $this->info('Success inputing data to table report conformities');
+                    $this->info(now().' - Success inputing data to table report conformities');
                 }
             }else {
                 $this->info('Gagal Input data');
