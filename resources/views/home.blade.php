@@ -505,7 +505,7 @@
                     labels: {
                         style: {
                             colors: 'var(--semi-color)',
-                            fontSize: '20px',
+                            fontSize: '12px',
                         },
                     },
                 },
