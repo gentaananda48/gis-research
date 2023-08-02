@@ -68,7 +68,6 @@ class ProcessLacakSegment extends Command
                             'pump_switch_main', 
                             'pump_switch_left', 
                             'pump_switch_right', 
-                            'lokasi_kode', 
                             'created_at',
                             'speed',
                             'utc_timestamp',
@@ -80,7 +79,7 @@ class ProcessLacakSegment extends Command
                         ->where('lokasi_kode', '!=', '')
                         ->where('is_segment',0)
                         ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '2023-05-01' and '2023-07-31'")
-                        ->limit(500)
+                        // ->limit(500)
                         ->get();
                         $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
                         foreach ($lokasi_kode_unit as $by_lokasi ) {
