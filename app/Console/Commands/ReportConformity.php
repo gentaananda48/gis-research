@@ -44,7 +44,7 @@ class ReportConformity extends Command
         DB::beginTransaction();
         try {
             // truncate table
-            DB::table('report_conformities_temp')->truncate();
+            DB::table('report_conformities')->truncate();
             DB::commit();
             // truncate
 
@@ -130,7 +130,7 @@ class ReportConformity extends Command
                     $data_bsc_first = $data_bsc->first();
                     $data_bsc_last = $data_bsc->latest()->first();
 
-                    DB::insert("INSERT INTO report_conformities_temp (
+                    DB::insert("INSERT INTO report_conformities (
                         tanggal, 
                         pg, 
                         wilayah, 
