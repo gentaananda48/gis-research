@@ -224,7 +224,7 @@ class HomeController extends Controller
         }
 
         // Calculate yesterday's date
-        $yesterday = date('Y-m-d', strtotime('-16 day'));
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
         $formattedYesterday = date('d F Y', strtotime($yesterday));
 
         // Card 1 total data aplikasi hari ini
