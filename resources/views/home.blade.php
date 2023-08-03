@@ -440,7 +440,7 @@
                 categories: <?php echo json_encode($categories); ?>,
                 labels: {
                         formatter: function (val) {
-                        return val
+                        return val.toFixed(2)
                         }
                     }
                 },
@@ -505,7 +505,7 @@
                     labels: {
                         style: {
                             colors: 'var(--semi-color)',
-                            fontSize: '20px',
+                            fontSize: '12px',
                         },
                     },
                 },
