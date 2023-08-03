@@ -99,26 +99,26 @@ class Kernel extends ConsoleKernel
         //     $this->pull_data_lacak();
         // })->everyMinute();
 
-        $schedule->command('process:lacak-segment BSC_01 2023-05-01 2023-07-31')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_02 2023-05-01 2023-07-31')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_03 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_04 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_05 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_06 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_07 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_08 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_09 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_10 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_11 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BSC_12 2023-05-01 2023-08-10')->everyMinute();
+        $schedule->command('process:lacak-segment BSC_01 2023-05-01 2023-07-31')->hourly();
+        $schedule->command('process:lacak-segment BSC_02 2023-05-01 2023-07-31')->hourly();
+        $schedule->command('process:lacak-segment BSC_03 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BSC_04 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BSC_05 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BSC_06 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BSC_07 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BSC_08 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BSC_09 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BSC_10 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BSC_11 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BSC_12 2023-05-01 2023-08-10')->hourly();
 
-        $schedule->command('process:lacak-segment BDF_01 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BDF_02 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BDF_05 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BDF_06 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BDF_06 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BDF_07 2023-05-01 2023-08-10')->everyMinute();
-        $schedule->command('process:lacak-segment BDF_08 2023-05-01 2023-08-10')->everyMinute();
+        $schedule->command('process:lacak-segment BDF_01 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BDF_02 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BDF_05 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BDF_06 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BDF_06 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BDF_07 2023-05-01 2023-08-10')->hourly();
+        $schedule->command('process:lacak-segment BDF_08 2023-05-01 2023-08-10')->hourly();
     }
 
     public function update_kualitas_rencana_kerja(){
