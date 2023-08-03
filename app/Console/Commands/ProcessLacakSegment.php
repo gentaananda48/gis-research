@@ -88,8 +88,8 @@ class ProcessLacakSegment extends Command
                             // cek lacak segment
                             $cekTable = DB::table($table_segment_label)
                             ->where('lacak_bsc_id',$by_lokasi->id)
-                            ->first();
-                            if ($cekTable) {
+                            ->count();
+                            if ($cekTable > 0) {
                                 DB::table($table_name)
                                 ->where('id',$by_lokasi->id)
                                 ->update([
