@@ -96,8 +96,7 @@ class ReportConformity extends Command
               INNER JOIN tb2 ON tb2.lokasi_kode = tb1.lokasi
               INNER JOIN tb3 ON tb3.kode = tb2.lokasi_kode
               where tb1.unit = tb2.unit_label    
-              and tb2.tgl = tb1.created_date 
-              and tb1.lokasi IN('075G','094F','092A','073A','118L','119I','119F')     
+              and tb2.tgl = tb1.created_date          
             "));
 
             if (count($data) > 0) {

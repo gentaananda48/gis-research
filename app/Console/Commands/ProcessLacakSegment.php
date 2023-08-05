@@ -78,8 +78,7 @@ class ProcessLacakSegment extends Command
                             'report_date',
                             'bearing'
                         )
-                        // ->where('lokasi_kode', '!=', '')
-                        ->whereIn('lokasi_kode',array('118L','119I','119F'))
+                        ->where('lokasi_kode', '!=', '')
                         ->where('is_segment',0)
                         ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '{$start_date_cron}' and '{$end_date_cron}'")
                         ->limit(300)
