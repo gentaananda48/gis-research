@@ -78,153 +78,156 @@ class ProcessLacakSegment extends Command
                             'report_date',
                             'bearing'
                         )
-                        ->where('lokasi_kode', '!=', '')
+                        // ->where('lokasi_kode', '!=', '')
+                        ->whereIn('lokasi_kode',array('118L','119I','119F'))
                         ->where('is_segment',0)
                         ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '{$start_date_cron}' and '{$end_date_cron}'")
                         ->limit(300)
                         ->get();
                         $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
-                        foreach ($lokasi_kode_unit as $by_lokasi ) {
-                            // cek lacak segment
-                            $cekTable = DB::table($table_segment_label)
-                            ->where('lacak_bsc_id',$by_lokasi->id)
-                            ->count();
-                            if ($cekTable > 0) {
-                                DB::table($table_name)
-                                ->where('id',$by_lokasi->id)
-                                ->update([
-                                    'is_segment' => true
-                                ]);
+                        if ($lokasi_kode_unit) {
+                            foreach ($lokasi_kode_unit as $by_lokasi ) {
+                                // cek lacak segment
+                                $cekTable = DB::table($table_segment_label)
+                                ->where('lacak_bsc_id',$by_lokasi->id)
+                                ->count();
+                                if ($cekTable > 0) {
+                                    DB::table($table_name)
+                                    ->where('id',$by_lokasi->id)
+                                    ->update([
+                                        'is_segment' => true
+                                    ]);
 
-                                DB::commit();
-                                continue;
-                            }
-
-                            // hitung luasan
-                            $left = 0;
-                            $right = 0;
-                            if ($by_lokasi->pump_switch_main == 1) {
-                                if ($by_lokasi->pump_switch_left == 1) {
-                                    $left = 18;
+                                    DB::commit();
+                                    continue;
                                 }
 
-                                if ($by_lokasi->pump_switch_right == 1) {
-                                    $right = 18;
-                                }
-                            }
-
-                            if ($by_lokasi->speed > 0.9) {
-                                $luasan =  ($by_lokasi->speed/3.6) * ($left + $right);
-                            }
-                            // end hitung luasan
-                            
-                            // hitung segment
-                            $segment_data = DB::table("{$table_segment_label}")->orderBy('id','desc')->first();
-                            if ($segment_data) {
-                                if ($segment_data->kode_lokasi == $by_lokasi->lokasi_kode) {
-                                    $final_segment = $iteration_segment;
-                                }else{
-                                    $iteration_segment = $iteration_segment + 1;
-                                    $final_segment = $iteration_segment;
-                                }
-                            }
-                            // end hitung segment
-
-                            // hitung overlapping
-                                $overlapping_route = 0;
-                                $overlapping_left = 0;
-                                $overlapping_right = 0;
-                                $dt = new \DateTime("@$by_lokasi->utc_timestamp");
-                                $start_date = $dt->format('Y-m-d')." 00:00:00";
-                                $end_date = $dt->format('Y-m-d H:i:s');
-                                $new_date = $dt->format('Y-m-d');
-                                
-                            // end hitung overlapping
-                            // Convert epoch timestamp to DateTime object using Carbon
-                            $dateTime = \Carbon\Carbon::createFromTimestamp($by_lokasi->utc_timestamp);
-
-                            // You can format the DateTime object as per your requirements
-                            $formattedDateTime = $dateTime->format('Y-m-d H:i:s');
-                            DB::insert("INSERT INTO {$table_segment_label} (
-                                lacak_bsc_id, 
-                                kode_lokasi, 
-                                segment, 
-                                overlapping_route, 
-                                overlapping_left, 
-                                overlapping_right,
-                                luasan_m2, 
-                                created_at,
-                                report_date) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)", [
-                                $by_lokasi->id,
-                                $by_lokasi->lokasi_kode,
-                                $final_segment,
-                                $overlapping_route, 
-                                $overlapping_left,
-                                $overlapping_right,
-                                round($luasan,2),
-                                $formattedDateTime,
-                                $by_lokasi->report_date
-                            ]);
-
-                            DB::table($table_name)
-                                ->where('id',$by_lokasi->id)
-                                ->update([
-                                    'is_segment' => true
-                                ]);
-
-                            DB::commit();
-
-                            $idSegment = DB::table($table_segment_label)
-                            ->where('lacak_bsc_id',$by_lokasi->id)
-                            ->first();
-
-                            $startID = $idSegment->id - 11;
-                            
-                            if (0 > $startID) {
-                                continue;
-                            }
-
-                            $getDataBsc = array();
-                            if ($by_lokasi->speed > 0.9) {
-                                $getSegment = DB::table($table_segment_label)
-                                ->whereBetween('id',array(1,$startID))
-                                ->where('kode_lokasi',$by_lokasi->lokasi_kode)
-                                ->where('report_date',$by_lokasi->report_date)
-                                ->pluck('lacak_bsc_id');
-
-                                $geofenceHelper = new GeofenceHelper;
-                                $getDataBsc = DB::table($table_name)
-                                ->select('latitude','longitude')
-                                ->where('speed','>',0.9)
-                                ->whereIn('id',$getSegment)
-                                ->get()
-                                ->toArray();
-                            }
-                            
-                            
-                            if ($getDataBsc) {
+                                // hitung luasan
                                 $left = 0;
                                 $right = 0;
-                                $overlapping = $geofenceHelper->calculateOverlap($by_lokasi->latitude, $by_lokasi->longitude, $getDataBsc);
-                                // cek kondisi wing main
-                                if ($overlapping  == 1 && $by_lokasi->pump_switch_main  == 1) {
-                                   $left = $by_lokasi->bearing > 90 ? ($by_lokasi->pump_switch_right == null ? 0:$by_lokasi->pump_switch_right) :($by_lokasi->pump_switch_left == null ? 0:$by_lokasi->pump_switch_left);
-                                   $right = $by_lokasi->bearing > 90 ? ($by_lokasi->pump_switch_left == null ? 0:$by_lokasi->pump_switch_left):($by_lokasi->pump_switch_right == null ? 0:$by_lokasi->pump_switch_right);
-                                }
-                                // end cek kondisi
+                                if ($by_lokasi->pump_switch_main == 1) {
+                                    if ($by_lokasi->pump_switch_left == 1) {
+                                        $left = 18;
+                                    }
 
-                                DB::table($table_segment_label)
-                                ->where('lacak_bsc_id',$by_lokasi->id)
-                                ->update([
-                                    'overlapping_route' => $overlapping,
-                                    'overlapping_left' => $left,
-                                    'overlapping_right' => $right
+                                    if ($by_lokasi->pump_switch_right == 1) {
+                                        $right = 18;
+                                    }
+                                }
+
+                                if ($by_lokasi->speed > 0.9) {
+                                    $luasan =  ($by_lokasi->speed/3.6) * ($left + $right);
+                                }
+                                // end hitung luasan
+                                
+                                // hitung segment
+                                $segment_data = DB::table("{$table_segment_label}")->orderBy('id','desc')->first();
+                                if ($segment_data) {
+                                    if ($segment_data->kode_lokasi == $by_lokasi->lokasi_kode) {
+                                        $final_segment = $iteration_segment;
+                                    }else{
+                                        $iteration_segment = $iteration_segment + 1;
+                                        $final_segment = $iteration_segment;
+                                    }
+                                }
+                                // end hitung segment
+
+                                // hitung overlapping
+                                    $overlapping_route = 0;
+                                    $overlapping_left = 0;
+                                    $overlapping_right = 0;
+                                    $dt = new \DateTime("@$by_lokasi->utc_timestamp");
+                                    $start_date = $dt->format('Y-m-d')." 00:00:00";
+                                    $end_date = $dt->format('Y-m-d H:i:s');
+                                    $new_date = $dt->format('Y-m-d');
+                                    
+                                // end hitung overlapping
+                                // Convert epoch timestamp to DateTime object using Carbon
+                                $dateTime = \Carbon\Carbon::createFromTimestamp($by_lokasi->utc_timestamp);
+
+                                // You can format the DateTime object as per your requirements
+                                $formattedDateTime = $dateTime->format('Y-m-d H:i:s');
+                                DB::insert("INSERT INTO {$table_segment_label} (
+                                    lacak_bsc_id, 
+                                    kode_lokasi, 
+                                    segment, 
+                                    overlapping_route, 
+                                    overlapping_left, 
+                                    overlapping_right,
+                                    luasan_m2, 
+                                    created_at,
+                                    report_date) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)", [
+                                    $by_lokasi->id,
+                                    $by_lokasi->lokasi_kode,
+                                    $final_segment,
+                                    $overlapping_route, 
+                                    $overlapping_left,
+                                    $overlapping_right,
+                                    round($luasan,2),
+                                    $formattedDateTime,
+                                    $by_lokasi->report_date
                                 ]);
 
+                                DB::table($table_name)
+                                    ->where('id',$by_lokasi->id)
+                                    ->update([
+                                        'is_segment' => true
+                                    ]);
+
                                 DB::commit();
+
+                                $idSegment = DB::table($table_segment_label)
+                                ->where('lacak_bsc_id',$by_lokasi->id)
+                                ->first();
+
+                                $startID = $idSegment->id - 11;
+                                
+                                if (0 > $startID) {
+                                    continue;
+                                }
+
+                                $getDataBsc = array();
+                                if ($by_lokasi->speed > 0.9) {
+                                    $getSegment = DB::table($table_segment_label)
+                                    ->whereBetween('id',array(1,$startID))
+                                    ->where('kode_lokasi',$by_lokasi->lokasi_kode)
+                                    ->where('report_date',$by_lokasi->report_date)
+                                    ->pluck('lacak_bsc_id');
+
+                                    $geofenceHelper = new GeofenceHelper;
+                                    $getDataBsc = DB::table($table_name)
+                                    ->select('latitude','longitude')
+                                    ->where('speed','>',0.9)
+                                    ->whereIn('id',$getSegment)
+                                    ->get()
+                                    ->toArray();
+                                }
+                                
+                                
+                                if ($getDataBsc) {
+                                    $left = 0;
+                                    $right = 0;
+                                    $overlapping = $geofenceHelper->calculateOverlap($by_lokasi->latitude, $by_lokasi->longitude, $getDataBsc);
+                                    // cek kondisi wing main
+                                    if ($overlapping  == 1 && $by_lokasi->pump_switch_main  == 1) {
+                                    $left = $by_lokasi->bearing > 90 ? ($by_lokasi->pump_switch_right == null ? 0:$by_lokasi->pump_switch_right) :($by_lokasi->pump_switch_left == null ? 0:$by_lokasi->pump_switch_left);
+                                    $right = $by_lokasi->bearing > 90 ? ($by_lokasi->pump_switch_left == null ? 0:$by_lokasi->pump_switch_left):($by_lokasi->pump_switch_right == null ? 0:$by_lokasi->pump_switch_right);
+                                    }
+                                    // end cek kondisi
+
+                                    DB::table($table_segment_label)
+                                    ->where('lacak_bsc_id',$by_lokasi->id)
+                                    ->update([
+                                        'overlapping_route' => $overlapping,
+                                        'overlapping_left' => $left,
+                                        'overlapping_right' => $right
+                                    ]);
+
+                                    DB::commit();
+                                }
+                                // end overlapping
+                                $this->info(now().' - Success inputing data to table segment: '.$table_segment_label);
                             }
-                            // end overlapping
-                            $this->info(now().' - Success inputing data to table segment: '.$table_segment_label);
                         }
             // }
             // end unit loop

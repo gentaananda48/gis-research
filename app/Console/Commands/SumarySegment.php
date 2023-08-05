@@ -58,13 +58,12 @@ class SumarySegment extends Command
                     FROM {$table_name}
                     ),
                     tb1 AS (
-                    SELECT *
-                    FROM {$table_segment_label}
+                        select * from {$table_segment_label}
+                        where id in (select MIN(id) from {$table_segment_label} GROUP BY lacak_bsc_id)
                     ),
                     tb2 AS (
                         SELECT *
                         FROM rencana_kerja
-                        where unit_label = '{$source_device_id}'
                         ),
                         tb3 AS (
                         SELECT *
@@ -106,8 +105,8 @@ class SumarySegment extends Command
                         MAX(kode_lokasi) as kode_lokasi,
 						MAX(tb1.created_at) as created_date,
                         ROUND(SUM(tb1.luasan_m2),2) as total_luasan,
-                        ROUND(SUM(CASE WHEN tb1.overlapping_route < 1 THEN tb1.luasan_m2 ELSE 0 END),2) AS total_spraying,
-                        ROUND(Sum(CASE WHEN tb1.overlapping_route > 0 THEN tb1.luasan_m2 ELSE 0 END),2) AS total_overlaping,
+                        ROUND(SUM(CASE WHEN tb1.overlapping_route = 0 THEN tb1.luasan_m2 ELSE 0 END),2) AS total_spraying,
+                        ROUND(Sum(CASE WHEN tb1.overlapping_route = 1 THEN tb1.luasan_m2 ELSE 0 END),2) AS total_overlaping,
                         count(tb1.id) as total_data_point,
                         AVG(tb0.speed) as av_speed,
                         AVG(tb0.arm_height_left) as av_wing_left,
@@ -151,7 +150,11 @@ class SumarySegment extends Command
 
                 if (count($data) > 0) {
                     foreach ($data as $key => $value) {
-
+                        if ($value->unit_label == 'BDM - 01') {
+                            $unit = 'BDF - 07';
+                        }else{
+                            $unit = $value->unit_label;
+                        }
                         DB::insert("INSERT INTO summary_segments (
                             unit, 
                             segment, 
@@ -182,7 +185,7 @@ class SumarySegment extends Command
                             suhu_standar,
                             suhu_tidak_standar
                             ) VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
-                            [$value->unit_label,
+                            [$unit,
                             $value->segment,
                             $value->kode_lokasi,
                             $value->total_luasan,
