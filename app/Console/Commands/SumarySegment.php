@@ -145,7 +145,7 @@ class SumarySegment extends Command
                         and tb2.tgl = DATE(tb1.created_at)
                         and tb0.speed > 0.9
                         and tb3.volume_id = tb2.volume_id
-                        GROUP BY tb1.segment,DATE(tb1.created_at)
+                        GROUP BY tb1.segment,DATE(tb1.created_at),kode_lokasi
                 "));
 
                 if (count($data) > 0) {
