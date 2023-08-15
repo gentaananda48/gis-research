@@ -196,10 +196,10 @@ class SumarySegment extends Command
                             $value->speed_under_standard,
                             $value->speed_standard,
                             $value->speed_upper_standard,
-                            $value->av_wing_left,
-                            $value->wing_left_under_standard,
-                            $value->wing_left_standard,
-                            $value->wing_left_upper_standard,
+                            $value->av_wing_left ? $value->av_wing_left:0,
+                            $value->wing_left_under_standard ? $value->wing_left_under_standard:0,
+                            $value->wing_left_standard ? $value->wing_left_standard:0,
+                            $value->wing_left_upper_standard ? $value->wing_left_upper_standard:0,
                             $value->av_wing_right,
                             $value->wing_right_under_standard,
                             $value->wing_right_standard,
@@ -217,7 +217,7 @@ class SumarySegment extends Command
                         );
 
                         DB::commit();
-                        $this->info(now().' - Success inputing data to table summary segment');
+                        $this->info(now().' - Lokasi: '.$value->kode_lokasi.' Success inputing data to table summary segment');
                     }
                 }else {
                     $this->info('data tidak ada');
