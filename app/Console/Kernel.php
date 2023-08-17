@@ -52,7 +52,8 @@ class Kernel extends ConsoleKernel
         Commands\DataPercentage::class,
         Commands\ResetLacakSegment::class,
         Commands\RerunSaveJsonFile::class,
-        // Commands\GenerateRencanaKerjaReport::class,
+        Commands\GenerateRencanaKerjaReport::class,
+        Commands\UpdateKualitasRencanaKerja::class,
     ];
 
     /**
@@ -73,10 +74,10 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             //$this->generate_rencana_kerja_summary();
             $this->generate_rencana_kerja_report();
-        })->everyMinute();
+        })->everyFifteenMinutes();
         $schedule->call(function () {
             $this->update_kualitas_rencana_kerja();
-        })->everyMinute();
+        })->hourly();
 
         // cron for summary and delete data old in archive
         // $schedule->command('summary:report')->hourly();

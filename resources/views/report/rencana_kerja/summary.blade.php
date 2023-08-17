@@ -15,14 +15,28 @@
 
 	<section class="content container-fluid">
 		<div class="row">
+        <div class="col-md-12">
+            <div class="box box-success">
+                <div class="box-body">
+				    <div id="map" style="width: 100%; height: 500px;"></div>
+                    <div style="padding-bottom: 1rem; display:flex; justify-content: star; align-items:center">
+                        <div style="display: flex;">
+                            <small style="display: flex;margin-top: 10px;"><span class="label label-default map-wing-on" style="background-color: #00FF00;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Sayap On Kanan & Kiri</small> &nbsp;
+                            <small style="display: flex;margin-top: 10px;"><span class="label label-default map-right-on" style="background-color: #FFA500;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Sayap On Kanan</small> &nbsp;
+                            <small style="display: flex;margin-top: 10px;"><span class="label label-default map-left-on" style="background-color: #FFFF00;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Sayap On Kiri</small>
+                            <small style="display: flex;margin-top: 10px;"><span class="label label-default map-wing-off" style="background-color: #FF0000;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Sayap OFF Kanan & Kiri</small>
+                            <small style="display: flex;margin-top: 10px;"><span class="label label-default map-overlapping" style="background-color: #00bbf0;width: 100px;height: 5px;margin: 5px;">&nbsp;</span> Overlapping</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+		
+		<div class="row">
 			<div class="col-md-12">
 				<div class="box box-success">
 					<div class="box-body">
-						<div class="box box-default box-solid">
-				        	<div class="box-body">
-				       		 	<div id="map" style="width: 100%; height: 500px;"></div>
-				        	</div>
-				        </div>
 						<div class="box box-default box-solid">
 							<div class="box-body">
 								<table class="table">
@@ -264,16 +278,54 @@
 	var marker;
 	var poly;
 	var lacak = {!! $list_lacak !!};
-	var timestamp_jam_mulai = {!! $timestamp_jam_mulai !!};
-	var timestamp_jam_selesai = {!! $timestamp_jam_selesai !!};
+	var lokasi = {!! $list_lokasi !!};
+	var timestamp_jam_mulai = "{!! $timestamp_jam_mulai ? $timestamp_jam_mulai:'-' !!}";
+	var timestamp_jam_selesai = "{!! $timestamp_jam_selesai ? $timestamp_jam_selesai:'-' !!}";
 	var i = 0;
 
 	function initMap() {
 		map = new google.maps.Map(document.getElementById("map"), {
 		    zoom: 17,
-		    center: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
+		    center: {lng: lokasi[0]['koordinat'][0]['lng'], lat: lokasi[0]['koordinat'][0]['lat']},
 		    mapTypeId: "satellite",
 		});
+
+        // overlapping
+        // var overlapping = {!! $list_overlapping !!};
+        // map2 = new google.maps.Map(document.getElementById("map2"), {
+		//     zoom: 17,
+		//     center: {lng: lokasi[0]['koordinat'][0]['lng'], lat: lokasi[0]['koordinat'][0]['lat']},
+		//     mapTypeId: "satellite",
+		// });
+        // var infowindow = new google.maps.InfoWindow();
+
+        // var marker2;
+
+        // for (var i = 0, len = overlapping.length; i < len; i += 1) {  
+        //     marker2 = new google.maps.Marker({
+        //         position: new google.maps.LatLng(overlapping[i].position_latitude, overlapping[i].position_longitude),
+        //         map: map2
+        //     });
+            
+        //     google.maps.event.addListener(marker2, 'click', (function(marker2, i) {
+        //         return function() {
+        //         infowindow.setContent(overlapping[i].position_latitude+'<br>'+overlapping[i].position_longitude);
+        //         infowindow.open(map, marker2);
+        //         }
+        //     })(marker2, i));
+        //     var position = new google.maps.LatLng(overlapping[i].position_latitude, overlapping[i].position_longitude);
+        //     const overlappingPath = new google.maps.Polyline({
+        //         path: [new google.maps.LatLng(overlapping[i].position_latitude, overlapping[i].position_longitude), position],
+        //         geodesic: true,
+        //         strokeColor: "#FF0000",
+        //         strokeOpacity: 1.0,
+        //         strokeWeight: 2,
+        //     });
+
+        //     overlappingPath.setMap(map2);
+
+        // }
+        // overlapping
 
 		google.maps.Polygon.prototype.my_getBounds=function(){
 		    var bounds = new google.maps.LatLngBounds()
@@ -281,22 +333,24 @@
 		    return bounds
 		}
 
-		marker = new google.maps.Marker({
-		    position: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
-		    //label: 'TEST',
-		    map: map,
-		    //animation: google.maps.Animation.DROP,
-		    icon: {
-		        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-		        fillColor: '#04F8E5',
-			    fillOpacity: 1,
-			    strokeWeight: 1,
-		        strokeColor: '#04F8E5',
-			    scale: 5,
-		        rotation: lacak[0].position_direction,
-		        anchor: new google.maps.Point(0, 5),
-		    }
-		});
+        if (lacak.length > 0) {
+            marker = new google.maps.Marker({
+                position: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
+                //label: 'TEST',
+                map: map,
+                //animation: google.maps.Animation.DROP,
+                icon: {
+                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                    fillColor: '#04F8E5',
+                    fillOpacity: 1,
+                    strokeWeight: 1,
+                    strokeColor: '#04F8E5',
+                    scale: 5,
+                    rotation: lacak[0].position_direction,
+                    anchor: new google.maps.Point(0, 5),
+                }
+            });   
+        }
 
 		var list_lokasi = {!! $list_lokasi !!} || []
 	  	list_lokasi.forEach(function(lokasi) {
@@ -314,41 +368,98 @@
 		  	polygon.setMap(map);
 		  	map.setCenter(polygon.my_getBounds().getCenter());
 		});
-		for (var i = 0, len = lacak.length; i < len; i += 1) {
-			if(timestamp_jam_mulai > lacak[i].timestamp || lacak[i].timestamp > timestamp_jam_selesai) {
-				continue;
-			}
-		    var icon = marker.getIcon();
-			icon.rotation = lacak[i].position_direction;
-	    	marker.setIcon(icon);
-	    	var position = new google.maps.LatLng(lacak[i].position_latitude, lacak[i].position_longitude);
-			marker.setPosition(position);
-			if(i>0){
-				if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
-					var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#00FF00" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#FFA500" : "#FFFF00";
-					var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
-					var poly = new google.maps.Polyline({
-					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
-					    geodesic: true,
-					    strokeColor: strokeColor,
-					    strokeOpacity: 0.5,
-					    strokeWeight: strokeWeight,
-			    		zIndex: 999999,
-					});
-			    	poly.setMap(map);
-				} else {
-					var poly = new google.maps.Polyline({
-					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
-					    geodesic: true,
-					    strokeColor: "#FF0000",
-					    strokeOpacity: 0.5,
-					    strokeWeight: 3,
-			    		zIndex: 999999,
-					});
-			    	poly.setMap(map);
-				}
-			}
-		}
+        if (lacak.length > 0) {
+            for (var i = 0, len = lacak.length; i < len; i += 1) {
+                // if(timestamp_jam_mulai > lacak[i].timestamp || lacak[i].timestamp > timestamp_jam_selesai) {
+                //     continue;
+                // }
+                var icon = marker.getIcon();
+                icon.rotation = lacak[i].position_direction;
+                marker.setIcon(icon);
+                var position = new google.maps.LatLng(lacak[i].position_latitude, lacak[i].position_longitude);
+                // var position2 = new google.maps.LatLng(overlapping[i].position_latitude, overlapping[i].position_longitude);
+                marker.setPosition(position);
+                // marker.setPosition(position2);
+                if(i>0){
+                        // const overlappingPath = new google.maps.Polyline({
+                        //     path: [new google.maps.LatLng(overlapping[i-1].position_latitude, overlapping[i-1].position_longitude), position],
+                        //     geodesic: true,
+                        //     strokeColor: "#f70776",
+                        //     strokeOpacity: 0.3,
+                        //     strokeWeight: 7,
+                        //     zIndex: 999999
+                        // });
+
+                        // overlappingPath.setMap(map);
+                        if (lacak[i-1].is_overlapping == 1) {
+                            // var poly = new google.maps.Polyline({
+                            //     path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+                            //     geodesic: true,
+                            //     strokeColor: "#00bbf0",
+                            //     strokeOpacity: 0.3,
+                            //     strokeWeight: 7,
+                            //     zIndex: 999999,
+                            // });
+                            // poly.setMap(map);
+                            new google.maps.Circle({
+                                strokeColor: '#00bbf0',
+                                strokeOpacity: 0.9,
+                                strokeWeight: 7,
+                                fillColor: '#00bbf0',
+                                fillOpacity: 0.9,
+                                map,
+                                center: { lat: lacak[i-1].position_latitude, lng: lacak[i-1].position_longitude },
+                                radius: 1,
+                                zIndex: 999999
+                            });
+                        } else if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
+                            var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#00FF00" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#FFA500" : "#FFFF00";
+                            var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
+                            // var poly = new google.maps.Polyline({
+                            //     path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+                            //     geodesic: true,
+                            //     strokeColor: strokeColor,
+                            //     strokeOpacity: 0.5,
+                            //     strokeWeight: strokeWeight,
+                            //     zIndex: 99999,
+                            // });
+                            // poly.setMap(map);
+                            new google.maps.Circle({
+                                strokeColor: strokeColor,
+                                strokeOpacity: 0.5,
+                                strokeWeight: strokeWeight,
+                                fillColor: strokeColor,
+                                fillOpacity: 0.35,
+                                map,
+                                center: { lat: lacak[i-1].position_latitude, lng: lacak[i-1].position_longitude },
+                                radius: 0.3,
+                                zIndex: 99999
+                            });
+                        } else {
+                            // var poly = new google.maps.Polyline({
+                            //     path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+                            //     geodesic: true,
+                            //     strokeColor: "#FF0000",
+                            //     strokeOpacity: 0.5,
+                            //     strokeWeight: 3,
+                            //     zIndex: 99999,
+                            // });
+                            // poly.setMap(map);
+                            new google.maps.Circle({
+                                strokeColor: '#FF0000',
+                                strokeOpacity: 0.5,
+                                strokeWeight: 3,
+                                fillColor: '#FF0000',
+                                fillOpacity: 0.35,
+                                map,
+                                center: { lat: lacak[i-1].position_latitude, lng: lacak[i-1].position_longitude },
+                                radius: 0.3,
+                                zIndex: 99999
+                            });
+                        }
+                    }
+            }   
+        }
 	}
 </script>
  <!-- Async script executes immediately and must be after any DOM elements used in callback. -->

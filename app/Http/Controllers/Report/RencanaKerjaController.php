@@ -154,18 +154,9 @@ class RencanaKerjaController extends Controller {
         $jam_mulai = $rk->jam_mulai;
         $jam_selesai = $rk->jam_selesai;
         $unit = Unit::find($rk->unit_id);
-        // $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT';
-        // $cached = Redis::get($cache_key);
-        // $list_koordinat_lokasi = [];
-        // if(isset($cached)) {
-        //     $list_koordinat_lokasi = json_decode($cached, FALSE);
-        // } else {
-        //     $list_koordinat_lokasi = KoordinatLokasi::orderBy('lokasi', 'ASC')
-        //         ->orderBy('bagian', 'ASC')
-        //         ->orderBy('posnr', 'ASC')
-        //         ->get();
-        //     Redis::set($cache_key, json_encode($list_koordinat_lokasi));
-        // }
+        
+        $list_rk = array();
+        $header = [];
 
         $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT_'.$rk->lokasi_kode;
         $cached = Redis::get($cache_key);
@@ -219,41 +210,50 @@ class RencanaKerjaController extends Controller {
             $cache_key = $cache_key.'_'.$tgl;
         }
         $cached = Redis::get($cache_key);
-        $list_lacak = [];
-        if(isset($cached)) {
-            $list_lacak = json_decode($cached, FALSE);
-        } else {
-            $timestamp_1 = strtotime($rk->tgl.' 00:00:00');
-            $timestamp_2 = $rk->tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($rk->tgl.' 23:59:59');
-            //
-            if(in_array($rk->unit_source_device_id, $offline_units)){
-                $table_name = 'lacak_'.$rk->unit_source_device_id;
-                $list_lacak = DB::table($table_name)
-                    ->where('report_date', $tgl)
-                    //->where('utc_timestamp', '>=', $timestamp_1)
-                    //->where('utc_timestamp', '<=', $timestamp_2)
-                    ->orderBy('utc_timestamp', 'ASC')
-                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
-                    ->get();
-            } else {
-                if($rk->tgl>='2022-03-15') {
-                    $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
-                        ->where('timestamp', '>=', $timestamp_1)
-                        ->where('timestamp', '<=', $timestamp_2)
-                        ->orderBy('timestamp', 'ASC')
-                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
-                } else {
-                    $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
-                        ->where('timestamp', '>=', $timestamp_1)
-                        ->where('timestamp', '<=', $timestamp_2)
-                        ->orderBy('timestamp', 'ASC')
-                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
-                }
+
+        //get data map 
+        $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($rk->unit_label)));
+        $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
+        $data_bsc = DB::table($table_name)
+        ->select($table_name.'.*',$table_segment_label.".overlapping_route")
+        ->leftJoin($table_segment_label,$table_segment_label.'.lacak_bsc_id','=',$table_name.'.id')
+        ->where('lokasi_kode',$rk->lokasi_kode)
+        ->where($table_name.'.report_date',$rk->tgl)
+        ->where('speed','>',0.9)
+        ->get();
+        $lacak_bsc = array();
+
+        // $new_date['date'] = "";
+        // $new_date['jam_mulai'] = "";
+        // $new_date['jam_akhir'] = "";
+
+        if ($data_bsc) {
+            $loop = 0;
+            $luasan = 0;
+            foreach ($data_bsc as $key => $value) {
+                $lacak_bsc[$key]['is_overlapping'] = $value->overlapping_route == "1" ? 1:0;
+                $lacak_bsc[$key]['position_latitude'] = $value->latitude;
+                $lacak_bsc[$key]['position_longitude'] = $value->longitude;
+                $lacak_bsc[$key]['position_altitude'] = $value->altitude;
+                $lacak_bsc[$key]['position_direction'] = $value->bearing;
+                $lacak_bsc[$key]['position_speed'] = $value->speed;
+                $lacak_bsc[$key]['pump_switch_right'] = $value->pump_switch_right;
+                $lacak_bsc[$key]['pump_switch_left'] = $value->pump_switch_left;
+                $lacak_bsc[$key]['pump_switch_main'] = $value->pump_switch_main;
+                $lacak_bsc[$key]['arm_height_right'] = $value->arm_height_right;
+                $lacak_bsc[$key]['arm_height_left'] = $value->arm_height_left;
+                $lacak_bsc[$key]['timestamp'] = $value->utc_timestamp;
+                
             }
-            //
-            Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
+
+            // $new_date['date'] = date('Y-m-d', $data_bsc->first()->utc_timestamp);
+            // $new_date['jam_mulai'] = date('H:i:s',$data_bsc->first()->utc_timestamp);
+            // $new_date['jam_akhir'] = date('H:i:s',$data_bsc->last()->utc_timestamp);
         }
 
+        $lacak_overlapping = array();
+        $list_rk = '{}';
+        
          // ADJUSTMENT CODE SUMMARY FROM REDIS
         $cacheKey = env('APP_CODE') . ':RK_SUMMARY_' . $rk->id;
         $summary = Redis::get($cacheKey);
@@ -380,7 +380,9 @@ class RencanaKerjaController extends Controller {
             'summary'       => $summary,
             'timestamp_jam_mulai'   => strtotime($jam_mulai),
             'timestamp_jam_selesai' => strtotime($jam_selesai),
-            'list_lacak'    => json_encode($list_lacak),
+            'list_overlapping'    => json_encode($lacak_overlapping),
+            'list_rk' => json_decode($list_rk),
+            'list_lacak'    => json_encode($lacak_bsc),
             'list_lokasi'   => json_encode($list_lokasi),
             'list_percentage'   => $list_percentage
         ]);

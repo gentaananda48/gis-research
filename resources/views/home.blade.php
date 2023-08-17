@@ -532,7 +532,6 @@
                 },
                 dataLabels: {
                     enabled: true,
-                    offsetX: -6,
                     style: {
                         fontSize: '30px',
                         colors: ['#fff']
