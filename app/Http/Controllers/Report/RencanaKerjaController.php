@@ -254,66 +254,55 @@ class RencanaKerjaController extends Controller {
         $lacak_overlapping = array();
         $list_rk = '{}';
         
-         // ADJUSTMENT CODE SUMMARY FROM REDIS
+        // retrieve data for ritase
         $cacheKey = env('APP_CODE') . ':RK_SUMMARY_' . $rk->id;
         $summary = Redis::get($cacheKey);
 
-        if ($summary === null) {
-        // Data not found in Redis, retrieve from the database
-        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
-        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
-        $header = [];
-        $rata2 = [];
-        $poin = [];
-        $kualitas = '-';
+        if ($summary === null || $summary === '{"header":[],"ritase":[],"rata2":[],"poin":[],"kualitas":"-"}') {
+            // Data not found in Redis or empty format found, retrieve from the database
+            $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
+            $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
+            $header = [];
+            $rata2 = [];
+            $poin = [];
+            $kualitas = '-';
 
-        foreach ($list_rks as $rks) {
-            if ($rks->ritase == 999) {
-                $header[$rks->parameter_id] = $rks->parameter_nama;
-                $rata2[$rks->parameter_id] = $rks->parameter_id != 2 ? number_format($rks->realisasi, 2) : $rks->realisasi;
-                $poin[$rks->parameter_id] = $rks->nilai_bobot;
-            } else if ($rks->ritase == 999999) {
-                $poin[999] = $rks->nilai_bobot;
-                $kualitas = $rks->kualitas;
+            foreach ($list_rks as $rks) {
+                if ($rks->ritase == 999) {
+                    $header[$rks->parameter_id] = $rks->parameter_nama;
+                    $rata2[$rks->parameter_id] = $rks->parameter_id != 2 ? number_format($rks->realisasi, 2) : $rks->realisasi;
+                    $poin[$rks->parameter_id] = $rks->nilai_bobot;
+                } else if ($rks->ritase == 999999) {
+                    $poin[999] = $rks->nilai_bobot;
+                    $kualitas = $rks->kualitas;
+                }
             }
-        }
 
-        $summary = (object) [
-            'header' => $header,
-            'ritase' => $list_rrk,
-            'rata2' => $rata2,
-            'poin' => $poin,
-            'kualitas' => $kualitas,
-        ];
+            $summary = (object) [
+                'header' => $header,
+                'ritase' => $list_rrk,
+                'rata2' => $rata2,
+                'poin' => $poin,
+                'kualitas' => $kualitas,
+            ];
 
-        // Store the retrieved data in Redis
-        Redis::set($cacheKey, json_encode($summary), 'EX', 2592000);
+            // Store the retrieved data in Redis
+            Redis::set($cacheKey, json_encode($summary), 'EX', 2592000);
         } else {
-            // Data found in Redis, retrieve it
+            // Data found in Redis, retrieve and process it
             $decodedSummary = json_decode($summary, true);
 
             if ($decodedSummary !== null) {
                 // Decoding was successful
                 $summary = (object) $decodedSummary;
-                // Access the properties
                 $header = $summary->header;
                 $ritase = $summary->ritase;
-
-                // Proceed with rendering the view or any other necessary operations
-                // ...
             } else {
-                // Decoding failed, handle the error
-                // ...
+                Log::error('Error decoding cached summary data.');
             }
         }
 
-        // Store the retrieved data in the database table
-        // Replace 'YourModel' with the appropriate model for your table
-        // $yourModel = YourModel::where('rk_id', $rk->id)->first();
-        // if ($yourModel) {
-        //     $yourModel->summary = json_encode($summary);
-        //     $yourModel->save();
-        // }
+        // get data list percentage
         $cache_key = env('APP_CODE') . ':REPORT_PERCENTAGE_RITASE_' . $id;
 
         $cached_data = Redis::get($cache_key);
