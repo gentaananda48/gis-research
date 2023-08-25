@@ -89,7 +89,7 @@
 		});
 
 		marker = new google.maps.Marker({
-		    position: {lng: lacak[0].position_longitude, lat: lacak[0].position_latitude},
+		    position: {lng: lacak[0].longitude, lat: lacak[0].latitude},
 		    //label: 'TEST',
 		    map: map,
 		    //animation: google.maps.Animation.DROP,
@@ -100,7 +100,7 @@
 			    strokeWeight: 1,
 		        strokeColor: '#04F8E5',
 			    scale: 5,
-		        rotation: lacak[0].position_direction,
+		        rotation: lacak[0].bearing,
 		        anchor: new google.maps.Point(0, 5),
 		    }
 		});
@@ -140,20 +140,20 @@
 		});
 		async function taskUpdateLocation(i) { // 3
 	  		var icon = marker.getIcon();
-			icon.rotation = lacak[i].position_direction;
+			icon.rotation = lacak[i].bearing;
 	    	marker.setIcon(icon);
-	    	var position = new google.maps.LatLng(lacak[i].position_latitude, lacak[i].position_longitude);
+	    	var position = new google.maps.LatLng(lacak[i].latitude, lacak[i].longitude);
 			marker.setPosition(position);
 			map.setCenter(position);
 			// POLYLINE
 			// var path = poly.getPath();
 			// path.push(position);
 			if(i>0){
-				if(lacak[i-1].din_3 == 1 && (lacak[i-1].din_1==1 || lacak[i-1].din_2==1)) {
-					var strokeColor = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? "#0CF704" : lacak[i-1].din_1==1 && lacak[i-1].din_2==0 ? "#F0FF01" : "#05FAE4";
-					var strokeWeight = lacak[i-1].din_1==1 && lacak[i-1].din_2==1 ? 12 : 7;
+				if(lacak[i-1].pump_switch_main == 1 && (lacak[i-1].pump_switch_right==1 || lacak[i-1].pump_switch_left==1)) {
+					var strokeColor = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? "#0CF704" : lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==0 ? "#F0FF01" : "#05FAE4";
+					var strokeWeight = lacak[i-1].pump_switch_right==1 && lacak[i-1].pump_switch_left==1 ? 12 : 7;
 					poly = new google.maps.Polyline({
-					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+					    path: [new google.maps.LatLng(lacak[i-1].latitude, lacak[i-1].longitude), position],
 					    geodesic: true,
 					    strokeColor: strokeColor,
 					    strokeOpacity: 1.0,
@@ -162,7 +162,7 @@
 			    	poly.setMap(map);
 				} else {
 					poly = new google.maps.Polyline({
-					    path: [new google.maps.LatLng(lacak[i-1].position_latitude, lacak[i-1].position_longitude), position],
+					    path: [new google.maps.LatLng(lacak[i-1].latitude, lacak[i-1].longitude), position],
 					    geodesic: true,
 					    strokeColor: "#FF0000",
 					    strokeOpacity: 1.0,
