@@ -214,17 +214,21 @@ class UnitController extends Controller {
 
     public function track_json(Request $request, $id) {
         $unit = Unit::find($id);
-        $lacak = Lacak2::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first(['position_latitude','position_longitude','movement_status','gsm_signal_level','position_altitude','position_direction','position_speed','din_2','din_3']);
-        $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
-        $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
-        $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
-        $unit->movement_status_desc     = !empty($unit->movement_status) ? 'moving': 'stopped';
-        $unit->gsm_signal_level         = $lacak != null ? $lacak->gsm_signal_level : 0;
-        $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
-        $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
-        $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
-        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
-        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_3) ? 'On' : 'Off';
+        $table_name = 'lacak_'. $unit->source_device_id;
+        $lacak = \DB::table($table_name)
+        ->orderBy('utc_timestamp', 'DESC')
+        ->limit(1)
+        ->first();
+        $unit->position_latitude        = $lacak != null ? $lacak->latitude : 0;
+        $unit->position_longitude       = $lacak != null ? $lacak->longitude : 0;
+        // $unit->movement_status          = 0;
+        $unit->movement_status_desc     = !empty($unit->speed) ? 'moving': 'stopped';
+        // $unit->gsm_signal_level         = 0;
+        $unit->position_altitude        = $lacak != null ? $lacak->altitude : 0;
+        $unit->position_direction       = $lacak != null ? $lacak->bearing : 0;
+        $unit->position_speed           = $lacak != null ? $lacak->speed : 0;
+        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_right) ? 'On' : 'Off';
+        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_left) ? 'On' : 'Off';
 
         $geofenceHelper = new GeofenceHelper;
         //$list_polygon = $geofenceHelper->createListPolygon();
@@ -336,21 +340,22 @@ class UnitController extends Controller {
         } else {
             $timestamp_1 = $tgl >= date('Y-m-d') ? strtotime($tgl_jam_mulai) : strtotime($tgl.' 00:00:00');
             $timestamp_2 = $tgl >= date('Y-m-d') ? strtotime($tgl_jam_selesai) : strtotime($tgl.' 23:59:59');
-            $list_lacak = Lacak2::where('ident', $unit->source_device_id)
-                ->where('timestamp', '>=', $timestamp_1)
-                ->where('timestamp', '<=', $timestamp_2)
-                ->orderBy('timestamp', 'ASC')
-                ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_2 AS pump_switch_right', 'din_3 AS pump_switch_left', 'din_4 AS pump_switch_main', 'payload_text', 'timestamp']);
+            $table_name = 'lacak_'. $unit->source_device_id;
+            $list_lacak = \DB::table($table_name)
+                ->where('utc_timestamp', '>=', $timestamp_1)
+                ->where('utc_timestamp', '<=', $timestamp_2)
+                ->orderBy('utc_timestamp', 'ASC')
+                ->get(['latitude', 'longitude', 'altitude', 'bearing', 'speed', 'pump_switch_right', 'pump_switch_left', 'pump_switch_main', 'utc_timestamp']);
             Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
         }
         $list_lacak2 = [];
         foreach($list_lacak as $v){
-            if(strtotime($tgl_jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($tgl_jam_selesai)) {
+            if(strtotime($tgl_jam_mulai) <= doubleval($v->utc_timestamp) && doubleval($v->utc_timestamp) <= strtotime($tgl_jam_selesai)) {
                 $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
                 $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
-                $v->progress_time = doubleval($v->timestamp) - strtotime($tgl_jam_mulai);
+                $v->progress_time = doubleval($v->utc_timestamp) - strtotime($tgl_jam_mulai);
                 $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
-                $v->timestamp_2 = date('H:i:s', $v->timestamp);
+                $v->timestamp_2 = date('H:i:s', $v->utc_timestamp);
                 $list_lacak2[] = $v;
             }
         }

@@ -7,7 +7,6 @@ use App\Model\ReportRencanaKerja;
 use App\Helper\GeofenceHelper;
 use App\Model\SystemConfiguration;
 use App\Model\Lacak;
-use App\Model\Lacak2;
 use App\Model\Aktivitas;
 use App\Model\RencanaKerjaSummary;
 

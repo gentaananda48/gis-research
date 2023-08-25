@@ -456,11 +456,14 @@ class RencanaKerjaController extends Controller {
                     ->get();
             } else {
                 if($rk->tgl>='2022-03-15') {
-                    $list_lacak = Lacak2::where('ident', $rk->unit_source_device_id)
-                        ->where('timestamp', '>=', $timestamp_1)
-                        ->where('timestamp', '<=', $timestamp_2)
-                        ->orderBy('timestamp', 'ASC')
-                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
+                    //adjustment from lacak2 to lacak bsc
+                    $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($rk->unit_label)));
+                    $list_lacak = DB::table($table_name)
+                    ->where('utc_timestamp', '>=', strtotime($rk->jam_mulai))
+                    ->where('utc_timestamp', '<=', strtotime($rk->jam_selesai))
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
+                    ->get();
                 } else {
                     $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
                         ->where('timestamp', '>=', $timestamp_1)
@@ -534,27 +537,28 @@ class RencanaKerjaController extends Controller {
         }
 
         // ADJUSTMENT CODE SUMMARY FROM REDIS
+         // retrieve data for ritase
         $cacheKey = env('APP_CODE') . ':RK_SUMMARY_' . $rk->id;
         $summary = Redis::get($cacheKey);
 
-        if ($summary === null) {
-        // Data not found in Redis, retrieve from the database
-        $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
-        $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
-        $header = [];
-        $rata2 = [];
-        $poin = [];
-        $kualitas = '-';
+        if ($summary === null || $summary === '{"header":[],"ritase":[],"rata2":[],"poin":[],"kualitas":"-"}') {
+            // Data not found in Redis or empty format found, retrieve from the database
+            $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
+            $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
+            $header = [];
+            $rata2 = [];
+            $poin = [];
+            $kualitas = '-';
 
-        foreach ($list_rks as $rks) {
-            if ($rks->ritase == 999) {
-                $header[$rks->parameter_id] = $rks->parameter_nama;
-                $rata2[$rks->parameter_id] = $rks->parameter_id != 2 ? number_format($rks->realisasi, 2) : $rks->realisasi;
-                $poin[$rks->parameter_id] = $rks->nilai_bobot;
-            } else if ($rks->ritase == 999999) {
-                $poin[999] = $rks->nilai_bobot;
-                $kualitas = $rks->kualitas;
-            }
+            foreach ($list_rks as $rks) {
+                if ($rks->ritase == 999) {
+                    $header[$rks->parameter_id] = $rks->parameter_nama;
+                    $rata2[$rks->parameter_id] = $rks->parameter_id != 2 ? number_format($rks->realisasi, 2) : $rks->realisasi;
+                    $poin[$rks->parameter_id] = $rks->nilai_bobot;
+                } else if ($rks->ritase == 999999) {
+                    $poin[999] = $rks->nilai_bobot;
+                    $kualitas = $rks->kualitas;
+                }
         }
 
         $summary = (object) [

@@ -194,12 +194,15 @@ class RencanaKerjaController extends Controller {
         $list_lokasi = array_values($list_lokasi);
         $geofenceHelper = new GeofenceHelper;
         $durasi = strtotime($jam_selesai) - strtotime($jam_mulai) + 1;
+        //adjust for this line
         if($rk->tgl>='2022-03-15') {
-            $lacak = Lacak2::where('ident', $unit->source_device_id)
-                ->where('timestamp', '>=', strtotime($jam_mulai))
-                ->where('timestamp', '<=', strtotime($jam_selesai))
-                ->orderBy('timestamp', 'ASC')
-                ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
+            $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($rk->unit_label)));
+            $lacak = DB::table($table_name)
+                    ->where('utc_timestamp', '>=', strtotime($rk->jam_mulai))
+                    ->where('utc_timestamp', '<=', strtotime($rk->jam_selesai))
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp")
+                    ->get();
         } else {
             $lacak = Lacak::where('ident', $unit->source_device_id)
                 ->where('timestamp', '>=', strtotime($jam_mulai))

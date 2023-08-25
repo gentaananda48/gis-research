@@ -276,11 +276,11 @@ class Kernel extends ConsoleKernel
                     ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, 0 AS ain_1, 0 AS ain_2, pump_switch_right AS din_1, pump_switch_left AS din_2, pump_switch_main AS din_3, '' AS payload_text, `utc_timestamp` AS timestamp, arm_height_right, arm_height_left, temperature_right, temperature_left")
                     ->get();
             } else {
-                if($rk->tgl>='2022-03-15') {
-                    $list = Lacak2::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
-                } else {
+                // if($rk->tgl>='2022-03-15') {
                     $list = Lacak::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
-                }
+                // } else {
+                //     // $list = Lacak2::where('ident', $rk->unit_source_device_id)->where('timestamp', '>=', strtotime($rk->jam_mulai))->where('timestamp', '<=', strtotime($rk->jam_selesai))->orderBy('timestamp', 'ASC')->get();
+                // }
             }
 
             $list2 = [];

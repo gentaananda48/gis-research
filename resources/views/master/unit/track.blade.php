@@ -32,15 +32,7 @@
         						<td width="20%"></td>
         						<td width="10%">Status</td>
         						<td width="30%">: <span class="text-bold" id="movement_status_desc">{{ $unit->movement_status_desc }}</span></td>
-        					</tr>
-        					<tr>
-        						<td>Signal Level</td>
-        						<td>: <span class="text-bold" id="gsm_signal_level">{{ $unit->gsm_signal_level }}</span></td>
-        						<td></td>
-        						<td>Kecepatan</td>
-        						<td>: <span class="text-bold" id="position_speed">{{ $unit->position_speed }} KM/Jam</span></td>
-        					</tr>
-        					<tr>
+        					</tr>        				
         						<td>Latitude</td>
         						<td>: <span class="text-bold" id="position_latitude">{{ $unit->position_latitude }}</span></td>
         						<td></td>
@@ -54,12 +46,12 @@
         						<td>Nozzle Kanan</td>
         						<td>: <span class="text-bold" id="nozzle_kanan">{{ $unit->nozzle_kanan }}</span></td>
         					</tr>
-        					<tr>
+        					<tr></tr>
         						<td>Altitude</td>
         						<td>: <span class="text-bold" id="position_altitude">{{ $unit->position_altitude }}</span></td>
-        						<td></td>
-        						<td></td>
-        						<td></td>
+										<td></td>
+        						<td>Kecepatan</td>
+        						<td>: <span class="text-bold" id="position_speed">{{ $unit->position_speed }} KM/Jam</span></td>
         					</tr>
         				</tbody>
         			</table>
@@ -118,7 +110,7 @@
 				$("#position_longitude").text(data.position_longitude);
 				$("#position_altitude").text(data.position_altitude);
 				$("#movement_status_desc").text(data.movement_status_desc);
-				$("#position_speed").text(data.position_speed);
+				$("#position_speed").text(data.position_speed + ' KM/Jam');
 				$("#nozzle_kanan").text(data.nozzle_kanan);
 				$("#nozzle_kiri").text(data.nozzle_kiri);
             }

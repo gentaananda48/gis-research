@@ -64,18 +64,19 @@ class UnitController extends Controller {
                 'data'      => null
             ]);
         }
-
-        $lacak = Lacak2::where('ident', $unit->source_device_id)->whereNotNull('position_altitude')->orderBy('timestamp', 'DESC')->limit(1)->first();
-        $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
-        $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
-        $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
-        $unit->movement_status_desc     = !empty($unit->movement_status) ? 'moving': 'stopped';
-        $unit->gsm_signal_level         = $lacak != null ? $lacak->gsm_signal_level : 0;
-        $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
-        $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
-        $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
-        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_1) ? 'On' : 'Off';
-        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_2) ? 'On' : 'Off';
+        $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($unit->label)));
+        $lacak = \DB::table($table_name)->orderBy('utc_timestamp', 'DESC')->limit(1)->first();
+        // $lacak = Lacak2::where('ident', $unit->source_device_id)->whereNotNull('position_altitude')->orderBy('timestamp', 'DESC')->limit(1)->first();
+        $unit->position_latitude        = $lacak != null ? $lacak->latitude : 0;
+        $unit->position_longitude       = $lacak != null ? $lacak->longitude : 0;
+        $unit->movement_status          = 0;
+        $unit->movement_status_desc     = !empty($unit->speed) ? 'moving': 'stopped';
+        $unit->gsm_signal_level         = 0;
+        $unit->position_altitude        = $lacak != null ? $lacak->altitude : 0;
+        $unit->position_direction       = $lacak != null ? $lacak->bearing : 0;
+        $unit->position_speed           = $lacak != null ? $lacak->speed : 0;
+        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_right) ? 'On' : 'Off';
+        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_left) ? 'On' : 'Off';
 
         //$geofenceHelper = new GeofenceHelper;
         //$list_polygon = $geofenceHelper->createListPolygon();
