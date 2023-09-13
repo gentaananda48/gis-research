@@ -98,6 +98,7 @@ class ReportConformity extends Command
               where tb1.unit = tb2.unit_label    
               and tb2.tgl = tb1.created_date
             "));
+            // and tb1.lokasi = '063I'
 
             if (count($data) > 0) {
                 foreach ($data as $key => $value) {
