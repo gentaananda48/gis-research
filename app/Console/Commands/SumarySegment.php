@@ -147,6 +147,7 @@ class SumarySegment extends Command
                         and tb3.volume_id = tb2.volume_id
                         GROUP BY tb1.segment,DATE(tb1.created_at),kode_lokasi
                 "));
+                // and tb1.kode_lokasi = '063I'
 
                 if (count($data) > 0) {
                     foreach ($data as $key => $value) {
