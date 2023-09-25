@@ -22,6 +22,7 @@ use App\Model\ReportParameterDefault;
 use App\Model\ReportParameterStandard;
 use App\Model\ReportParameterStandardDetail;
 use App\Model\KonfigurasiUnit;
+use App\Model\KoordinatLokasi;
 
 class MasterDataController extends Controller {
     public function __construct() {
@@ -36,6 +37,26 @@ class MasterDataController extends Controller {
             'message'   => 'success', 
             'data'      => $list
           ]);
+    }
+
+    public function report_parameter_sync_down (Request $request) {
+        $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
+        $list = ReportParameter::where('updated_at', '>', $updated_at)->get();
+        return response()->json([
+            'status' => true,
+            'message' => 'success',
+            'data' => $list
+        ]);
+    }
+
+    public function koordinat_lokasi_sync_down (Request $request) {
+        $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
+        $list = KoordinatLokasi::where('updated_at', '>', $updated_at)->get();
+        return response()->json([
+            'status' => true,
+            'message' => 'success',
+            'data' => $list
+        ]);
     }
 
     public function lokasi_sync_down(Request $request){
@@ -154,6 +175,8 @@ class MasterDataController extends Controller {
             'data'      => $list
           ]);
     }
+
+
 
     public function report_parameter_bobot_sync_down(Request $request){
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';

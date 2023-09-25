@@ -59,6 +59,8 @@ Route::group([
     Route::get('report_parameter_standard/sync_down', 'MasterDataController@report_parameter_standard_sync_down');
     Route::get('report_parameter_standard_detail/sync_down', 'MasterDataController@report_parameter_standard_detail_sync_down');
     Route::get('konfigurasi_unit/sync_down', 'MasterDataController@konfigurasi_unit_sync_down');
+    Route::get('report_parameter/sync_down', 'MasterDataController@report_parameter_sync_down'); 
+    Route::get('koordinat_lokasi/sync_down', 'MasterDataController@koordinat_lokasi_sync_down'); 
 });
 
 // UNIT
