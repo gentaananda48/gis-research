@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JWWN2NXK8P"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-JWWN2NXK8P');
+    </script>
  
     <title>Boom Sprayer</title>
     <link rel="shortcut icon" type="img/png" href="{{ url('/img/logo.png') }}"/>
