@@ -81,7 +81,9 @@ class ConformityUnitController extends Controller
         }
 
         $date_range = date('m/d/Y', strtotime($date1)).' - '.date('m/d/Y', strtotime($date2));
-        $list_pg = array_merge(['All' => 'All'], PG::whereIn('nama', explode(',', $user->area))->pluck('nama', 'nama')->toArray());
+        // $list_pg = array_merge(['All' => 'All'], PG::whereIn('nama', explode(',', $user->area))->pluck('nama', 'nama')->toArray());
+        $list_pg = PG::whereIn('nama', ['PG1', 'PG2', 'PG3'])->pluck('nama', 'nama')->toArray();
+        $list_pg = ['All' => 'All'] + $list_pg;
         $list_unit = array_merge(['All' => 'All'], Unit::whereIn('pg', explode(',', $user->area))->pluck('label', 'label')->toArray());
 
         $report_conformities = new ReportConformity();
@@ -115,6 +117,7 @@ class ConformityUnitController extends Controller
         ])
         ->whereIn('pg', explode(',', $user->area))
         ->paginate(10);
+
         return view('summary_report_vat.conformity_unit.index', [
             'date_range'    => $date_range,
             'list_pg'       => $list_pg,
