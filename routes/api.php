@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +33,7 @@ Route::group([
 
 // USER
 Route::group([
-	'middleware' => ['check_app_version', 'api'],
+    'middleware' => ['check_app_version', 'api'],
     'namespace' => 'API',
     'prefix' => 'user'
 ], function ($router) {
@@ -63,7 +64,7 @@ Route::group([
 
 // UNIT
 Route::group([
-	'middleware' => ['check_app_version', 'api'],
+    'middleware' => ['check_app_version', 'api'],
     'namespace' => 'API',
     'prefix' => 'unit'
 ], function ($router) {
@@ -78,7 +79,7 @@ Route::group([
 
 // LOKASI
 Route::group([
-	'middleware' => ['check_app_version', 'api'],
+    'middleware' => ['check_app_version', 'api'],
     'namespace' => 'API',
     'prefix' => 'lokasi'
 ], function ($router) {
@@ -88,7 +89,7 @@ Route::group([
 
 // Aktivitas
 Route::group([
-	'middleware' => ['check_app_version', 'api'],
+    'middleware' => ['check_app_version', 'api'],
     'namespace' => 'API',
     'prefix' => 'aktivitas'
 ], function ($router) {
@@ -216,4 +217,12 @@ Route::group([
     'prefix'        => 'report_segment'
 ], function ($router) {
     Route::get('all', 'ReportSegmentController@all');
+});
+
+// GET LIST IMAGE URL
+Route::group([
+    'middleware'    => 'api',
+    'namespace'     => 'API',
+], function ($router) {
+    Route::get('list-images', 'ImageController@getImages');
 });
