@@ -7,13 +7,17 @@ use Illuminate\Support\Facades\Auth;
 
 class ImageController extends Controller
 {
+    public function __construct()
+    {
+        // $this->middleware('auth:api', []);
+    }
 
     public function getImages()
     {
         $publicPath = public_path('ndvi');
 
         $imagePath = $publicPath . '/**/*.{jpg,jpeg,png,gif}';
-        $images = \File::glob($imagePath);
+        $images = glob($imagePath, GLOB_BRACE);
         if (empty($images)) {
             return response()->json([]);
         }
@@ -34,4 +38,8 @@ class ImageController extends Controller
         ]);
     }
 
+    public function guard()
+    {
+        // return Auth::guard('api');
+    }
 }
