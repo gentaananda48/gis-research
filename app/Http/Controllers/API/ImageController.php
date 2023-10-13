@@ -40,6 +40,6 @@ class ImageController extends Controller
 
     public function guard()
     {
-        return Auth::guard('api');
+        // return Auth::guard('api');
     }
 }
