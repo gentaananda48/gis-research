@@ -229,9 +229,4 @@ Route::get('getAllData', 'API\ApiDashboardController@all');
 Route::get('dataByDate', 'API\ApiDashboardController@getDataByDate');
 
 // GET LIST IMAGE URL
-Route::group([
-    'middleware'    => 'api',
-    'namespace'     => 'API',
-], function ($router) {
-    Route::get('list-images', 'ImageController@getImages');
-});
+Route::get('list-images', 'API\ImageController@getImages');
