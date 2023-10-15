@@ -17,7 +17,7 @@ use App\Helper\GeofenceHelper;
 class UnitController extends Controller {
 
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['tracking_view', 'playback_view', 'offline_data']]);
+        $this->middleware('auth:api', ['except' => ['offline_data']]);
     }
 
     public function list(Request $request){
@@ -150,7 +150,7 @@ class UnitController extends Controller {
     }
 
     public function tracking_view(Request $request) {
-        $id = !empty($request->id) ? $request->id :0;
+        $id = $request->input('id', 0);
         $unit = Unit::find($id);
         $lacak = Lacak::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
         $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
@@ -184,18 +184,18 @@ class UnitController extends Controller {
             }
         }
         $list_lokasi = array_values($list_lokasi);
-        return view('api.unit.tracking', [
+        return response()->json([
+            'unit' => $unit,
             'list_lokasi'   => json_encode($list_lokasi),
-            'unit'          => $unit
         ]);
     }
 
     public function playback_view(Request $request) {
-        $id = !empty($request->id) ? $request->id :0;
-        $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
-        $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '00:00:00';
-        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '23:59:00';
-        $interval = !empty($request->interval) ? $request->interval : 1000;
+        $id = $request->input('id', 0);
+        $tgl = $request->input('tgl', date('Y-m-d'));
+        $jam_mulai = $request->input('jam_mulai', '00:00:00');
+        $jam_selesai = $request->input('jam_selesai', '23:59:00');
+        $interval = $request->input('interval', 1000);
         $unit = Unit::find($id);
         $list_interval = [];
         for($i=1; $i<=10; $i++){
@@ -239,16 +239,16 @@ class UnitController extends Controller {
             $v->timestamp_2 = date('H:i:s', $v->timestamp);
             $list_lacak[] = $v;
         }
-        return view('api.unit.playback', [
-            'unit'          => $unit,
-            'list_lacak'    => json_encode($list_lacak),
-            'list_lokasi'   => json_encode($list_lokasi),
-            'tgl'           => $tgl,
-            'jam_mulai'     => $jam_mulai,
-            'jam_selesai'   => $jam_selesai,
+        return response()->json([
+            'unit' => $unit,
+            'list_lacak' => $list_lacak,
+            'list_lokasi' => $list_lokasi,
+            'tgl' => $tgl,
+            'jam_mulai' => $jam_mulai,
+            'jam_selesai' => $jam_selesai,
             'list_interval' => $list_interval,
-            'interval'      => $interval,
-            'durasi'        => $durasi
+            'interval' => $interval,
+            'durasi' => $durasi,
         ]);
     }
 
