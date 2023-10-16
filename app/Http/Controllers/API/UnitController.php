@@ -67,26 +67,49 @@ class UnitController extends Controller {
         $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($unit->label)));
         $lacak = \DB::table($table_name)->orderBy('utc_timestamp', 'DESC')->limit(1)->first();
         // $lacak = Lacak2::where('ident', $unit->source_device_id)->whereNotNull('position_altitude')->orderBy('timestamp', 'DESC')->limit(1)->first();
-        $unit->position_latitude        = $lacak != null ? $lacak->latitude : 0;
-        $unit->position_longitude       = $lacak != null ? $lacak->longitude : 0;
-        $unit->movement_status          = 0;
-        $unit->movement_status_desc     = !empty($unit->speed) ? 'moving': 'stopped';
-        $unit->gsm_signal_level         = 0;
-        $unit->position_altitude        = $lacak != null ? $lacak->altitude : 0;
-        $unit->position_direction       = $lacak != null ? $lacak->bearing : 0;
-        $unit->position_speed           = $lacak != null ? $lacak->speed : 0;
-        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_right) ? 'On' : 'Off';
-        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_left) ? 'On' : 'Off';
+        if ($lacak != null) {
+            $unit->position_latitude = $lacak->latitude;
+            $unit->position_longitude = $lacak->longitude;
+            $unit->position_altitude = $lacak->altitude;
+            $unit->position_direction = $lacak->bearing;
+            $unit->position_speed = $lacak->speed;
+            $unit->nozzle_kanan = !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_right) ? 'On' : 'Off';
+            $unit->nozzle_kiri = !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_left) ? 'On' : 'Off';
 
-        //$geofenceHelper = new GeofenceHelper;
-        //$list_polygon = $geofenceHelper->createListPolygon();
-        //$unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
-        //$unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
+            // Calculate the difference in seconds between utc_timestamp and the current time.
+            $utcTimestamp = strtotime($lacak->utc_timestamp);
+            $currentTime = time();
+            $timeDifference = $currentTime - $utcTimestamp;
+
+            // Check if the unit is active or inactive based on the time difference.
+            if ($timeDifference <= 30) {
+                $unit->status = 'active';
+            } else {
+                $unit->status = 'inactive';
+            }
+
+        } else {
+            // Handle the case when $lacak is null, e.g., no data found.
+            $unit->position_latitude = 0;
+            $unit->position_longitude = 0;
+            $unit->position_altitude = 0;
+            $unit->position_direction = 0;
+            $unit->position_speed = 0;
+            $unit->nozzle_kanan = 'Off';
+            $unit->nozzle_kiri = 'Off';
+            $unit->status = 'inactive'; // Set status to 'inactive' when no data is available.
+        }
+
+        $unit->movement_status = 0;
+        $unit->movement_status_desc = !empty($unit->speed) ? 'moving' : 'stopped';
+        $unit->gsm_signal_level = 0;
+
         return response()->json([
-            'status'    => true, 
-            'message'   => '', 
-            'data'      => $unit
+            'status' => true,
+            'message' => '',
+            'data' => $unit
         ]);
+
     }
 
     public function playback(Request $request) {

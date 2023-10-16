@@ -81,7 +81,7 @@ class ProcessLacakSegment extends Command
                         ->where('lokasi_kode', '!=', '')
                         ->where('is_segment',0)
                         ->whereRaw("FROM_UNIXTIME(`utc_timestamp`,'%Y-%m-%d') BETWEEN '{$start_date_cron}' and '{$end_date_cron}'")
-                        ->limit(1000)
+                        ->limit(120)
                         ->get();
                         $table_segment_label = str_replace("lacak_", "lacak_segment_", $table_name);
                         if ($lokasi_kode_unit) {
@@ -224,8 +224,11 @@ class ProcessLacakSegment extends Command
 
                                     DB::commit();
                                 }
+                                // count data that already inputed into a table $lacak_segment_label
+                                $successInputCount = DB::table($table_segment_label)->count();
+                                // log info success
+                                $this->info("Total successful data input to $table_segment_label: $successInputCount");
                                 // end overlapping
-                                $this->info(now().' - Success inputing data to table segment: '.$table_segment_label);
                             }
                         }
             // }
