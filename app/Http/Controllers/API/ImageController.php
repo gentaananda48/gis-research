@@ -17,8 +17,7 @@ class ImageController extends Controller
     {
         $folderName = 'ndvi';
         $publicPath = public_path($folderName);
-
-        $imagePath = $publicPath . '/**/*.{jpg,jpeg,png,gif}';
+        $imagePath = $publicPath . '/{**/*,*}';
 
         $images = File::glob($imagePath, GLOB_BRACE);
 
