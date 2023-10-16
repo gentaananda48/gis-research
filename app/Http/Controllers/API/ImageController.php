@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use File;
 
 class ImageController extends Controller
 {
@@ -14,10 +15,13 @@ class ImageController extends Controller
 
     public function getImages()
     {
-        $publicPath = public_path('ndvi');
+        $folderName = 'ndvi';
+        $publicPath = public_path($folderName);
 
         $imagePath = $publicPath . '/**/*.{jpg,jpeg,png,gif}';
-        $images = glob($imagePath, GLOB_BRACE);
+
+        $images = File::glob($imagePath, GLOB_BRACE);
+
         if (empty($images)) {
             return response()->json([]);
         }
@@ -25,9 +29,10 @@ class ImageController extends Controller
         $data = [];
         foreach ($images as $image) {
             $file = pathinfo($image);
+
             $data[] = [
                 'name' => $file['basename'],
-                'image_url' => asset(str_replace($publicPath, '', $image)),
+                'image_url' => asset(str_replace($publicPath, '/' . $folderName, $image)),
             ];
         }
 
