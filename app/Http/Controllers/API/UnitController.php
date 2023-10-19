@@ -20,30 +20,77 @@ class UnitController extends Controller {
         $this->middleware('auth:api', ['except' => ['offline_data']]);
     }
 
-    public function list(Request $request){
+    // public function list(Request $request){
+    //     $user = $this->guard()->user();
+    //     $list = Unit::whereIn('pg', explode(',', $user->area))->orderBy('label', 'ASC')->get();
+    //     $list_unit = [];
+    //     foreach($list AS $v){
+    //         $lacak = Lacak::where('ident', $v->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
+    //         $v->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
+    //         $v->position_latitude        = $lacak != null ? $lacak->position_longitude : 0;
+    //         $v->movement_status          = $lacak != null ? $lacak->movement_status : 0;
+    //         $v->movement_status_desc     = !empty($v->movement_status) ? 'moving': 'stopped';
+    //         $v->gsm_signal_level         = $lacak != null ? $lacak->gsm_signal_level : 0;
+    //         $v->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
+    //         $v->position_direction       = $lacak != null ? $lacak->position_direction : 0;
+    //         $v->position_speed           = $lacak != null ? $lacak->position_speed : 0;
+    //         $v->nozzle_kanan             = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_1) ? 'On' : 'Off';
+    //         $v->nozzle_kiri              = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_2) ? 'On' : 'Off';
+    //         $list_unit[] = $v;
+    //     }
+    //     return response()->json([
+    //         'status'    => true, 
+    //         'message'   => 'success', 
+    //         'data'      => $list_unit
+    //     ]);
+    // }
+
+    public function list(Request $request) {
         $user = $this->guard()->user();
-        $list = Unit::whereIn('pg', explode(',', $user->area))->orderBy('label', 'ASC')->get();
-        $list_unit = [];
-        foreach($list AS $v){
-            $lacak = Lacak::where('ident', $v->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
-            $v->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
-            $v->position_latitude        = $lacak != null ? $lacak->position_longitude : 0;
-            $v->movement_status          = $lacak != null ? $lacak->movement_status : 0;
-            $v->movement_status_desc     = !empty($v->movement_status) ? 'moving': 'stopped';
-            $v->gsm_signal_level         = $lacak != null ? $lacak->gsm_signal_level : 0;
-            $v->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
-            $v->position_direction       = $lacak != null ? $lacak->position_direction : 0;
-            $v->position_speed           = $lacak != null ? $lacak->position_speed : 0;
-            $v->nozzle_kanan             = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_1) ? 'On' : 'Off';
-            $v->nozzle_kiri              = $lacak != null && !empty($lacak->din_3) && !empty($lacak->din_2) ? 'On' : 'Off';
-            $list_unit[] = $v;
-        }
+
+        $list = Unit::whereIn('pg', explode(',', $user->area))->orderBy('label', 'ASC')
+            ->select('id', 'label', 'source_device_id', 'pg')
+            ->get();
+
+        $sourceDeviceIds = $list->pluck('source_device_id')->unique();
+
+        $latestLacakRecords = Lacak::whereIn('source_device_id', $sourceDeviceIds)
+            ->orderBy('source_device_id', 'utc_timestamp', 'DESC')
+            ->distinct()
+            ->get();
+
+        $lacakDictionary = $latestLacakRecords->keyBy('source_device_id');
+
+        $list_unit = $list->map(function ($v) use ($lacakDictionary) {
+            $lacak = $lacakDictionary->get($v->source_device_id);
+
+            $v->position_latitude = $lacak ? $lacak->position_latitude : 0;
+            $v->position_longitude = $lacak ? $lacak->position_longitude : 0;
+
+            if ($lacak) {
+                $timestamp = strtotime($lacak->timestamp);
+                $currentTime = time();
+                $timeDifference = $currentTime - $timestamp;
+                
+                if ($timeDifference <= 120) {
+                    $v->status = 'active';
+                } else {
+                    $v->status = 'inactive';
+                }
+            } else {
+                $v->status = 'inactive'; 
+            }
+            
+            return $v;
+        });
+
         return response()->json([
-            'status'    => true, 
-            'message'   => 'success', 
-            'data'      => $list_unit
+            'status' => true,
+            'message' => 'success',
+            'data' => $list_unit
         ]);
     }
+
 
     public function sync_down(Request $request){
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
