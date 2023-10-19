@@ -48,41 +48,45 @@ class UnitController extends Controller {
     public function list(Request $request) {
         $user = $this->guard()->user();
 
-        $list = Unit::whereIn('pg', explode(',', $user->area))->orderBy('label', 'ASC')
-            ->select('id', 'label', 'source_device_id', 'pg')
-            ->get();
+        $list = Unit::whereIn('pg', explode(',', $user->area))->orderBy('label', 'ASC')->get();
+        $list_unit = [];
+        // $timeThreshold = 2 * 24 * 60 * 60;
 
-        $sourceDeviceIds = $list->pluck('source_device_id')->unique();
-
-        $latestLacakRecords = Lacak::whereIn('source_device_id', $sourceDeviceIds)
-            ->orderBy('source_device_id', 'utc_timestamp', 'DESC')
-            ->distinct()
-            ->get();
-
-        $lacakDictionary = $latestLacakRecords->keyBy('source_device_id');
-
-        $list_unit = $list->map(function ($v) use ($lacakDictionary) {
-            $lacak = $lacakDictionary->get($v->source_device_id);
-
-            $v->position_latitude = $lacak ? $lacak->position_latitude : 0;
-            $v->position_longitude = $lacak ? $lacak->position_longitude : 0;
+        foreach ($list as $v) {
+            $table_name = "lacak_" . str_replace('-', '_', str_replace(' ', '', trim($v->label)));
+            $lacak = \DB::table($table_name)->orderBy('utc_timestamp', 'DESC')->first();
 
             if ($lacak) {
-                $timestamp = strtotime($lacak->timestamp);
+                $utcTimestamp = $lacak->utc_timestamp;
                 $currentTime = time();
-                $timeDifference = $currentTime - $timestamp;
-                
-                if ($timeDifference <= 120) {
+                $timeDifference = $currentTime - $utcTimestamp;
+
+                if ($timeDifference <= 300) {
                     $v->status = 'active';
                 } else {
                     $v->status = 'inactive';
                 }
-            } else {
-                $v->status = 'inactive'; 
-            }
-            
-            return $v;
-        });
+
+            $v->position_latitude = $lacak->latitude;
+            $v->position_longitude = $lacak->longitude;
+            $v->movement_status_desc = !empty($v->speed) ? 'moving' : 'stopped';
+            $v->position_altitude = $lacak->altitude;
+            $v->position_direction = $lacak->bearing;
+            $v->position_speed = $lacak->speed;
+            $v->latest_utc_timestamp = $lacak->utc_timestamp;
+        } else {
+            $v->position_latitude = 0;
+            $v->position_longitude = 0;
+            $v->movement_status_desc = 'unknown';
+            $v->position_altitude = 0;
+            $v->position_direction = 0;
+            $v->position_speed = 0;            
+            $v->status = 'inactive';
+            $v->latest_utc_timestamp = 'No data available';
+        }
+
+            $list_unit[] = $v;
+        }
 
         return response()->json([
             'status' => true,
@@ -90,6 +94,7 @@ class UnitController extends Controller {
             'data' => $list_unit
         ]);
     }
+
 
 
     public function sync_down(Request $request){
@@ -123,20 +128,16 @@ class UnitController extends Controller {
             $unit->nozzle_kanan = !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_right) ? 'On' : 'Off';
             $unit->nozzle_kiri = !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_left) ? 'On' : 'Off';
 
-            // Calculate the difference in seconds between utc_timestamp and the current time.
-            $utcTimestamp = strtotime($lacak->utc_timestamp);
+            $utcTimestamp = $lacak->utc_timestamp;
             $currentTime = time();
             $timeDifference = $currentTime - $utcTimestamp;
 
-            // Check if the unit is active or inactive based on the time difference.
-            if ($timeDifference <= 30) {
-                $unit->status = 'active';
+            if ($timeDifference <= 300) {
+                $v->status = 'active';
             } else {
-                $unit->status = 'inactive';
+                $v->status = 'inactive';
             }
-
         } else {
-            // Handle the case when $lacak is null, e.g., no data found.
             $unit->position_latitude = 0;
             $unit->position_longitude = 0;
             $unit->position_altitude = 0;
@@ -144,7 +145,7 @@ class UnitController extends Controller {
             $unit->position_speed = 0;
             $unit->nozzle_kanan = 'Off';
             $unit->nozzle_kiri = 'Off';
-            $unit->status = 'inactive'; // Set status to 'inactive' when no data is available.
+            $unit->status = 'inactive'; 
         }
 
         $unit->movement_status = 0;
