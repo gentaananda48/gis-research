@@ -222,7 +222,11 @@ class UnitController extends Controller {
         $unit->position_latitude        = $lacak != null ? $lacak->latitude : 0;
         $unit->position_longitude       = $lacak != null ? $lacak->longitude : 0;
         // $unit->movement_status          = 0;
-        $unit->movement_status_desc     = !empty($unit->speed) ? 'moving': 'stopped';
+        if ($lacak->speed < 1.00) {
+            $unit->movement_status_desc = 'stopped';
+        } else {
+            $unit->movement_status_desc = 'moving';
+        }        
         // $unit->gsm_signal_level         = 0;
         $unit->position_altitude        = $lacak != null ? $lacak->altitude : 0;
         $unit->position_direction       = $lacak != null ? $lacak->bearing : 0;

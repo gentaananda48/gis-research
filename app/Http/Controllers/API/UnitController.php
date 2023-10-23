@@ -69,20 +69,26 @@ class UnitController extends Controller {
 
             $v->position_latitude = $lacak->latitude;
             $v->position_longitude = $lacak->longitude;
-            $v->movement_status_desc = !empty($v->speed) ? 'moving' : 'stopped';
             $v->position_altitude = $lacak->altitude;
             $v->position_direction = $lacak->bearing;
             $v->position_speed = $lacak->speed;
             $v->latest_utc_timestamp = $lacak->utc_timestamp;
+
+            if ($lacak->speed < 1.00) {
+                $v->movement_status_desc = 'stopped';
+            } else {
+                $v->movement_status_desc = 'moving';
+            }
+
         } else {
             $v->position_latitude = 0;
             $v->position_longitude = 0;
-            $v->movement_status_desc = 'unknown';
+            $v->movement_status_desc = 'stopped';
             $v->position_altitude = 0;
             $v->position_direction = 0;
-            $v->position_speed = 0;            
+            $v->position_speed = "0";            
             $v->status = 'inactive';
-            $v->latest_utc_timestamp = 'No data available';
+            $v->latest_utc_timestamp = 0;
         }
 
             $list_unit[] = $v;
@@ -94,7 +100,6 @@ class UnitController extends Controller {
             'data' => $list_unit
         ]);
     }
-
 
 
     public function sync_down(Request $request){
@@ -116,6 +121,8 @@ class UnitController extends Controller {
                 'data'      => null
             ]);
         }
+        
+        // $timeThreshold = 2 * 24 * 60 * 60;
         $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($unit->label)));
         $lacak = \DB::table($table_name)->orderBy('utc_timestamp', 'DESC')->limit(1)->first();
         // $lacak = Lacak2::where('ident', $unit->source_device_id)->whereNotNull('position_altitude')->orderBy('timestamp', 'DESC')->limit(1)->first();
@@ -127,29 +134,35 @@ class UnitController extends Controller {
             $unit->position_speed = $lacak->speed;
             $unit->nozzle_kanan = !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_right) ? 'On' : 'Off';
             $unit->nozzle_kiri = !empty($lacak->pump_switch_main) && !empty($lacak->pump_switch_left) ? 'On' : 'Off';
-
+            
+            // Calculate the difference in seconds between utc_timestamp and the current time.
             $utcTimestamp = $lacak->utc_timestamp;
             $currentTime = time();
             $timeDifference = $currentTime - $utcTimestamp;
-
             if ($timeDifference <= 300) {
-                $v->status = 'active';
+                $unit->status = 'active';
             } else {
-                $v->status = 'inactive';
+                $unit->status = 'inactive';
             }
+
+            if ($lacak->speed < 1.00) {
+                $unit->movement_status_desc = 'stopped';
+            } else {
+                $unit->movement_status_desc = 'moving';
+            }
+
         } else {
             $unit->position_latitude = 0;
             $unit->position_longitude = 0;
             $unit->position_altitude = 0;
             $unit->position_direction = 0;
-            $unit->position_speed = 0;
+            $unit->position_speed = "0";
             $unit->nozzle_kanan = 'Off';
             $unit->nozzle_kiri = 'Off';
             $unit->status = 'inactive'; 
+            $unit->movement_status_desc = 'stopped';
         }
-
         $unit->movement_status = 0;
-        $unit->movement_status_desc = !empty($unit->speed) ? 'moving' : 'stopped';
         $unit->gsm_signal_level = 0;
 
         return response()->json([
@@ -220,6 +233,48 @@ class UnitController extends Controller {
         ]);
     }
 
+        // pak endang version
+        public function tracking_view_ev(Request $request) {
+        $id = !empty($request->id) ? $request->id :0;
+        $unit = Unit::find($id);
+        $lacak = Lacak::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
+        $unit->position_latitude        = $lacak != null ? $lacak->position_latitude : 0;
+        $unit->position_longitude       = $lacak != null ? $lacak->position_longitude : 0;
+        $unit->movement_status          = $lacak != null ? $lacak->movement_status : 0;
+        $unit->movement_status_desc     = !empty($unit->movement_status) ? 'moving': 'stopped';
+        $unit->gsm_signal_level         = $lacak != null ? $lacak->gsm_signal_level : 0;
+        $unit->position_altitude        = $lacak != null ? $lacak->position_altitude : 0;
+        $unit->position_direction       = $lacak != null ? $lacak->position_direction : 0;
+        $unit->position_speed           = $lacak != null ? $lacak->position_speed : 0;
+        $unit->nozzle_kanan             = $lacak != null && !empty($lacak->din_1) ? 'On' : 'Off';
+        $unit->nozzle_kiri              = $lacak != null && !empty($lacak->din_2) ? 'On' : 'Off';
+
+        $geofenceHelper = new GeofenceHelper;
+        $list_polygon = $geofenceHelper->createListPolygon();
+        $unit->lokasi = $geofenceHelper->checkLocation($list_polygon, $unit->position_latitude, $unit->position_longitude);
+        $unit->lokasi = !empty($unit->lokasi) ? substr($unit->lokasi,0,strlen($unit->lokasi)-2) : '';
+
+        $list = KoordinatLokasi::orderBy('lokasi', 'ASC')
+            ->orderBy('bagian', 'ASC')
+            ->orderBy('posnr', 'ASC')
+            ->get();
+        $list_lokasi = [];
+        $list_polygon = [];
+        foreach($list as $v){
+            $idx = $v->lokasi.'_'.$v->bagian;
+            if(array_key_exists($idx, $list_lokasi)){
+                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+            } else {
+                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            }
+        }
+        $list_lokasi = array_values($list_lokasi);
+        return view('api.unit.tracking', [
+            'list_lokasi'   => json_encode($list_lokasi),
+            'unit'          => $unit
+        ]);
+    }
+
     public function tracking_view(Request $request) {
         $id = $request->input('id', 0);
         $unit = Unit::find($id);
@@ -258,6 +313,68 @@ class UnitController extends Controller {
         return response()->json([
             'unit' => $unit,
             'list_lokasi'   => json_encode($list_lokasi),
+        ]);
+    }
+
+        public function playback_view_ev(Request $request) {
+        $id = !empty($request->id) ? $request->id :0;
+        $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
+        $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '00:00:00';
+        $jam_selesai = !empty($request->jam_selesai) ? $request->jam_selesai : '23:59:00';
+        $interval = !empty($request->interval) ? $request->interval : 1000;
+        $unit = Unit::find($id);
+        $list_interval = [];
+        for($i=1; $i<=10; $i++){
+            $list_interval[$i*100] = ($i/10).' Detik';
+        }
+        $list = KoordinatLokasi::orderBy('lokasi', 'ASC')
+            ->orderBy('bagian', 'ASC')
+            ->orderBy('posnr', 'ASC')
+            ->get();
+        $list_lokasi = [];
+        $list_polygon = [];
+        foreach($list as $v){
+            $idx = $v->lokasi.'_'.$v->bagian;
+            if(array_key_exists($idx, $list_lokasi)){
+                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+            } else {
+                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            }
+            if(array_key_exists($idx, $list_polygon)){
+                $list_polygon[$idx][] = $v->latd." ".$v->long;
+            } else {
+                $list_polygon[$idx] = [$v->latd." ".$v->long];
+            }
+        }
+        $list_lokasi = array_values($list_lokasi);
+        $geofenceHelper = new GeofenceHelper;
+        $tgl_jam_mulai = $tgl.' '.$jam_mulai;
+        $tgl_jam_selesai = $tgl.' '.$jam_selesai;
+        $durasi = strtotime($tgl_jam_selesai) - strtotime($tgl_jam_mulai) + 1;
+        $lacak = Lacak::where('ident', $unit->source_device_id)
+            ->where('timestamp', '>=', strtotime($tgl_jam_mulai))
+            ->where('timestamp', '<=', strtotime($tgl_jam_selesai))
+            ->orderBy('timestamp', 'ASC')
+            ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'din_1', 'din_2', 'din_3', 'timestamp']);
+        $list_lacak = [];
+        foreach($lacak as $v){
+            $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+            $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
+            $v->progress_time = doubleval($v->timestamp) - strtotime($tgl_jam_mulai);
+            $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
+            $v->timestamp_2 = date('H:i:s', $v->timestamp);
+            $list_lacak[] = $v;
+        }
+        return view('api.unit.playback', [
+            'unit'          => $unit,
+            'list_lacak'    => json_encode($list_lacak),
+            'list_lokasi'   => json_encode($list_lokasi),
+            'tgl'           => $tgl,
+            'jam_mulai'     => $jam_mulai,
+            'jam_selesai'   => $jam_selesai,
+            'list_interval' => $list_interval,
+            'interval'      => $interval,
+            'durasi'        => $durasi
         ]);
     }
 

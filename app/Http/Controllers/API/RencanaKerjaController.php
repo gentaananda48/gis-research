@@ -1081,6 +1081,63 @@ class RencanaKerjaController extends Controller {
 	    }
 	}
 
+	    public function playback_view_ev(Request $request) {
+        $id = !empty($request->id) ? $request->id :0;
+        $rk = RencanaKerja::find($id);
+        $jam_mulai = $rk->jam_mulai;
+        $jam_selesai = $rk->jam_selesai;
+        $interval = !empty($request->interval) ? $request->interval : 1000;
+        $unit = Unit::find($rk->unit_id);
+        $list_interval = [];
+        for($i=1; $i<=10; $i++){
+            $list_interval[$i*100] = ($i/10).' Detik';
+        }
+        $list = KoordinatLokasi::orderBy('lokasi', 'ASC')
+            ->orderBy('bagian', 'ASC')
+            ->orderBy('posnr', 'ASC')
+            ->get();
+        $list_lokasi = [];
+        $list_polygon = [];
+        foreach($list as $v){
+            $idx = $v->lokasi.'_'.$v->bagian;
+            if(array_key_exists($idx, $list_lokasi)){
+                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+            } else {
+                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            }
+            if(array_key_exists($idx, $list_polygon)){
+                $list_polygon[$idx][] = $v->latd." ".$v->long;
+            } else {
+                $list_polygon[$idx] = [$v->latd." ".$v->long];
+            }
+        }
+        $list_lokasi = array_values($list_lokasi);
+        $geofenceHelper = new GeofenceHelper;
+        $durasi = strtotime($jam_selesai) - strtotime($jam_mulai) + 1;
+        $lacak = Lacak::where('ident', $unit->source_device_id)
+            ->where('timestamp', '>=', strtotime($jam_mulai))
+            ->where('timestamp', '<=', strtotime($jam_selesai))
+            ->orderBy('timestamp', 'ASC')
+            ->get(['position_latitude', 'position_longitude', 'position_direction', 'position_speed', 'ain_1', 'ain_2', 'timestamp', 'din_1', 'din_2', 'din_3']);
+        $list_lacak = [];
+        foreach($lacak as $v){
+            $v->lokasi = '';//$geofenceHelper->checkLocation($list_polygon, $v->position_latitude, $v->position_longitude);
+            $v->lokasi = !empty($v->lokasi) ? substr($v->lokasi,0,strlen($v->lokasi)-2) : '';
+            $v->progress_time = doubleval($v->timestamp) - strtotime($jam_mulai);
+            $v->progress_time_pers = ($v->progress_time / $durasi) * 100 ;
+            $v->timestamp_2 = date('H:i:s', $v->timestamp);
+            $list_lacak[] = $v;
+        }
+        return view('api.rencana_kerja.playback', [
+            'unit'          => $unit,
+            'list_lacak'    => json_encode($list_lacak),
+            'list_lokasi'   => json_encode($list_lokasi),
+            'list_interval' => $list_interval,
+            'interval'      => $interval,
+            'durasi'        => $durasi
+        ]);
+    }
+
     public function playbackView(Request $request)
 		{
 				$id = $request->input('id', 0);
