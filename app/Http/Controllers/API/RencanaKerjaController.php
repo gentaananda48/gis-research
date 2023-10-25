@@ -36,6 +36,7 @@ use App\Model\ReportStatus;
 class RencanaKerjaController extends Controller {
     public function __construct() {
         $this->middleware('auth:api', ['except' => ['map_view']]);
+				// $this->middleware('auth:api', ['except' => ['playback_view', 'map_view']]);
     }
 
     public function list(Request $request){

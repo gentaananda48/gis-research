@@ -18,6 +18,7 @@ class UnitController extends Controller {
 
     public function __construct() {
         $this->middleware('auth:api', ['except' => ['offline_data']]);
+        // $this->middleware('auth:api', ['except' => ['tracking_view', 'playback_view', 'offline_data']]);
     }
 
     // public function list(Request $request){

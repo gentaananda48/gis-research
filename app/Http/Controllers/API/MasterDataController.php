@@ -59,17 +59,44 @@ class MasterDataController extends Controller {
         ]);
     }
 
-    public function lokasi_sync_down(Request $request){
+    // public function lokasi_sync_down(Request $request){
+    //     $user = $this->guard()->user();
+    //     $list_pg = !empty($user->area) ? explode(',',$user->area) : [];
+    //     $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
+    // 	$list = Lokasi::where('grup', $list_pg)->where('updated_at', '>', $updated_at)->get();
+    //     return response()->json([
+    //         'status'    => true, 
+    //         'message'   => 'success', 
+    //         'data'      => $list
+    //       ]);
+    // }
+
+    public function lokasi_sync_down(Request $request) {
         $user = $this->guard()->user();
-        $list_pg = !empty($user->area) ? explode(',',$user->area) : [];
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
-    	$list = Lokasi::where('grup', $list_pg)->where('updated_at', '>', $updated_at)->get();
+
+        if (!empty($user->area)) {
+            // User has at least one area
+            $list_pg = explode(',', $user->area);
+            if (count($list_pg) === 1) {
+                // User has only one area, so filter based on it
+                $list = Lokasi::where('grup', $list_pg)->where('updated_at', '>', $updated_at)->get();
+            } else {
+                // User has more than one area, return all data
+                $list = Lokasi::where('updated_at', '>', $updated_at)->get();
+            }
+        } else {
+            // User has no areas, so return all data
+            $list = Lokasi::where('updated_at', '>', $updated_at)->get();
+        }
+
         return response()->json([
-            'status'    => true, 
-            'message'   => 'success', 
+            'status'    => true,
+            'message'   => 'success',
             'data'      => $list
-          ]);
+        ]);
     }
+
 
     public function unit_sync_down(Request $request){
         $updated_at = !empty($request->updated_at) ? $request->updated_at : '1900-01-01 00:00:00';
