@@ -16,6 +16,7 @@ use App\Model\Lokasi;
 use App\Model\Aktivitas;
 use App\Model\GrupAktivitas;
 use App\Model\AktivitasParameter;
+use App\Model\SystemConfiguration;
 use App\Model\Unit;
 use App\Model\Bahan;
 use App\Model\User;
@@ -31,12 +32,18 @@ use App\Model\VolumeAir;
 use App\Model\ReportParameter;
 use App\Model\ReportParameterStandard;
 use App\Model\ReportParameterBobot;
+use App\Model\ReportRencanaKerja;
+use App\Model\ReportParameterStandardDetail;
+use App\Model\VReportRencanaKerja2;
+use App\Model\VReportRencanaKerja;
 use App\Model\ReportStatus;
+use Illuminate\Support\Facades\Redis;
+
 
 class RencanaKerjaController extends Controller {
     public function __construct() {
         $this->middleware('auth:api', ['except' => ['map_view']]);
-				// $this->middleware('auth:api', ['except' => ['playback_view', 'map_view']]);
+				// $this->middleware('auth:api', ['except' => ['playback_view_ev', 'map_view']]);
     }
 
     public function list(Request $request){
@@ -992,7 +999,7 @@ class RencanaKerjaController extends Controller {
         $rks->save();
     }
 
-	// Finish Spraying
+		// Finish Spraying
   	public function finish_spraying(Request $request){
 	    $user = $this->guard()->user();
 	    DB::beginTransaction();
@@ -1035,9 +1042,9 @@ class RencanaKerjaController extends Controller {
 	        	'data' 		=> null
 	      	]);
 	    }
-	}
+		}
 
-	// Report Spraying
+		// Report Spraying
   	public function report_spraying(Request $request){
 	    $user = $this->guard()->user();
 	    DB::beginTransaction();
@@ -1080,9 +1087,9 @@ class RencanaKerjaController extends Controller {
 	        	'data' 		=> null
 	      	]);
 	    }
-	}
+		}
 
-	    public function playback_view_ev(Request $request) {
+	  public function playback_view_ev(Request $request) {
         $id = !empty($request->id) ? $request->id :0;
         $rk = RencanaKerja::find($id);
         $jam_mulai = $rk->jam_mulai;
@@ -1139,8 +1146,7 @@ class RencanaKerjaController extends Controller {
         ]);
     }
 
-    public function playbackView(Request $request)
-		{
+    public function playbackView(Request $request){
 				$id = $request->input('id', 0);
 				$rk = RencanaKerja::find($id);
 				$jam_mulai = $rk->jam_mulai;
@@ -1198,7 +1204,6 @@ class RencanaKerjaController extends Controller {
 				]);
 		}
 
-
     public function map_view(Request $request) {
         $id = !empty($request->id) ? $request->id :0;
         $rk = RencanaKerja::find($id);
@@ -1254,6 +1259,303 @@ class RencanaKerjaController extends Controller {
                 'data'      => null
             ]);
         }
+    }
+
+		public function playback(Request $request, $id) {
+        $rk = RencanaKerja::find($id);
+        $jam_mulai = $rk->jam_mulai;
+        $jam_selesai = $rk->jam_selesai;
+        $interval = !empty($request->interval) ? $request->interval : 1000;
+        $unit = Unit::find($rk->unit_id);
+        $list_interval = [];
+        for($i=1; $i<=10; $i++){
+            $list_interval[$i*100] = ($i/10).' Detik';
+        }
+        $cache_key = env('APP_CODE').':LOKASI:LIST_KOORDINAT_'.$rk->lokasi_kode;
+        $cached = Redis::get($cache_key);
+        $list_koordinat_lokasi = [];
+        if(isset($cached)) {
+            $list_koordinat_lokasi = json_decode($cached, FALSE);
+        } else {
+            $list_koordinat_lokasi = KoordinatLokasi::where('lokasi', $rk->lokasi_kode)
+                ->orderBy('bagian', 'ASC')
+                ->orderBy('posnr', 'ASC')
+                ->get();
+            Redis::set($cache_key, json_encode($list_koordinat_lokasi));
+        }
+        $list_lokasi = [];
+        foreach($list_koordinat_lokasi as $v){
+            $idx = $v->lokasi.'_'.$v->bagian;
+            if(array_key_exists($idx, $list_lokasi)){
+                $list_lokasi[$idx]['koordinat'][] = ['lat' => $v->latd, 'lng' => $v->long];
+            } else {
+                $list_lokasi[$idx] = ['nama' => $v->lokasi, 'koordinat' => [['lat' => $v->latd, 'lng' => $v->long]]];
+            }
+        }
+        $list_lokasi = array_values($list_lokasi);
+        $durasi = strtotime($jam_selesai) - strtotime($jam_mulai) + 1;
+
+        $sysconf = SystemConfiguration::where('code', 'OFFLINE_UNIT')->first(['value']);
+        $offline_units = !empty($sysconf->value) ? explode(',', $sysconf->value) : [];
+        $cache_key = env('APP_CODE').':UNIT:PLAYBACK_'.$rk->unit_source_device_id;
+        if(in_array($rk->unit_source_device_id, $offline_units)){
+            $cache_key = env('APP_CODE').':UNIT:PLAYBACK2_'.$rk->unit_source_device_id;
+        }
+        $tgl = $rk->tgl;
+        if($tgl >= date('Y-m-d')) {
+            $redis_scan_result = Redis::scan(0, 'match', $cache_key.'_'.$tgl.'*');
+            $cache_key = $cache_key.'_'.$jam_selesai;
+            if(count($redis_scan_result[1])>0){
+                rsort($redis_scan_result[1]);
+                $last_key = $redis_scan_result[1][0];
+                if($cache_key<$last_key){
+                    $cache_key = $last_key;
+                }
+                foreach($redis_scan_result[1] as $key){
+                    if($key!=$cache_key){
+                        Redis::del($key);
+                    }
+                }
+            }
+        } else {
+            $cache_key = $cache_key.'_'.$tgl;
+        }
+        $cached = Redis::get($cache_key);
+        $list_lacak = [];
+        if(isset($cached)) {
+            $list_lacak = json_decode($cached, FALSE);
+        } else {
+            $timestamp_1 = strtotime($tgl.' 00:00:00');
+            $timestamp_2 = $tgl >= date('Y-m-d') ? strtotime($jam_selesai) : strtotime($tgl.' 23:59:59');
+
+            //
+            if(in_array($rk->unit_source_device_id, $offline_units)){
+                $table_name = 'lacak_'.$rk->unit_source_device_id;
+                $list_lacak = DB::table($table_name)
+                    ->where('report_date', $tgl)
+                    //->where('utc_timestamp', '>=', $timestamp_1)
+                    //->where('utc_timestamp', '<=', $timestamp_2)
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
+                    ->get();
+            } else {
+                if($rk->tgl>='2022-03-15') {
+                    //adjustment from lacak2 to lacak bsc
+                    $table_name = "lacak_".str_replace('-', '_', str_replace(' ', '', trim($rk->unit_label)));
+                    $list_lacak = DB::table($table_name)
+                    ->where('utc_timestamp', '>=', strtotime($rk->jam_mulai))
+                    ->where('utc_timestamp', '<=', strtotime($rk->jam_selesai))
+                    ->orderBy('utc_timestamp', 'ASC')
+                    ->selectRaw("latitude AS position_latitude, longitude AS position_longitude, altitude AS position_altitude, bearing AS position_direction, speed AS position_speed, pump_switch_right, pump_switch_left, pump_switch_main, arm_height_right, arm_height_left, `utc_timestamp` AS timestamp")
+                    ->get();
+                } else {
+                    $list_lacak = Lacak::where('ident', $rk->unit_source_device_id)
+                        ->where('timestamp', '>=', $timestamp_1)
+                        ->where('timestamp', '<=', $timestamp_2)
+                        ->orderBy('timestamp', 'ASC')
+                        ->get(['position_latitude', 'position_longitude', 'position_altitude', 'position_direction', 'position_speed', 'din_1 AS pump_switch_right', 'din_2 AS pump_switch_left', 'din_3 AS pump_switch_main', 'payload_text', 'timestamp']);
+                }
+            }
+            //
+
+            Redis::set($cache_key, json_encode($list_lacak), 'EX', 2592000);
+        }
+        $list_by_timestamp = [];
+        foreach($list_lacak as $v){
+            if(strtotime($jam_mulai) <= doubleval($v->timestamp) && doubleval($v->timestamp) <= strtotime($jam_selesai)) {
+                $list_by_timestamp[$v->timestamp] = $v;
+            }
+        }
+        $position_latitude_0 = 0;
+        $position_longitude_0 = 0;
+        foreach($list_by_timestamp as $v){
+            $position_latitude_0 = $v->position_latitude;
+            $position_longitude_0 = $v->position_longitude;
+            break;
+        }
+        $start = strtotime($jam_mulai);
+        $finish = strtotime($jam_selesai);
+        $duration = $finish - $start;
+        $interval = 1000;
+        $last = (object) [
+            'timestamp'             => 0, 
+            'position_latitude'     => $position_latitude_0, 
+            'position_longitude'    => $position_longitude_0, 
+            'position_altitude'     => 0, 
+            'position_direction'    => 0, 
+            'position_speed'        => 0, 
+            'pump_switch_right'     => 0, 
+            'pump_switch_left'      => 0, 
+            'pump_switch_main'      => 0, 
+            'arm_height_right'      => 0, 
+            'arm_height_left'       => 0
+        ];
+        $list_lacak2 = [];
+        for($i=$start; $i<=$finish; $i++){
+            if(!empty($list_by_timestamp[$i])) {
+                $obj = $list_by_timestamp[$i];
+                $last = $list_by_timestamp[$i];
+            } else {
+                $obj = $last;
+                $obj->timestamp = $i;
+            }
+            $obj->timestamp_2 = date('H:i:s', $obj->timestamp);
+            $obj->progress_time = doubleval($obj->timestamp) - $start;
+            $obj->progress_time_pers = ($obj->progress_time / $duration) * 100;
+            $list_lacak2[] = (object) [
+                'position_latitude'         => $obj->position_latitude, 
+                'position_longitude'        => $obj->position_longitude, 
+                'position_altitude'         => !empty($obj->position_altitude) ? $obj->position_altitude : 0, 
+                'position_direction'        => !empty($obj->position_direction) ? $obj->position_direction : 0, 
+                'position_speed'            => !empty($obj->position_speed) ? $obj->position_speed : 0, 
+                'pump_switch_right'         => !empty($obj->pump_switch_right) ? $obj->pump_switch_right : 0, 
+                'pump_switch_left'          => !empty($obj->pump_switch_left) ? $obj->pump_switch_left : 0, 
+                'pump_switch_main'          => !empty($obj->pump_switch_main) ? $obj->pump_switch_main: 0, 
+                'arm_height_right'          => !empty($obj->arm_height_right) ? $obj->arm_height_right : 0, 
+                'arm_height_left'           => !empty($obj->arm_height_left) ? $obj->arm_height_left : 0, 
+                'timestamp'                 => $obj->timestamp,
+                'timestamp_2'               => $obj->timestamp_2, 
+                'progress_time'             => $obj->progress_time, 
+                'progress_time_pers'        => $obj->progress_time_pers
+            ];
+        }
+
+        // ADJUSTMENT CODE SUMMARY FROM REDIS
+         // retrieve data for ritase
+        $cacheKey = env('APP_CODE') . ':RK_SUMMARY_' . $rk->id;
+        $summary = Redis::get($cacheKey);
+
+        if ($summary === null || $summary === '{"header":[],"ritase":[],"rata2":[],"poin":[],"kualitas":"-"}') {
+            // Data not found in Redis or empty format found, retrieve from the database
+            $list_rrk = VReportRencanaKerja2::where('rencana_kerja_id', $id)->get()->toArray();
+            $list_rks = RencanaKerjaSummary::where('rk_id', $rk->id)->get();
+            $header = [];
+            $rata2 = [];
+            $poin = [];
+            $kualitas = '-';
+
+            foreach ($list_rks as $rks) {
+                if ($rks->ritase == 999) {
+                    $header[$rks->parameter_id] = $rks->parameter_nama;
+                    $rata2[$rks->parameter_id] = $rks->parameter_id != 2 ? number_format($rks->realisasi, 2) : $rks->realisasi;
+                    $poin[$rks->parameter_id] = $rks->nilai_bobot;
+                } else if ($rks->ritase == 999999) {
+                    $poin[999] = $rks->nilai_bobot;
+                    $kualitas = $rks->kualitas;
+                }
+        }
+
+        $summary = (object) [
+            'header' => $header,
+            'ritase' => $list_rrk,
+            'rata2' => $rata2,
+            'poin' => $poin,
+            'kualitas' => $kualitas,
+        ];
+
+        // Store the retrieved data in Redis
+        Redis::set($cacheKey, json_encode($summary), 'EX', 2592000);
+        } else {
+            // Data found in Redis, retrieve it
+            $decodedSummary = json_decode($summary, true);
+
+            if ($decodedSummary !== null) {
+                // Decoding was successful
+                $summary = (object) $decodedSummary;
+                // Access the properties
+                $header = $summary->header;
+                $ritase = $summary->ritase;
+
+                // Proceed with rendering the view or any other necessary operations
+                // ...
+            } else {
+                // Decoding failed, handle the error
+                // ...
+            }
+        }
+
+        $standard = [
+            'speed_range_1'             => -999999,
+            'speed_range_2'             => 999999,
+            'arm_height_left_range_1'   => -999999,
+            'arm_height_left_range_2'   => 999999,
+            'arm_height_right_range_1'  => -999999,
+            'arm_height_right_range_2'  => 999999
+        ];
+
+        $cache_key = env('APP_CODE') . ':REPORT_PERCENTAGE_RITASE_' . $id;
+
+        $cached_data = Redis::get($cache_key);
+
+        if ($cached_data) {
+            $list_percentage = json_decode($cached_data, true);
+        } else {
+            $standard = [
+                'speed_range_1' => -999999,
+                'speed_range_2' => 999999,
+                'arm_height_left_range_1' => -999999,
+                'arm_height_left_range_2' => 999999,
+                'arm_height_right_range_1' => -999999,
+                'arm_height_right_range_2' => 999999
+            ];
+
+            $rpsd_speed = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+                ->where('rps.aktivitas_id', $rk->aktivitas_id)
+                ->where('rps.nozzle_id', $rk->nozzle_id)
+                ->where('rps.volume_id', $rk->volume_id)
+                ->where('report_parameter_standard_detail.report_parameter_id', 1)
+                ->where('report_parameter_standard_detail.point', 1)
+                ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+
+            if ($rpsd_speed) {
+                $standard['speed_range_1'] = doubleval($rpsd_speed->range_1);
+                $standard['speed_range_2'] = doubleval($rpsd_speed->range_2);
+            }
+
+            $rpsd_arm_height_left = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+                ->where('rps.aktivitas_id', $rk->aktivitas_id)
+                ->where('rps.nozzle_id', $rk->nozzle_id)
+                ->where('rps.volume_id', $rk->volume_id)
+                ->where('report_parameter_standard_detail.report_parameter_id', 4)
+                ->where('report_parameter_standard_detail.point', 1)
+                ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+
+            if ($rpsd_arm_height_left) {
+                $standard['arm_height_left_range_1'] = doubleval($rpsd_arm_height_left->range_1);
+                $standard['arm_height_left_range_2'] = doubleval($rpsd_arm_height_left->range_2);
+            }
+
+            $rpsd_arm_height_right = ReportParameterStandardDetail::join('report_parameter_standard AS rps', 'rps.id', '=', 'report_parameter_standard_detail.report_parameter_standard_id')
+                ->where('rps.aktivitas_id', $rk->aktivitas_id)
+                ->where('rps.nozzle_id', $rk->nozzle_id)
+                ->where('rps.volume_id', $rk->volume_id)
+                ->where('report_parameter_standard_detail.report_parameter_id', 5)
+                ->where('report_parameter_standard_detail.point', 1)
+                ->first(['report_parameter_standard_detail.range_1', 'report_parameter_standard_detail.range_2']);
+
+            if ($rpsd_arm_height_right) {
+                $standard['arm_height_right_range_1'] = doubleval($rpsd_arm_height_right->range_1);
+                $standard['arm_height_right_range_2'] = doubleval($rpsd_arm_height_right->range_2);
+            }
+
+            $list_percentage = DB::select("CALL get_report_percentage_ritase(".$id.",".$standard['speed_range_1'].",".$standard['speed_range_2'].",".$standard['arm_height_right_range_1'].",".$standard['arm_height_right_range_2'].",".$standard['arm_height_left_range_1'].",".$standard['arm_height_left_range_2'].")");
+
+            if (!empty($list_percentage)) {
+                Redis::set($cache_key, json_encode($list_percentage), 'EX', 2592000);
+            }
+        }
+        return response()->json([
+						'rk'            => $rk,
+						'summary'       => $summary,
+						'unit'          => $unit,
+						'list_lacak'    => $list_lacak2,
+						'list_lokasi'   => $list_lokasi,
+						'list_interval' => $list_interval,
+						'interval'      => $interval,
+						'durasi'        => $durasi,
+						'standard'      => (object) $standard,
+						'list_percentage' => $list_percentage,
+				]);
     }
 
     public function guard(){

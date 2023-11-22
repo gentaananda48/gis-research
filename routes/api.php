@@ -142,7 +142,8 @@ Route::group([
     Route::post('finish', 'RencanaKerjaController@finish_spraying');
     Route::post('report', 'RencanaKerjaController@report_spraying');
     Route::get('summary', 'RencanaKerjaController@summary');
-    Route::get('playback_view', 'RencanaKerjaController@playbackView');
+    // Route::get('playback_view', 'RencanaKerjaController@playbackView');
+    Route::get('playback_view/{id}', 'RencanaKerjaController@playback');
     Route::get('map_view', 'RencanaKerjaController@map_view');
     Route::delete('delete', 'RencanaKerjaController@delete');
 });
@@ -227,6 +228,7 @@ Route::group([
 // Route::get('getAllData', 'API\ApiDashboardController@index');
 Route::get('getAllData', 'API\ApiDashboardController@all');
 Route::get('dataByDate', 'API\ApiDashboardController@getDataByDate');
+Route::get('dataByUpdatedAt', 'API\ApiDashboardController@getDataByUpdatedat');
 
 // GET LIST IMAGE URL
 Route::group([
