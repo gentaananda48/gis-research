@@ -228,7 +228,7 @@ Route::group([
 // Route::get('getAllData', 'API\ApiDashboardController@index');
 Route::get('getAllData', 'API\ApiDashboardController@all');
 Route::get('dataByDate', 'API\ApiDashboardController@getDataByDate');
-Route::get('dataByUpdatedAt', 'API\ApiDashboardController@getDataByUpdatedat');
+Route::get('dataByUpdatedDate', 'API\ApiDashboardController@getDataByUpdatedat');
 
 // GET LIST IMAGE URL
 Route::group([
