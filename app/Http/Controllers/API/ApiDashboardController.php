@@ -104,10 +104,10 @@ class ApiDashboardController extends Controller
 
         try {
         $data = ReportConformity::when($request->has('limit'), function ($query) use ($request) {
-            return $query->limit($request->limit);
-        })
-        ->whereBetween('updated_at', [$request->start_date, $request->end_date])
-        ->get();
+        return $query->limit($request->limit);
+            })->whereDate('updated_at', '>=', $request->start_date)
+            ->whereDate('updated_at', '<=', $request->end_date)
+            ->get();
             if ($data) {
                     foreach ($data as $key => $value) {
                         $result[$key]['id'] = $value->id;
@@ -249,7 +249,6 @@ class ApiDashboardController extends Controller
 
     }
     
-
     public function dataByDateOld(Request $request)
     {
         $startDate = $request->input('start_date');
