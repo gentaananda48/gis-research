@@ -204,12 +204,13 @@
                             <td width="25%"><h4>JAM MULAI</h4></td>
                             <td width="25%"><h4>{{ $new_date['jam_mulai'] }}</h4></td>
                             <td width="25%"><h4>SUHU</h4></td>
-                            <td width="25%"><h4>{{ $avgRRK > 2 ? round($avgRRK,2):'N/A' }}</h4></td>
+                            <td width="25%"><h4>{{ $report_conformity->suhu_avg ?? 'N/A' }}</h4></td>
                         </tr>
                         <tr>
                             <td width="25%"><h4>JAM SELESAI</h4></td>
                             <td width="25%"><h4>{{ $new_date['jam_akhir'] }}</h4></td>
                         </tr>
+
                     </table>
                 </div>
             </div>
@@ -384,10 +385,10 @@
                                         }} C
                                         @endif
                                     </td>
-                                    @if ($avgRRK > 2)
+                                    @if ($report_conformity->suhu_avg > 2)
                                         <td class="text-center">{{ $explodeRk != 'Forcing' ? '-': $report_conformity->suhu_standar.'%'}}</td>
                                         <td class="text-center">{{ $explodeRk != 'Forcing' ? '-': $report_conformity->suhu_tidak_standar.'%'}}</td>
-                                        <td class="text-center">{{ round($avgRRK,2).' C'}}</td>                                        
+                                        <td class="text-center">{{ $report_conformity->suhu_avg !== null ? round($report_conformity->suhu_avg, 2).' C' : 'N/A' }}</td>
                                     @else
                                         <td class="text-center">{{ $explodeRk != 'Forcing' ? '-': 'N/A'}}</td>
                                         <td class="text-center">{{ $explodeRk != 'Forcing' ? '-': 'N/A'}}</td>

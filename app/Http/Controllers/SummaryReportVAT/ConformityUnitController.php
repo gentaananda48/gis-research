@@ -307,9 +307,9 @@ class ConformityUnitController extends Controller
                 
             }
 
-            $new_date['date'] = date('Y-m-d', $data_bsc->first()->utc_timestamp);
-            $new_date['jam_mulai'] = date('H:i:s',$data_bsc->first()->utc_timestamp);
-            $new_date['jam_akhir'] = date('H:i:s',$data_bsc->last()->utc_timestamp);
+            $new_date['date'] = date('Y-m-d', strtotime($report_conformity->start_activity));
+            $new_date['jam_mulai'] = date('H:i:s', strtotime($report_conformity->start_activity));
+            $new_date['jam_akhir'] = date('H:i:s', strtotime($report_conformity->end_activity));
         }
 
         $lacak_overlapping = array();
