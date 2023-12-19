@@ -234,8 +234,8 @@ class UnitController extends Controller {
         ]);
     }
 
-        // pak endang version
-        public function tracking_view_ev(Request $request) {
+    // pak endang version
+    public function tracking_view_ev(Request $request) {
         $id = !empty($request->id) ? $request->id :0;
         $unit = Unit::find($id);
         $lacak = Lacak::where('ident', $unit->source_device_id)->orderBy('timestamp', 'DESC')->limit(1)->first();
@@ -317,7 +317,8 @@ class UnitController extends Controller {
         ]);
     }
 
-        public function playback_view_ev(Request $request) {
+    // pak endang version
+    public function playback_view_ev(Request $request) {
         $id = !empty($request->id) ? $request->id :0;
         $tgl = !empty($request->tgl) ? $request->tgl : date('Y-m-d');
         $jam_mulai = !empty($request->jam_mulai) ? $request->jam_mulai : '00:00:00';
